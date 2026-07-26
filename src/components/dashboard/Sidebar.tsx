@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/dashboard', label: 'Inicio' },
   { href: '/dashboard/assistants', label: 'Asistentes' },
+  { href: '/laboratorio', label: 'Laboratorio MIA' },
 ]
 
 export function Sidebar() {

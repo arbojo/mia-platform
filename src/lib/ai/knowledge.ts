@@ -1,7 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { Database } from '@/lib/types'
-
-type Tables = Database['public']['Tables']
 
 export async function getBusinessContext(businessId: string) {
   const supabase = createAdminClient()
@@ -64,6 +61,7 @@ export async function recordAiUsage(params: {
   business_id: string
   assistant_id: string
   model: string
+  request_type?: string
   tokens_input: number
   tokens_output: number
   cost: number
@@ -74,6 +72,7 @@ export async function recordAiUsage(params: {
     business_id: params.business_id,
     assistant_id: params.assistant_id,
     model: params.model,
+    request_type: params.request_type ?? 'live_customer',
     tokens_input: params.tokens_input,
     tokens_output: params.tokens_output,
     cost: params.cost,
