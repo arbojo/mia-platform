@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ResponseAnalysis } from '@/components/laboratorio/ResponseAnalysis'
 import { cn } from '@/lib/utils'
 
 interface Message {
@@ -12,30 +13,20 @@ interface Message {
   content: string
 }
 
-interface ChatWindowProps {
+interface LabChatWindowProps {
   assistantName: string
   assistantId: string
   conversationId?: string
-  onCorrection?: (messageId: string, correction: string) => void
   mode?: string
-  simulationSystemMessage?: string
   onTokensUsed?: (tokens: { input: number; output: number }) => void
-  onAnalysis?: (messageId: string, analysis: ResponseAnalysisData) => void
 }
 
-interface ResponseAnalysisData {
-  sentiment: 'positive' | 'neutral' | 'negative'
-  summary: string
-}
-
-export function ChatWindow({
+export function LabChatWindow({
   assistantName,
   assistantId,
   conversationId,
-  onCorrection,
   mode,
-  simulationSystemMessage,
-}: ChatWindowProps) {
+}: LabChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -71,8 +62,17 @@ export function ChatWindow({
         content: m.content,
       }))
 
-      if (simulationSystemMessage && messages.length === 0) {
-        chatMessages.unshift({ role: 'user', content: simulationSystemMessage })
+      if (mode && messages.length === 0) {
+        const modeMessages: Record<string, string> = {
+          normal: 'Actúa como un cliente interesado en comprar. Haz preguntas directas sobre productos, precios y disponibilidad.',
+          indecisive: 'Actúa como un cliente que no está seguro. Duda, compara precios, pregunta "¿y si no me gusta?", pide descuento, se va y vuelve.',
+          difficult: 'Actúa como un cliente difícil. Cuestiona la calidad, compara con la competencia, pide cosas que no existen, se queja del precio.',
+          critical: 'Actúa como un cliente muy exigente y crítico. Busca cada detalle, cuestiona todo, presiona para obtener más de lo que se ofrece.',
+        }
+        chatMessages.unshift({
+          role: 'user',
+          content: modeMessages[mode] ?? modeMessages.normal,
+        })
       }
 
       const response = await fetch('/api/chat', {
@@ -82,7 +82,7 @@ export function ChatWindow({
           messages: chatMessages,
           assistantId,
           conversationId,
-          requestType: mode ? 'simulation' : 'live_customer',
+          requestType: 'simulation',
         }),
       })
 
@@ -113,7 +113,7 @@ export function ChatWindow({
             if (lastMsg.role === 'assistant') {
               lastMsg.content = assistantContent
             }
-            return updated
+            return [...updated]
           })
         }
       }
@@ -144,7 +144,9 @@ export function ChatWindow({
           </Avatar>
           <div>
             <h3 className="font-semibold text-gray-900">{assistantName}</h3>
-            <p className="text-sm text-gray-500">Asistente de ventas</p>
+            <p className="text-sm text-gray-500">
+              {mode ? `Modo: ${mode}` : 'Chat de prueba'}
+            </p>
           </div>
         </div>
       </div>
@@ -152,8 +154,7 @@ export function ChatWindow({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 py-8">
-            <p>Hola, soy {assistantName}.</p>
-            <p>¿En qué puedo ayudarte hoy?</p>
+            <p>Escribe un mensaje para comenzar la prueba.</p>
           </div>
         )}
 
@@ -174,28 +175,11 @@ export function ChatWindow({
               )}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
-              {message.role === 'assistant' && onCorrection && (
-                <div className="mt-2 flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 text-xs"
-                    onClick={() => onCorrection(message.id, 'approve')}
-                  >
-                    Correcto
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 text-xs text-red-600"
-                    onClick={() => {
-                      const correction = prompt('¿Cuál es la respuesta correcta?')
-                      if (correction) onCorrection(message.id, correction)
-                    }}
-                  >
-                    Corregir
-                  </Button>
-                </div>
+              {message.role === 'assistant' && (
+                <ResponseAnalysis
+                  messageId={message.id}
+                  assistantId={assistantId}
+                />
               )}
             </div>
           </div>
@@ -221,7 +205,7 @@ export function ChatWindow({
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Escribe tu mensaje..."
+            placeholder="Escribe como cliente..."
             disabled={isLoading}
           />
           <Button
