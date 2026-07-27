@@ -131,9 +131,16 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
           </div>
         ))}
         {rules.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
-            Aún no hay reglas. Agrega la primera arriba.
-          </p>
+          <div className="text-center py-8">
+            <div className="space-y-3">
+              <p className="text-lg text-zinc-700">
+                I still don&apos;t know how your business operates.
+              </p>
+              <p className="text-sm text-zinc-500">
+                Teach me the most important rules: payment methods, delivery zones, schedules, or promotions.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 

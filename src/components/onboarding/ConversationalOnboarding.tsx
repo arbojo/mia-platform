@@ -191,7 +191,7 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
 
 Todavía me falta aprender los productos, promociones y algunos detalles, pero ya tengo una buena base para empezar.
 
-Estoy lista para seguir aprendiendo. Vamos al dashboard.`
+Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes más.`
 
       setMessages((prev) => [
         ...prev,

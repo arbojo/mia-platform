@@ -211,11 +211,25 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
           </div>
         ))}
         {filteredItems.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
-            {items.length === 0
-              ? 'Aún no hay conocimiento. Agrega el primero arriba.'
-              : 'No se encontraron resultados.'}
-          </p>
+          <div className="text-center py-8">
+            {items.length === 0 ? (
+              <div className="space-y-3">
+                <p className="text-lg text-zinc-700">
+                  I don&apos;t know anything about your business yet.
+                </p>
+                <p className="text-sm text-zinc-500">
+                  Teach me things like FAQs, shipping policies, or product details.
+                </p>
+                <p className="text-sm text-zinc-500">
+                  The more you teach me, the better I can help your customers.
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-500">
+                No results found.
+              </p>
+            )}
+          </div>
         )}
       </div>
 

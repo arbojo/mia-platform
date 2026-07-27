@@ -200,9 +200,19 @@ export function InstructionsManager({ businessId, initialItems }: InstructionsMa
           </div>
         ))}
         {items.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
-            Aún no hay instrucciones. Agrega la primera arriba.
-          </p>
+          <div className="text-center py-8">
+            <div className="space-y-3">
+              <p className="text-lg text-zinc-700">
+                I don&apos;t know how you want me to speak with customers yet.
+              </p>
+              <p className="text-sm text-zinc-500">
+                Add instructions like &quot;Always be friendly&quot; or &quot;Offer discounts for bulk orders&quot;.
+              </p>
+              <p className="text-sm text-zinc-500">
+                These help me understand your communication style.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 

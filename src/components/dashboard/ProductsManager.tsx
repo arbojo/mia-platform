@@ -154,9 +154,16 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
           </div>
         ))}
         {products.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
-            Aún no hay productos. Agrega el primero arriba.
-          </p>
+          <div className="text-center py-8">
+            <div className="space-y-3">
+              <p className="text-lg text-zinc-700">
+                I don&apos;t know any products yet.
+              </p>
+              <p className="text-sm text-zinc-500">
+                Let&apos;s start with the first one. Add your products so I can help customers find what they need.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 

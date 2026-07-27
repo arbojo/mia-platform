@@ -85,9 +85,25 @@ export interface GreetingContext {
   subtitle: string
 }
 
+export interface ReadinessCategory {
+  id: string
+  label: string
+  icon: string
+  status: 'learned' | 'learning' | 'pending'
+  description: string
+}
+
+export interface EmployeeReadiness {
+  categories: ReadinessCategory[]
+  overall: number
+  message: string
+  nextStep: { label: string; href: string } | null
+}
+
 export interface DashboardData {
   greetingContext: GreetingContext
   employeeStatus: EmployeeStatus
+  employeeReadiness: EmployeeReadiness
   todaysActivity: TodaysMetrics
   dailyReport: DailyReport
   needsFromYou: NeedsFromYou
@@ -736,6 +752,161 @@ export async function getMilestones(
   return milestones
 }
 
+export async function getEmployeeReadiness(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<EmployeeReadiness> {
+  const categories: ReadinessCategory[] = []
+
+  try {
+    const [brandResult, productsResult, rulesResult, knowledgeResult, instructionsResult, channelsResult] =
+      await Promise.all([
+        supabase
+          .from('brand_identities')
+          .select('id')
+          .eq('business_id', businessId)
+          .limit(1),
+        supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('is_active', true),
+        supabase
+          .from('sales_rules')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('is_active', true),
+        supabase
+          .from('knowledge_items')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('is_active', true),
+        supabase
+          .from('ai_instructions')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('is_active', true),
+        supabase
+          .from('channel_connections')
+          .select('id, status')
+          .eq('business_id', businessId)
+          .eq('status', 'connected'),
+      ])
+
+    const hasBrand = (brandResult.data?.length ?? 0) > 0
+    const productCount = productsResult.count ?? 0
+    const rulesCount = rulesResult.count ?? 0
+    const knowledgeCount = knowledgeResult.count ?? 0
+    const instructionsCount = instructionsResult.count ?? 0
+    const connectedChannels = channelsResult.data?.length ?? 0
+
+    categories.push({
+      id: 'business',
+      label: 'Business',
+      icon: '🏢',
+      status: hasBrand ? 'learned' : 'pending',
+      description: hasBrand ? 'I know about your business' : "I don't know about your business yet",
+    })
+
+    categories.push({
+      id: 'products',
+      label: 'Products',
+      icon: '📦',
+      status: productCount > 0 ? 'learned' : hasBrand ? 'learning' : 'pending',
+      description: productCount > 0
+        ? `I know ${productCount} product${productCount > 1 ? 's' : ''}`
+        : 'I need to learn what you sell',
+    })
+
+    categories.push({
+      id: 'rules',
+      label: 'Rules',
+      icon: '📋',
+      status: rulesCount > 0 ? 'learned' : productCount > 0 ? 'learning' : 'pending',
+      description: rulesCount > 0
+        ? `I know ${rulesCount} business rule${rulesCount > 1 ? 's' : ''}`
+        : "I need to learn how your business works",
+    })
+
+    categories.push({
+      id: 'knowledge',
+      label: 'Knowledge',
+      icon: '📚',
+      status: knowledgeCount > 0 ? 'learned' : rulesCount > 0 ? 'learning' : 'pending',
+      description: knowledgeCount > 0
+        ? `I know ${knowledgeCount} thing${knowledgeCount > 1 ? 's' : ''} about your business`
+        : "I need to learn more about your business",
+    })
+
+    categories.push({
+      id: 'personality',
+      label: 'Personality',
+      icon: '🤖',
+      status: instructionsCount > 0 ? 'learned' : 'pending',
+      description: instructionsCount > 0
+        ? 'I know how to speak with your customers'
+        : "I don't know how you want me to speak yet",
+    })
+
+    categories.push({
+      id: 'connections',
+      label: 'Connections',
+      icon: '📱',
+      status: connectedChannels > 0 ? 'learned' : 'pending',
+      description: connectedChannels > 0
+        ? `I'm connected to ${connectedChannels} channel${connectedChannels > 1 ? 's' : ''}`
+        : "I don't have any channels to talk to customers yet",
+    })
+  } catch {
+    // Graceful degradation
+  }
+
+  const learned = categories.filter((c) => c.status === 'learned').length
+  const overall = Math.round((learned / categories.length) * 100)
+
+  let message: string
+  let nextStep: { label: string; href: string } | null = null
+
+  if (overall === 100) {
+    message = "I'm ready to start working."
+  } else if (overall >= 80) {
+    message = "I'm almost ready to start working."
+    const pending = categories.find((c) => c.status === 'pending')
+    if (pending) {
+      nextStep = getNextStep(pending.id)
+    }
+  } else if (overall >= 50) {
+    message = "I'm getting there. Let me keep learning."
+    const learning = categories.find((c) => c.status === 'learning') ?? categories.find((c) => c.status === 'pending')
+    if (learning) {
+      nextStep = getNextStep(learning.id)
+    }
+  } else if (overall > 0) {
+    message = "I'm just getting started. I need to learn more."
+    const next = categories.find((c) => c.status === 'pending')
+    if (next) {
+      nextStep = getNextStep(next.id)
+    }
+  } else {
+    message = "I don't know anything yet. Let's start with your business."
+    nextStep = { label: 'Tell MIA about your business', href: '/dashboard/onboarding' }
+  }
+
+  return { categories, overall, message, nextStep }
+}
+
+function getNextStep(categoryId: string): { label: string; href: string } {
+  const steps: Record<string, { label: string; href: string }> = {
+    business: { label: 'Tell MIA about your business', href: '/dashboard/onboarding' },
+    products: { label: 'Teach MIA your products', href: '/dashboard/knowledge' },
+    rules: { label: 'Teach MIA your rules', href: '/dashboard/knowledge' },
+    knowledge: { label: 'Teach MIA more about your business', href: '/dashboard/knowledge' },
+    personality: { label: 'Teach MIA how to speak', href: '/dashboard/knowledge' },
+    connections: { label: 'Connect a channel', href: '/dashboard/connections' },
+  }
+  return steps[categoryId] ?? { label: 'Continue training', href: '/dashboard/knowledge' }
+}
+
 export async function getDashboardData(
   supabase: SupabaseClient,
   businessId: string,
@@ -744,6 +915,7 @@ export async function getDashboardData(
   const [
     greetingContext,
     employeeStatus,
+    employeeReadiness,
     todaysActivity,
     dailyReport,
     needsFromYou,
@@ -754,6 +926,7 @@ export async function getDashboardData(
   ] = await Promise.all([
     getGreetingContext(supabase, businessId, userName),
     getEmployeeStatus(supabase, businessId),
+    getEmployeeReadiness(supabase, businessId),
     getTodaysActivity(supabase, businessId),
     getDailyReport(supabase, businessId),
     getNeedsFromYou(supabase, businessId),
@@ -766,6 +939,7 @@ export async function getDashboardData(
   return {
     greetingContext,
     employeeStatus,
+    employeeReadiness,
     todaysActivity,
     dailyReport,
     needsFromYou,

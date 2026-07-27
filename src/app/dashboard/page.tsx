@@ -2,12 +2,12 @@ import { requireAuth } from '@/lib/auth'
 import { getDashboardData } from '@/lib/dashboard/queries'
 import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
 import { EmployeeStatusCard } from '@/components/dashboard/EmployeeStatusCard'
+import { EmployeeReadiness } from '@/components/dashboard/EmployeeReadiness'
 import { TodaysActivity } from '@/components/dashboard/TodaysActivity'
 import { DailyReport } from '@/components/dashboard/DailyReport'
 import { NeedsFromYou } from '@/components/dashboard/NeedsFromYou'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
 import { BusinessHealth } from '@/components/dashboard/BusinessHealth'
-import { QuickActions } from '@/components/dashboard/QuickActions'
 import { ProactiveSuggestions } from '@/components/dashboard/ProactiveSuggestions'
 import { CelebrateProgress } from '@/components/dashboard/CelebrateProgress'
 import Link from 'next/link'
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
         <div className="lg:col-span-2">
           <TodaysActivity metrics={data.todaysActivity} />
         </div>
-        <QuickActions />
+        <EmployeeReadiness data={data.employeeReadiness} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
