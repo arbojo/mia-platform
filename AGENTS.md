@@ -22,12 +22,13 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ## 2. Agent System
 
-MIA uses a **specialized engineering agent system** with 15 distinct roles. Every task must follow the mandatory workflow through these agents.
+MIA uses a **specialized engineering agent system** with 16 distinct roles. The Orchestrator is the entry point for all development requests, analyzing and coordinating which agents participate.
 
 ### 2.1 Agent Roster
 
 | Agent | File | Responsibility |
 |-------|------|----------------|
+| **Orchestrator** | `.agents/orchestrator.md` | **Entry point**: analyzes requests, classifies complexity, selects required agents, coordinates workflow |
 | CTO | `.agents/cto.md` | Highest technical authority, strategic decisions |
 | Infrastructure Bootstrap | `.agents/infrastructure-bootstrap.md` | Environment preparation, tool installation, machine setup |
 | Infrastructure Guardian | `.agents/infrastructure-guardian.md` | Environment validation, toolchain integrity, infrastructure memory, auto diagnosis |
@@ -49,6 +50,8 @@ MIA uses a **specialized engineering agent system** with 15 distinct roles. Ever
 Every task must follow this workflow:
 
 ```
+0. Orchestrator (analyzes request, classifies complexity, selects agents)
+   ↓
 1. Infrastructure Bootstrap (environment preparation, tool installation)
    ↓
 2. Infrastructure Guardian (environment validation, toolchain integrity)
