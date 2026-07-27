@@ -22,7 +22,7 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ## 2. Agent System
 
-MIA uses a **specialized engineering agent system** with 16 distinct roles. The Orchestrator is the entry point for all development requests, analyzing and coordinating which agents participate.
+MIA uses a **specialized engineering agent system** with 17 distinct roles. The Orchestrator is the entry point for all development requests, analyzing and coordinating which agents participate.
 
 ### 2.1 Agent Roster
 
@@ -44,6 +44,7 @@ MIA uses a **specialized engineering agent system** with 16 distinct roles. The 
 | Analytics Engineer | `.agents/analytics-engineer.md` | Feature measurability, metrics |
 | QA Engineer | `.agents/qa.md` | Quality verification, testing |
 | Release Manager | `.agents/release.md` | Git operations, repository integrity |
+| **Memory Engineer** | `.agents/memory-engineer.md` | Engineering memory: decisions, incidents, patterns, lessons |
 
 ### 2.2 Mandatory Workflow
 

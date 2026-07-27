@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "lastScan": null,
+  "totalEntries": {
+    "decisions": 0,
+    "incidents": 0,
+    "patterns": 0,
+    "lessons": 0
+  },
+  "entries": []
+}

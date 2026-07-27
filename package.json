@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
-    "test:report": "npx playwright show-report"
+    "test:report": "npx playwright show-report",
+    "memory-scan": "node scripts/memory-scan.cjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.20",
