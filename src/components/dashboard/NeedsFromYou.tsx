@@ -11,12 +11,12 @@ export function NeedsFromYou({ data }: { data: NeedsFromYouType }) {
       {data.items.length === 0 ? (
         <div className="rounded-xl bg-emerald-50 p-4 text-center">
           <p className="text-sm text-emerald-700">
-            All set! I don't need anything right now.
+            All set! I don&apos;t need anything right now.
           </p>
         </div>
       ) : (
         <>
-          <p className="mb-3 text-sm text-zinc-500">I still don't know:</p>
+          <p className="mb-3 text-sm text-zinc-500">I still don&apos;t know:</p>
           <div className="space-y-2">
             {data.items.map((item) => (
               <div

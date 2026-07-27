@@ -35,7 +35,7 @@ export default async function DashboardPage() {
         />
         <div className="py-12 text-center border-2 border-dashed border-violet-200 rounded-xl">
           <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            Let's get started!
+            Let&apos;s get started!
           </h2>
           <p className="mb-6 text-gray-600">
             First, tell me about your business so I can start working for you.
@@ -64,7 +64,7 @@ export default async function DashboardPage() {
             Create your first assistant
           </h2>
           <p className="mb-6 text-gray-600">
-            Let's set up your assistant step by step.
+            Let&apos;s set up your assistant step by step.
           </p>
           <Link href="/dashboard/onboarding">
             <Button className="bg-violet-600 hover:bg-violet-700">

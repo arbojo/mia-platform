@@ -12,10 +12,9 @@ export function OnboardingBanner({ onboardingStatus }: { onboardingStatus?: stri
   return (
     <div className="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-lg">
       <p className="text-violet-800">
-        <strong>¡Bienvenido a MIA!</strong> Parece que aún no has completado
-        la configuración de tu asistente.{' '}
+        <strong>Welcome!</strong> It looks like I still don&apos;t know enough about your business.{' '}
         <a href="/dashboard/onboarding" className="underline font-medium">
-          Continuar configuración
+          Teach me more
         </a>
       </p>
     </div>

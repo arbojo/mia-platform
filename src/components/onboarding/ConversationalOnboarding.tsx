@@ -103,7 +103,7 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: 'Lo siento, hubo un error. Por favor intenta de nuevo.',
+          content: 'Tuvimos un pequeño problema. Intentemos de nuevo, por favor.',
         },
       ])
     } finally {
@@ -187,18 +187,24 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
         .update({ onboarding_status: 'ready' })
         .eq('id', activeBusinessId)
 
+      const completionMessage = `Gracias por enseñarme todo esto. Ya conozco lo esencial sobre ${data.business_name ?? 'tu negocio'}.
+
+Todavía me falta aprender los productos, promociones y algunos detalles, pero ya tengo una buena base para empezar.
+
+Estoy lista para seguir aprendiendo. Vamos al dashboard.`
+
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: `¡Listo! Tu asistente "${assistantName}" está configurada y lista para vender. ¿Quieres probarla?`,
+          content: completionMessage,
         },
       ])
 
       setTimeout(() => {
         router.push('/dashboard')
-      }, 3000)
+      }, 4000)
     } catch (error) {
       console.error('Error creating business:', error)
     } finally {
@@ -207,39 +213,55 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
   }
 
   const stepLabels: Record<string, string> = {
-    business_info: 'Negocio',
-    products: 'Productos',
-    rules: 'Reglas',
-    personality: 'Asistente',
+    business_info: 'Business',
+    products: 'Products',
+    rules: 'Rules',
+    personality: 'Assistant',
+  }
+
+  const stepIcons: Record<string, string> = {
+    business_info: '🏢',
+    products: '📦',
+    rules: '📋',
+    personality: '🤖',
   }
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-4 flex gap-2">
-        {Object.entries(stepLabels).map(([key, label]) => (
-          <div
-            key={key}
-            className={cn(
-              'flex-1 text-center py-2 rounded-lg text-sm font-medium transition-colors',
-              completedSteps.has(key)
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-100 text-gray-500'
-            )}
-          >
-            {completedSteps.has(key) ? '✓' : ''} {label}
-          </div>
-        ))}
+      <div className="mb-4 space-y-2">
+        <div className="flex gap-2">
+          {Object.entries(stepLabels).map(([key, label]) => (
+            <div
+              key={key}
+              className={cn(
+                'flex-1 text-center py-2 rounded-lg text-sm font-medium transition-all',
+                completedSteps.has(key)
+                  ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                  : 'bg-zinc-100 text-zinc-400 border border-zinc-100'
+              )}
+            >
+              {completedSteps.has(key) ? '✅' : stepIcons[key]} {label}
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-zinc-400 text-center">
+          {completedSteps.size === 0
+            ? "I'm just getting to know you"
+            : completedSteps.size < 4
+              ? `I already know ${completedSteps.size} of 4 things about your business`
+              : "I'm ready to start working"}
+        </p>
       </div>
 
-      <div className="border rounded-xl overflow-hidden bg-white">
-        <div className="p-4 border-b bg-violet-50">
+      <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
+        <div className="p-4 border-b bg-gradient-to-r from-violet-50 to-fuchsia-50">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarFallback className="bg-violet-200 text-violet-700">M</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">M</AvatarFallback>
             </Avatar>
             <div>
               <h3 className="font-semibold text-gray-900">MIA</h3>
-              <p className="text-sm text-gray-500">Asistente de configuración</p>
+              <p className="text-sm text-gray-500">Your new sales assistant</p>
             </div>
           </div>
         </div>
@@ -258,21 +280,21 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
                   'max-w-[80%] rounded-2xl px-4 py-2',
                   message.role === 'user'
                     ? 'bg-violet-600 text-white'
-                    : 'bg-gray-100 text-gray-900'
+                    : 'bg-zinc-100 text-zinc-900'
                 )}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                <p className="whitespace-pre-wrap text-sm">{message.content}</p>
               </div>
             </div>
           ))}
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-2xl px-4 py-2">
+              <div className="bg-zinc-100 rounded-2xl px-4 py-2">
                 <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.1s]" />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" />
+                  <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:0.1s]" />
+                  <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:0.2s]" />
                 </div>
               </div>
             </div>
@@ -281,20 +303,21 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={handleSend} className="p-4 border-t">
+        <form onSubmit={handleSend} className="p-4 border-t bg-zinc-50">
           <div className="flex gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Cuéntame sobre tu negocio..."
+              placeholder="Tell me about your business..."
               disabled={isLoading || isCreating}
+              className="bg-white"
             />
             <Button
               type="submit"
               disabled={isLoading || !input.trim() || isCreating}
               className="bg-violet-600 hover:bg-violet-700"
             >
-              {isCreating ? 'Creando...' : isLoading ? '...' : 'Enviar'}
+              {isCreating ? 'Creating...' : isLoading ? '...' : 'Send'}
             </Button>
           </div>
         </form>

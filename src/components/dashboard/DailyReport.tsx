@@ -19,7 +19,7 @@ export function DailyReport({ report }: { report: DailyReportType }) {
 
       {report.items.length > 0 && report.items[0].icon === '✓' && (
         <p className="mt-4 text-sm text-zinc-500">
-          I think we're ready for another great day.
+          I think we&apos;re ready for another great day.
         </p>
       )}
     </div>
