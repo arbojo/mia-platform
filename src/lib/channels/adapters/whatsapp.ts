@@ -28,13 +28,19 @@ export class WhatsAppAdapter implements ChannelAdapter {
               wa_id?: string
               profile?: { name?: string }
             }>
+            metadata?: {
+              phone_number_id?: string
+              display_phone_number?: string
+            }
           }
         }>
       }>
     }
 
-    const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]
-    const contact = body.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]
+    const change = body.entry?.[0]?.changes?.[0]
+    const message = change?.value?.messages?.[0]
+    const contact = change?.value?.contacts?.[0]
+    const metadata = change?.value?.metadata
 
     if (!message) {
       throw new Error('Invalid WhatsApp message format')
@@ -50,6 +56,8 @@ export class WhatsAppAdapter implements ChannelAdapter {
       contentType: message.type === 'text' ? 'text' : 'text',
       metadata: {
         waId: message.from,
+        phoneNumberId: metadata?.phone_number_id,
+        displayPhoneNumber: metadata?.display_phone_number,
       },
       receivedAt: new Date(),
     }
@@ -57,9 +65,8 @@ export class WhatsAppAdapter implements ChannelAdapter {
 
   async sendMessage(
     _connection: ChannelConnection,
-    message: OutgoingMessage
+    _message: OutgoingMessage
   ): Promise<SendResult> {
-    console.log('WhatsApp send stub:', message.content)
     return {
       success: true,
       externalId: `whatsapp-stub-${Date.now()}`,
@@ -67,14 +74,12 @@ export class WhatsAppAdapter implements ChannelAdapter {
   }
 
   validateWebhook(signature: string, body: string): boolean {
-    // TODO: Implement HMAC signature validation
-    // For now, accept all webhooks
+    // TODO: Implement HMAC signature validation with app secret
     console.log('WhatsApp webhook validation stub:', signature, body.length)
     return true
   }
 
   async getStatus(_connection: ChannelConnection): Promise<ChannelStatus> {
-    // TODO: Check WhatsApp Business API status
     return 'disconnected'
   }
 }

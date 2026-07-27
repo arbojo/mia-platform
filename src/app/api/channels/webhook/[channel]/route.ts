@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { processIncomingMessage } from '@/lib/channels/gateway'
+import { processIncomingMessage, GatewayError } from '@/lib/channels/gateway'
 import { getAdapter } from '@/lib/channels/gateway'
 import type { ChannelType } from '@/lib/channels/types'
 
@@ -38,6 +38,14 @@ export async function POST(
     })
   } catch (error) {
     console.error('Webhook error:', error)
+
+    if (error instanceof GatewayError) {
+      return NextResponse.json(
+        { error: error.message, code: error.code },
+        { status: error.statusCode }
+      )
+    }
+
     return NextResponse.json(
       { error: 'Internal error' },
       { status: 500 }

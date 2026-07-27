@@ -1,11 +1,6 @@
-import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { MODEL, TOKEN_COSTS } from '@/lib/ai/client'
-import { buildMasterPrompt } from '@/lib/ai/prompts'
-import { getBusinessContext, recordAiUsage } from '@/lib/ai/knowledge'
+import { processChatMessage, GatewayError } from '@/lib/channels/gateway'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -44,7 +39,7 @@ export async function POST(req: Request) {
 
     const { data: assistant, error: assistantError } = await supabase
       .from('assistants')
-      .select('*, businesses(*)')
+      .select('id, business_id, businesses!inner(owner_id)')
       .eq('id', assistantId)
       .single()
 
@@ -52,88 +47,32 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Assistant not found' }, { status: 404 })
     }
 
-    if (assistant.businesses.owner_id !== user.id) {
+    const business = Array.isArray(assistant.businesses)
+      ? assistant.businesses[0]
+      : assistant.businesses
+
+    if (!business || business.owner_id !== user.id) {
       return Response.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const businessId = assistant.business_id
-
-    if (conversationId) {
-      const { data: conversation } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('id', conversationId)
-        .eq('assistant_id', assistantId)
-        .single()
-
-      if (!conversation) {
-        return Response.json({ error: 'Conversation not found' }, { status: 404 })
-      }
-    }
-    const context = await getBusinessContext(businessId)
-
-    const usedContext: Array<{ type: string; id: string }> = []
-    context.products.forEach((p) => usedContext.push({ type: 'product', id: p.id }))
-    context.rules.forEach((r) => usedContext.push({ type: 'sales_rule', id: r.id }))
-    context.instructions.forEach((i) => usedContext.push({ type: 'ai_instruction', id: i.id }))
-    context.knowledge.forEach((k) => usedContext.push({ type: 'knowledge_item', id: k.id }))
-
-    const systemPrompt = buildMasterPrompt({
-      business: assistant.businesses,
-      brand: context.brand,
-      assistant,
-      products: context.products,
-      rules: context.rules,
-      instructions: context.instructions,
-      knowledge: context.knowledge,
-    })
-
-    const result = streamText({
-      model: openai(MODEL),
-      system: systemPrompt,
+    const result = await processChatMessage({
+      assistantId,
+      conversationId,
       messages,
-      onFinish: async ({ usage, text }) => {
-        const costs = TOKEN_COSTS[MODEL] ?? TOKEN_COSTS['gpt-4o-mini']
-        const promptTokens = (usage as { promptTokens?: number; inputTokens?: number }).promptTokens ?? (usage as { inputTokens?: number }).inputTokens ?? 0
-        const completionTokens = (usage as { completionTokens?: number; outputTokens?: number }).completionTokens ?? (usage as { outputTokens?: number }).outputTokens ?? 0
-        const cost =
-          (promptTokens * costs.input +
-            completionTokens * costs.output) /
-          1000
-
-        await recordAiUsage({
-          business_id: businessId,
-          assistant_id: assistantId,
-          model: MODEL,
-          request_type: requestType,
-          tokens_input: promptTokens,
-          tokens_output: completionTokens,
-          cost,
-        })
-
-        if (conversationId) {
-          const admin = createAdminClient()
-          const lastUserMessage = messages[messages.length - 1]
-          await admin.from('messages').insert([
-            {
-              conversation_id: conversationId,
-              role: 'user',
-              content: lastUserMessage.content,
-            },
-            {
-              conversation_id: conversationId,
-              role: 'assistant',
-              content: text ?? '',
-              metadata: { used_context: usedContext },
-            },
-          ])
-        }
-      },
+      requestType,
     })
 
     return result.toTextStreamResponse()
   } catch (error) {
     console.error('Chat error:', error)
+
+    if (error instanceof GatewayError) {
+      return Response.json(
+        { error: error.message, code: error.code },
+        { status: error.statusCode }
+      )
+    }
+
     return Response.json(
       { error: 'Internal server error' },
       { status: 500 }
