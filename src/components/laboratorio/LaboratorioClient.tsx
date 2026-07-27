@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
 import { SimulationModes, type SimulationMode } from '@/components/laboratorio/SimulationModes'
 import { ContextPanel } from '@/components/laboratorio/ContextPanel'
 import { SessionEvaluation } from '@/components/laboratorio/SessionEvaluation'
@@ -9,6 +8,8 @@ import { SessionHistory } from '@/components/laboratorio/SessionHistory'
 import { TeachModal } from '@/components/laboratorio/TeachModal'
 import { UsageBar } from '@/components/laboratorio/UsageBar'
 import { LabChatWindow } from '@/components/laboratorio/LabChatWindow'
+import { ScenariosPanel, type Scenario } from '@/components/laboratorio/ScenariosPanel'
+import { CoachingFeedback } from '@/components/laboratorio/CoachingFeedback'
 
 interface LaboratorioClientProps {
   businesses: Array<{
@@ -53,6 +54,9 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   const [teachSuggestions, setTeachSuggestions] = useState<string[] | null>(null)
   const [tokenUsage, setTokenUsage] = useState({ input: 0, output: 0, cost: 0 })
   const [messageCount, setMessageCount] = useState(0)
+  const [activeScenario, setActiveScenario] = useState<Scenario | null>(null)
+  const [coachingFeedback, setCoachingFeedback] = useState<string[]>([])
+  const [coachingScore, setCoachingScore] = useState<number | null>(null)
 
   const selectedBusiness = businesses.find((b) => b.id === businessId)
   const assistants = selectedBusiness?.assistants ?? []
@@ -135,7 +139,8 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       <div className="flex items-center gap-4 mb-4">
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">🧪 Laboratorio MIA</h1>
+          <h1 className="text-2xl font-bold text-gray-900">🎭 Simulador de Ventas</h1>
+          <p className="text-sm text-gray-500">Entrena a tu asistente como si fuera un empleado nuevo</p>
         </div>
         <select
           className="p-2 border rounded-lg text-sm"
@@ -166,13 +171,13 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
       <div className="flex flex-1 gap-4 min-h-0">
         <div className="w-48 flex flex-col gap-4">
           <SimulationModes selected={mode} onSelect={setMode} />
-          <Button
-            variant="outline"
-            onClick={handleStartSession}
-            disabled={!assistantId}
-          >
-            Nueva prueba
-          </Button>
+          <ScenariosPanel
+            onSelect={(scenario) => {
+              setActiveScenario(scenario)
+              handleStartSession()
+            }}
+            activeScenarioId={activeScenario?.id}
+          />
           <SessionHistory sessions={sessions} />
         </div>
 
@@ -182,6 +187,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
             assistantId={assistantId}
             conversationId={currentConversationId ?? undefined}
             mode={mode}
+            simulationSystemMessage={activeScenario?.customerMessage}
             onTokensUsed={(tokens) =>
               setTokenUsage((prev) => ({
                 input: prev.input + tokens.input,
@@ -189,11 +195,17 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
                 cost: prev.cost + (tokens.input * 0.00015 + tokens.output * 0.0006) / 1000,
               }))
             }
+            onCoaching={(feedback) => {
+              setCoachingFeedback(feedback.tips)
+              setCoachingScore(feedback.score)
+            }}
           />
         </div>
 
         <div className="w-80 flex flex-col gap-4 overflow-y-auto">
-          {context && (
+          {coachingFeedback.length > 0 || coachingScore !== null ? (
+            <CoachingFeedback feedback={coachingFeedback} score={coachingScore} />
+          ) : context ? (
             <ContextPanel
               brand={context.brand}
               products={context.products}
@@ -205,7 +217,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
               communicationStyle={context.assistant.communication_style}
               systemPrompt={context.systemPrompt}
             />
-          )}
+          ) : null}
 
           {currentSessionId && currentConversationId && (
             <SessionEvaluation

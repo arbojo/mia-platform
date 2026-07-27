@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,7 +15,21 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.replace('/dashboard')
+        return
+      }
+      setCheckingAuth(false)
+    }
+    checkAuth()
+  }, [supabase, router])
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,6 +82,12 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-white p-4">
+      {checkingAuth ? (
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto" />
+          <p className="text-sm text-muted-foreground mt-2">Verificando sesión...</p>
+        </div>
+      ) : (
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-violet-900">
@@ -136,6 +157,7 @@ export default function SignupPage() {
           </p>
         </CardContent>
       </Card>
+      )}
     </div>
   )
 }

@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import type { Database } from '@/lib/types'
 
 type Product = Database['public']['Tables']['products']['Row']
@@ -22,6 +32,7 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
   const [price, setPrice] = useState('')
   const [description, setDescription] = useState('')
   const [benefits, setBenefits] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
 
   const supabase = createClient()
 
@@ -52,9 +63,11 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
-    await supabase.from('products').delete().eq('id', id)
-    setProducts((prev) => prev.filter((p) => p.id !== id))
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+    await supabase.from('products').delete().eq('id', deleteTarget.id)
+    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id))
+    setDeleteTarget(null)
   }
 
   return (
@@ -133,7 +146,7 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleDelete(product.id)}
+              onClick={() => setDeleteTarget(product)}
               className="text-red-600 hover:text-red-700"
             >
               Eliminar
@@ -146,6 +159,23 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
           </p>
         )}
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar producto</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Estás seguro de que deseas eliminar <strong>{deleteTarget?.name}</strong>? Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

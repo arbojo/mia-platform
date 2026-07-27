@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect, notFound } from 'next/navigation'
+import { requireAuth } from '@/lib/auth'
+import { notFound } from 'next/navigation'
 import { ProductsManager } from '@/components/dashboard/ProductsManager'
 
 export default async function ProductsPage({
@@ -8,15 +8,7 @@ export default async function ProductsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  const { supabase } = await requireAuth()
 
   const { data: assistant } = await supabase
     .from('assistants')

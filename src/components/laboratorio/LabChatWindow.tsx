@@ -18,7 +18,9 @@ interface LabChatWindowProps {
   assistantId: string
   conversationId?: string
   mode?: string
+  simulationSystemMessage?: string
   onTokensUsed?: (tokens: { input: number; output: number }) => void
+  onCoaching?: (feedback: { tips: string[]; score: number | null }) => void
 }
 
 export function LabChatWindow({
@@ -26,6 +28,8 @@ export function LabChatWindow({
   assistantId,
   conversationId,
   mode,
+  simulationSystemMessage,
+  onCoaching,
 }: LabChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -62,7 +66,12 @@ export function LabChatWindow({
         content: m.content,
       }))
 
-      if (mode && messages.length === 0) {
+      if (simulationSystemMessage && messages.length === 0) {
+        chatMessages.unshift({
+          role: 'user',
+          content: simulationSystemMessage,
+        })
+      } else if (mode && messages.length === 0) {
         const modeMessages: Record<string, string> = {
           normal: 'Actúa como un cliente interesado en comprar. Haz preguntas directas sobre productos, precios y disponibilidad.',
           indecisive: 'Actúa como un cliente que no está seguro. Duda, compara precios, pregunta "¿y si no me gusta?", pide descuento, se va y vuelve.',
@@ -117,6 +126,30 @@ export function LabChatWindow({
           })
         }
       }
+
+      if (onCoaching && assistantContent) {
+        try {
+          const coachingRes = await fetch('/api/laboratorio/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              assistantId,
+              userMessage: userMessage.content,
+              assistantResponse: assistantContent,
+              mode,
+            }),
+          })
+          if (coachingRes.ok) {
+            const coachingData = await coachingRes.json()
+            onCoaching({
+              tips: coachingData.feedback?.tips ?? [],
+              score: coachingData.score ?? null,
+            })
+          }
+        } catch {
+          // Coaching is optional, don't break the flow
+        }
+      }
     } catch (error) {
       console.error('Chat error:', error)
       setMessages((prev) => [
@@ -145,7 +178,7 @@ export function LabChatWindow({
           <div>
             <h3 className="font-semibold text-gray-900">{assistantName}</h3>
             <p className="text-sm text-gray-500">
-              {mode ? `Modo: ${mode}` : 'Chat de prueba'}
+              {simulationSystemMessage ? 'Escenario activo' : mode ? `Modo: ${mode}` : 'Chat de prueba'}
             </p>
           </div>
         </div>

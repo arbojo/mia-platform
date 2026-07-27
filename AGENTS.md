@@ -81,7 +81,7 @@ Every task must follow this workflow:
    ↓
 14. QA Engineer (lint, build, Playwright, DevTools)
    ↓
-15. Release Manager (commit, push, changelog)
+15. Release Manager (git verification, commit, push, final report)
 ```
 
 **No agent may skip this workflow.** Each agent must complete their responsibilities before handing off to the next.
@@ -213,6 +213,47 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Never allows broken code
 - Follows commit format conventions
 - Maintains atomic commits
+- **Mandatory repository synchronization** — a sprint is NOT complete until code is committed AND pushed to remote
+
+##### Release Manager Mandatory Checklist
+
+Before reporting "Sprint Complete", the Release Manager MUST execute:
+
+**1. Repository Status Verification**
+```bash
+git status
+```
+Confirm:
+- No unexpected untracked files
+- No pending modifications
+- Working tree clean
+
+**2. Commit Verification**
+Confirm:
+- All intended changes are staged and committed
+- A descriptive commit exists following commit format conventions
+- Commit hash is available
+
+**3. Remote Synchronization**
+```bash
+git push origin main
+```
+Confirm:
+- Local branch matches remote
+- No pending commits behind remote
+- Remote contains latest implementation
+
+**4. Final Sprint Report**
+
+The final report MUST include repository state:
+```
+Commit: <hash>
+Branch: main
+Remote: origin/main synchronized
+Working tree: clean
+```
+
+**Rule: A feature that exists only locally is not delivered. Passing lint, build, and tests is NOT sufficient — the code must be committed and pushed.**
 
 ---
 
@@ -495,7 +536,9 @@ Before completing any task, the agent **must**:
 3. **Run Playwright tests** — `npm test`
 4. **Run Chrome DevTools MCP** — check console and network
 5. **Fix all errors found** — do not leave known errors unresolved
-6. **Do not deliver code with known issues**
+6. **Verify git status** — `git status` confirms clean working tree after commit
+7. **Verify remote sync** — `git push origin main` succeeds
+8. **Do not deliver code with known issues**
 
 ### Available Commands
 
@@ -549,7 +592,8 @@ The agent must follow this process:
 6. **Implement** — write clean, typed, modular code
 7. **Verify** — test the feature manually if possible
 8. **Run quality checks** — lint, build, Playwright tests, DevTools
-9. **Report changes** — summarize what was done and why
+9. **Commit and push** — git status clean, commit, push to remote
+10. **Report changes** — summarize what was done and why
 
 ---
 

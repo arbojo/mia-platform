@@ -31,6 +31,11 @@ export default function HomePage() {
             de vender y responder a tus clientes 24/7.
           </p>
           <div className="flex gap-4 justify-center">
+            <Link href="/demo">
+              <Button size="lg" variant="outline">
+                Probar demo
+              </Button>
+            </Link>
             <Link href="/signup">
               <Button size="lg" className="bg-violet-600 hover:bg-violet-700">
                 Crear mi asistente

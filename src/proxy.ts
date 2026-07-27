@@ -1,6 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const publicPaths = ['/login', '/signup', '/auth', '/']
+
+async function getBusinessForUser(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+) {
+  const { data } = await supabase
+    .from('businesses')
+    .select('id, onboarding_status')
+    .eq('owner_id', userId)
+    .maybeSingle()
+  return data
+}
+
 export default async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -29,10 +43,8 @@ export default async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const publicPaths = ['/login', '/signup', '/auth', '/']
-  const isPublicPath = publicPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  )
+  const pathname = request.nextUrl.pathname
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path))
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
@@ -40,10 +52,31 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (user && request.nextUrl.pathname === '/') {
+  if (user && (pathname === '/login' || pathname === '/signup')) {
+    const business = await getBusinessForUser(supabase, user.id)
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = business ? '/dashboard' : '/dashboard/onboarding'
     return NextResponse.redirect(url)
+  }
+
+  if (user && pathname === '/') {
+    const business = await getBusinessForUser(supabase, user.id)
+    const url = request.nextUrl.clone()
+    url.pathname = business ? '/dashboard' : '/dashboard/onboarding'
+    return NextResponse.redirect(url)
+  }
+
+  if (
+    user &&
+    pathname === '/dashboard' &&
+    !request.nextUrl.searchParams.has('skip-onboarding-check')
+  ) {
+    const business = await getBusinessForUser(supabase, user.id)
+    if (!business) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard/onboarding'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

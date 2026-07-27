@@ -16,16 +16,9 @@ interface ChatWindowProps {
   assistantName: string
   assistantId: string
   conversationId?: string
-  onCorrection?: (messageId: string, correction: string) => void
+  onCorrection?: (messageId: string, correction: string, originalContent: string) => void
   mode?: string
   simulationSystemMessage?: string
-  onTokensUsed?: (tokens: { input: number; output: number }) => void
-  onAnalysis?: (messageId: string, analysis: ResponseAnalysisData) => void
-}
-
-interface ResponseAnalysisData {
-  sentiment: 'positive' | 'neutral' | 'negative'
-  summary: string
 }
 
 function getRequestType(mode?: string): 'live_customer' | 'simulation' | 'training' {
@@ -142,7 +135,8 @@ export function ChatWindow({
 
   const handleCorrectionSubmit = () => {
     if (correctionId && correctionText.trim()) {
-      onCorrection?.(correctionId, correctionText.trim())
+      const originalMessage = messages.find((m) => m.id === correctionId)
+      onCorrection?.(correctionId, correctionText.trim(), originalMessage?.content ?? '')
       setCorrectionId(null)
       setCorrectionText('')
     }
@@ -195,7 +189,7 @@ export function ChatWindow({
                     size="sm"
                     variant="ghost"
                     className="h-6 text-xs"
-                    onClick={() => onCorrection(message.id, 'approve')}
+                    onClick={() => onCorrection(message.id, 'approve', message.content)}
                   >
                     Correcto
                   </Button>

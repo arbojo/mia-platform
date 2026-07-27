@@ -1,17 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { requireAuth } from '@/lib/auth'
 import { LaboratorioClient } from '@/components/laboratorio/LaboratorioClient'
 
 export default async function LaboratorioPage() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  const { supabase, user } = await requireAuth()
 
   const { data: businesses } = await supabase
     .from('businesses')

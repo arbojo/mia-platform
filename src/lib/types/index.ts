@@ -522,6 +522,206 @@ export interface Database {
           created_at?: string
         }
       }
+      knowledge_analysis_reports: {
+        Row: {
+          id: string
+          business_id: string
+          status: 'pending' | 'analyzing' | 'completed' | 'failed'
+          overall_score: number | null
+          completeness_score: number | null
+          consistency_score: number | null
+          readiness_score: number | null
+          gaps: Json
+          conflicts: Json
+          readiness_issues: Json
+          analysis_model: string | null
+          tokens_used: number
+          cost: number
+          created_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          status?: 'pending' | 'analyzing' | 'completed' | 'failed'
+          overall_score?: number | null
+          completeness_score?: number | null
+          consistency_score?: number | null
+          readiness_score?: number | null
+          gaps?: Json
+          conflicts?: Json
+          readiness_issues?: Json
+          analysis_model?: string | null
+          tokens_used?: number
+          cost?: number
+          created_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          status?: 'pending' | 'analyzing' | 'completed' | 'failed'
+          overall_score?: number | null
+          completeness_score?: number | null
+          consistency_score?: number | null
+          readiness_score?: number | null
+          gaps?: Json
+          conflicts?: Json
+          readiness_issues?: Json
+          analysis_model?: string | null
+          tokens_used?: number
+          cost?: number
+          created_at?: string
+          completed_at?: string | null
+        }
+      }
+      knowledge_suggestions: {
+        Row: {
+          id: string
+          report_id: string
+          business_id: string
+          type: 'missing_knowledge' | 'missing_product' | 'missing_rule' | 'contradiction' | 'improvement'
+          severity: 'low' | 'medium' | 'high' | 'critical'
+          title: string
+          description: string
+          suggested_category: string | null
+          suggested_question: string | null
+          suggested_answer: string | null
+          suggested_rule_content: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          knowledge_item_id: string | null
+          created_at: string
+          resolved_at: string | null
+        }
+        Insert: {
+          id?: string
+          report_id: string
+          business_id: string
+          type: 'missing_knowledge' | 'missing_product' | 'missing_rule' | 'contradiction' | 'improvement'
+          severity?: 'low' | 'medium' | 'high' | 'critical'
+          title: string
+          description: string
+          suggested_category?: string | null
+          suggested_question?: string | null
+          suggested_answer?: string | null
+          suggested_rule_content?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          knowledge_item_id?: string | null
+          created_at?: string
+          resolved_at?: string | null
+        }
+        Update: {
+          id?: string
+          report_id?: string
+          business_id?: string
+          type?: 'missing_knowledge' | 'missing_product' | 'missing_rule' | 'contradiction' | 'improvement'
+          severity?: 'low' | 'medium' | 'high' | 'critical'
+          title?: string
+          description?: string
+          suggested_category?: string | null
+          suggested_question?: string | null
+          suggested_answer?: string | null
+          suggested_rule_content?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          knowledge_item_id?: string | null
+          created_at?: string
+          resolved_at?: string | null
+        }
+      }
+      channel_connections: {
+        Row: {
+          id: string
+          business_id: string
+          assistant_id: string
+          channel: 'web' | 'whatsapp' | 'messenger' | 'instagram'
+          status: 'disconnected' | 'connecting' | 'connected' | 'error'
+          credentials: Json
+          configuration: Json
+          last_sync: string | null
+          error_message: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          assistant_id: string
+          channel: 'web' | 'whatsapp' | 'messenger' | 'instagram'
+          status?: 'disconnected' | 'connecting' | 'connected' | 'error'
+          credentials?: Json
+          configuration?: Json
+          last_sync?: string | null
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          assistant_id?: string
+          channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram'
+          status?: 'disconnected' | 'connecting' | 'connected' | 'error'
+          credentials?: Json
+          configuration?: Json
+          last_sync?: string | null
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      channel_messages: {
+        Row: {
+          id: string
+          business_id: string
+          customer_id: string | null
+          channel: string
+          direction: 'incoming' | 'outgoing'
+          content: string
+          content_type: 'text' | 'image' | 'audio' | 'document'
+          external_id: string | null
+          external_customer_id: string | null
+          metadata: Json
+          status: 'received' | 'processing' | 'sent' | 'delivered' | 'read' | 'failed'
+          error_message: string | null
+          received_at: string
+          sent_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          customer_id?: string | null
+          channel: string
+          direction: 'incoming' | 'outgoing'
+          content: string
+          content_type?: 'text' | 'image' | 'audio' | 'document'
+          external_id?: string | null
+          external_customer_id?: string | null
+          metadata?: Json
+          status?: 'received' | 'processing' | 'sent' | 'delivered' | 'read' | 'failed'
+          error_message?: string | null
+          received_at?: string
+          sent_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          customer_id?: string | null
+          channel?: string
+          direction?: 'incoming' | 'outgoing'
+          content?: string
+          content_type?: 'text' | 'image' | 'audio' | 'document'
+          external_id?: string | null
+          external_customer_id?: string | null
+          metadata?: Json
+          status?: 'received' | 'processing' | 'sent' | 'delivered' | 'read' | 'failed'
+          error_message?: string | null
+          received_at?: string
+          sent_at?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: Record<string, never>
     Functions: {

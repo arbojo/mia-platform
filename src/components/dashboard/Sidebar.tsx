@@ -8,7 +8,10 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/dashboard', label: 'Inicio' },
   { href: '/dashboard/assistants', label: 'Asistentes' },
-  { href: '/dashboard/laboratorio', label: 'Laboratorio MIA' },
+  { href: '/dashboard/knowledge', label: 'Centro de Conocimiento' },
+  { href: '/dashboard/knowledge-studio', label: 'Knowledge Studio' },
+  { href: '/dashboard/laboratorio', label: 'Simulador de Ventas' },
+  { href: '/dashboard/connections', label: 'MIA Connections' },
 ]
 
 export function Sidebar() {

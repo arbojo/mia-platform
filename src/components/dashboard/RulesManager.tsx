@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import type { Database } from '@/lib/types'
 
 type SalesRule = Database['public']['Tables']['sales_rules']['Row']
@@ -29,6 +39,7 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
   const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState('zones')
   const [content, setContent] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<SalesRule | null>(null)
 
   const supabase = createClient()
 
@@ -54,9 +65,11 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
-    await supabase.from('sales_rules').delete().eq('id', id)
-    setRules((prev) => prev.filter((r) => r.id !== id))
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+    await supabase.from('sales_rules').delete().eq('id', deleteTarget.id)
+    setRules((prev) => prev.filter((r) => r.id !== deleteTarget.id))
+    setDeleteTarget(null)
   }
 
   return (
@@ -110,7 +123,7 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleDelete(rule.id)}
+              onClick={() => setDeleteTarget(rule)}
               className="text-red-600 hover:text-red-700"
             >
               Eliminar
@@ -123,6 +136,23 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
           </p>
         )}
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar regla</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Estás seguro de que deseas eliminar esta regla? Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

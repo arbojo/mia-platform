@@ -1,5 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { requireAuth } from '@/lib/auth'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { OnboardingBanner } from '@/components/dashboard/OnboardingBanner'
 
@@ -8,15 +7,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  const { supabase, user } = await requireAuth()
 
   const { data: business } = await supabase
     .from('businesses')

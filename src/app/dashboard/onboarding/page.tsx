@@ -1,41 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
+import { requireAuth } from '@/lib/auth'
+import { ConversationalOnboarding } from '@/components/onboarding/ConversationalOnboarding'
 
 export default async function OnboardingPage() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  const { supabase, user } = await requireAuth()
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('*')
+    .select('id')
     .eq('owner_id', user.id)
     .single()
 
-  const stepMap: Record<string, number> = {
-    created: 0,
-    identity_completed: 1,
-    business_completed: 2,
-    products_completed: 3,
-    rules_completed: 3,
-    ready: 3,
-  }
-
-  const currentStep = business ? (stepMap[business.onboarding_status] ?? 0) : -1
-
   return (
     <div className="py-8">
-      <OnboardingWizard
+      <ConversationalOnboarding
         userId={user.id}
         businessId={business?.id ?? null}
-        initialStep={currentStep}
       />
     </div>
   )

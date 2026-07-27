@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { redirect, notFound } from 'next/navigation'
-import { ChatWindow } from '@/components/chat/ChatWindow'
+import { notFound } from 'next/navigation'
+import { TrainingChat } from '@/components/chat/TrainingChat'
 
 export default async function TrainingPage({
   params,
@@ -9,15 +9,7 @@ export default async function TrainingPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  const { supabase } = await requireAuth()
 
   const { data: assistant } = await supabase
     .from('assistants')
@@ -56,13 +48,10 @@ export default async function TrainingPage({
 
   return (
     <div className="h-[calc(100vh-8rem)]">
-      <ChatWindow
+      <TrainingChat
         assistantName={assistant.name}
         assistantId={id}
         conversationId={conversationId}
-        onCorrection={(messageId, correction) => {
-          console.log('Correction:', messageId, correction)
-        }}
       />
     </div>
   )
