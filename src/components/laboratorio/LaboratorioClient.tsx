@@ -186,7 +186,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
               setTokenUsage((prev) => ({
                 input: prev.input + tokens.input,
                 output: prev.output + tokens.output,
-                cost: prev.cost,
+                cost: prev.cost + (tokens.input * 0.00015 + tokens.output * 0.0006) / 1000,
               }))
             }
           />

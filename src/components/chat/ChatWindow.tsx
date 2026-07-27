@@ -28,6 +28,12 @@ interface ResponseAnalysisData {
   summary: string
 }
 
+function getRequestType(mode?: string): 'live_customer' | 'simulation' | 'training' {
+  if (mode === 'training') return 'training'
+  if (mode) return 'simulation'
+  return 'live_customer'
+}
+
 export function ChatWindow({
   assistantName,
   assistantId,
@@ -40,6 +46,8 @@ export function ChatWindow({
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [correctionId, setCorrectionId] = useState<string | null>(null)
+  const [correctionText, setCorrectionText] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -82,7 +90,7 @@ export function ChatWindow({
           messages: chatMessages,
           assistantId,
           conversationId,
-          requestType: mode ? 'simulation' : 'live_customer',
+          requestType: getRequestType(mode),
         }),
       })
 
@@ -107,14 +115,13 @@ export function ChatWindow({
 
           const chunk = decoder.decode(value, { stream: true })
           assistantContent += chunk
-          setMessages((prev) => {
-            const updated = [...prev]
-            const lastMsg = updated[updated.length - 1]
-            if (lastMsg.role === 'assistant') {
-              lastMsg.content = assistantContent
-            }
-            return updated
-          })
+          setMessages((prev) =>
+            prev.map((msg, i) =>
+              i === prev.length - 1 && msg.role === 'assistant'
+                ? { ...msg, content: assistantContent }
+                : msg
+            )
+          )
         }
       }
     } catch (error) {
@@ -130,6 +137,14 @@ export function ChatWindow({
     } finally {
       setIsLoading(false)
       setIsTyping(false)
+    }
+  }
+
+  const handleCorrectionSubmit = () => {
+    if (correctionId && correctionText.trim()) {
+      onCorrection?.(correctionId, correctionText.trim())
+      setCorrectionId(null)
+      setCorrectionText('')
     }
   }
 
@@ -189,8 +204,8 @@ export function ChatWindow({
                     variant="ghost"
                     className="h-6 text-xs text-red-600"
                     onClick={() => {
-                      const correction = prompt('¿Cuál es la respuesta correcta?')
-                      if (correction) onCorrection(message.id, correction)
+                      setCorrectionId(message.id)
+                      setCorrectionText('')
                     }}
                   >
                     Corregir
@@ -200,6 +215,43 @@ export function ChatWindow({
             </div>
           </div>
         ))}
+
+        {correctionId && (
+          <div className="flex justify-end">
+            <div className="max-w-[80%] p-3 bg-amber-50 border border-amber-200 rounded-2xl">
+              <p className="text-xs text-amber-700 mb-2">
+                Escribe la respuesta correcta:
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  value={correctionText}
+                  onChange={(e) => setCorrectionText(e.target.value)}
+                  placeholder="Respuesta correcta..."
+                  className="text-sm"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleCorrectionSubmit()
+                    if (e.key === 'Escape') setCorrectionId(null)
+                  }}
+                />
+                <Button
+                  size="sm"
+                  onClick={handleCorrectionSubmit}
+                  disabled={!correctionText.trim()}
+                >
+                  Guardar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setCorrectionId(null)}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isTyping && (
           <div className="flex justify-start">

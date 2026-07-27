@@ -52,7 +52,24 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Assistant not found' }, { status: 404 })
     }
 
+    if (assistant.businesses.owner_id !== user.id) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const businessId = assistant.business_id
+
+    if (conversationId) {
+      const { data: conversation } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', conversationId)
+        .eq('assistant_id', assistantId)
+        .single()
+
+      if (!conversation) {
+        return Response.json({ error: 'Conversation not found' }, { status: 404 })
+      }
+    }
     const context = await getBusinessContext(businessId)
 
     const usedContext: Array<{ type: string; id: string }> = []

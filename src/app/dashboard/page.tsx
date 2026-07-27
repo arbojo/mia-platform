@@ -46,31 +46,33 @@ export default async function DashboardPage() {
       (a: { id: string }) => a.id
     )
 
-    const [customersResult, conversationsResult, lastMessageResult] =
-      await Promise.all([
-        supabase
-          .from('customers')
-          .select('id', { count: 'exact', head: true })
-          .eq('business_id', business.id),
-        supabase
-          .from('conversations')
-          .select('id', { count: 'exact', head: true })
-          .eq('status', 'active')
-          .eq('type', 'live')
-          .in('assistant_id', assistantIds),
-        supabase
-          .from('messages')
-          .select('created_at, conversations!inner(assistant_id, type)')
-          .eq('conversations.type', 'live')
-          .in('conversations.assistant_id', assistantIds)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single(),
-      ])
+    if (assistantIds.length > 0) {
+      const [customersResult, conversationsResult, lastMessageResult] =
+        await Promise.all([
+          supabase
+            .from('customers')
+            .select('id', { count: 'exact', head: true })
+            .eq('business_id', business.id),
+          supabase
+            .from('conversations')
+            .select('id', { count: 'exact', head: true })
+            .eq('status', 'active')
+            .eq('type', 'live')
+            .in('assistant_id', assistantIds),
+          supabase
+            .from('messages')
+            .select('created_at, conversations!inner(assistant_id, type)')
+            .eq('conversations.type', 'live')
+            .in('conversations.assistant_id', assistantIds)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single(),
+        ])
 
-    customerCount = customersResult.count ?? 0
-    activeConversations = conversationsResult.count ?? 0
-    lastInteraction = lastMessageResult.data?.created_at ?? null
+      customerCount = customersResult.count ?? 0
+      activeConversations = conversationsResult.count ?? 0
+      lastInteraction = lastMessageResult.data?.created_at ?? null
+    }
   }
 
   return (
