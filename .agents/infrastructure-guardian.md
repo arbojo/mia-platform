@@ -16,6 +16,8 @@ The Infrastructure Guardian protects the development environment from inconsiste
 8. **Playwright Setup** — Verify Playwright browsers are installed and configured
 9. **Consistency Detection** — Detect drift between local and expected environment state
 10. **Onboarding Validation** — Verify new developers can run the project from scratch
+11. **Infrastructure Memory** — Maintain a baseline of the healthy environment and compare current state against it
+12. **Auto Diagnosis** — Analyze errors from build, lint, tests, and git; classify causes; delegate to the responsible agent
 
 ## Scope
 
@@ -212,6 +214,229 @@ When port 3000 is in use:
 4. If another dev server → suggest using different port
 5. Document the conflict
 
+## Infrastructure Memory
+
+The Infrastructure Guardian maintains a **baseline** of what a healthy environment looks like. This baseline is the single source of truth for environment validation.
+
+### Baseline File
+
+**Location**: `.infrastructure/baseline.json`
+
+**Purpose**: Captures the exact state of a known-good environment. Every validation compares current state against this baseline.
+
+**Architecture**:
+```
+.infrastructure/
+├── baseline.json          # Known-good environment state
+└── history/               # Review history (gitignored or committed)
+    └── YYYY-MM-DD-HHmm.json  # Individual review snapshots
+```
+
+### Baseline Schema
+
+```json
+{
+  "version": "1.0",
+  "capturedAt": "2026-07-26T20:00:00Z",
+  "capturedBy": "infrastructure-guardian",
+  "runtime": {
+    "node": "20.x.x",
+    "npm": "10.x.x",
+    "git": "2.x.x"
+  },
+  "dependencies": {
+    "lockFileVersion": 3,
+    "totalPackages": 850,
+    "knownVulnerabilities": 0
+  },
+  "environment": {
+    "requiredVars": [
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "OPENAI_API_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY"
+    ]
+  },
+  "build": {
+    "typescript": "pass",
+    "eslint": "pass",
+    "nextBuild": "pass",
+    "buildTimeSeconds": 14
+  },
+  "testing": {
+    "playwrightVersion": "1.62.x",
+    "browsersInstalled": true,
+    "testsDiscoverable": 4
+  },
+  "checks": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  }
+}
+```
+
+### Baseline Comparison
+
+When `npm run doctor` runs, it compares the current environment against the baseline:
+
+| Check | Baseline Value | Current Value | Drift |
+|-------|---------------|---------------|-------|
+| Node.js | 20.x.x | 20.x.x | None |
+| npm | 10.x.x | 10.x.x | None |
+| Packages | 850 | 851 | +1 package (new dependency) |
+| Build time | 14s | 16s | +2s (investigate) |
+| Tests | 4 discoverable | 4 discoverable | None |
+
+**Drift severity levels**:
+
+| Level | Meaning | Action |
+|-------|---------|--------|
+| **None** | Matches baseline | No action |
+| **Minor** | Cosmetic difference (version patch, build time variance) | Log only |
+| **Moderate** | Notable difference (new package, significant time change) | Warn and track |
+| **Major** | Critical difference (missing package, build failure, test count change) | Block and remediate |
+
+### Review History
+
+Every `npm run doctor` execution creates a review snapshot:
+
+**Location**: `.infrastructure/history/YYYY-MM-DD-HHmm.json`
+
+**Contents**: Full baseline comparison with current state, drift analysis, and remediation actions taken.
+
+**Purpose**:
+- Track environment stability over time
+- Identify recurring issues
+- Validate that remediations actually fixed problems
+- Provide audit trail for environment changes
+
+**Retention**: Last 30 reviews. Older snapshots are pruned.
+
+### Baseline Lifecycle
+
+```
+1. Initial capture → npm run doctor --init
+   Creates baseline.json from current healthy state
+
+2. Periodic validation → npm run doctor
+   Compares current state against baseline
+   Creates history snapshot
+
+3. Baseline update → npm run doctor --update
+   Updates baseline to current state (requires justification)
+
+4. Drift remediation → npm run doctor --fix
+   Attempts to fix drift automatically where possible
+```
+
+## Auto Diagnosis
+
+The Infrastructure Guardian automatically analyzes errors from multiple sources, classifies root causes, and delegates to the responsible agent. This eliminates guesswork and accelerates resolution.
+
+### Error Sources
+
+| Source | Tool | Error Types |
+|--------|------|-------------|
+| **Build** | `npm run build` | TypeScript errors, compilation failures, Turbopack errors |
+| **Lint** | `npm run lint` | ESLint violations, style issues, import errors |
+| **Tests** | `npm test` | Playwright failures, timeouts, assertion errors |
+| **Git** | `git status`, `git push` | Hook failures, merge conflicts, permission errors |
+| **Dev Server** | `npm run dev` | Startup failures, port conflicts, module not found |
+| **Runtime** | Console errors | Unhandled exceptions, API failures, React errors |
+
+### Error Classification
+
+Every error is classified into one of these categories:
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| **ENV** | Environment configuration issue | Missing env var, wrong Node version |
+| **DEP** | Dependency problem | Missing package, version conflict, phantom dependency |
+| **TYPE** | TypeScript type error | Wrong type, missing import, implicit any |
+| **STYLE** | Lint/code style violation | ESLint error, unused variable, missing semicolon |
+| **LOGIC** | Business logic error | Wrong query, incorrect calculation, missing validation |
+| **UI** | Frontend rendering issue | Component error, styling issue, responsive break |
+| **API** | Backend/API error | Failed request, wrong status code, missing endpoint |
+| **DB** | Database/schema error | Migration failure, RLS violation, connection error |
+| **TEST** | Test failure | Flaky test, missing test, wrong assertion |
+| **BUILD** | Build process error | Turbopack failure, compilation error, bundling issue |
+| **GIT** | Version control error | Hook failure, merge conflict, push rejection |
+| **SEC** | Security violation | Exposed secret, RLS bypass, injection vulnerability |
+| **PERF** | Performance issue | Slow query, large bundle, memory leak |
+| **INFRA** | Infrastructure issue | Port conflict, missing tool, connectivity failure |
+
+### Automatic Delegation
+
+When an error is classified, the Infrastructure Guardian automatically delegates to the responsible agent:
+
+| Category | Primary Agent | Secondary Agent |
+|----------|---------------|-----------------|
+| **ENV** | Infrastructure Guardian | — |
+| **DEP** | Backend Engineer | Infrastructure Guardian |
+| **TYPE** | Backend Engineer | Frontend Engineer |
+| **STYLE** | Frontend Engineer | Backend Engineer |
+| **LOGIC** | Domain Expert | Backend Engineer |
+| **UI** | Frontend Engineer | Product Manager |
+| **API** | Backend Engineer | Database Engineer |
+| **DB** | Database Engineer | Backend Engineer |
+| **TEST** | QA Engineer | Appropriate Engineer |
+| **BUILD** | QA Engineer | Infrastructure Guardian |
+| **GIT** | Release Manager | — |
+| **SEC** | Security Engineer | — |
+| **PERF** | Performance Engineer | Backend Engineer |
+| **INFRA** | Infrastructure Guardian | — |
+
+### Diagnosis Workflow
+
+```
+1. Error detected (from any source)
+2. Extract error message, location, and context
+3. Classify error into category
+4. Determine primary responsible agent
+5. Generate diagnosis report:
+   - Error: [original error message]
+   - Category: [ENV|DEP|TYPE|...]
+   - Location: [file:line or tool output]
+   - Impact: [what this blocks]
+   - Cause: [probable root cause]
+   - Delegation: [agent to resolve]
+   - Remediation: [suggested fix]
+6. Route diagnosis to responsible agent
+7. Track resolution in review history
+```
+
+### Integration Points (Future)
+
+| Source | Integration |
+|--------|-------------|
+| Build logs | Parse `npm run build` output for error patterns |
+| Lint output | Parse `npm run lint` output for violation types |
+| Test results | Parse Playwright JSON report for failure analysis |
+| Git hooks | Capture pre-commit, pre-push hook failures |
+| Dev server | Monitor console output for runtime errors |
+| CI/CD | Capture and analyze pipeline failures |
+
+### Diagnosis Report Format
+
+```
+Infrastructure Diagnosis Report
+═══════════════════════════════
+
+Source: npm run build
+Timestamp: 2026-07-26T20:15:00Z
+
+Error: Type 'string' is not assignable to type 'number'
+Location: src/app/dashboard/page.tsx:42:5
+Category: TYPE
+Impact: Build fails → cannot deploy
+
+Delegation: Backend Engineer
+Remediation: Fix type annotation at line 42
+
+Status: RESOLVED
+```
+
 ## npm run doctor
 
 **Purpose**: Comprehensive environment health check. Validates all infrastructure components.
@@ -303,3 +528,5 @@ Ready for development.
 - `next.config.ts` — Next.js configuration
 - `playwright.config.ts` — Playwright configuration
 - `src/proxy.ts` — Middleware/proxy configuration
+- `.infrastructure/baseline.json` — Known-good environment state
+- `.infrastructure/history/` — Review history snapshots

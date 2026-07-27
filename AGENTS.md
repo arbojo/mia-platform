@@ -29,7 +29,7 @@ MIA uses a **specialized engineering agent system** with 14 distinct roles. Ever
 | Agent | File | Responsibility |
 |-------|------|----------------|
 | CTO | `.agents/cto.md` | Highest technical authority, strategic decisions |
-| Infrastructure Guardian | `.agents/infrastructure-guardian.md` | Environment validation, toolchain integrity |
+| Infrastructure Guardian | `.agents/infrastructure-guardian.md` | Environment validation, toolchain integrity, infrastructure memory, auto diagnosis |
 | Architect | `.agents/architect.md` | Tactical design, architecture decisions |
 | Domain Expert | `.agents/domain-expert.md` | Business domain model guardian |
 | Product Manager | `.agents/product-manager.md` | User experience protector |
@@ -86,7 +86,7 @@ Certain agents hold **guardian authority** — the power to block progress when 
 | Guardian | Authority | Can Block |
 |----------|-----------|-----------|
 | **CTO** | May reject implementations that introduce unnecessary complexity or violate platform architecture | Large features, architectural changes |
-| **Infrastructure Guardian** | May block development when environment inconsistencies, toolchain issues, or misconfigurations are detected | Development sessions with broken environments |
+| **Infrastructure Guardian** | May block development when environment inconsistencies, toolchain issues, or misconfigurations are detected. Maintains environment baseline and auto-diagnoses errors. | Development sessions with broken environments |
 | **Security Engineer** | May block releases if security risks are detected | Any release with security vulnerabilities |
 | **Performance Engineer** | May request optimization before release when measurable performance or cost improvements exist | Releases with known performance issues |
 | **QA Engineer** | May block releases if quality gates fail | Releases that fail lint, build, or tests |
@@ -108,6 +108,8 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Detects drift between local and expected state
 - Recommends `npm run doctor` for full health check
 - Recommends `npm run environment-check` for quick validation
+- Maintains `.infrastructure/baseline.json` as the healthy environment reference
+- Auto-diagnoses errors and delegates to the responsible agent
 
 #### Architect Rules
 - Must analyze before coding
