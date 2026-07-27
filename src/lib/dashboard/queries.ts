@@ -1,4 +1,13 @@
 import { SupabaseClient } from '@supabase/supabase-js'
+import {
+  type ReadinessScore,
+  type ReadinessIndicatorDetail,
+  type SubcategoryScore,
+  type GuidanceItem,
+  calculateReadiness,
+} from '@/lib/ai/readiness'
+
+export type { ReadinessScore, ReadinessIndicatorDetail, SubcategoryScore, GuidanceItem }
 
 export interface EmployeeStatus {
   name: string
@@ -85,25 +94,12 @@ export interface GreetingContext {
   subtitle: string
 }
 
-export interface ReadinessCategory {
-  id: string
-  label: string
-  icon: string
-  status: 'learned' | 'learning' | 'pending'
-  description: string
-}
-
-export interface EmployeeReadiness {
-  categories: ReadinessCategory[]
-  overall: number
-  message: string
-  nextStep: { label: string; href: string } | null
-}
+export type MIAReadiness = ReadinessScore
 
 export interface DashboardData {
   greetingContext: GreetingContext
   employeeStatus: EmployeeStatus
-  employeeReadiness: EmployeeReadiness
+  miaReadiness: MIAReadiness
   todaysActivity: TodaysMetrics
   dailyReport: DailyReport
   needsFromYou: NeedsFromYou
@@ -752,159 +748,35 @@ export async function getMilestones(
   return milestones
 }
 
-export async function getEmployeeReadiness(
+export async function getMIAReadiness(
   supabase: SupabaseClient,
   businessId: string
-): Promise<EmployeeReadiness> {
-  const categories: ReadinessCategory[] = []
-
+): Promise<MIAReadiness> {
   try {
-    const [brandResult, productsResult, rulesResult, knowledgeResult, instructionsResult, channelsResult] =
-      await Promise.all([
-        supabase
-          .from('brand_identities')
-          .select('id')
-          .eq('business_id', businessId)
-          .limit(1),
-        supabase
-          .from('products')
-          .select('id', { count: 'exact', head: true })
-          .eq('business_id', businessId)
-          .eq('is_active', true),
-        supabase
-          .from('sales_rules')
-          .select('id', { count: 'exact', head: true })
-          .eq('business_id', businessId)
-          .eq('is_active', true),
-        supabase
-          .from('knowledge_items')
-          .select('id', { count: 'exact', head: true })
-          .eq('business_id', businessId)
-          .eq('is_active', true),
-        supabase
-          .from('ai_instructions')
-          .select('id', { count: 'exact', head: true })
-          .eq('business_id', businessId)
-          .eq('is_active', true),
-        supabase
-          .from('channel_connections')
-          .select('id, status')
-          .eq('business_id', businessId)
-          .eq('status', 'connected'),
-      ])
-
-    const hasBrand = (brandResult.data?.length ?? 0) > 0
-    const productCount = productsResult.count ?? 0
-    const rulesCount = rulesResult.count ?? 0
-    const knowledgeCount = knowledgeResult.count ?? 0
-    const instructionsCount = instructionsResult.count ?? 0
-    const connectedChannels = channelsResult.data?.length ?? 0
-
-    categories.push({
-      id: 'business',
-      label: 'Negocio',
-      icon: '🏢',
-      status: hasBrand ? 'learned' : 'pending',
-      description: hasBrand ? 'Conozco tu negocio' : "Todavía no conozco tu negocio",
-    })
-
-    categories.push({
-      id: 'products',
-      label: 'Productos',
-      icon: '📦',
-      status: productCount > 0 ? 'learned' : hasBrand ? 'learning' : 'pending',
-      description: productCount > 0
-        ? `Conozco ${productCount} producto${productCount > 1 ? 's' : ''}`
-        : 'Necesito aprender qué vendes',
-    })
-
-    categories.push({
-      id: 'rules',
-      label: 'Reglas',
-      icon: '📋',
-      status: rulesCount > 0 ? 'learned' : productCount > 0 ? 'learning' : 'pending',
-      description: rulesCount > 0
-        ? `Conozco ${rulesCount} regla${rulesCount > 1 ? 's' : ''} del negocio`
-        : "Necesito aprender cómo funciona tu negocio",
-    })
-
-    categories.push({
-      id: 'knowledge',
-      label: 'Conocimiento',
-      icon: '📚',
-      status: knowledgeCount > 0 ? 'learned' : rulesCount > 0 ? 'learning' : 'pending',
-      description: knowledgeCount > 0
-        ? `Sé ${knowledgeCount} cosa${knowledgeCount > 1 ? 's' : ''} sobre tu negocio`
-        : "Necesito aprender más sobre tu negocio",
-    })
-
-    categories.push({
-      id: 'personality',
-      label: 'Personalidad',
-      icon: '🤖',
-      status: instructionsCount > 0 ? 'learned' : 'pending',
-      description: instructionsCount > 0
-        ? 'Sé cómo hablar con tus clientes'
-        : "Todavía no sé cómo quieres que hable",
-    })
-
-    categories.push({
-      id: 'connections',
-      label: 'Conexiones',
-      icon: '📱',
-      status: connectedChannels > 0 ? 'learned' : 'pending',
-      description: connectedChannels > 0
-        ? `Estoy conectada a ${connectedChannels} canal${connectedChannels > 1 ? 'es' : ''}`
-        : "Todavía no tengo canales para hablar con clientes",
-    })
+    return await calculateReadiness(supabase, businessId)
   } catch {
-    // Graceful degradation
-  }
-
-  const learned = categories.filter((c) => c.status === 'learned').length
-  const overall = Math.round((learned / categories.length) * 100)
-
-  let message: string
-  let nextStep: { label: string; href: string } | null = null
-
-  if (overall === 100) {
-    message = "Estoy lista para empezar a trabajar."
-  } else if (overall >= 80) {
-    message = "Casi estoy lista para empezar a trabajar."
-    const pending = categories.find((c) => c.status === 'pending')
-    if (pending) {
-      nextStep = getNextStep(pending.id)
+    return {
+      preparation: 0,
+      confidence: 0,
+      performance: null,
+      overall: 0,
+      preparationDetail: {
+        score: 0,
+        subcategories: [],
+        message: 'No pude calcular mi preparación.',
+        guidance: null,
+      },
+      confidenceDetail: {
+        score: 0,
+        subcategories: [],
+        message: 'No pude calcular mi confianza.',
+        guidance: null,
+      },
+      performanceDetail: null,
+      deltas: { preparation: 0, confidence: 0, performance: null, overall: 0 },
+      trend: [],
     }
-  } else if (overall >= 50) {
-    message = "Estoy en camino. Déjame seguir aprendiendo."
-    const learning = categories.find((c) => c.status === 'learning') ?? categories.find((c) => c.status === 'pending')
-    if (learning) {
-      nextStep = getNextStep(learning.id)
-    }
-  } else if (overall > 0) {
-    message = "Estoy empezando. Necesito aprender más."
-    const next = categories.find((c) => c.status === 'pending')
-    if (next) {
-      nextStep = getNextStep(next.id)
-    }
-  } else {
-    message = "Todavía no sé nada. Empecemos con tu negocio."
-    nextStep = { label: 'Contarle a MIA sobre mi negocio', href: '/dashboard/onboarding' }
   }
-
-  return { categories, overall, message, nextStep }
-}
-
-function getNextStep(categoryId: string): { label: string; href: string } {
-  const steps: Record<string, { label: string; href: string }> = {
-    business: { label: 'Contarle a MIA sobre mi negocio', href: '/dashboard/onboarding' },
-    products: { label: 'Enseñarle a MIA tus productos', href: '/dashboard/knowledge' },
-    rules: { label: 'Enseñarle a MIA tus reglas', href: '/dashboard/knowledge' },
-    knowledge: { label: 'Enseñarle a MIA más sobre tu negocio', href: '/dashboard/knowledge' },
-    personality: { label: 'Enseñarle a MIA cómo hablar', href: '/dashboard/knowledge' },
-    connections: { label: 'Conectar un canal', href: '/dashboard/connections' },
-  }
-  return steps[categoryId] ?? { label: 'Continuar entrenando', href: '/dashboard/knowledge' }
 }
 
 export async function getDashboardData(
@@ -915,7 +787,7 @@ export async function getDashboardData(
   const [
     greetingContext,
     employeeStatus,
-    employeeReadiness,
+    miaReadiness,
     todaysActivity,
     dailyReport,
     needsFromYou,
@@ -926,7 +798,7 @@ export async function getDashboardData(
   ] = await Promise.all([
     getGreetingContext(supabase, businessId, userName),
     getEmployeeStatus(supabase, businessId),
-    getEmployeeReadiness(supabase, businessId),
+    getMIAReadiness(supabase, businessId),
     getTodaysActivity(supabase, businessId),
     getDailyReport(supabase, businessId),
     getNeedsFromYou(supabase, businessId),
@@ -939,7 +811,7 @@ export async function getDashboardData(
   return {
     greetingContext,
     employeeStatus,
-    employeeReadiness,
+    miaReadiness,
     todaysActivity,
     dailyReport,
     needsFromYou,
