@@ -66,13 +66,35 @@ export interface BusinessHealth {
   scores: HealthScore[]
 }
 
+export interface ProactiveSuggestion {
+  id: string
+  icon: string
+  message: string
+  actionLabel: string
+  actionHref: string
+}
+
+export interface Milestone {
+  id: string
+  icon: string
+  message: string
+}
+
+export interface GreetingContext {
+  greeting: string
+  subtitle: string
+}
+
 export interface DashboardData {
+  greetingContext: GreetingContext
   employeeStatus: EmployeeStatus
   todaysActivity: TodaysMetrics
   dailyReport: DailyReport
   needsFromYou: NeedsFromYou
   conversationTimeline: ConversationTimeline
   businessHealth: BusinessHealth
+  proactiveSuggestions: ProactiveSuggestion[]
+  milestones: Milestone[]
 }
 
 export async function getEmployeeStatus(
@@ -232,7 +254,7 @@ export async function getDailyReport(
   const yesterdayISO = yesterday.toISOString()
 
   const report: DailyReport = {
-    greeting: 'Buenos dias!',
+    greeting: "Here's what I did yesterday:",
     items: [],
   }
 
@@ -261,36 +283,36 @@ export async function getDailyReport(
 
     if (assistantMessages.length > 0) {
       report.items.push({
-        icon: '💬',
-        text: `Respondi ${assistantMessages.length} mensajes`,
+        icon: '✓',
+        text: `Answered ${assistantMessages.length} customers`,
       })
     }
 
     if (newCustomers.length > 0) {
       report.items.push({
-        icon: '👥',
-        text: `Atendi ${newCustomers.length} nuevos clientes`,
+        icon: '✓',
+        text: `Helped ${newCustomers.length} new people find what they needed`,
       })
     }
 
     const approved = learningEvents.filter((e) => e.status === 'approved').length
     if (approved > 0) {
       report.items.push({
-        icon: '📚',
-        text: `Aprendi ${approved} nuevas reglas`,
+        icon: '✓',
+        text: `Learned ${approved} new business rules`,
       })
     }
 
     if (report.items.length === 0) {
       report.items.push({
-        icon: '😴',
-        text: 'Tuve un dia tranquilo, esperando nuevos clientes',
+        icon: '💤',
+        text: "It was a quiet day. I'm ready for today's customers.",
       })
     }
   } catch {
     report.items.push({
       icon: '🔄',
-      text: 'Recopilando informacion...',
+      text: 'Putting together my report...',
     })
   }
 
@@ -530,26 +552,226 @@ export async function getBusinessHealth(
   return { overall, scores }
 }
 
-export async function getDashboardData(
+export async function getGreetingContext(
+  supabase: SupabaseClient,
+  businessId: string,
+  userName: string
+): Promise<GreetingContext> {
+  const hour = new Date().getHours()
+  const timeGreeting =
+    hour < 12 ? 'Buenos dias' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
+
+  try {
+    const { data: lastLogin } = await supabase
+      .from('businesses')
+      .select('updated_at')
+      .eq('id', businessId)
+      .single()
+
+    const { count: activeConversations } = await supabase
+      .from('conversations')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'active')
+      .eq('type', 'live')
+
+    const hasActiveConversations = (activeConversations ?? 0) > 0
+    const isReturning = lastLogin?.updated_at
+      ? Date.now() - new Date(lastLogin.updated_at).getTime() > 4 * 60 * 60 * 1000
+      : false
+
+    if (hasActiveConversations) {
+      return {
+        greeting: `${timeGreeting}, ${userName}`,
+        subtitle: 'Tengo conversaciones activas atendiendo a tus clientes.',
+      }
+    }
+
+    if (isReturning) {
+      return {
+        greeting: `Bienvenido de vuelta, ${userName}`,
+        subtitle: 'Mira lo que paso mientras estuviste fuera.',
+      }
+    }
+
+    return {
+      greeting: `${timeGreeting}, ${userName}`,
+      subtitle: 'Estoy lista para ayudar a tus clientes hoy.',
+    }
+  } catch {
+    return {
+      greeting: `${timeGreeting}, ${userName}`,
+      subtitle: 'Estoy lista para ayudar a tus clientes hoy.',
+    }
+  }
+}
+
+export async function getProactiveSuggestions(
   supabase: SupabaseClient,
   businessId: string
-): Promise<DashboardData> {
-  const [employeeStatus, todaysActivity, dailyReport, needsFromYou, conversationTimeline, businessHealth] =
-    await Promise.all([
-      getEmployeeStatus(supabase, businessId),
-      getTodaysActivity(supabase, businessId),
-      getDailyReport(supabase, businessId),
-      getNeedsFromYou(supabase, businessId),
-      getConversationTimeline(supabase, businessId),
-      getBusinessHealth(supabase, businessId),
+): Promise<ProactiveSuggestion[]> {
+  const suggestions: ProactiveSuggestion[] = []
+
+  try {
+    const [productsResult, pendingLearningResult] = await Promise.all([
+      supabase
+        .from('products')
+        .select('id, name, description')
+        .eq('business_id', businessId)
+        .eq('is_active', true),
+      supabase
+        .from('learning_events')
+        .select('id')
+        .eq('status', 'pending'),
     ])
 
-  return {
+    const products = productsResult.data ?? []
+    const incompleteProducts = products.filter(
+      (p) => !p.description || p.description.trim().length < 10
+    )
+
+    if (incompleteProducts.length > 0) {
+      suggestions.push({
+        id: 'incomplete-products',
+        icon: '📦',
+        message: `Not ${incompleteProducts.length === 1 ? 'one' : incompleteProducts.length} products ${incompleteProducts.length === 1 ? 'has' : 'have'} incomplete descriptions. Teaching me more about them would improve my answers.`,
+        actionLabel: 'Teach Me',
+        actionHref: '/dashboard/knowledge',
+      })
+    }
+
+    const pendingCount = pendingLearningResult.data?.length ?? 0
+    if (pendingCount > 0) {
+      suggestions.push({
+        id: 'pending-learning',
+        icon: '🎓',
+        message: `I have ${pendingCount} corrections waiting for your review. Your feedback helps me learn faster.`,
+        actionLabel: 'Review',
+        actionHref: '/dashboard/knowledge-studio',
+      })
+    }
+  } catch {
+    // Graceful degradation
+  }
+
+  return suggestions
+}
+
+export async function getMilestones(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<Milestone[]> {
+  const milestones: Milestone[] = []
+
+  try {
+    const [conversationsResult, knowledgeResult, connectionsResult] = await Promise.all([
+      supabase
+        .from('conversations')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'live'),
+      supabase
+        .from('knowledge_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('business_id', businessId)
+        .eq('is_active', true),
+      supabase
+        .from('channel_connections')
+        .select('id, status')
+        .eq('business_id', businessId)
+        .eq('status', 'connected'),
+    ])
+
+    const totalConversations = conversationsResult.count ?? 0
+    const knowledgeCount = knowledgeResult.count ?? 0
+    const connectedChannels = connectionsResult.data?.length ?? 0
+
+    if (totalConversations === 1) {
+      milestones.push({
+        id: 'first-conversation',
+        icon: '🎉',
+        message: 'Today I answered my first customer!',
+      })
+    } else if (totalConversations === 100) {
+      milestones.push({
+        id: 'hundred-conversations',
+        icon: '🎉',
+        message: 'We reached 100 conversations together!',
+      })
+    } else if (totalConversations === 1000) {
+      milestones.push({
+        id: 'thousand-conversations',
+        icon: '🎉',
+        message: 'We reached 1,000 conversations together!',
+      })
+    }
+
+    if (connectedChannels === 1) {
+      milestones.push({
+        id: 'first-channel',
+        icon: '🎉',
+        message: 'My first channel is connected. I can now talk to your customers!',
+      })
+    }
+
+    if (knowledgeCount >= 20) {
+      const { data: latestReport } = await supabase
+        .from('knowledge_analysis_reports')
+        .select('readiness_score')
+        .eq('business_id', businessId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (latestReport?.readiness_score && latestReport.readiness_score >= 90) {
+        milestones.push({
+          id: 'high-readiness',
+          icon: '🎉',
+          message: "I'm now ready to answer almost everything about your business!",
+        })
+      }
+    }
+  } catch {
+    // Graceful degradation
+  }
+
+  return milestones
+}
+
+export async function getDashboardData(
+  supabase: SupabaseClient,
+  businessId: string,
+  userName: string
+): Promise<DashboardData> {
+  const [
+    greetingContext,
     employeeStatus,
     todaysActivity,
     dailyReport,
     needsFromYou,
     conversationTimeline,
     businessHealth,
+    proactiveSuggestions,
+    milestones,
+  ] = await Promise.all([
+    getGreetingContext(supabase, businessId, userName),
+    getEmployeeStatus(supabase, businessId),
+    getTodaysActivity(supabase, businessId),
+    getDailyReport(supabase, businessId),
+    getNeedsFromYou(supabase, businessId),
+    getConversationTimeline(supabase, businessId),
+    getBusinessHealth(supabase, businessId),
+    getProactiveSuggestions(supabase, businessId),
+    getMilestones(supabase, businessId),
+  ])
+
+  return {
+    greetingContext,
+    employeeStatus,
+    todaysActivity,
+    dailyReport,
+    needsFromYou,
+    conversationTimeline,
+    businessHealth,
+    proactiveSuggestions,
+    milestones,
   }
 }
