@@ -216,38 +216,66 @@ When port 3000 is in use:
 
 ## Infrastructure Memory
 
-The Infrastructure Guardian maintains a **baseline** of what a healthy environment looks like. This baseline is the single source of truth for environment validation.
+The Infrastructure Guardian maintains a **baseline** of what a healthy environment looks like. This baseline is the single source of truth for environment validation. The baseline represents the **ideal development environment** for MIA Platform — not a specific machine.
 
 ### Baseline File
 
 **Location**: `.infrastructure/baseline.json`
 
-**Purpose**: Captures the exact state of a known-good environment. Every validation compares current state against this baseline.
+**Purpose**: Captures the exact state of a known-good environment. Every validation compares current state against this baseline. This is the **Golden Baseline**.
 
 **Architecture**:
 ```
 .infrastructure/
-├── baseline.json          # Known-good environment state
-└── history/               # Review history (gitignored or committed)
-    └── YYYY-MM-DD-HHmm.json  # Individual review snapshots
+├── baseline.json              # Golden Baseline (ideal environment)
+├── profiles/
+│   └── developer.json         # Development profile
+└── history/                   # Review history
+    ├── YYYY-MM-DD-HHmm-check.json
+    ├── YYYY-MM-DD-HHmm-baseline-created.json
+    └── YYYY-MM-DD-HHmm-baseline-updated.json
 ```
 
-### Baseline Schema
+### Golden Baseline Schema
+
+The Golden Baseline represents the ideal environment, not a specific machine. The `createdOn` field is historical metadata only.
 
 ```json
 {
+  "type": "golden_baseline",
   "version": "1.0",
-  "capturedAt": "2026-07-26T20:00:00Z",
-  "capturedBy": "infrastructure-guardian",
+  "createdAt": "2026-07-26T21:00:00Z",
+  "createdBy": "npm run doctor --create-baseline",
+  "createdOn": {
+    "machine": "HP-David",
+    "os": "windows",
+    "architecture": "x64"
+  },
+  "fingerprint": {
+    "packageJsonHash": "sha256:...",
+    "packageLockHash": "sha256:...",
+    "nodeVersion": "20.x.x",
+    "npmVersion": "10.x.x",
+    "gitVersion": "2.x.x",
+    "osFamily": "windows"
+  },
   "runtime": {
     "node": "20.x.x",
     "npm": "10.x.x",
     "git": "2.x.x"
   },
-  "dependencies": {
-    "lockFileVersion": 3,
-    "totalPackages": 850,
-    "knownVulnerabilities": 0
+  "tools": {
+    "opencode": { "installed": true, "version": "x.x.x" },
+    "playwright": { "installed": true, "browsers": ["chromium"] },
+    "chromeDevtoolsMcp": { "configured": true }
+  },
+  "project": {
+    "nextjs": "16.x.x",
+    "react": "19.x.x",
+    "typescript": "5.x.x",
+    "eslint": "9.x.x",
+    "totalDependencies": 850,
+    "lockFileVersion": 3
   },
   "environment": {
     "requiredVars": [
@@ -257,16 +285,10 @@ The Infrastructure Guardian maintains a **baseline** of what a healthy environme
       "SUPABASE_SERVICE_ROLE_KEY"
     ]
   },
-  "build": {
-    "typescript": "pass",
-    "eslint": "pass",
-    "nextBuild": "pass",
-    "buildTimeSeconds": 14
-  },
-  "testing": {
-    "playwrightVersion": "1.62.x",
-    "browsersInstalled": true,
-    "testsDiscoverable": 4
+  "validation": {
+    "lint": true,
+    "build": true,
+    "playwright": true
   },
   "checks": {
     "total": 14,
@@ -275,6 +297,177 @@ The Infrastructure Guardian maintains a **baseline** of what a healthy environme
   }
 }
 ```
+
+### Environment Fingerprint
+
+The fingerprint detects differences between the current machine and the Golden Baseline. It captures the essential identity of the environment without storing secrets.
+
+**Components**:
+
+| Component | Purpose | Source |
+|-----------|---------|--------|
+| `packageJsonHash` | Detects dependency changes | `sha256:package.json` |
+| `packageLockHash` | Detects lock file changes | `sha256:package-lock.json` |
+| `nodeVersion` | Detects Node.js version drift | `node --version` |
+| `npmVersion` | Detects npm version drift | `npm --version` |
+| `gitVersion` | Detects git version drift | `git --version` |
+| `osFamily` | Detects OS differences | `process.platform` |
+
+**How fingerprint is computed**:
+```
+1. Read package.json → compute SHA-256 hash
+2. Read package-lock.json → compute SHA-256 hash
+3. Get node version → extract major.minor
+4. Get npm version → extract major.minor
+5. Get git version → extract major.minor
+6. Get OS family → lowercase string
+```
+
+**Fingerprint comparison**:
+- `packageJsonHash` differs → dependencies changed (Moderate drift)
+- `packageLockHash` differs → lock file changed (Minor drift)
+- `nodeVersion` differs → Node.js version drift (Minor/Moderate depending on major)
+- `osFamily` differs → OS mismatch (Minor drift, cross-platform development)
+
+### Golden Baseline Commands
+
+#### `npm run doctor --create-baseline`
+
+Captures the current environment as the new Golden Baseline. This is a **write operation** that creates or overwrites `baseline.json`.
+
+**Preconditions**:
+- Lint must pass
+- Build must pass
+- Playwright tests must pass
+
+**Flow**:
+```
+1. Detect current environment (OS, arch, machine name)
+2. Compute environment fingerprint
+3. Run npm run lint → if fails, STOP
+4. Run npm run build → if fails, STOP
+5. Run npm test → if fails, STOP
+6. All gates passed → capture baseline
+7. Capture runtime versions, tools, project info
+8. Write .infrastructure/baseline.json
+9. Write .infrastructure/history/YYYY-MM-DD-HHmm-baseline-created.json
+10. Display success message with baseline summary
+```
+
+**Output**:
+```
+Golden Baseline Created
+═══════════════════════
+
+Machine: HP-David (windows/x64)
+Fingerprint: sha256:abc123...
+
+Runtime:
+  Node.js: v20.19.2
+  npm: 10.8.2
+  Git: 2.50.1
+
+Project:
+  Next.js: 16.2.12
+  React: 19.2.4
+  TypeScript: 5.8.3
+  Dependencies: 850
+
+Validation: ✅ Lint | ✅ Build | ✅ Playwright
+
+Baseline saved to .infrastructure/baseline.json
+History saved to .infrastructure/history/2026-07-26-2100-baseline-created.json
+```
+
+#### `npm run doctor --compare`
+
+Compares the current environment against the Golden Baseline **without modifying anything**. This is a **read-only** operation.
+
+**Flow**:
+```
+1. Read Golden Baseline from .infrastructure/baseline.json
+2. Compute current environment fingerprint
+3. Compare each component of the baseline
+4. Classify drift for each check
+5. Calculate compatibility percentage
+6. Display comparison report
+```
+
+**Output**:
+```
+Golden Baseline Comparison
+══════════════════════════
+
+Baseline: Created 2026-07-26 on HP-David
+Current:  Running on HP-David
+
+Fingerprint:
+  package.json:      ✅ Match
+  package-lock.json: ⚠️ Changed (1 dependency modified)
+  Node.js:           ✅ Match (v20.19.2)
+  npm:               ✅ Match (v10.8.2)
+  Git:               ✅ Match (v2.50.1)
+  OS:                ✅ Match (windows)
+
+Runtime:
+  Node.js:     ✅ Match
+  npm:         ✅ Match
+  Git:         ✅ Match
+
+Tools:
+  OpenCode:    ✅ Installed (1.2.24)
+  Playwright:  ⚠️ Version drift (1.62.0 → 1.63.0)
+  DevTools MCP: ✅ Configured
+
+Project:
+  Next.js:     ✅ Match (16.2.12)
+  React:       ✅ Match (19.2.4)
+  TypeScript:  ✅ Match (5.8.3)
+  ESLint:      ✅ Match (9.28.0)
+  Dependencies: ⚠️ 850 → 852 (+2 packages)
+
+Environment:
+  ✅ All required vars present
+
+Validation:
+  ✅ Lint passes
+  ✅ Build succeeds
+  ✅ Playwright tests pass
+
+Compatibility: 92% (23/25 checks match)
+
+Drift Summary:
+  Minor: 2 (playwright version, dependency count)
+  Moderate: 0
+  Major: 0
+
+Status: ✅ COMPATIBLE — Ready for development
+```
+
+**Exit Codes**:
+- `0` — 80%+ compatible (Minor/Moderate drift only)
+- `1` — <80% compatible or Major drift detected
+- `2` — Golden Baseline not found (run `--create-baseline` first)
+
+#### `npm run doctor --update-baseline`
+
+Updates the Golden Baseline to current environment state. This is a **write operation** that requires **explicit confirmation**.
+
+**Flow**:
+```
+1. Read current Golden Baseline
+2. Compute new fingerprint
+3. Show what will change
+4. Request confirmation (y/N)
+5. If declined → exit with code 1
+6. If confirmed → backup current baseline
+7. Capture new baseline
+8. Write .infrastructure/baseline.json
+9. Write .infrastructure/history/YYYY-MM-DD-HHmm-baseline-updated.json
+10. Display success message
+```
+
+**Security**: Always creates backup before updating. Never overwrites without confirmation.
 
 ### Baseline Comparison
 
@@ -288,7 +481,7 @@ When `npm run doctor` runs, it compares the current environment against the base
 | Build time | 14s | 16s | +2s (investigate) |
 | Tests | 4 discoverable | 4 discoverable | None |
 
-**Drift severity levels**:
+**Drift severity levels** (4-level classification):
 
 | Level | Meaning | Action |
 |-------|---------|--------|
@@ -316,19 +509,33 @@ Every `npm run doctor` execution creates a review snapshot:
 ### Baseline Lifecycle
 
 ```
-1. Initial capture → npm run doctor --init
-   Creates baseline.json from current healthy state
+1. Initial capture → npm run doctor --create-baseline
+   Validates lint+build+tests, captures baseline from current healthy state
 
 2. Periodic validation → npm run doctor
    Compares current state against baseline
    Creates history snapshot
 
-3. Baseline update → npm run doctor --update
-   Updates baseline to current state (requires justification)
+3. Read-only comparison → npm run doctor --compare
+   Shows compatibility percentage without modifying anything
 
-4. Drift remediation → npm run doctor --fix
+4. Baseline update → npm run doctor --update-baseline
+   Updates baseline to current state (requires confirmation, creates backup)
+
+5. Drift remediation → npm run doctor --fix
    Attempts to fix drift automatically where possible
 ```
+
+### Security Rules
+
+| Rule | Description |
+|------|-------------|
+| **No secrets** | Never store API keys, tokens, or passwords in baseline. Only variable names and existence status. |
+| **No auto-update** | `--update-baseline` always requires explicit confirmation (`y/N`). Never update silently. |
+| **Always backup** | Before any baseline update, backup current `baseline.json` to `history/` directory. |
+| **Validation first** | `--create-baseline` only succeeds if lint, build, and Playwright tests all pass. |
+| **Audit trail** | Every baseline operation creates a history entry with timestamp and machine info. |
+| **Read-only default** | `--compare` never modifies anything. Only `--create-baseline` and `--update-baseline` write. |
 
 ## Auto Diagnosis
 

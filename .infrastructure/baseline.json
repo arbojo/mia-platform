@@ -1,0 +1,63 @@
+{
+  "type": "golden_baseline",
+  "version": "1.0",
+  "createdAt": "2026-07-26T21:00:00Z",
+  "createdBy": "npm run doctor --create-baseline",
+  "createdOn": {
+    "machine": "HP-David",
+    "os": "windows",
+    "architecture": "x64"
+  },
+  "fingerprint": {
+    "packageJsonHash": null,
+    "packageLockHash": null,
+    "nodeVersion": null,
+    "npmVersion": null,
+    "gitVersion": null,
+    "osFamily": null
+  },
+  "runtime": {
+    "node": null,
+    "npm": null,
+    "git": null
+  },
+  "tools": {
+    "opencode": {
+      "installed": false,
+      "version": null
+    },
+    "playwright": {
+      "installed": false,
+      "browsers": []
+    },
+    "chromeDevtoolsMcp": {
+      "configured": false
+    }
+  },
+  "project": {
+    "nextjs": null,
+    "react": null,
+    "typescript": null,
+    "eslint": null,
+    "totalDependencies": null,
+    "lockFileVersion": null
+  },
+  "environment": {
+    "requiredVars": [
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "OPENAI_API_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY"
+    ]
+  },
+  "validation": {
+    "lint": false,
+    "build": false,
+    "playwright": false
+  },
+  "checks": {
+    "total": 14,
+    "passed": 0,
+    "failed": 14
+  }
+}

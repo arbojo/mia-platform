@@ -155,20 +155,27 @@ These are never installed or recommended by Bootstrap:
 ```
 1. Receive setup request (npm run setup-machine or --check)
 2. Detect environment (OS, arch, shell, current tools)
-3. Read .infrastructure/baseline.json
-4. Read .infrastructure/profiles/developer.json
-5. Compare each tool/version against baseline
-6. Classify: satisfied / missing / mismatched
-7. Display comparison table
-8. If --check mode → display recommendations and exit
-9. If full mode → request confirmation for installations
-10. Install approved tools (auto-install only)
-11. Run npm ci
-12. Run npm run environment-check
-13. Run npm run doctor
-14. Generate setup report → docs/setup-reports/
-15. Write history entry → .infrastructure/history/
-16. Display final summary
+3. Read Golden Baseline (.infrastructure/baseline.json)
+   Display: "Comparing against Golden Environment: [createdOn.machine] ([createdOn.os])"
+4. Compute current environment fingerprint
+   - package.json hash
+   - package-lock.json hash
+   - node/npm/git versions
+   - OS family
+5. Compare fingerprint against Golden Baseline fingerprint
+6. Read .infrastructure/profiles/developer.json
+7. Compare each tool/version against baseline
+8. Classify: satisfied / missing / mismatched
+9. Display comparison table with fingerprint results
+10. If --check mode → display recommendations and exit
+11. If full mode → request confirmation for installations
+12. Install approved tools (auto-install only)
+13. Run npm ci
+14. Run npm run environment-check
+15. Run npm run doctor
+16. Generate setup report → docs/setup-reports/
+17. Write history entry → .infrastructure/history/
+18. Display final summary
 ```
 
 ## Mandatory Checklist

@@ -123,8 +123,10 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Detects drift between local and expected state
 - Recommends `npm run doctor` for full health check
 - Recommends `npm run environment-check` for quick validation
-- Maintains `.infrastructure/baseline.json` as the healthy environment reference
+- Maintains `.infrastructure/baseline.json` as the Golden Baseline (ideal environment reference)
+- Maintains environment fingerprint (package hashes, versions, OS)
 - Auto-diagnoses errors and delegates to the responsible agent
+- Uses 4-level drift classification: None, Minor, Moderate, Major
 
 #### Architect Rules
 - Must analyze before coding
