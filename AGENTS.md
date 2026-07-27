@@ -22,13 +22,14 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ## 2. Agent System
 
-MIA uses a **specialized engineering agent system** with 13 distinct roles. Every task must follow the mandatory workflow through these agents.
+MIA uses a **specialized engineering agent system** with 14 distinct roles. Every task must follow the mandatory workflow through these agents.
 
 ### 2.1 Agent Roster
 
 | Agent | File | Responsibility |
 |-------|------|----------------|
 | CTO | `.agents/cto.md` | Highest technical authority, strategic decisions |
+| Infrastructure Guardian | `.agents/infrastructure-guardian.md` | Environment validation, toolchain integrity |
 | Architect | `.agents/architect.md` | Tactical design, architecture decisions |
 | Domain Expert | `.agents/domain-expert.md` | Business domain model guardian |
 | Product Manager | `.agents/product-manager.md` | User experience protector |
@@ -49,29 +50,31 @@ Every task must follow this workflow:
 ```
 1. CTO (strategic approval for major features)
    ↓
-2. Architect (analyze, design, propose)
+2. Infrastructure Guardian (environment validation, toolchain integrity)
    ↓
-3. Domain Expert (validate domain consistency)
+3. Architect (analyze, design, propose)
    ↓
-4. Product Manager (validate user value)
+4. Domain Expert (validate domain consistency)
    ↓
-5. Database Engineer (if schema changes needed)
+5. Product Manager (validate user value)
    ↓
-6. Backend Engineer (APIs, logic, integrations)
+6. Database Engineer (if schema changes needed)
    ↓
-7. Frontend Engineer (UI components, pages)
+7. Backend Engineer (APIs, logic, integrations)
    ↓
-8. AI Engineer (if AI features involved)
+8. Frontend Engineer (UI components, pages)
    ↓
-9. Performance Engineer (performance and cost review)
+9. AI Engineer (if AI features involved)
    ↓
-10. Security Engineer (security review)
+10. Performance Engineer (performance and cost review)
    ↓
-11. Analytics Engineer (measurement strategy)
+11. Security Engineer (security review)
    ↓
-12. QA Engineer (lint, build, Playwright, DevTools)
+12. Analytics Engineer (measurement strategy)
    ↓
-13. Release Manager (commit, push, changelog)
+13. QA Engineer (lint, build, Playwright, DevTools)
+   ↓
+14. Release Manager (commit, push, changelog)
 ```
 
 **No agent may skip this workflow.** Each agent must complete their responsibilities before handing off to the next.
@@ -83,6 +86,7 @@ Certain agents hold **guardian authority** — the power to block progress when 
 | Guardian | Authority | Can Block |
 |----------|-----------|-----------|
 | **CTO** | May reject implementations that introduce unnecessary complexity or violate platform architecture | Large features, architectural changes |
+| **Infrastructure Guardian** | May block development when environment inconsistencies, toolchain issues, or misconfigurations are detected | Development sessions with broken environments |
 | **Security Engineer** | May block releases if security risks are detected | Any release with security vulnerabilities |
 | **Performance Engineer** | May request optimization before release when measurable performance or cost improvements exist | Releases with known performance issues |
 | **QA Engineer** | May block releases if quality gates fail | Releases that fail lint, build, or tests |
@@ -96,6 +100,14 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Challenges assumptions before coding
 - Can stop implementation and request redesign
 - Approves large features (6+ files) before implementation
+
+#### Infrastructure Guardian Rules
+- Validates environment before any development session
+- Blocks development when environment is broken
+- Never allows code changes on inconsistent environments
+- Detects drift between local and expected state
+- Recommends `npm run doctor` for full health check
+- Recommends `npm run environment-check` for quick validation
 
 #### Architect Rules
 - Must analyze before coding
