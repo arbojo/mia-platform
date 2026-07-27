@@ -22,13 +22,14 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ## 2. Agent System
 
-MIA uses a **specialized engineering agent system** with 14 distinct roles. Every task must follow the mandatory workflow through these agents.
+MIA uses a **specialized engineering agent system** with 15 distinct roles. Every task must follow the mandatory workflow through these agents.
 
 ### 2.1 Agent Roster
 
 | Agent | File | Responsibility |
 |-------|------|----------------|
 | CTO | `.agents/cto.md` | Highest technical authority, strategic decisions |
+| Infrastructure Bootstrap | `.agents/infrastructure-bootstrap.md` | Environment preparation, tool installation, machine setup |
 | Infrastructure Guardian | `.agents/infrastructure-guardian.md` | Environment validation, toolchain integrity, infrastructure memory, auto diagnosis |
 | Architect | `.agents/architect.md` | Tactical design, architecture decisions |
 | Domain Expert | `.agents/domain-expert.md` | Business domain model guardian |
@@ -48,33 +49,35 @@ MIA uses a **specialized engineering agent system** with 14 distinct roles. Ever
 Every task must follow this workflow:
 
 ```
-1. CTO (strategic approval for major features)
+1. Infrastructure Bootstrap (environment preparation, tool installation)
    ↓
 2. Infrastructure Guardian (environment validation, toolchain integrity)
    ↓
-3. Architect (analyze, design, propose)
+3. CTO (strategic approval for major features)
    ↓
-4. Domain Expert (validate domain consistency)
+4. Architect (analyze, design, propose)
    ↓
-5. Product Manager (validate user value)
+5. Domain Expert (validate domain consistency)
    ↓
-6. Database Engineer (if schema changes needed)
+6. Product Manager (validate user value)
    ↓
-7. Backend Engineer (APIs, logic, integrations)
+7. Database Engineer (if schema changes needed)
    ↓
-8. Frontend Engineer (UI components, pages)
+8. Backend Engineer (APIs, logic, integrations)
    ↓
-9. AI Engineer (if AI features involved)
+9. Frontend Engineer (UI components, pages)
    ↓
-10. Performance Engineer (performance and cost review)
+10. AI Engineer (if AI features involved)
    ↓
-11. Security Engineer (security review)
+11. Performance Engineer (performance and cost review)
    ↓
-12. Analytics Engineer (measurement strategy)
+12. Security Engineer (security review)
    ↓
-13. QA Engineer (lint, build, Playwright, DevTools)
+13. Analytics Engineer (measurement strategy)
    ↓
-14. Release Manager (commit, push, changelog)
+14. QA Engineer (lint, build, Playwright, DevTools)
+   ↓
+15. Release Manager (commit, push, changelog)
 ```
 
 **No agent may skip this workflow.** Each agent must complete their responsibilities before handing off to the next.
@@ -100,6 +103,18 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Challenges assumptions before coding
 - Can stop implementation and request redesign
 - Approves large features (6+ files) before implementation
+
+#### Infrastructure Bootstrap Rules
+- Prepares machine before any development session begins
+- Reads baseline and developer profile before installing anything
+- Requests confirmation before any system modification
+- Auto-installs only npm dependencies and Playwright browsers
+- Recommends (never auto-installs) OpenCode and elevated-permission tools
+- Never modifies secrets or environment variable values
+- Never upgrades major versions without explicit approval
+- Never executes destructive commands
+- Generates setup report for every full setup
+- Runs in `--check` mode when only validation is needed
 
 #### Infrastructure Guardian Rules
 - Validates environment before any development session

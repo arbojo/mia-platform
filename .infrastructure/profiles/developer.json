@@ -1,0 +1,41 @@
+{
+  "name": "developer",
+  "description": "Standard development environment for MIA Platform",
+  "version": "1.0",
+  "tools": {
+    "opencode": {
+      "required": true,
+      "autoInstall": false,
+      "checkCommand": "opencode --version",
+      "installHint": "npm install -g opencode",
+      "reason": "Global CLI tool — requires manual install"
+    },
+    "playwright-browsers": {
+      "required": true,
+      "autoInstall": true,
+      "checkCommand": "npx playwright install --dry-run",
+      "installCommand": "npx playwright install chromium",
+      "reason": "Development tool — safe to auto-install"
+    },
+    "chrome-devtools-mcp": {
+      "required": true,
+      "autoInstall": false,
+      "configFile": "opencode.json",
+      "checkKey": "mcpServers.chrome-devtools",
+      "reason": "MCP configuration — must be validated manually"
+    }
+  },
+  "envVars": {
+    "required": [
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "OPENAI_API_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY"
+    ]
+  },
+  "npmCommands": {
+    "install": "npm ci",
+    "validate": "npm run environment-check",
+    "verify": "npm run doctor"
+  }
+}
