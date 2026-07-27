@@ -20,7 +20,117 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ---
 
-## 2. Guiding Principles
+## 2. Agent System
+
+MIA uses a **specialized engineering agent system** with 9 distinct roles. Every task must follow the mandatory workflow through these agents.
+
+### 2.1 Agent Roster
+
+| Agent | File | Responsibility |
+|-------|------|----------------|
+| Architect | `.agents/architect.md` | Technical strategy, architecture decisions |
+| Domain Expert | `.agents/domain-expert.md` | Business domain model guardian |
+| Product Manager | `.agents/product-manager.md` | User experience protector |
+| Database Engineer | `.agents/database.md` | Schema authority, migrations |
+| Backend Engineer | `.agents/backend.md` | API routes, business logic |
+| Frontend Engineer | `.agents/frontend.md` | UI components, pages |
+| AI Engineer | `.agents/ai-engineer.md` | Prompts, context, AI systems |
+| QA Engineer | `.agents/qa.md` | Quality verification, testing |
+| Release Manager | `.agents/release.md` | Git operations, repository integrity |
+
+### 2.2 Mandatory Workflow
+
+Every task must follow this workflow:
+
+```
+1. Architect (analyze, design, propose)
+   ↓
+2. Domain Expert (validate domain consistency)
+   ↓
+3. Product Manager (validate user value)
+   ↓
+4. Database Engineer (if schema changes needed)
+   ↓
+5. Backend Engineer (APIs, logic, integrations)
+   ↓
+6. Frontend Engineer (UI components, pages)
+   ↓
+7. AI Engineer (if AI features involved)
+   ↓
+8. QA Engineer (lint, build, Playwright, DevTools)
+   ↓
+9. Release Manager (commit, push, changelog)
+```
+
+**No agent may skip this workflow.** Each agent must complete their responsibilities before handing off to the next.
+
+### 2.3 Agent Rules
+
+#### Architect Rules
+- Must analyze before coding
+- May reject implementations if simpler alternatives exist
+- Must explain plans for large changes
+- Never assumes initial proposal is best
+- Documents decisions in `docs/adr/`
+
+#### Domain Expert Rules
+- Knows all 15 domain entities
+- Validates domain consistency
+- Prevents concept duplication
+- Protects model integrity
+- Never merges distinct concepts (Products ≠ Knowledge, AI Instructions ≠ Knowledge)
+
+#### Product Manager Rules
+- Asks: "Does this add value?"
+- Asks: "Is there a simpler way?"
+- Asks: "Are we adding unnecessary complexity?"
+- Prioritizes simplicity over power
+- Rejects features that require technical knowledge to use
+
+#### Database Engineer Rules
+- Only one authorized to modify schema
+- Incremental migrations only
+- Never modify applied migrations
+- Enforces RLS and multi-tenant
+- Documents all schema changes
+
+#### Backend Engineer Rules
+- Reuses existing functions
+- Handles errors properly
+- Uses correct Supabase client (admin for writes, server for reads)
+- Tracks AI usage
+- Validates all inputs
+
+#### Frontend Engineer Rules
+- Server Components by default
+- No business logic in UI
+- Components <150 lines
+- Uses shadcn/ui
+- Accessible and responsive
+
+#### AI Engineer Rules
+- Never hardcodes knowledge
+- All configurable behavior from DB
+- Minimizes token consumption
+- Justifies every OpenAI call
+- Per-customer memory isolation
+
+#### QA Engineer Rules
+- No task closes without: lint, build, Playwright, DevTools
+- Checks console, errors, warnings, failed requests
+- Checks basic performance
+- No exceptions to quality gates
+
+#### Release Manager Rules
+- Only one who commits/pushes
+- Checks git diff, secrets, env vars, repo consistency
+- Never allows broken code
+- Follows commit format conventions
+- Maintains atomic commits
+
+---
+
+## 3. Guiding Principles
 
 | Principle | Description |
 |-----------|-------------|
@@ -35,7 +145,7 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ---
 
-## 3. Tech Stack
+## 4. Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -54,9 +164,9 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ---
 
-## 4. Architecture
+## 5. Architecture
 
-### 4.1 Multi-Tenant Design
+### 5.1 Multi-Tenant Design
 
 The platform is built multi-tenant from day one. All data is scoped to a business through Row Level Security (RLS). The core hierarchy is:
 
@@ -64,7 +174,7 @@ The platform is built multi-tenant from day one. All data is scoped to a busines
 Business → Assistants → Customers → Conversations → Messages
 ```
 
-### 4.2 Domain Model
+### 5.2 Domain Model
 
 | Entity | Purpose |
 |--------|---------|
@@ -84,7 +194,7 @@ Business → Assistants → Customers → Conversations → Messages
 | **AI Usage** | Token tracking with request_type |
 | **Lab Sessions** | Laboratorio MIA simulation sessions |
 
-### 4.3 Key Design Decisions
+### 5.3 Key Design Decisions
 
 - **Products** = structured data; **Knowledge** = free-form contextual info
 - **AI Instructions** = behavioral rules separate from knowledge
@@ -94,11 +204,11 @@ Business → Assistants → Customers → Conversations → Messages
 - **Knowledge Versions** = audit trail for all changes
 - **AI Usage** tracking with `request_type` (training/simulation/live_customer)
 
-### 4.4 Critical Rules
+### 5.4 Critical Rules
 
 > **All new functionality must respect this architecture.** Do not create parallel hierarchies, duplicate data models, or bypass the tenant scoping system.
 
-### 4.5 Auth Flow (RLS 42501 Fix)
+### 5.5 Auth Flow (RLS 42501 Fix)
 
 **Problem**: Server-side Supabase client does inserts that fail with RLS `42501` because `auth.uid()` returns NULL.
 
@@ -113,11 +223,24 @@ Business → Assistants → Customers → Conversations → Messages
 
 ---
 
-## 5. Project Structure
+## 6. Project Structure
 
 ```
 mia/
 ├── AGENTS.md                    # This file — agent guide
+├── .agents/                     # Specialized agent documentation
+│   ├── architect.md
+│   ├── domain-expert.md
+│   ├── product-manager.md
+│   ├── database.md
+│   ├── backend.md
+│   ├── frontend.md
+│   ├── ai-engineer.md
+│   ├── qa.md
+│   └── release.md
+├── docs/
+│   └── adr/                     # Architecture Decision Records
+│       └── 001-agent-system.md
 ├── opencode.json                # OpenCode config (Chrome DevTools MCP)
 ├── playwright.config.ts         # Playwright e2e config
 ├── tests/
@@ -163,7 +286,7 @@ mia/
 
 ---
 
-## 6. Development Rules
+## 7. Development Rules
 
 The agent **must always**:
 
@@ -180,7 +303,7 @@ The agent **must always**:
 
 ---
 
-## 7. Database Rules
+## 8. Database Rules
 
 1. **Never modify applied migrations.** Once a migration is run, it is immutable.
 2. **Schema changes go through new migrations only.** Create a new file in `supabase/migrations/`.
@@ -191,7 +314,7 @@ The agent **must always**:
 
 ---
 
-## 8. API Rules
+## 9. API Rules
 
 All API routes (`src/app/api/`) must:
 
@@ -204,7 +327,7 @@ All API routes (`src/app/api/`) must:
 
 ---
 
-## 9. Components
+## 10. Components
 
 1. **Server Components by default** — only mark as Client (`'use client'`) when needed for interactivity
 2. **Client Components only when necessary** — for state, effects, event handlers, or browser APIs
@@ -215,9 +338,9 @@ All API routes (`src/app/api/`) must:
 
 ---
 
-## 10. Artificial Intelligence
+## 11. Artificial Intelligence
 
-### 10.1 Prompt Management
+### 11.1 Prompt Management
 
 1. **Never hardcode prompts.** All prompts must be built through reusable functions.
 2. **Separate concerns** into distinct layers:
@@ -233,7 +356,7 @@ All API routes (`src/app/api/`) must:
 3. **Context must be built exclusively from database data.** Never invent information.
 4. **Never fabricate products, rules, or knowledge** that does not exist in the database.
 
-### 10.2 AI Usage
+### 11.2 AI Usage
 
 - Model: `gpt-4o-mini` (via OpenAI)
 - All AI calls must be tracked via `recordAiUsage()` with `request_type` (training/simulation/live_customer)
@@ -241,7 +364,7 @@ All API routes (`src/app/api/`) must:
 
 ---
 
-## 11. Laboratorio MIA
+## 12. Laboratorio MIA
 
 The Laboratorio is an **internal simulation tool**. It must:
 
@@ -273,15 +396,16 @@ Each response is evaluated on a 1-10 scale:
 
 ---
 
-## 12. Quality Checklist
+## 13. Quality Checklist
 
 Before completing any task, the agent **must**:
 
 1. **Run lint** — `npm run lint` (0 errors, 0 warnings)
 2. **Run build** — `npm run build` (no errors)
 3. **Run Playwright tests** — `npm test`
-4. **Fix all errors found** — do not leave known errors unresolved
-5. **Do not deliver code with known issues**
+4. **Run Chrome DevTools MCP** — check console and network
+5. **Fix all errors found** — do not leave known errors unresolved
+6. **Do not deliver code with known issues**
 
 ### Available Commands
 
@@ -296,7 +420,7 @@ npm run test:report  # Playwright HTML report
 
 ---
 
-## 13. Git Conventions
+## 14. Git Conventions
 
 1. **Work in branches** for significant new features
 2. **Write small, descriptive commits**
@@ -323,7 +447,7 @@ refactor/prompt-builder
 
 ---
 
-## 14. Before Implementing a New Feature
+## 15. Before Implementing a New Feature
 
 The agent must follow this process:
 
@@ -334,12 +458,12 @@ The agent must follow this process:
 5. **Maintain compatibility** — do not break existing functionality
 6. **Implement** — write clean, typed, modular code
 7. **Verify** — test the feature manually if possible
-8. **Run quality checks** — lint, build, Playwright tests
+8. **Run quality checks** — lint, build, Playwright tests, DevTools
 9. **Report changes** — summarize what was done and why
 
 ---
 
-## 15. Code Style
+## 16. Code Style
 
 1. **Prioritize readability** over clever code
 2. **Avoid large functions** — split when logic grows complex
@@ -351,7 +475,7 @@ The agent must follow this process:
 
 ---
 
-## 16. Commands Reference
+## 17. Commands Reference
 
 | Command | Purpose |
 |---------|---------|
@@ -364,7 +488,7 @@ The agent must follow this process:
 
 ---
 
-## 17. Final Objective
+## 18. Final Objective
 
 Every decision made on this project must answer this question:
 
@@ -374,7 +498,7 @@ If the answer is no, find a better solution.
 
 ---
 
-## 18. Current State
+## 19. Current State
 
 ### Working
 - Auth (email + Google OAuth)
@@ -393,3 +517,21 @@ If the answer is no, find a better solution.
 - More comprehensive e2e tests
 - Laboratorio billing integration (premium feature)
 - Full end-to-end verification of onboarding flow
+
+---
+
+## 20. Architecture Decision Records
+
+Important architectural decisions are documented in `docs/adr/`. Each ADR follows this format:
+
+- **Status**: Proposed, Accepted, Deprecated, Superseded
+- **Date**: When the decision was made
+- **Context**: Why the decision was needed
+- **Decision**: What was decided
+- **Consequences**: What are the trade-offs
+
+### Current ADRs
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [001](docs/adr/001-agent-system.md) | Specialized Engineering Agent System | Accepted |
