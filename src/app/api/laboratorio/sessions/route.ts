@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -42,7 +43,8 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { business_id, assistant_id, mode, title, conversation_id } = body
 
-  const { data: session, error } = await supabase
+  const admin = createAdminClient()
+  const { data: session, error } = await admin
     .from('lab_sessions')
     .insert({
       business_id,

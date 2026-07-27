@@ -49,7 +49,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   const [context, setContext] = useState<LabContext | null>(null)
   const [sessions, setSessions] = useState<LabSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
+  const [currentConversationId] = useState<string | null>(null)
   const [teachSuggestions, setTeachSuggestions] = useState<string[] | null>(null)
   const [tokenUsage, setTokenUsage] = useState({ input: 0, output: 0, cost: 0 })
   const [messageCount, setMessageCount] = useState(0)

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { openai } from '@ai-sdk/openai'
 import { generateObject } from 'ai'
@@ -15,7 +16,9 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { sessionId, conversationId, assistantId } = body
 
-  const { data: messages } = await supabase
+  const admin = createAdminClient()
+
+  const { data: messages } = await admin
     .from('messages')
     .select('role, content')
     .eq('conversation_id', conversationId)
@@ -25,7 +28,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No messages' }, { status: 400 })
   }
 
-  const { data: assistant } = await supabase
+  const { data: assistant } = await admin
     .from('assistants')
     .select('*, businesses(*)')
     .eq('id', assistantId)
@@ -76,7 +79,7 @@ Identifica fortalezas, debilidades y sugerencias concretas de mejora.`,
     const evaluation = result.object
 
     if (sessionId) {
-      await supabase
+      await admin
         .from('lab_sessions')
         .update({
           status: 'completed',

@@ -57,14 +57,16 @@ const communicationStyles = [
 ]
 
 interface OnboardingWizardProps {
-  businessId: string
+  userId: string
+  businessId: string | null
   initialStep?: number
 }
 
-export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWizardProps) {
+export function OnboardingWizard({ userId, businessId: initialBusinessId, initialStep = 0 }: OnboardingWizardProps) {
   const router = useRouter()
   const supabase = createClient()
-  const [step, setStep] = useState(initialStep)
+  const [businessId, setBusinessId] = useState(initialBusinessId)
+  const [step, setStep] = useState(initialStep === -1 ? 0 : initialStep)
   const [loading, setLoading] = useState(false)
 
   const [assistantName, setAssistantName] = useState('MIA')
@@ -86,14 +88,35 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
   const [ruleCategory, setRuleCategory] = useState<string>('zones')
   const [ruleContent, setRuleContent] = useState('')
   const [rules, setRules] = useState<Array<{ category: string; content: string }>>([])
+  const [error, setError] = useState<string | null>(null)
 
   const handleCreateAssistant = async () => {
     setLoading(true)
+    setError(null)
+
+    let activeBusinessId = businessId
+
+    if (!activeBusinessId) {
+      const { data: newBiz, error: bizError } = await supabase
+        .from('businesses')
+        .insert({ owner_id: userId, name: 'Mi negocio' })
+        .select()
+        .single()
+
+      if (bizError || !newBiz) {
+        console.error('Error creating business:', bizError)
+        setError(`Error al crear negocio: ${bizError?.message ?? 'unknown'}`)
+        setLoading(false)
+        return
+      }
+      activeBusinessId = newBiz.id
+      setBusinessId(newBiz.id)
+    }
 
     const { data: assistant, error: assistantError } = await supabase
       .from('assistants')
       .insert({
-        business_id: businessId,
+        business_id: activeBusinessId,
         name: assistantName,
         personality: selectedPersonality,
         communication_style: selectedStyle.id as 'formal' | 'casual' | 'warm' | 'direct',
@@ -103,6 +126,7 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
 
     if (assistantError) {
       console.error('Error creating assistant:', assistantError)
+      setError(`Error al crear asistente: ${assistantError.message}`)
       setLoading(false)
       return
     }
@@ -117,7 +141,7 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
     await supabase
       .from('businesses')
       .update({ onboarding_status: 'identity_completed' })
-      .eq('id', businessId)
+      .eq('id', activeBusinessId)
 
     setStep(1)
     setLoading(false)
@@ -125,6 +149,7 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
 
   const handleSaveBusiness = async () => {
     setLoading(true)
+    setError(null)
 
     const { error } = await supabase
       .from('brand_identities')
@@ -138,6 +163,7 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
 
     if (error) {
       console.error('Error saving brand:', error)
+      setError(`Error al guardar: ${error.message}`)
       setLoading(false)
       return
     }
@@ -170,15 +196,22 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
 
   const handleSaveProducts = async () => {
     setLoading(true)
+    setError(null)
 
     for (const product of products) {
-      await supabase.from('products').insert({
+      const { error } = await supabase.from('products').insert({
         business_id: businessId,
         name: product.name,
         price: product.price ? parseFloat(product.price) : null,
         description: product.description || null,
         benefits: product.benefits || null,
       })
+      if (error) {
+        console.error('Error saving product:', error)
+        setError(`Error al guardar producto: ${error.message}`)
+        setLoading(false)
+        return
+      }
     }
 
     await supabase
@@ -201,13 +234,20 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
 
   const handleSaveRules = async () => {
     setLoading(true)
+    setError(null)
 
     for (const rule of rules) {
-      await supabase.from('sales_rules').insert({
+      const { error } = await supabase.from('sales_rules').insert({
         business_id: businessId,
         category: rule.category as 'zones' | 'payment' | 'schedule' | 'promotions' | 'restrictions' | 'escalation',
         content: rule.content,
       })
+      if (error) {
+        console.error('Error saving rule:', error)
+        setError(`Error al guardar regla: ${error.message}`)
+        setLoading(false)
+        return
+      }
     }
 
     await supabase
@@ -228,6 +268,11 @@ export function OnboardingWizard({ businessId, initialStep = 0 }: OnboardingWiza
 
   return (
     <div className="max-w-2xl mx-auto">
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700 text-sm">{error}</p>
+        </div>
+      )}
       <div className="mb-8">
         <div className="flex justify-between mb-4">
           {steps.map((s, i) => (

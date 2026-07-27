@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect, notFound } from 'next/navigation'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 
@@ -40,7 +41,8 @@ export default async function TrainingPage({
   let conversationId = conversation?.id
 
   if (!conversationId) {
-    const { data: newConversation } = await supabase
+    const admin = createAdminClient()
+    const { data: newConversation } = await admin
       .from('conversations')
       .insert({
         assistant_id: id,

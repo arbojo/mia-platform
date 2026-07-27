@@ -13,28 +13,11 @@ export default async function OnboardingPage() {
     redirect('/login')
   }
 
-  let { data: business } = await supabase
+  const { data: business } = await supabase
     .from('businesses')
     .select('*')
     .eq('owner_id', user.id)
     .single()
-
-  if (!business) {
-    const { data: newBusiness, error } = await supabase
-      .from('businesses')
-      .insert({
-        owner_id: user.id,
-        name: 'Mi negocio',
-      })
-      .select()
-      .single()
-
-    if (error || !newBusiness) {
-      redirect('/dashboard')
-    }
-
-    business = newBusiness
-  }
 
   const stepMap: Record<string, number> = {
     created: 0,
@@ -45,11 +28,15 @@ export default async function OnboardingPage() {
     ready: 3,
   }
 
-  const currentStep = stepMap[business.onboarding_status] ?? 0
+  const currentStep = business ? (stepMap[business.onboarding_status] ?? 0) : -1
 
   return (
     <div className="py-8">
-      <OnboardingWizard businessId={business.id} initialStep={currentStep} />
+      <OnboardingWizard
+        userId={user.id}
+        businessId={business?.id ?? null}
+        initialStep={currentStep}
+      />
     </div>
   )
 }

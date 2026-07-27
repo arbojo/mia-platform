@@ -2,6 +2,7 @@ import { openai } from '@ai-sdk/openai'
 import { streamText } from 'ai'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { MODEL, TOKEN_COSTS } from '@/lib/ai/client'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getBusinessContext, recordAiUsage } from '@/lib/ai/knowledge'
@@ -94,8 +95,9 @@ export async function POST(req: Request) {
         })
 
         if (conversationId) {
+          const admin = createAdminClient()
           const lastUserMessage = messages[messages.length - 1]
-          await supabase.from('messages').insert([
+          await admin.from('messages').insert([
             {
               conversation_id: conversationId,
               role: 'user',
