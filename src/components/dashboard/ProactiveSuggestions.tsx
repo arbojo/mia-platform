@@ -11,7 +11,7 @@ export function ProactiveSuggestions({
   return (
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
       <h3 className="mb-3 text-sm font-medium text-amber-700 uppercase tracking-wider">
-        Suggestions from MIA
+        Sugerencias de MIA
       </h3>
       <div className="space-y-3">
         {suggestions.map((s) => (

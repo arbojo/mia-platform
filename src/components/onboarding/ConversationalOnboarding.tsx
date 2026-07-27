@@ -213,10 +213,10 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
   }
 
   const stepLabels: Record<string, string> = {
-    business_info: 'Business',
-    products: 'Products',
-    rules: 'Rules',
-    personality: 'Assistant',
+    business_info: 'Negocio',
+    products: 'Productos',
+    rules: 'Reglas',
+    personality: 'Asistente',
   }
 
   const stepIcons: Record<string, string> = {
@@ -246,10 +246,10 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
         </div>
         <p className="text-xs text-zinc-400 text-center">
           {completedSteps.size === 0
-            ? "I'm just getting to know you"
+            ? "Estoy conociéndote"
             : completedSteps.size < 4
-              ? `I already know ${completedSteps.size} of 4 things about your business`
-              : "I'm ready to start working"}
+              ? `Ya sé ${completedSteps.size} de 4 cosas sobre tu negocio`
+              : "Estoy lista para empezar a trabajar"}
         </p>
       </div>
 
@@ -261,7 +261,7 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
             </Avatar>
             <div>
               <h3 className="font-semibold text-gray-900">MIA</h3>
-              <p className="text-sm text-gray-500">Your new sales assistant</p>
+              <p className="text-sm text-gray-500">Tu nueva asistente de ventas</p>
             </div>
           </div>
         </div>
@@ -308,7 +308,7 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Tell me about your business..."
+              placeholder="Cuéntame sobre tu negocio..."
               disabled={isLoading || isCreating}
               className="bg-white"
             />
@@ -317,7 +317,7 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
               disabled={isLoading || !input.trim() || isCreating}
               className="bg-violet-600 hover:bg-violet-700"
             >
-              {isCreating ? 'Creating...' : isLoading ? '...' : 'Send'}
+              {isCreating ? 'Creando...' : isLoading ? '...' : 'Enviar'}
             </Button>
           </div>
         </form>

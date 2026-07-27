@@ -30,7 +30,7 @@ export function EmployeeReadiness({ data }: { data: ReadinessType }) {
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-zinc-900">MIA Readiness</h3>
+        <h3 className="text-lg font-semibold text-zinc-900">Preparación de MIA</h3>
         <span className="text-2xl font-bold text-zinc-900">{data.overall}%</span>
       </div>
 

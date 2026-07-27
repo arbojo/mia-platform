@@ -4,7 +4,7 @@ export function DailyReport({ report }: { report: DailyReportType }) {
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-zinc-900">Daily Summary</h3>
+        <h3 className="text-lg font-semibold text-zinc-900">Resumen del día</h3>
         <p className="text-sm text-zinc-500">{report.greeting}</p>
       </div>
 
@@ -19,7 +19,7 @@ export function DailyReport({ report }: { report: DailyReportType }) {
 
       {report.items.length > 0 && report.items[0].icon === '✓' && (
         <p className="mt-4 text-sm text-zinc-500">
-          I think we&apos;re ready for another great day.
+          Creo que estamos listos para otro gran día.
         </p>
       )}
     </div>

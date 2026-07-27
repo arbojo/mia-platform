@@ -2,6 +2,7 @@ import { requireAuth } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { TrainingChat } from '@/components/chat/TrainingChat'
+import { MemoryTimeline } from '@/components/training/MemoryTimeline'
 
 export default async function TrainingPage({
   params,
@@ -47,12 +48,17 @@ export default async function TrainingPage({
   }
 
   return (
-    <div className="h-[calc(100vh-8rem)]">
-      <TrainingChat
-        assistantName={assistant.name}
-        assistantId={id}
-        conversationId={conversationId}
-      />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
+      <div className="lg:col-span-2">
+        <TrainingChat
+          assistantName={assistant.name}
+          assistantId={id}
+          conversationId={conversationId}
+        />
+      </div>
+      <div className="overflow-y-auto">
+        <MemoryTimeline assistantId={id} />
+      </div>
     </div>
   )
 }

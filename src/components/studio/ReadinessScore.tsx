@@ -35,7 +35,7 @@ export function ReadinessScore({ overall, completeness, consistency, readiness }
     <Card className="border-violet-100">
       <CardContent className="pt-6">
         <div className="text-center mb-6">
-          <p className="text-sm text-muted-foreground mb-1">Readiness Score</p>
+          <p className="text-sm text-muted-foreground mb-1">Puntuación de Preparación</p>
           <p className={`text-5xl font-bold ${getScoreColor(overall)}`}>{overall}</p>
           <p className="text-sm text-muted-foreground mt-1">{getScoreLabel(overall)}</p>
         </div>

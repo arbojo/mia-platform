@@ -22,27 +22,27 @@ export default async function DashboardPage() {
     .eq('owner_id', user.id)
     .single()
 
-  const userName = user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'there'
+  const userName = user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'ahí'
 
   if (!business) {
     return (
       <div className="space-y-8">
         <MorningGreeting
           context={{
-            greeting: `Welcome, ${userName}`,
-            subtitle: "Let's set up your business so I can start helping your customers.",
+            greeting: `Bienvenido, ${userName}`,
+            subtitle: "Configuremos tu negocio para que pueda empezar a ayudar a tus clientes.",
           }}
         />
         <div className="py-12 text-center border-2 border-dashed border-violet-200 rounded-xl">
           <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            Let&apos;s get started!
+            ¡Empecemos!
           </h2>
           <p className="mb-6 text-gray-600">
-            First, tell me about your business so I can start working for you.
+            Primero cuéntame sobre tu negocio para que pueda empezar a trabajar para ti.
           </p>
           <Link href="/dashboard/onboarding">
             <Button className="bg-violet-600 hover:bg-violet-700">
-              Tell MIA about my business
+              Contarle a MIA sobre mi negocio
             </Button>
           </Link>
         </div>
@@ -55,20 +55,20 @@ export default async function DashboardPage() {
       <div className="space-y-8">
         <MorningGreeting
           context={{
-            greeting: `Hi, ${userName}`,
-            subtitle: "I'm ready. Just create me and I'll start working.",
+            greeting: `Hola, ${userName}`,
+            subtitle: "Estoy lista. Solo créame y empezaré a trabajar.",
           }}
         />
         <div className="py-12 text-center border-2 border-dashed border-violet-200 rounded-xl">
           <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            Create your first assistant
+            Crea tu primera asistente
           </h2>
           <p className="mb-6 text-gray-600">
-            Let&apos;s set up your assistant step by step.
+            Configuremos tu asistente paso a paso.
           </p>
           <Link href="/dashboard/onboarding">
             <Button className="bg-violet-600 hover:bg-violet-700">
-              Create MIA
+              Crear a MIA
             </Button>
           </Link>
         </div>

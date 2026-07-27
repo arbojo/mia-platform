@@ -15,6 +15,14 @@ interface Personality {
   sales_aggressiveness: number
 }
 
+interface RecentLesson {
+  id: string
+  original_response: string
+  corrected_response: string | null
+  correction_type: string
+  created_at: string
+}
+
 function getPersonalityLabel(personality: Personality): string {
   const labels: string[] = []
 
@@ -64,6 +72,18 @@ function formatKnowledge(knowledge: KnowledgeItem[]): string {
     .join('\n\n')
 }
 
+function formatLessons(lessons: RecentLesson[]): string {
+  if (lessons.length === 0) return ''
+
+  const lessonLines = lessons.map((l) => {
+    const typeLabel = l.correction_type === 'rule' ? 'regla' : 
+                      l.correction_type === 'instruction' ? 'instrucción' : 'conocimiento'
+    return `- [${typeLabel}] "${l.original_response}" → "${l.corrected_response}"`
+  })
+
+  return lessonLines.join('\n')
+}
+
 export function buildMasterPrompt(params: {
   business: Business
   brand: BrandIdentity | null
@@ -73,8 +93,9 @@ export function buildMasterPrompt(params: {
   instructions: AiInstruction[]
   knowledge: KnowledgeItem[]
   customerMemory?: string
+  recentLessons?: RecentLesson[]
 }): string {
-  const { business, brand, assistant, products, rules, instructions, knowledge, customerMemory } = params
+  const { business, brand, assistant, products, rules, instructions, knowledge, customerMemory, recentLessons } = params
 
   const personality = assistant.personality as unknown as Personality
   const personalityLabel = getPersonalityLabel(personality)
@@ -124,5 +145,6 @@ ${formatProducts(products)}
 ${formatRules(rules)}
 ${formatInstructions(instructions) ? `\n## Instrucciones Adicionales\n${formatInstructions(instructions)}` : ''}
 ${formatKnowledge(knowledge) ? `\n## Conocimiento Adicional\n${formatKnowledge(knowledge)}` : ''}
-${customerMemory ? `\n## Memoria del Cliente\n${customerMemory}` : ''}`
+${customerMemory ? `\n## Memoria del Cliente\n${customerMemory}` : ''}
+${formatLessons(recentLessons ?? []) ? `\n## Lo que he aprendido de ti\nÚltimas correcciones que me enseñaste:\n${formatLessons(recentLessons ?? [])}` : ''}`
 }

@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getOpenAIClient, MODEL, TOKEN_COSTS } from '@/lib/ai/client'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
-import { getBusinessContext, recordAiUsage } from '@/lib/ai/knowledge'
+import { getBusinessContext, getRecentLessons, recordAiUsage } from '@/lib/ai/knowledge'
 import { resolveCustomer } from './identity'
 import { WebChatAdapter } from './adapters/web'
 import { WhatsAppAdapter } from './adapters/whatsapp'
@@ -52,7 +52,10 @@ async function buildChatContext(businessId: string, assistantId: string) {
     throw new GatewayError('Assistant not found', 'ASSISTANT_NOT_FOUND', 404)
   }
 
-  const context = await getBusinessContext(businessId)
+  const [context, recentLessons] = await Promise.all([
+    getBusinessContext(businessId),
+    getRecentLessons(assistantId, 10),
+  ])
 
   const systemPrompt = buildMasterPrompt({
     business: fullAssistant.businesses,
@@ -62,6 +65,7 @@ async function buildChatContext(businessId: string, assistantId: string) {
     rules: context.rules,
     instructions: context.instructions,
     knowledge: context.knowledge,
+    recentLessons,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

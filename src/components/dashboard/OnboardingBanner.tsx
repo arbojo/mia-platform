@@ -12,9 +12,9 @@ export function OnboardingBanner({ onboardingStatus }: { onboardingStatus?: stri
   return (
     <div className="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-lg">
       <p className="text-violet-800">
-        <strong>Welcome!</strong> It looks like I still don&apos;t know enough about your business.{' '}
+        <strong>¡Bienvenida!</strong> Parece que todavía no conozco suficiente sobre tu negocio.{' '}
         <a href="/dashboard/onboarding" className="underline font-medium">
-          Teach me more
+          Enséñame más
         </a>
       </p>
     </div>

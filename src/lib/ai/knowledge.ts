@@ -43,6 +43,20 @@ export async function getBusinessContext(businessId: string) {
   }
 }
 
+export async function getRecentLessons(assistantId: string, limit: number = 10) {
+  const supabase = createAdminClient()
+
+  const { data } = await supabase
+    .from('learning_events')
+    .select('id, original_response, corrected_response, correction_type, created_at')
+    .eq('assistant_id', assistantId)
+    .in('status', ['approved', 'modified'])
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return data ?? []
+}
+
 export async function getAssistantWithBusiness(assistantId: string) {
   const supabase = createAdminClient()
 

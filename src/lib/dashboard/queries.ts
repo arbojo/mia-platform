@@ -270,7 +270,7 @@ export async function getDailyReport(
   const yesterdayISO = yesterday.toISOString()
 
   const report: DailyReport = {
-    greeting: "Here's what I did yesterday:",
+    greeting: "Esto es lo que hice ayer:",
     items: [],
   }
 
@@ -300,14 +300,14 @@ export async function getDailyReport(
     if (assistantMessages.length > 0) {
       report.items.push({
         icon: '✓',
-        text: `Answered ${assistantMessages.length} customers`,
+        text: `Atendí a ${assistantMessages.length} clientes`,
       })
     }
 
     if (newCustomers.length > 0) {
       report.items.push({
         icon: '✓',
-        text: `Helped ${newCustomers.length} new people find what they needed`,
+        text: `Ayudé a ${newCustomers.length} personas nuevas a encontrar lo que necesitaban`,
       })
     }
 
@@ -315,20 +315,20 @@ export async function getDailyReport(
     if (approved > 0) {
       report.items.push({
         icon: '✓',
-        text: `Learned ${approved} new business rules`,
+        text: `Aprendí ${approved} reglas nuevas del negocio`,
       })
     }
 
     if (report.items.length === 0) {
       report.items.push({
         icon: '💤',
-        text: "It was a quiet day. I'm ready for today's customers.",
+        text: "Fue un día tranquilo. Estoy lista para los clientes de hoy.",
       })
     }
   } catch {
     report.items.push({
       icon: '🔄',
-      text: 'Putting together my report...',
+      text: 'Armando mi reporte...',
     })
   }
 
@@ -649,8 +649,8 @@ export async function getProactiveSuggestions(
       suggestions.push({
         id: 'incomplete-products',
         icon: '📦',
-        message: `Not ${incompleteProducts.length === 1 ? 'one' : incompleteProducts.length} products ${incompleteProducts.length === 1 ? 'has' : 'have'} incomplete descriptions. Teaching me more about them would improve my answers.`,
-        actionLabel: 'Teach Me',
+        message: `${incompleteProducts.length === 1 ? 'Un producto' : `${incompleteProducts.length} productos`} ${incompleteProducts.length === 1 ? 'tiene' : 'tienen'} descripciones incompletas. Enséñame más sobre ellos para mejorar mis respuestas.`,
+        actionLabel: 'Enseñame',
         actionHref: '/dashboard/knowledge',
       })
     }
@@ -660,8 +660,8 @@ export async function getProactiveSuggestions(
       suggestions.push({
         id: 'pending-learning',
         icon: '🎓',
-        message: `I have ${pendingCount} corrections waiting for your review. Your feedback helps me learn faster.`,
-        actionLabel: 'Review',
+        message: `Tengo ${pendingCount} correcciones esperando tu revisión. Tu retroalimentación me ayuda a aprender más rápido.`,
+        actionLabel: 'Revisar',
         actionHref: '/dashboard/knowledge-studio',
       })
     }
@@ -704,19 +704,19 @@ export async function getMilestones(
       milestones.push({
         id: 'first-conversation',
         icon: '🎉',
-        message: 'Today I answered my first customer!',
+        message: '¡Hoy atendí a mi primer cliente!',
       })
     } else if (totalConversations === 100) {
       milestones.push({
         id: 'hundred-conversations',
         icon: '🎉',
-        message: 'We reached 100 conversations together!',
+        message: '¡Llegamos a 100 conversaciones juntos!',
       })
     } else if (totalConversations === 1000) {
       milestones.push({
         id: 'thousand-conversations',
         icon: '🎉',
-        message: 'We reached 1,000 conversations together!',
+        message: '¡Llegamos a 1,000 conversaciones juntos!',
       })
     }
 
@@ -724,7 +724,7 @@ export async function getMilestones(
       milestones.push({
         id: 'first-channel',
         icon: '🎉',
-        message: 'My first channel is connected. I can now talk to your customers!',
+        message: 'Mi primer canal está conectado. ¡Ahora puedo hablar con tus clientes!',
       })
     }
 
@@ -741,7 +741,7 @@ export async function getMilestones(
         milestones.push({
           id: 'high-readiness',
           icon: '🎉',
-          message: "I'm now ready to answer almost everything about your business!",
+          message: "¡Estoy lista para responder casi todo sobre tu negocio!",
         })
       }
     }
@@ -802,60 +802,60 @@ export async function getEmployeeReadiness(
 
     categories.push({
       id: 'business',
-      label: 'Business',
+      label: 'Negocio',
       icon: '🏢',
       status: hasBrand ? 'learned' : 'pending',
-      description: hasBrand ? 'I know about your business' : "I don't know about your business yet",
+      description: hasBrand ? 'Conozco tu negocio' : "Todavía no conozco tu negocio",
     })
 
     categories.push({
       id: 'products',
-      label: 'Products',
+      label: 'Productos',
       icon: '📦',
       status: productCount > 0 ? 'learned' : hasBrand ? 'learning' : 'pending',
       description: productCount > 0
-        ? `I know ${productCount} product${productCount > 1 ? 's' : ''}`
-        : 'I need to learn what you sell',
+        ? `Conozco ${productCount} producto${productCount > 1 ? 's' : ''}`
+        : 'Necesito aprender qué vendes',
     })
 
     categories.push({
       id: 'rules',
-      label: 'Rules',
+      label: 'Reglas',
       icon: '📋',
       status: rulesCount > 0 ? 'learned' : productCount > 0 ? 'learning' : 'pending',
       description: rulesCount > 0
-        ? `I know ${rulesCount} business rule${rulesCount > 1 ? 's' : ''}`
-        : "I need to learn how your business works",
+        ? `Conozco ${rulesCount} regla${rulesCount > 1 ? 's' : ''} del negocio`
+        : "Necesito aprender cómo funciona tu negocio",
     })
 
     categories.push({
       id: 'knowledge',
-      label: 'Knowledge',
+      label: 'Conocimiento',
       icon: '📚',
       status: knowledgeCount > 0 ? 'learned' : rulesCount > 0 ? 'learning' : 'pending',
       description: knowledgeCount > 0
-        ? `I know ${knowledgeCount} thing${knowledgeCount > 1 ? 's' : ''} about your business`
-        : "I need to learn more about your business",
+        ? `Sé ${knowledgeCount} cosa${knowledgeCount > 1 ? 's' : ''} sobre tu negocio`
+        : "Necesito aprender más sobre tu negocio",
     })
 
     categories.push({
       id: 'personality',
-      label: 'Personality',
+      label: 'Personalidad',
       icon: '🤖',
       status: instructionsCount > 0 ? 'learned' : 'pending',
       description: instructionsCount > 0
-        ? 'I know how to speak with your customers'
-        : "I don't know how you want me to speak yet",
+        ? 'Sé cómo hablar con tus clientes'
+        : "Todavía no sé cómo quieres que hable",
     })
 
     categories.push({
       id: 'connections',
-      label: 'Connections',
+      label: 'Conexiones',
       icon: '📱',
       status: connectedChannels > 0 ? 'learned' : 'pending',
       description: connectedChannels > 0
-        ? `I'm connected to ${connectedChannels} channel${connectedChannels > 1 ? 's' : ''}`
-        : "I don't have any channels to talk to customers yet",
+        ? `Estoy conectada a ${connectedChannels} canal${connectedChannels > 1 ? 'es' : ''}`
+        : "Todavía no tengo canales para hablar con clientes",
     })
   } catch {
     // Graceful degradation
@@ -868,28 +868,28 @@ export async function getEmployeeReadiness(
   let nextStep: { label: string; href: string } | null = null
 
   if (overall === 100) {
-    message = "I'm ready to start working."
+    message = "Estoy lista para empezar a trabajar."
   } else if (overall >= 80) {
-    message = "I'm almost ready to start working."
+    message = "Casi estoy lista para empezar a trabajar."
     const pending = categories.find((c) => c.status === 'pending')
     if (pending) {
       nextStep = getNextStep(pending.id)
     }
   } else if (overall >= 50) {
-    message = "I'm getting there. Let me keep learning."
+    message = "Estoy en camino. Déjame seguir aprendiendo."
     const learning = categories.find((c) => c.status === 'learning') ?? categories.find((c) => c.status === 'pending')
     if (learning) {
       nextStep = getNextStep(learning.id)
     }
   } else if (overall > 0) {
-    message = "I'm just getting started. I need to learn more."
+    message = "Estoy empezando. Necesito aprender más."
     const next = categories.find((c) => c.status === 'pending')
     if (next) {
       nextStep = getNextStep(next.id)
     }
   } else {
-    message = "I don't know anything yet. Let's start with your business."
-    nextStep = { label: 'Tell MIA about your business', href: '/dashboard/onboarding' }
+    message = "Todavía no sé nada. Empecemos con tu negocio."
+    nextStep = { label: 'Contarle a MIA sobre mi negocio', href: '/dashboard/onboarding' }
   }
 
   return { categories, overall, message, nextStep }
@@ -897,14 +897,14 @@ export async function getEmployeeReadiness(
 
 function getNextStep(categoryId: string): { label: string; href: string } {
   const steps: Record<string, { label: string; href: string }> = {
-    business: { label: 'Tell MIA about your business', href: '/dashboard/onboarding' },
-    products: { label: 'Teach MIA your products', href: '/dashboard/knowledge' },
-    rules: { label: 'Teach MIA your rules', href: '/dashboard/knowledge' },
-    knowledge: { label: 'Teach MIA more about your business', href: '/dashboard/knowledge' },
-    personality: { label: 'Teach MIA how to speak', href: '/dashboard/knowledge' },
-    connections: { label: 'Connect a channel', href: '/dashboard/connections' },
+    business: { label: 'Contarle a MIA sobre mi negocio', href: '/dashboard/onboarding' },
+    products: { label: 'Enseñarle a MIA tus productos', href: '/dashboard/knowledge' },
+    rules: { label: 'Enseñarle a MIA tus reglas', href: '/dashboard/knowledge' },
+    knowledge: { label: 'Enseñarle a MIA más sobre tu negocio', href: '/dashboard/knowledge' },
+    personality: { label: 'Enseñarle a MIA cómo hablar', href: '/dashboard/knowledge' },
+    connections: { label: 'Conectar un canal', href: '/dashboard/connections' },
   }
-  return steps[categoryId] ?? { label: 'Continue training', href: '/dashboard/knowledge' }
+  return steps[categoryId] ?? { label: 'Continuar entrenando', href: '/dashboard/knowledge' }
 }
 
 export async function getDashboardData(

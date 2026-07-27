@@ -9,9 +9,9 @@ const navItems = [
   { href: '/dashboard', label: 'Inicio' },
   { href: '/dashboard/assistants', label: 'Asistentes' },
   { href: '/dashboard/knowledge', label: 'Centro de Conocimiento' },
-  { href: '/dashboard/knowledge-studio', label: 'Knowledge Studio' },
+  { href: '/dashboard/knowledge-studio', label: 'Estudio de Conocimiento' },
   { href: '/dashboard/laboratorio', label: 'Simulador de Ventas' },
-  { href: '/dashboard/connections', label: 'MIA Connections' },
+  { href: '/dashboard/connections', label: 'Conexiones de MIA' },
 ]
 
 export function Sidebar() {

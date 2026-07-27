@@ -7,9 +7,9 @@ function StatusDot({ status }: { status: EmployeeStatus['status'] }) {
     offline: 'bg-zinc-300',
   }
   const labels = {
-    online: 'Working',
-    idle: 'Waiting for customers',
-    offline: 'Offline',
+    online: 'Trabajando',
+    idle: 'Esperando clientes',
+    offline: 'Desconectada',
   }
 
   return (
@@ -40,20 +40,20 @@ function ConfidenceMessage({ value }: { value: number }) {
   let color: string
 
   if (value >= 80) {
-    message = "I'm ready to answer most customer questions."
+    message = "Estoy lista para responder la mayoría de preguntas de clientes."
     color = 'text-emerald-600'
   } else if (value >= 50) {
-    message = 'I still need to learn a little more before I can answer everything.'
+    message = 'Necesito aprender un poco más antes de poder responder todo.'
     color = 'text-amber-600'
   } else {
-    message = "I'm just getting started. Teach me more about your business."
+    message = "Estoy empezando. Enséñame más sobre tu negocio."
     color = 'text-zinc-500'
   }
 
   return (
     <div className="w-full">
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-sm text-zinc-500">How prepared I feel</span>
+        <span className="text-sm text-zinc-500">Qué preparada me siento</span>
         <span className={`text-sm font-medium ${color}`}>{value}%</span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
@@ -81,7 +81,7 @@ export function EmployeeStatusCard({ status }: { status: EmployeeStatus }) {
           </div>
         </div>
         <div className="rounded-lg bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700">
-          {status.readyToSell ? 'Ready to sell' : 'Getting ready...'}
+          {status.readyToSell ? 'Lista para vender' : 'Preparándome...'}
         </div>
       </div>
 
@@ -92,7 +92,7 @@ export function EmployeeStatusCard({ status }: { status: EmployeeStatus }) {
       {status.channels.length > 0 && (
         <div className="mb-3">
           <p className="mb-2 text-xs font-medium text-zinc-400 uppercase tracking-wider">
-            Where I work
+            Donde trabajo
           </p>
           <div className="flex flex-wrap gap-2">
             {status.channels.map((channel) => (
@@ -104,8 +104,8 @@ export function EmployeeStatusCard({ status }: { status: EmployeeStatus }) {
 
       {status.lastActivity && (
         <p className="text-xs text-zinc-400">
-          Last time I talked to a customer:{' '}
-          {new Date(status.lastActivity).toLocaleString('en-US', {
+          Última vez que hablé con un cliente:{' '}
+          {new Date(status.lastActivity).toLocaleString('es-MX', {
             hour: '2-digit',
             minute: '2-digit',
             day: 'numeric',
