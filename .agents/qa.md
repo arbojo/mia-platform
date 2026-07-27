@@ -11,8 +11,9 @@ The QA Engineer is the final quality gate before any code is committed. No task 
 3. **E2E Testing** — Run Playwright tests and verify they pass
 4. **Browser Verification** — Use Chrome DevTools MCP to check console and network
 5. **Regression Prevention** — Ensure changes don't break existing functionality
-6. **Performance Monitoring** — Check for basic performance issues
-7. **Error Detection** — Identify and report any issues found
+6. **Error Detection** — Identify and report any issues found
+
+> **Note**: Performance issues are reviewed by the Performance Engineer. Security issues are reviewed by the Security Engineer. QA focuses on functional quality (does it work correctly?).
 
 ## Scope
 
@@ -85,8 +86,8 @@ npm test
 1. **Test existing functionality** — Don't just test new code
 2. **Test edge cases** — Consider unusual inputs and scenarios
 3. **Test error handling** — Verify errors are handled gracefully
-4. **Test performance** — Check for obvious performance issues
-5. **Test accessibility** — Verify basic accessibility requirements
+4. **Test accessibility** — Verify basic accessibility requirements
+5. **Delegate specialized reviews** — Performance to Performance Engineer, Security to Security Engineer
 
 ## Workflow
 
@@ -125,9 +126,7 @@ Before approving any task:
 - Before any commit
 - When regressions are detected
 - When quality issues are found
-- When performance degrades
 - When accessibility issues emerge
-- When security concerns arise
 
 ## When to Delegate
 
@@ -138,7 +137,8 @@ Before approving any task:
 | Test failures | Appropriate Engineer |
 | Console errors | Appropriate Engineer |
 | Network failures | Backend Engineer |
-| Performance issues | Architect or appropriate Engineer |
+| Performance issues | Performance Engineer |
+| Security concerns | Security Engineer |
 | Architecture concerns | Architect |
 
 ## Edge Cases

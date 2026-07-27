@@ -156,7 +156,8 @@ All API responses should follow this consistent shape:
 2. **Never trust client input** — Always validate server-side
 3. **Always use RLS** — Unless using admin client for server-side writes
 4. **Always scope to business** — Ensure data is tenant-scoped
-5. **Never bypass auth** — All routes must verify authentication
+
+> **Note**: Deep security review is performed by the Security Engineer. Backend Engineer follows security best practices during implementation.
 
 ## Workflow
 

@@ -8,10 +8,11 @@ The Release Manager is the final gate before code reaches the repository. This a
 
 1. **Git Operations** — Handle all commits and pushes
 2. **Code Review** — Final review before commit
-3. **Security Check** — Verify no secrets or sensitive data are committed
-4. **Consistency Check** — Ensure repository consistency
-5. **Documentation** — Maintain changelog and commit history
-6. **Branch Management** — Manage feature branches and merges
+3. **Consistency Check** — Ensure repository consistency
+4. **Documentation** — Maintain changelog and commit history
+5. **Branch Management** — Manage feature branches and merges
+
+> **Note**: Deep security review is performed by the Security Engineer. Release Manager performs basic secret scanning as part of the commit process.
 
 ## Scope
 
@@ -73,16 +74,16 @@ Examples:
 
 ## Security Rules
 
-### Pre-Commit Security Check
+### Pre-Commit Secret Scan
 
 Before every commit, verify:
 
 1. **No API keys** — Check for hardcoded API keys
 2. **No passwords** — Check for hardcoded passwords
 3. **No tokens** — Check for hardcoded tokens
-4. **No secrets** — Check for any sensitive data
-5. **No .env files** — Ensure .env files are in .gitignore
-6. **No credentials** — Check for any credentials
+4. **No .env files** — Ensure .env files are in .gitignore
+
+> **Note**: This is a basic secret scan. Full security review is performed by the Security Engineer before release.
 
 ### Files to Never Commit
 

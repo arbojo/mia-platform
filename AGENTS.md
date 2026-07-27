@@ -22,19 +22,23 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 ## 2. Agent System
 
-MIA uses a **specialized engineering agent system** with 9 distinct roles. Every task must follow the mandatory workflow through these agents.
+MIA uses a **specialized engineering agent system** with 13 distinct roles. Every task must follow the mandatory workflow through these agents.
 
 ### 2.1 Agent Roster
 
 | Agent | File | Responsibility |
 |-------|------|----------------|
-| Architect | `.agents/architect.md` | Technical strategy, architecture decisions |
+| CTO | `.agents/cto.md` | Highest technical authority, strategic decisions |
+| Architect | `.agents/architect.md` | Tactical design, architecture decisions |
 | Domain Expert | `.agents/domain-expert.md` | Business domain model guardian |
 | Product Manager | `.agents/product-manager.md` | User experience protector |
 | Database Engineer | `.agents/database.md` | Schema authority, migrations |
 | Backend Engineer | `.agents/backend.md` | API routes, business logic |
 | Frontend Engineer | `.agents/frontend.md` | UI components, pages |
 | AI Engineer | `.agents/ai-engineer.md` | Prompts, context, AI systems |
+| Performance Engineer | `.agents/performance-engineer.md` | Performance, scalability, cost optimization |
+| Security Engineer | `.agents/security-engineer.md` | Data protection, platform integrity |
+| Analytics Engineer | `.agents/analytics-engineer.md` | Feature measurability, metrics |
 | QA Engineer | `.agents/qa.md` | Quality verification, testing |
 | Release Manager | `.agents/release.md` | Git operations, repository integrity |
 
@@ -43,28 +47,55 @@ MIA uses a **specialized engineering agent system** with 9 distinct roles. Every
 Every task must follow this workflow:
 
 ```
-1. Architect (analyze, design, propose)
+1. CTO (strategic approval for major features)
    ↓
-2. Domain Expert (validate domain consistency)
+2. Architect (analyze, design, propose)
    ↓
-3. Product Manager (validate user value)
+3. Domain Expert (validate domain consistency)
    ↓
-4. Database Engineer (if schema changes needed)
+4. Product Manager (validate user value)
    ↓
-5. Backend Engineer (APIs, logic, integrations)
+5. Database Engineer (if schema changes needed)
    ↓
-6. Frontend Engineer (UI components, pages)
+6. Backend Engineer (APIs, logic, integrations)
    ↓
-7. AI Engineer (if AI features involved)
+7. Frontend Engineer (UI components, pages)
    ↓
-8. QA Engineer (lint, build, Playwright, DevTools)
+8. AI Engineer (if AI features involved)
    ↓
-9. Release Manager (commit, push, changelog)
+9. Performance Engineer (performance and cost review)
+   ↓
+10. Security Engineer (security review)
+   ↓
+11. Analytics Engineer (measurement strategy)
+   ↓
+12. QA Engineer (lint, build, Playwright, DevTools)
+   ↓
+13. Release Manager (commit, push, changelog)
 ```
 
 **No agent may skip this workflow.** Each agent must complete their responsibilities before handing off to the next.
 
-### 2.3 Agent Rules
+### 2.3 Guardian Agents
+
+Certain agents hold **guardian authority** — the power to block progress when their domain is at risk:
+
+| Guardian | Authority | Can Block |
+|----------|-----------|-----------|
+| **CTO** | May reject implementations that introduce unnecessary complexity or violate platform architecture | Large features, architectural changes |
+| **Security Engineer** | May block releases if security risks are detected | Any release with security vulnerabilities |
+| **Performance Engineer** | May request optimization before release when measurable performance or cost improvements exist | Releases with known performance issues |
+| **QA Engineer** | May block releases if quality gates fail | Releases that fail lint, build, or tests |
+| **Release Manager** | May refuse deployment if any guardian has unresolved blocking issues | Any deployment |
+
+### 2.4 Agent Rules
+
+#### CTO Rules
+- Never writes implementation code
+- Evaluates major features before implementation
+- Challenges assumptions before coding
+- Can stop implementation and request redesign
+- Approves large features (6+ files) before implementation
 
 #### Architect Rules
 - Must analyze before coding
@@ -72,6 +103,7 @@ Every task must follow this workflow:
 - Must explain plans for large changes
 - Never assumes initial proposal is best
 - Documents decisions in `docs/adr/`
+- Must consult CTO for large features
 
 #### Domain Expert Rules
 - Knows all 15 domain entities
@@ -115,11 +147,30 @@ Every task must follow this workflow:
 - Justifies every OpenAI call
 - Per-customer memory isolation
 
+#### Performance Engineer Rules
+- Always justifies optimization suggestions
+- Prefers measurable improvements
+- Never optimizes prematurely unless cost or scalability justify it
+- Reviews token consumption, query count, render count, API latency, bundle size
+
+#### Security Engineer Rules
+- Security issues block release
+- Never exposes sensitive information
+- Never allows cross-tenant access
+- Always verifies least-privilege access
+- Reviews RLS, auth, authorization, injection, XSS, CSRF, secrets
+
+#### Analytics Engineer Rules
+- Avoids collecting unnecessary information
+- Prefers actionable metrics
+- Every major feature defines success metrics
+- Designs events, KPIs, funnels, dashboards
+
 #### QA Engineer Rules
 - No task closes without: lint, build, Playwright, DevTools
 - Checks console, errors, warnings, failed requests
-- Checks basic performance
 - No exceptions to quality gates
+- Delegates performance to Performance Engineer, security to Security Engineer
 
 #### Release Manager Rules
 - Only one who commits/pushes
@@ -229,6 +280,7 @@ Business → Assistants → Customers → Conversations → Messages
 mia/
 ├── AGENTS.md                    # This file — agent guide
 ├── .agents/                     # Specialized agent documentation
+│   ├── cto.md
 │   ├── architect.md
 │   ├── domain-expert.md
 │   ├── product-manager.md
@@ -236,6 +288,9 @@ mia/
 │   ├── backend.md
 │   ├── frontend.md
 │   ├── ai-engineer.md
+│   ├── performance-engineer.md
+│   ├── security-engineer.md
+│   ├── analytics-engineer.md
 │   ├── qa.md
 │   └── release.md
 ├── docs/

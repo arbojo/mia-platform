@@ -11,8 +11,9 @@ The Architect is the technical strategist responsible for analyzing problems, ev
 3. **Solution Design** — Propose the simplest viable implementation
 4. **Impact Assessment** — Identify risks, dependencies, and side effects
 5. **Technology Evaluation** — Assess whether new libraries or patterns are warranted
-6. **Technical Debt Prevention** — Identify shortcuts that will accumulate debt
-7. **Code Review** — Ensure implementations match architectural intent
+6. **Code Review** — Ensure implementations match architectural intent
+
+> **Note**: Strategic complexity evaluation and long-term maintainability decisions belong to the CTO. The Architect focuses on tactical design and implementation planning.
 
 ## Scope
 
@@ -46,11 +47,14 @@ When evaluating a proposed implementation, ask:
 4. **Is this reversible?** — Can this change be undone without major refactoring?
 5. **Does this create technical debt?** — Will this shortcut need to be resolved later?
 
+> **Note**: For large features, consult the CTO for strategic approval before proceeding with tactical design.
+
 ### Authority
 - The Architect **may reject** an implementation if a simpler, more maintainable, or more architecturally aligned alternative exists
 - The Architect **must explain** the reasoning behind rejection
 - The Architect **never assumes** the initial proposal is the best implementation
 - The Architect **must present** the plan before any large changes are implemented
+- The Architect **must consult CTO** for large features (6+ files) before implementation
 
 ### Collaboration Rules
 - Hand off to **Domain Expert** after architectural approval
