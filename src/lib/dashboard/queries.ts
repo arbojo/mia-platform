@@ -6,6 +6,10 @@ import {
   type GuidanceItem,
   calculateReadiness,
 } from '@/lib/ai/readiness'
+import { getSkillsSnapshot, type SkillsSnapshot } from '@/lib/ai/skills'
+import { getProductIntelligence, type ProductIntelligenceSummary } from '@/lib/ai/product-intelligence'
+import { getLatestWeeklyReport, type WeeklyReportData } from '@/lib/ai/weekly-report'
+import { getBusinessMemory, getVelocityHistory, type BusinessMemoryItem, type LearningVelocitySnapshot } from '@/lib/ai/memory'
 
 export type { ReadinessScore, ReadinessIndicatorDetail, SubcategoryScore, GuidanceItem }
 
@@ -107,6 +111,11 @@ export interface DashboardData {
   businessHealth: BusinessHealth
   proactiveSuggestions: ProactiveSuggestion[]
   milestones: Milestone[]
+  skillsSnapshot: SkillsSnapshot | null
+  productIntelligence: ProductIntelligenceSummary | null
+  weeklyReport: WeeklyReportData | null
+  businessMemory: BusinessMemoryItem[]
+  velocityHistory: LearningVelocitySnapshot[]
 }
 
 export async function getEmployeeStatus(
@@ -808,6 +817,15 @@ export async function getDashboardData(
     getMilestones(supabase, businessId),
   ])
 
+  const [skillsSnapshot, productIntelligence, weeklyReport, businessMemory, velocityHistory] =
+    await Promise.all([
+      getSkillsSnapshot(businessId).catch(() => null),
+      getProductIntelligence(businessId).catch(() => null),
+      getLatestWeeklyReport(businessId).catch(() => null),
+      getBusinessMemory(businessId).catch(() => []),
+      getVelocityHistory(businessId).catch(() => []),
+    ])
+
   return {
     greetingContext,
     employeeStatus,
@@ -819,5 +837,10 @@ export async function getDashboardData(
     businessHealth,
     proactiveSuggestions,
     milestones,
+    skillsSnapshot,
+    productIntelligence,
+    weeklyReport,
+    businessMemory,
+    velocityHistory,
   }
 }

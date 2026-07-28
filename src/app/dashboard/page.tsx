@@ -10,6 +10,11 @@ import { ConversationTimeline } from '@/components/dashboard/ConversationTimelin
 import { BusinessHealth } from '@/components/dashboard/BusinessHealth'
 import { ProactiveSuggestions } from '@/components/dashboard/ProactiveSuggestions'
 import { CelebrateProgress } from '@/components/dashboard/CelebrateProgress'
+import { LearningTimeline } from '@/components/dashboard/LearningTimeline'
+import { SkillsDisplay } from '@/components/dashboard/SkillsDisplay'
+import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
+import { ProductIntelligenceCard } from '@/components/dashboard/ProductIntelligenceCard'
+import { OpportunityAlerts } from '@/components/dashboard/OpportunityAlerts'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -103,6 +108,29 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ConversationTimeline data={data.conversationTimeline} />
         <BusinessHealth data={data.businessHealth} />
+      </div>
+
+      {data.skillsSnapshot && data.skillsSnapshot.skills.length > 0 && (
+        <SkillsDisplay
+          skills={data.skillsSnapshot.skills}
+          overallLevel={data.skillsSnapshot.overall_level}
+          growthSummary={data.skillsSnapshot.growth_summary}
+        />
+      )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <LearningTimeline
+          recentLessons={[]}
+          velocity={data.velocityHistory[0] ?? null}
+        />
+        <OpportunityAlerts memories={data.businessMemory} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <WeeklyReportCard report={data.weeklyReport} />
+        {data.productIntelligence && data.productIntelligence.products.length > 0 && (
+          <ProductIntelligenceCard products={data.productIntelligence.products} />
+        )}
       </div>
     </div>
   )
