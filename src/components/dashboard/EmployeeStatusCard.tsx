@@ -1,5 +1,18 @@
 import type { EmployeeStatus } from '@/lib/dashboard/queries'
 
+interface SkillSummary {
+  skill_key: string
+  skill_name: string
+  level?: number
+  current_level?: number
+  status: 'mastered' | 'learning' | 'needs_practice' | 'not_started'
+}
+
+interface EmployeeStatusCardProps {
+  status: EmployeeStatus
+  skills?: SkillSummary[]
+}
+
 function StatusDot({ status }: { status: EmployeeStatus['status'] }) {
   const colors = {
     online: 'bg-emerald-500',
@@ -67,7 +80,12 @@ function ConfidenceMessage({ value }: { value: number }) {
   )
 }
 
-export function EmployeeStatusCard({ status }: { status: EmployeeStatus }) {
+export function EmployeeStatusCard({ status, skills }: EmployeeStatusCardProps) {
+  const topSkills = skills
+    ?.filter((s) => s.status === 'mastered' || s.status === 'learning')
+    .sort((a, b) => (b.level ?? b.current_level ?? 0) - (a.level ?? a.current_level ?? 0))
+    .slice(0, 3) ?? []
+
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-start justify-between">
@@ -88,6 +106,24 @@ export function EmployeeStatusCard({ status }: { status: EmployeeStatus }) {
       <div className="mb-4">
         <ConfidenceMessage value={status.knowledgeReadiness} />
       </div>
+
+      {topSkills.length > 0 && (
+        <div className="mb-4">
+          <p className="mb-2 text-xs font-medium text-zinc-400 uppercase tracking-wider">
+            Mis mejores habilidades
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {topSkills.map((skill) => (
+              <span
+                key={skill.skill_key}
+                className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+              >
+                {skill.status === 'mastered' ? '🟢' : '🔵'} {skill.skill_name} {skill.level ?? skill.current_level ?? 0}%
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {status.channels.length > 0 && (
         <div className="mb-3">

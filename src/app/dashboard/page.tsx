@@ -15,6 +15,7 @@ import { SkillsDisplay } from '@/components/dashboard/SkillsDisplay'
 import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
 import { ProductIntelligenceCard } from '@/components/dashboard/ProductIntelligenceCard'
 import { OpportunityAlerts } from '@/components/dashboard/OpportunityAlerts'
+import { MotivationBanner } from '@/components/dashboard/MotivationBanner'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -89,7 +90,10 @@ export default async function DashboardPage() {
 
       <CelebrateProgress milestones={data.milestones} />
 
-      <EmployeeStatusCard status={data.employeeStatus} />
+      <EmployeeStatusCard
+        status={data.employeeStatus}
+        skills={data.skillsSnapshot?.skills}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -117,6 +121,13 @@ export default async function DashboardPage() {
           growthSummary={data.skillsSnapshot.growth_summary}
         />
       )}
+
+      <MotivationBanner
+        milestones={data.milestones}
+        skills={data.skillsSnapshot?.skills ?? []}
+        preparationDelta={data.miaReadiness.deltas.preparation}
+        weeklyFacts={data.velocityHistory[0]?.new_facts ?? 0}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <LearningTimeline
