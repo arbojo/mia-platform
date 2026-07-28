@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 
 interface TrainingChatProps {
@@ -13,7 +13,12 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
   const [correctionType, setCorrectionType] = useState<'knowledge' | 'rule' | 'instruction'>('knowledge')
   const [lastCorrection, setLastCorrection] = useState<string | null>(null)
 
-  const handleCorrection = async (messageId: string, correction: string, originalContent: string) => {
+  const handleCorrection = async (
+    messageId: string,
+    correction: string,
+    originalContent: string,
+    userQuestion: string
+  ) => {
     const action = correction === 'approve' ? 'approve' : 'correct'
 
     try {
@@ -23,6 +28,7 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
         body: JSON.stringify({
           message_id: messageId,
           assistant_id: assistantId,
+          user_question: userQuestion,
           original_response: originalContent,
           corrected_response: action === 'correct' ? correction : undefined,
           action,
@@ -38,6 +44,22 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
       console.error('Failed to save correction:', err)
     }
   }
+
+  const handleTestAgain = useCallback((question: string) => {
+    const form = document.querySelector<HTMLFormElement>('form')
+    if (form) {
+      const input = form.querySelector<HTMLInputElement>('input')
+      if (input) {
+        input.value = question
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype, 'value'
+        )?.set
+        nativeInputValueSetter?.call(input, question)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
+      }
+    }
+  }, [])
 
   return (
     <div className="flex flex-col h-full">
@@ -80,6 +102,7 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
           assistantId={assistantId}
           conversationId={conversationId}
           onCorrection={handleCorrection}
+          onTestAgain={handleTestAgain}
         />
       </div>
 

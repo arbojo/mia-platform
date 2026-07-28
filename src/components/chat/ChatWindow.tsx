@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import { CheckCircle, XCircle } from 'lucide-react'
 
 interface Message {
   id: string
@@ -16,9 +17,15 @@ interface ChatWindowProps {
   assistantName: string
   assistantId: string
   conversationId?: string
-  onCorrection?: (messageId: string, correction: string, originalContent: string) => void
+  onCorrection?: (
+    messageId: string,
+    correction: string,
+    originalContent: string,
+    userQuestion: string
+  ) => void
   mode?: string
   simulationSystemMessage?: string
+  onTestAgain?: (question: string) => void
 }
 
 function getRequestType(mode?: string): 'live_customer' | 'simulation' | 'training' {
@@ -34,6 +41,7 @@ export function ChatWindow({
   onCorrection,
   mode,
   simulationSystemMessage,
+  onTestAgain,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -41,6 +49,7 @@ export function ChatWindow({
   const [isTyping, setIsTyping] = useState(false)
   const [correctionId, setCorrectionId] = useState<string | null>(null)
   const [correctionText, setCorrectionText] = useState('')
+  const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -135,8 +144,11 @@ export function ChatWindow({
 
   const handleCorrectionSubmit = () => {
     if (correctionId && correctionText.trim()) {
-      const originalMessage = messages.find((m) => m.id === correctionId)
-      onCorrection?.(correctionId, correctionText.trim(), originalMessage?.content ?? '')
+      const assistantMsgIdx = messages.findIndex((m) => m.id === correctionId)
+      const userQuestion = assistantMsgIdx > 0 ? messages[assistantMsgIdx - 1].content : ''
+      const originalMessage = messages[assistantMsgIdx]
+      onCorrection?.(correctionId, correctionText.trim(), originalMessage?.content ?? '', userQuestion)
+      setSavedQuestion(userQuestion)
       setCorrectionId(null)
       setCorrectionText('')
     }
@@ -189,7 +201,11 @@ export function ChatWindow({
                     size="sm"
                     variant="ghost"
                     className="h-6 text-xs"
-                    onClick={() => onCorrection(message.id, 'approve', message.content)}
+                    onClick={() => {
+                      const msgIdx = messages.findIndex((m) => m.id === message.id)
+                      const userQuestion = msgIdx > 0 ? messages[msgIdx - 1].content : ''
+                      onCorrection(message.id, 'approve', message.content, userQuestion)
+                    }}
                   >
                     Correcto
                   </Button>
@@ -243,6 +259,42 @@ export function ChatWindow({
                   Cancelar
                 </Button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {savedQuestion && (
+          <div className="flex justify-start">
+            <div className="max-w-[80%] p-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
+              <div className="flex items-center gap-2 mb-1">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm font-medium text-emerald-700">MIA aprendió</span>
+              </div>
+              <p className="text-xs text-emerald-600 mb-2">
+                La corrección se guardó correctamente.
+              </p>
+              {onTestAgain && savedQuestion && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+                  onClick={() => {
+                    setSavedQuestion(null)
+                    onTestAgain(savedQuestion)
+                  }}
+                >
+                  Probar de nuevo
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-xs text-emerald-600 ml-1"
+                onClick={() => setSavedQuestion(null)}
+              >
+                <XCircle className="w-3 h-3 mr-1" />
+                Cerrar
+              </Button>
             </div>
           </div>
         )}

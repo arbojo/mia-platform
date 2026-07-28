@@ -39,27 +39,55 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
   const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState('zones')
   const [content, setContent] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<SalesRule | null>(null)
 
   const supabase = createClient()
 
-  const handleAdd = async () => {
+  const resetForm = () => {
+    setContent('')
+    setCategory('zones')
+    setEditingId(null)
+  }
+
+  const startEdit = (rule: SalesRule) => {
+    setEditingId(rule.id)
+    setCategory(rule.category)
+    setContent(rule.content)
+  }
+
+  const handleSave = async () => {
     if (!content.trim()) return
     setLoading(true)
 
-    const { data, error } = await supabase
-      .from('sales_rules')
-      .insert({
-        business_id: businessId,
-        category: category as SalesRule['category'],
-        content,
-      })
-      .select()
-      .single()
+    const payload = {
+      category: category as SalesRule['category'],
+      content,
+    }
 
-    if (!error && data) {
-      setRules((prev) => [data, ...prev])
-      setContent('')
+    if (editingId) {
+      const { error } = await supabase
+        .from('sales_rules')
+        .update(payload)
+        .eq('id', editingId)
+
+      if (!error) {
+        setRules((prev) =>
+          prev.map((r) => (r.id === editingId ? { ...r, ...payload } : r))
+        )
+        resetForm()
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('sales_rules')
+        .insert({ business_id: businessId, ...payload })
+        .select()
+        .single()
+
+      if (!error && data) {
+        setRules((prev) => [data, ...prev])
+        resetForm()
+      }
     }
 
     setLoading(false)
@@ -75,6 +103,16 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
   return (
     <div className="space-y-6">
       <div className="p-4 border rounded-xl bg-gray-50 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium text-gray-900">
+            {editingId ? 'Editar regla' : 'Nueva regla'}
+          </h3>
+          {editingId && (
+            <Button variant="ghost" size="sm" onClick={resetForm}>
+              Cancelar
+            </Button>
+          )}
+        </div>
         <div className="space-y-2">
           <Label>Categoría</Label>
           <div className="flex flex-wrap gap-2">
@@ -100,11 +138,11 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
           />
         </div>
         <Button
-          onClick={handleAdd}
+          onClick={handleSave}
           disabled={loading || !content.trim()}
           className="bg-violet-600 hover:bg-violet-700"
         >
-          {loading ? 'Agregando...' : 'Agregar regla'}
+          {loading ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Agregar regla'}
         </Button>
       </div>
 
@@ -120,24 +158,33 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
               </Badge>
               <p className="text-gray-900">{rule.content}</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setDeleteTarget(rule)}
-              className="text-red-600 hover:text-red-700"
-            >
-              Eliminar
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => startEdit(rule)}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteTarget(rule)}
+                className="text-red-600 hover:text-red-700"
+              >
+                Eliminar
+              </Button>
+            </div>
           </div>
         ))}
         {rules.length === 0 && (
           <div className="text-center py-8">
             <div className="space-y-3">
               <p className="text-lg text-zinc-700">
-                I still don&apos;t know how your business operates.
+                Aún no sé cómo opera tu negocio.
               </p>
               <p className="text-sm text-zinc-500">
-                Teach me the most important rules: payment methods, delivery zones, schedules, or promotions.
+                Enséñame las reglas más importantes: métodos de pago, zonas de envío, horarios o promociones.
               </p>
             </div>
           </div>

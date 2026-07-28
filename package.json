@@ -10,7 +10,8 @@
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "test:report": "npx playwright show-report",
-    "memory-scan": "node scripts/memory-scan.cjs"
+    "memory-scan": "node scripts/memory-scan.cjs",
+    "distribute": "build-distribute.bat"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.20",

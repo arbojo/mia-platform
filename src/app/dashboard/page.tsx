@@ -1,5 +1,6 @@
 import { requireAuth } from '@/lib/auth'
 import { getDashboardData } from '@/lib/dashboard/queries'
+import { getEdition, getEditionLimits } from '@/lib/system/edition'
 import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
 import { EmployeeStatusCard } from '@/components/dashboard/EmployeeStatusCard'
 import { MIAReadiness } from '@/components/dashboard/MIAReadiness'
@@ -83,9 +84,35 @@ export default async function DashboardPage() {
   }
 
   const data = await getDashboardData(supabase, business.id, userName)
+  const edition = getEdition()
+  const limits = getEditionLimits()
+
+  const firstAssistant = business.assistants?.[0]
+  const { data: learningEvents } = firstAssistant
+    ? await supabase
+        .from('learning_events')
+        .select('id, correction_type, created_at, status')
+        .eq('assistant_id', firstAssistant.id)
+        .in('status', ['approved', 'modified'])
+        .order('created_at', { ascending: false })
+        .limit(10)
+    : { data: [] }
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between rounded-lg border border-violet-100 bg-violet-50/50 px-4 py-2">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-violet-800">{edition.label}</span>
+          <span className="text-xs text-violet-600">|</span>
+          <span className="text-xs text-violet-600">
+            {limits.businesses === 1 ? '1 negocio' : `${limits.businesses} negocios`} · 
+            {limits.assistants === 1 ? '1 asistente' : `${limits.assistants} asistentes`} · 
+            {limits.users === 1 ? '1 usuario' : `${limits.users} usuarios`}
+          </span>
+        </div>
+        <span className="text-xs text-violet-500">Environment Status</span>
+      </div>
+
       <MorningGreeting context={data.greetingContext} />
 
       <CelebrateProgress milestones={data.milestones} />
@@ -131,7 +158,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <LearningTimeline
-          recentLessons={[]}
+          recentLessons={learningEvents ?? []}
           velocity={data.velocityHistory[0] ?? null}
         />
         <OpportunityAlerts memories={data.businessMemory} />

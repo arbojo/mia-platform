@@ -90,7 +90,7 @@ function extractJsonFromResponse(content: string): {
 
 export async function POST(request: Request) {
   try {
-    const { messages, userId } = await request.json()
+    const { messages, userId, businessId } = await request.json()
 
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 })
@@ -126,15 +126,18 @@ export async function POST(request: Request) {
 
     if (tokensInput > 0 || tokensOutput > 0) {
       const cost = (tokensInput * 0.00015 + tokensOutput * 0.0006) / 1000
-      await recordAiUsage({
-        business_id: '00000000-0000-0000-0000-000000000000',
+      const record = {
+        business_id: businessId ?? '00000000-0000-0000-0000-000000000000',
         assistant_id: '00000000-0000-0000-0000-000000000000',
         model: MODEL,
         request_type: 'onboarding',
         tokens_input: tokensInput,
         tokens_output: tokensOutput,
         cost,
-      }).catch(() => {})
+      }
+      if (businessId) {
+        await recordAiUsage(record).catch(() => console.warn('Onboarding usage tracking failed'))
+      }
     }
 
     return NextResponse.json({

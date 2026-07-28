@@ -73,7 +73,7 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
       const res = await fetch('/api/onboarding/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory, userId }),
+        body: JSON.stringify({ messages: chatHistory, userId, businessId }),
       })
 
       if (!res.ok) throw new Error('Failed')
@@ -136,6 +136,9 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
         await supabase.from('brand_identities').insert({
           business_id: activeBusinessId,
           business_name: data.business_name ?? 'Mi negocio',
+          tagline: data.business_description?.split('.')[0] ?? data.business_name ?? '',
+          elevator_pitch: data.business_description ?? '',
+          tone_of_voice: 'Profesional y cálido',
           target_customers: data.target_customers,
           differentiators: data.differentiators,
         })

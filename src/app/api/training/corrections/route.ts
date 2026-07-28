@@ -13,9 +13,10 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { message_id, assistant_id, original_response, corrected_response, action, correction_type } = body as {
+  const { message_id, assistant_id, user_question, original_response, corrected_response, action, correction_type } = body as {
     message_id: string
     assistant_id: string
+    user_question?: string
     original_response: string
     corrected_response?: string
     action: 'approve' | 'correct'
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
         .insert({
           business_id: assistant.business_id,
           category: 'faq',
-          question: original_response,
+          question: user_question ?? original_response,
           answer: corrected_response,
           source: 'correction',
           confidence: 'high',

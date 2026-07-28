@@ -32,32 +32,61 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
   const [price, setPrice] = useState('')
   const [description, setDescription] = useState('')
   const [benefits, setBenefits] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
 
   const supabase = createClient()
 
-  const handleAdd = async () => {
+  const resetForm = () => {
+    setName('')
+    setPrice('')
+    setDescription('')
+    setBenefits('')
+    setEditingId(null)
+  }
+
+  const startEdit = (product: Product) => {
+    setEditingId(product.id)
+    setName(product.name)
+    setPrice(product.price?.toString() ?? '')
+    setDescription(product.description ?? '')
+    setBenefits(product.benefits ?? '')
+  }
+
+  const handleSave = async () => {
     if (!name.trim()) return
     setLoading(true)
 
-    const { data, error } = await supabase
-      .from('products')
-      .insert({
-        business_id: businessId,
-        name,
-        price: price ? parseFloat(price) : null,
-        description: description || null,
-        benefits: benefits || null,
-      })
-      .select()
-      .single()
+    const payload = {
+      name,
+      price: price ? parseFloat(price) : null,
+      description: description || null,
+      benefits: benefits || null,
+    }
 
-    if (!error && data) {
-      setProducts((prev) => [data, ...prev])
-      setName('')
-      setPrice('')
-      setDescription('')
-      setBenefits('')
+    if (editingId) {
+      const { error } = await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', editingId)
+
+      if (!error) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingId ? { ...p, ...payload } : p))
+        )
+        resetForm()
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('products')
+        .insert({ business_id: businessId, ...payload })
+        .select()
+        .single()
+
+      if (!error && data) {
+        setProducts((prev) => [data, ...prev])
+        resetForm()
+      }
     }
 
     setLoading(false)
@@ -73,6 +102,16 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
   return (
     <div className="space-y-6">
       <div className="p-4 border rounded-xl bg-gray-50 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium text-gray-900">
+            {editingId ? 'Editar producto' : 'Nuevo producto'}
+          </h3>
+          {editingId && (
+            <Button variant="ghost" size="sm" onClick={resetForm}>
+              Cancelar
+            </Button>
+          )}
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nombre</Label>
@@ -113,11 +152,11 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
           />
         </div>
         <Button
-          onClick={handleAdd}
+          onClick={handleSave}
           disabled={loading || !name.trim()}
           className="bg-violet-600 hover:bg-violet-700"
         >
-          {loading ? 'Agregando...' : 'Agregar producto'}
+          {loading ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Agregar producto'}
         </Button>
       </div>
 
@@ -143,24 +182,33 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
                 </p>
               )}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setDeleteTarget(product)}
-              className="text-red-600 hover:text-red-700"
-            >
-              Eliminar
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => startEdit(product)}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteTarget(product)}
+                className="text-red-600 hover:text-red-700"
+              >
+                Eliminar
+              </Button>
+            </div>
           </div>
         ))}
         {products.length === 0 && (
           <div className="text-center py-8">
             <div className="space-y-3">
               <p className="text-lg text-zinc-700">
-                I don&apos;t know any products yet.
+                Aún no conozco ningún producto.
               </p>
               <p className="text-sm text-zinc-500">
-                Let&apos;s start with the first one. Add your products so I can help customers find what they need.
+                Agrega tus productos para que pueda ayudar a los clientes.
               </p>
             </div>
           </div>

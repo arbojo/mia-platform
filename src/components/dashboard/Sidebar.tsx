@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getEdition } from '@/lib/system/edition'
 
 const navItems = [
   { href: '/dashboard', label: 'Inicio' },
@@ -16,12 +17,16 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const edition = getEdition()
 
   return (
     <aside className="w-64 border-r bg-card min-h-screen p-4">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-violet-900">MIA</h1>
         <p className="text-sm text-muted-foreground">Asistente de Ventas</p>
+        <div className="mt-2 inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+          {edition.label}
+        </div>
       </div>
 
       <nav className="space-y-1">

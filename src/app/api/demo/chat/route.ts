@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { recordAiUsage } from '@/lib/ai/knowledge'
 import { getOpenAIClient, MODEL } from '@/lib/ai/client'
+import { canDemoChat } from '@/lib/system/edition'
 
 const DEMO_BUSINESS_ID = 'demo-business-00000000-0000-0000-0000-000000000000'
 const MAX_MESSAGES = 20
@@ -26,6 +27,10 @@ function checkRateLimit(sessionId: string): boolean {
 
 export async function POST(request: Request) {
   try {
+    if (!canDemoChat()) {
+      return NextResponse.json({ error: 'Demo not available in this edition' }, { status: 403 })
+    }
+
     const { messages, sessionId } = await request.json()
 
     if (!sessionId || typeof sessionId !== 'string') {

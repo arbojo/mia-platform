@@ -22,21 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { canUseWhatsApp } from '@/lib/system/edition'
 import type { ChannelType } from '@/lib/channels/types'
-
-const CHANNEL_LABELS: Record<ChannelType, string> = {
-  web: 'Chat Web',
-  whatsapp: 'WhatsApp',
-  messenger: 'Messenger',
-  instagram: 'Instagram',
-}
-
-const CHANNEL_EMOJIS: Record<ChannelType, string> = {
-  web: '\u{1F310}',
-  whatsapp: '\u{1F4F1}',
-  messenger: '\u{1F4AC}',
-  instagram: '\u{1F4F7}',
-}
 
 interface Connection {
   id: string
@@ -62,6 +49,19 @@ export function ConnectionsManager() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+
+  const channels = [
+    { id: 'web' as ChannelType, label: 'Chat Web', emoji: '\u{1F310}' },
+    ...(canUseWhatsApp()
+      ? [
+          { id: 'whatsapp' as ChannelType, label: 'WhatsApp', emoji: '\u{1F4F1}' },
+          { id: 'messenger' as ChannelType, label: 'Messenger', emoji: '\u{1F4AC}' },
+          { id: 'instagram' as ChannelType, label: 'Instagram', emoji: '\u{1F4F7}' },
+        ]
+      : []),
+  ]
+
+  const channelMap = Object.fromEntries(channels.map((ch) => [ch.id, ch]))
 
   useEffect(() => {
     async function load() {
@@ -162,9 +162,9 @@ export function ConnectionsManager() {
                   <SelectValue placeholder="Seleccionar canal" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(Object.keys(CHANNEL_LABELS) as ChannelType[]).map((ch) => (
-                    <SelectItem key={ch} value={ch}>
-                      {CHANNEL_EMOJIS[ch]} {CHANNEL_LABELS[ch]}
+                  {channels.map((ch) => (
+                    <SelectItem key={ch.id} value={ch.id}>
+                      {ch.emoji} {ch.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -208,11 +208,11 @@ export function ConnectionsManager() {
               <CardContent className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">
-                    {CHANNEL_EMOJIS[conn.channel as ChannelType] ?? '\u{1F4E8}'}
+                    {channelMap[conn.channel as ChannelType]?.emoji ?? '\u{1F4E8}'}
                   </span>
                   <div>
                     <div className="font-medium">
-                      {CHANNEL_LABELS[conn.channel as ChannelType] ?? conn.channel}
+                      {channelMap[conn.channel as ChannelType]?.label ?? conn.channel}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {conn.status === 'connected' ? 'Conectado' : 'Desconectado'}
