@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { processChatMessage, GatewayError } from '@/lib/channels/gateway'
+import { processStreaming, RuntimeError } from '@/lib/runtime/runtime'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     const { data: assistant, error: assistantError } = await supabase
       .from('assistants')
-      .select('id, business_id, businesses!inner(owner_id)')
+      .select('id, business_id, businesses!inner(id, owner_id)')
       .eq('id', assistantId)
       .single()
 
@@ -55,8 +55,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const result = await processChatMessage({
+    const result = await processStreaming({
       assistantId,
+      businessId: business.id,
       conversationId,
       messages,
       requestType,
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Chat error:', error)
 
-    if (error instanceof GatewayError) {
+    if (error instanceof RuntimeError) {
       return Response.json(
         { error: error.message, code: error.code },
         { status: error.statusCode }

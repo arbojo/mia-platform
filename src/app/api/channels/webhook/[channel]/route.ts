@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { processIncomingMessage, GatewayError } from '@/lib/channels/gateway'
 import { getAdapter } from '@/lib/channels/gateway'
+import { processIncomingMessage, RuntimeError } from '@/lib/runtime/runtime'
 import type { ChannelType } from '@/lib/channels/types'
 
 const validChannels: ChannelType[] = ['web', 'whatsapp', 'messenger', 'instagram']
@@ -28,7 +28,9 @@ export async function POST(
       }
     }
 
-    const result = await processIncomingMessage(channelType, body)
+    const wireMessage = await adapter.receiveMessage(body)
+
+    const result = await processIncomingMessage(channelType, wireMessage, adapter)
 
     return NextResponse.json({
       success: true,
@@ -39,7 +41,7 @@ export async function POST(
   } catch (error) {
     console.error('Webhook error:', error)
 
-    if (error instanceof GatewayError) {
+    if (error instanceof RuntimeError) {
       return NextResponse.json(
         { error: error.message, code: error.code },
         { status: error.statusCode }

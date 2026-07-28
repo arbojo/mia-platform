@@ -1,5 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { NormalizedMessage } from './types'
+
+interface CustomerMessage {
+  channel: string
+  customerExternalId: string
+  customerName?: string | null
+  customerPhone?: string | null
+  customerEmail?: string | null
+}
 
 interface ResolvedCustomer {
   id: string
@@ -12,7 +19,7 @@ interface ResolvedCustomer {
 
 export async function resolveCustomer(
   businessId: string,
-  message: NormalizedMessage
+  message: CustomerMessage
 ): Promise<ResolvedCustomer> {
   const supabase = createAdminClient()
 
