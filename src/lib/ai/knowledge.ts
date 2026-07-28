@@ -43,6 +43,40 @@ export async function getBusinessContext(businessId: string) {
   }
 }
 
+export async function getBusinessExtractionContext(businessId: string) {
+  const supabase = createAdminClient()
+
+  const [productsResult, knowledgeResult, rulesResult] = await Promise.all([
+    supabase
+      .from('products')
+      .select('name, description')
+      .eq('business_id', businessId)
+      .eq('is_active', true),
+    supabase
+      .from('knowledge_items')
+      .select('category, content')
+      .eq('business_id', businessId)
+      .eq('is_active', true),
+    supabase
+      .from('sales_rules')
+      .select('category, content')
+      .eq('business_id', businessId)
+      .eq('is_active', true),
+  ])
+
+  return {
+    existingProducts: (productsResult.data ?? []).map((p) => p.name),
+    existingKnowledge: (knowledgeResult.data ?? []).map((k) => ({
+      category: k.category,
+      content: k.content,
+    })),
+    existingRules: (rulesResult.data ?? []).map((r) => ({
+      category: r.category,
+      content: r.content,
+    })),
+  }
+}
+
 export async function getRecentLessons(assistantId: string, limit: number = 10) {
   const supabase = createAdminClient()
 
