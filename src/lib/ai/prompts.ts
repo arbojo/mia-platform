@@ -1,4 +1,5 @@
 import type { Database } from '@/lib/types'
+import { authorityTag } from '@/lib/ai/knowledge'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -7,6 +8,26 @@ type Product = Database['public']['Tables']['products']['Row']
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
 type SalesRule = Database['public']['Tables']['sales_rules']['Row']
 type AiInstruction = Database['public']['Tables']['ai_instructions']['Row']
+
+interface BusinessMemory {
+  id: string
+  business_id: string
+  memory_type: string
+  category: string
+  content: string
+  evidence: Record<string, unknown>
+  confidence: number
+  first_observed_at: string
+  last_observed_at: string
+  observation_count: number
+  is_active: boolean
+  is_immutable: boolean
+  rationale?: string
+  decision_priority?: string
+  expires_at?: string
+  created_at: string
+  updated_at: string
+}
 
 interface Personality {
   warmth: number
@@ -55,20 +76,41 @@ function formatProducts(products: Product[]): string {
 function formatRules(rules: SalesRule[]): string {
   if (rules.length === 0) return 'Aún no hay reglas de venta definidas.'
 
-  return rules.map((r) => `- [${r.category}] ${r.content}`).join('\n')
+  return rules
+    .map((r) => `- [REGLA:PRIORIDAD ${r.priority}][${r.category}] ${r.content}`)
+    .join('\n')
 }
 
 function formatInstructions(instructions: AiInstruction[]): string {
   if (instructions.length === 0) return ''
 
-  return instructions.map((i) => `- ${i.instruction}`).join('\n')
+  return instructions
+    .map((i) => {
+      const tag = authorityTag({ source: i.source, is_immutable: null, memory_type: null })
+      return `- [INSTRUCCIÓN${tag ? `:${tag}` : ''}] ${i.instruction}`
+    })
+    .join('\n')
 }
 
 function formatKnowledge(knowledge: KnowledgeItem[]): string {
   if (knowledge.length === 0) return ''
 
   return knowledge
-    .map((k) => `Pregunta: ${k.question}\nRespuesta: ${k.answer}`)
+    .map((k) => {
+      const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
+      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] Pregunta: ${k.question}\nRespuesta: ${k.answer}`
+    })
+    .join('\n\n')
+}
+
+function formatBusinessMemory(memory: BusinessMemory[]): string {
+  if (memory.length === 0) return ''
+
+  return memory
+    .map((m) => {
+      const tag = authorityTag({ source: null, is_immutable: m.is_immutable, memory_type: m.memory_type })
+      return `- [MEMORIA${tag ? `:${tag}` : ''}][${m.category}] ${m.content}${m.rationale ? `\n  Razón: ${m.rationale}` : ''}${m.is_immutable ? ' (DECISIÓN FINAL)' : ''}`
+    })
     .join('\n\n')
 }
 
@@ -92,10 +134,11 @@ export function buildMasterPrompt(params: {
   rules: SalesRule[]
   instructions: AiInstruction[]
   knowledge: KnowledgeItem[]
+  memory?: BusinessMemory[]
   customerMemory?: string
   recentLessons?: RecentLesson[]
 }): string {
-  const { business, brand, assistant, products, rules, instructions, knowledge, customerMemory, recentLessons } = params
+  const { business, brand, assistant, products, rules, instructions, knowledge, memory, customerMemory, recentLessons } = params
 
   const personality = assistant.personality as unknown as Personality
   const personalityLabel = getPersonalityLabel(personality)
@@ -118,6 +161,21 @@ Maneja un estilo ${assistant.communication_style}.
 3. Siempre pregunta la ciudad antes de prometer envío.
 4. No menciones descuentos a menos que el cliente pregunte o estén en reglas.
 5. Si el cliente pide hablar con alguien, indica que puedes conectarlo con el equipo.
+
+## Resolución de Conflictos
+Si encuentras información contradictoria entre diferentes fuentes, aplica este orden de autoridad:
+
+1. Las DECISIONES INMUTABLES [INMUTABLE] del negocio siempre prevalecen sobre cualquier otra fuente.
+2. Las INSTRUCCIONES MANUALES [MANUAL] del dueño del negocio prevalecen sobre reglas y conocimiento.
+3. Las REGLAS DE VENTA [REGLA] con prioridad más alta prevalecen sobre las de prioridad más baja.
+4. El CONOCIMIENTO REVISADO [CORRECCIÓN] prevalece sobre conocimiento importado [DOCUMENTO].
+5. El CONOCIMIENTO RECIENTE prevalece sobre el antiguo (fecha de creación).
+6. Los PATRONES estadísticos [PATRÓN] tienen la menor autoridad.
+
+Si después de aplicar estas reglas el conflicto persiste:
+- Si afecta precios: Pregunta al cliente qué fuente consultó.
+- Si afecta reglas de negocio: Escala a un asesor humano.
+- Si es una contradicción sin riesgo: Usa la información más reciente.
 
 ## Autonomía
 Puedes:
@@ -145,6 +203,10 @@ ${formatProducts(products)}
 ${formatRules(rules)}
 ${formatInstructions(instructions) ? `\n## Instrucciones Adicionales\n${formatInstructions(instructions)}` : ''}
 ${formatKnowledge(knowledge) ? `\n## Conocimiento Adicional\n${formatKnowledge(knowledge)}` : ''}
+${memory && memory.length > 0 ? `\n## Memoria Interna del Negocio\n${formatBusinessMemory(memory)}` : ''}
 ${customerMemory ? `\n## Memoria del Cliente\n${customerMemory}` : ''}
-${formatLessons(recentLessons ?? []) ? `\n## Lo que he aprendido de ti\nÚltimas correcciones que me enseñaste:\n${formatLessons(recentLessons ?? [])}` : ''}`
+${formatLessons(recentLessons ?? []) ? `\n## Lo que he aprendido de ti\nÚltimas correcciones que me enseñaste:\n${formatLessons(recentLessons ?? [])}` : ''}
+
+## Instrucción Final
+ANTES DE RESPONDER: Revisa activamente si hay información contradictoria entre las secciones anteriores. Si encuentras contradicciones, aplica el orden de autoridad de Resolución de Conflictos. No mezcles reglas incompatibles.`
 }

@@ -50,6 +50,7 @@ export async function loadConversationContext(
     rules: context.rules,
     instructions: context.instructions,
     knowledge: context.knowledge,
+    memory: context.memory,
     recentLessons,
   })
 
@@ -58,6 +59,7 @@ export async function loadConversationContext(
   context.rules.forEach((r) => usedContext.push({ type: 'sales_rule', id: r.id }))
   context.instructions.forEach((i) => usedContext.push({ type: 'ai_instruction', id: i.id }))
   context.knowledge.forEach((k) => usedContext.push({ type: 'knowledge_item', id: k }))
+  if (context.memory) context.memory.forEach((m) => usedContext.push({ type: 'business_memory', id: m.id }))
 
   return {
     systemPrompt,

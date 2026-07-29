@@ -1,0 +1,231 @@
+
+
+DOCUMENTO MAESTRO DE PRECIOS 
+VITANOVA 
+Reglas generales de venta 
+MIA debe utilizar únicamente los precios establecidos en este documento. 
+No debe calcular descuentos manualmente ni modificar precios. 
+Cuando un cliente pregunte por cantidad, MIA debe mostrar el paquete correspondiente 
+indicando: 
+● Precio final. 
+● Ahorro aproximado cuando aplique. 
+● Envío gratis. 
+● Pago contra entrega. 
+Ejemplo de cierre: 
+"El envío es completamente gratis  y puedes pagar al recibir tu pedido." 
+ 
+CLEAN NAILS 
+Producto 
+Dispositivo de luz UV para tratamiento estético de uñas con problemas de hongos 
+(onicomicosis). 
+Palabras clave para identificar producto 
+● clean nails 
+● uñas 
+● uña 
+● hongos 
+● hongo 
+● hongo de uñas 
+
+● hongo en la uña 
+● uñas amarillas 
+● uñas gruesas 
+● onicomicosis 
+● aparato para uñas 
+● aparato para hongos 
+● luz para uñas 
+● láser para uñas 
+● el aparato 
+● el de la luz 
+ 
+Precios 
+1 pieza 
+$599 MXN 
+2 piezas 
+$958 MXN 
+(Ahorro aproximado 20%) 
+3 piezas 
+$1,298 MXN 
+(Paquete especial, ahorro aproximado 28%) 
+Más de 3 piezas 
+Aplicar promoción especial: 
+35% de descuento sobre precio base. 
+ 
+BACK2FIT 
+Producto 
+
+Chaleco moldeador y de compresión abdominal para hombre. 
+Palabras clave 
+● faja 
+● faja de hombre 
+● faja masculina 
+● chaleco 
+● camiseta reductora 
+● playera moldeadora 
+● moldeador 
+● compresión abdominal 
+● barriga 
+● panza 
+● abdomen 
+● rollitos 
+● cintura 
+● cuerpo 
+● ropa que ya no me queda 
+ 
+Precios 
+1 pieza 
+$499 MXN 
+2 piezas 
+$798 MXN 
+(Ahorro aproximado 20%) 
+3 piezas 
+$1,048 MXN 
+(Paquete especial, ahorro aproximado 30%) 
+Más de 3 piezas 
+35% de descuento sobre precio base. 
+
+ 
+NEUROFEET 
+Producto 
+Calcetines de compresión graduada hasta debajo de la rodilla. 
+Compresión estándar: 
+ 20-30 mmHg. 
+Palabras clave 
+● neurofeet 
+● media 
+● medias 
+● medias de compresión 
+● calcetín 
+● calcetines 
+● piernas cansadas 
+● piernas pesadas 
+● circulación 
+● hinchazón 
+● inflamación 
+● várices 
+● varices 
+● hormigueo 
+● cansancio de piernas 
+● mucho tiempo parado 
+● mucho tiempo sentado 
+ 
+Precios 
+Neurofeet maneja promoción fija. 
+3 pares 
+$449 MXN 
+
+5 pares 
+$599 MXN 
+No aplicar descuentos adicionales. 
+ 
+NEUROTIN 
+Producto 
+Calcetín corto de compresión abierto de la punta, diseñado para brindar soporte localizado en 
+pie y tobillo. 
+Palabras clave 
+● neurotin 
+● tin 
+● calcetín corto 
+● calcetín abierto 
+● abierto de la punta 
+● tobillo 
+● pie 
+● dolor de pies 
+● cansancio de pies 
+● planta del pie 
+● talón 
+● hormigueo en pies 
+ 
+Precios 
+Neurotin maneja el mismo precio que Neurofeet. 
+3 pares 
+$449 MXN 
+5 pares 
+
+$599 MXN 
+No aplicar descuentos adicionales. 
+ 
+BELLA PATCH 
+Producto 
+Tiras tensoras faciales invisibles para efecto lifting temporal. 
+Paquete: 
+ 60 tiras. 
+Palabras clave 
+● bella patch 
+● tiras 
+● tiras faciales 
+● lifting 
+● cara 
+● rostro 
+● líneas de expresión 
+● arrugas 
+● papada 
+● piel caída 
+● ojos 
+● mirada 
+● cat eye 
+● evento 
+● fiesta 
+● maquillaje 
+ 
+Precio 
+60 tiras 
+$499 MXN 
+
+No aplica descuento por cantidad. 
+ 
+BYE CANAS 
+Producto 
+Champú de pigmentación progresiva sin amoníaco para oscurecer canas. 
+Presentación: 
+ 500 ml. 
+Tonos disponibles: 
+● Negro. 
+● Castaño. 
+● Castaño claro. 
+Palabras clave 
+● bye canas 
+● canas 
+● cabello blanco 
+● pelo blanco 
+● shampoo 
+● champú 
+● tinte 
+● color de cabello 
+● cubrir canas 
+● quitar canas 
+● cabello gris 
+ 
+Precios 
+1 pieza 
+$499 MXN 
+
+2 piezas 
+$798 MXN 
+(Ahorro aproximado 20%) 
+3 piezas 
+$1,048 MXN 
+(Ahorro aproximado 30%) 
+Más de 3 piezas 
+35% de descuento sobre precio base. 
+ 
+REGLA GENERAL DE MIA PARA 
+PROMOCIONES 
+Cuando el cliente pregunte: 
+"¿Y si llevo más?" 
+Responder: 
+"Claro  manejamos paquetes con descuento para que puedas aprovechar mejor tu compra." 
+No mencionar fórmulas matemáticas. 
+No decir: 
+ "Te hago el 20%." 
+Decir: 
+ "El paquete de 2 piezas queda en..." 
+ 
+CONDICIONES DE ENTREGA 
+Todos los productos: 
+
+✅ Envío gratis. 
+ ✅ Pago contra entrega. 
+ ✅ Confirmación previa del pedido. 
+MIA nunca debe prometer entrega inmediata. 
+Debe revisar disponibilidad y ruta de entrega. 
+ 

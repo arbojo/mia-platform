@@ -1,0 +1,253 @@
+
+
+Diccionario Oficial de Identificación de 
+Productos Vitanova 
+Objetivo 
+Este documento ayuda a MIA a identificar correctamente el producto que busca el cliente 
+cuando este utiliza nombres comunes, descripciones, síntomas o necesidades en lugar del 
+nombre oficial. 
+Reglas generales 
+● Un mismo producto puede ser mencionado de muchas formas. 
+● MIA debe interpretar la intención del cliente antes que buscar únicamente el nombre 
+oficial. 
+● Si un cliente utiliza cualquiera de las palabras o frases descritas en este documento, 
+MIA debe relacionarlas con el producto correspondiente. 
+● Si existe duda entre dos productos, MIA debe hacer una pregunta breve para identificar 
+cuál necesita el cliente. 
+● Nunca debe recomendar un producto distinto únicamente porque compartan alguna 
+palabra similar. 
+ 
+Clean Nails 
+Nombre oficial 
+Clean Nails 
+También puede aparecer como 
+● aparato para uñas 
+● aparato para hongos 
+● máquina para uñas 
+● lámpara para uñas 
+● luz para uñas 
+● láser para uñas 
+● tratamiento para uñas 
+
+● tratamiento para hongos 
+● onicomicosis 
+● hongo en la uña 
+● hongo en las uñas 
+● uñas amarillas 
+● uñas gruesas 
+● uñas dañadas 
+● uñas oscuras 
+● uñas quebradizas 
+● uñas deformadas 
+Necesidades relacionadas 
+● Me da pena usar sandalias. 
+● No puedo mostrar mis pies. 
+● Tengo un hongo. 
+● Mis uñas cambiaron de color. 
+● Tengo las uñas amarillas. 
+● Tengo las uñas muy gruesas. 
+● Tengo una uña dañada. 
+ 
+Back2Fit 
+Nombre oficial 
+Back2Fit 
+También puede aparecer como 
+● faja 
+● faja para hombre 
+● chaleco 
+● chaleco moldeador 
+● camiseta moldeadora 
+● playera moldeadora 
+● camiseta de compresión 
+● camiseta reductora 
+● playera reductora 
+● camisa de compresión 
+● camiseta ajustada 
+● faja masculina 
+
+Necesidades relacionadas 
+● Quiero esconder la panza. 
+● Tengo barriga. 
+● Tengo pancita. 
+● Tengo lonjas. 
+● Tengo rollitos. 
+● No me queda la ropa. 
+● Quiero verme más delgado. 
+● Quiero marcar el pecho. 
+● Se me cuelga el abdomen. 
+● Quiero usar camisa otra vez. 
+● Quiero que la ropa me quede mejor. 
+ 
+Neurofeet 
+Nombre oficial 
+Neurofeet 
+También puede aparecer como 
+● medias 
+● medias de compresión 
+● medias para circulación 
+● medias de descanso 
+● medias para várices 
+● medias para piernas cansadas 
+● medias debajo de la rodilla 
+● compresión 20-30 mmHg 
+● compresión media 
+Necesidades relacionadas 
+● Piernas cansadas. 
+● Piernas pesadas. 
+● Piernas hinchadas. 
+● Mala circulación. 
+● Problemas de circulación. 
+● Hormigueo en las piernas. 
+● Muchas horas de pie. 
+
+● Muchas horas sentado. 
+● Várices. 
+● Descanso para las piernas. 
+● Adulto mayor con cansancio en piernas. 
+● Soporte para pantorrillas. 
+ 
+Neurotin 
+Nombre oficial 
+Neurotin 
+También puede aparecer como 
+● calcetín corto 
+● calcetín al tobillo 
+● calceta corta 
+● calceta al tobillo 
+● calcetín abierto 
+● calceta abierta 
+● calcetín sin punta 
+● calceta sin punta 
+● compresión para tobillo 
+Necesidades relacionadas 
+● Dolor de pie. 
+● Dolor de tobillo. 
+● Dolor de talón. 
+● Dolor en la planta del pie. 
+● Dolor en el arco del pie. 
+● Hormigueo en los pies. 
+● Cansancio en los pies. 
+● Soporte para tobillo. 
+● Compresión en el tobillo. 
+● Dedos libres. 
+● Molestias únicamente en el pie. 
+ 
+
+Bella Patch 
+Nombre oficial 
+Bella Patch 
+También puede aparecer como 
+● cintas faciales 
+● cinta facial 
+● tiras faciales 
+● cinta lifting 
+● lifting facial 
+● efecto lifting 
+● lifting instantáneo 
+● cinta invisible 
+● cinta para cara 
+● cinta para rostro 
+● cinta para papada 
+● cinta para mandíbula 
+Necesidades relacionadas 
+● Papada. 
+● Líneas de expresión. 
+● Arrugas. 
+● Levantar la cara. 
+● Levantar los ojos. 
+● Efecto cat eye. 
+● Afinar el rostro. 
+● Marcar mandíbula. 
+● Verse más joven. 
+● Verse mejor para un evento. 
+● Lifting temporal. 
+ 
+Bye Canas 
+Nombre oficial 
+Bye Canas 
+
+También puede aparecer como 
+● shampoo para canas 
+● champú para canas 
+● shampoo con color 
+● champú con color 
+● shampoo negro 
+● shampoo castaño 
+● shampoo para cabello blanco 
+● shampoo que pinta 
+● tinte en shampoo 
+Necesidades relacionadas 
+● Tengo canas. 
+● Cabello blanco. 
+● Pelo blanco. 
+● Quiero cubrir mis canas. 
+● Quiero ocultar las canas. 
+● Quiero oscurecer el cabello. 
+● No quiero usar tinte. 
+● Retocar raíces. 
+● Disimular las canas. 
+● Cabello gris. 
+ 
+Reglas de decisión 
+Neurofeet vs Neurotin 
+Si el cliente habla de: 
+● piernas 
+● pantorrillas 
+● circulación 
+● várices 
+● piernas cansadas 
+● piernas pesadas 
+● debajo de la rodilla 
+MIA debe identificar Neurofeet. 
+
+ 
+Si el cliente habla de: 
+● pie 
+● tobillo 
+● talón 
+● planta del pie 
+● arco del pie 
+● dedos 
+● calcetín corto 
+● punta abierta 
+MIA debe identificar Neurotin. 
+ 
+Si el cliente únicamente menciona: 
+"Quiero unos de compresión." 
+MIA debe preguntar: 
+¿Buscas compresión para toda la pierna (debajo de la rodilla) o únicamente 
+para el pie y el tobillo? 
+Solo después de la respuesta debe recomendar uno de los dos productos. 
+ 
+Regla de interpretación 
+Antes de responder que no existe información sobre un producto, MIA debe intentar identificar 
+la intención del cliente. 
+Ejemplos: 
+"Tengo mucha panza." 
+ → Back2Fit. 
+"Me da pena usar sandalias." 
+ → Clean Nails. 
+"Trabajo todo el día parado y termino con las piernas muy cansadas." 
+ → Neurofeet. 
+
+"Solo me duele el tobillo y la planta del pie." 
+ → Neurotin. 
+"Quiero ocultar mis canas." 
+ → Bye Canas. 
+"Tengo una boda y quiero levantar un poquito la cara." 
+ → Bella Patch. 
+ 
+Palabras que NO identifican un producto 
+Las siguientes palabras son demasiado generales y por sí solas no deben hacer que MIA 
+asocie un producto específico: 
+● ayuda 
+● información 
+● catálogo 
+● producto 
+● precio 
+● promoción 
+● descuento 
+● envío 
+● entrega 
+● compra 
+ 

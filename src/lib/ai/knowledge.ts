@@ -1,9 +1,35 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 
+export const AUTHORITY_TIER = {
+  IMMUTABLE: 1,
+  MANUAL: 2,
+  ACTIVE_RULE: 3,
+  REVIEWED_KNOWLEDGE: 4,
+  DOCUMENT_KNOWLEDGE: 5,
+  AUTO_INSTRUCTION: 6,
+  MEMORY_PATTERN: 7,
+} as const
+
+export function authorityTag(entity: {
+  source?: string | null
+  is_immutable?: boolean | null
+  memory_type?: string | null
+}): string | null {
+  if (entity.is_immutable) return 'INMUTABLE'
+  if (entity.source === 'manual') return 'MANUAL'
+  if (entity.source === 'correction') return 'CORRECCIÓN'
+  if (entity.source === 'onboarding') return 'ONBOARDING'
+  if (entity.source === 'document') return 'DOCUMENTO'
+  if (entity.memory_type === 'decision') return 'DECISIÓN'
+  if (entity.memory_type === 'trend' || entity.memory_type === 'pattern') return 'PATRÓN'
+  if (entity.source === 'audio') return 'AUDIO'
+  return null
+}
+
 export async function getBusinessContext(businessId: string) {
   const supabase = createAdminClient()
 
-  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult] =
+  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult] =
     await Promise.all([
       supabase
         .from('brand_identities')
@@ -31,15 +57,48 @@ export async function getBusinessContext(businessId: string) {
         .from('knowledge_items')
         .select('*')
         .eq('business_id', businessId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('business_memory')
+        .select('*')
+        .eq('business_id', businessId)
         .eq('is_active', true),
     ])
+
+  const knowledgeSourceOrder: Record<string, number> = {
+    manual: 0, correction: 1, onboarding: 2, document: 3, audio: 4,
+  }
+  const knowledge = (knowledgeResult.data ?? []).sort((a, b) => {
+    const tierA = knowledgeSourceOrder[a.source ?? 'document'] ?? 9
+    const tierB = knowledgeSourceOrder[b.source ?? 'document'] ?? 9
+    if (tierA !== tierB) return tierA - tierB
+    if (a.confidence !== b.confidence) {
+      const confOrder = { high: 0, medium: 1, low: 2 }
+      return (confOrder[a.confidence as keyof typeof confOrder] ?? 1) - (confOrder[b.confidence as keyof typeof confOrder] ?? 1)
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
+
+  const memorySourceOrder: Record<string, number> = {
+    decision: 0, insight: 1, experience: 2, pattern: 3, trend: 4,
+  }
+  const memory = (memoryResult.data ?? []).sort((a, b) => {
+    if (a.is_immutable !== b.is_immutable) return a.is_immutable ? -1 : 1
+    const tierA = memorySourceOrder[a.memory_type ?? 'pattern'] ?? 9
+    const tierB = memorySourceOrder[b.memory_type ?? 'pattern'] ?? 9
+    if (tierA !== tierB) return tierA - tierB
+    if (a.confidence !== b.confidence) return b.confidence - a.confidence
+    return b.observation_count - a.observation_count
+  })
 
   return {
     brand: brandResult.data,
     products: productsResult.data ?? [],
     rules: rulesResult.data ?? [],
     instructions: instructionsResult.data ?? [],
-    knowledge: knowledgeResult.data ?? [],
+    knowledge,
+    memory,
   }
 }
 

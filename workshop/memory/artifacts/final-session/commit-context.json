@@ -1,0 +1,10 @@
+{
+  "sessionId": "workshop-final",
+  "commitMessage": "feat(workshop): implement passive observability foundation",
+  "status": "ready-for-commit",
+  "verified": [
+    "build",
+    "lint",
+    "playwright"
+  ]
+}

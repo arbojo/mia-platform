@@ -1,24 +1,15 @@
 import { requireAuth } from '@/lib/auth'
 import { getDashboardData } from '@/lib/dashboard/queries'
-import { getEdition, getEditionLimits } from '@/lib/system/edition'
 import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
-import { EmployeeStatusCard } from '@/components/dashboard/EmployeeStatusCard'
-import { MIAReadiness } from '@/components/dashboard/MIAReadiness'
-import { TodaysActivity } from '@/components/dashboard/TodaysActivity'
-import { DailyReport } from '@/components/dashboard/DailyReport'
-import { NeedsFromYou } from '@/components/dashboard/NeedsFromYou'
+import { VitalPresence } from '@/components/dashboard/VitalPresence'
+import { ModuleCard } from '@/components/dashboard/ModuleCard'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
-import { BusinessHealth } from '@/components/dashboard/BusinessHealth'
-import { ProactiveSuggestions } from '@/components/dashboard/ProactiveSuggestions'
-import { CelebrateProgress } from '@/components/dashboard/CelebrateProgress'
-import { LearningTimeline } from '@/components/dashboard/LearningTimeline'
-import { SkillsDisplay } from '@/components/dashboard/SkillsDisplay'
-import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
-import { ProductIntelligenceCard } from '@/components/dashboard/ProductIntelligenceCard'
-import { OpportunityAlerts } from '@/components/dashboard/OpportunityAlerts'
-import { MotivationBanner } from '@/components/dashboard/MotivationBanner'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import {
+  BookOpen,
+  Brain,
+  FlaskConical,
+} from 'lucide-react'
 
 export default async function DashboardPage() {
   const { supabase, user } = await requireAuth()
@@ -33,24 +24,30 @@ export default async function DashboardPage() {
 
   if (!business) {
     return (
-      <div className="space-y-8">
+      <div className="animate-appear-up space-y-8">
         <MorningGreeting
           context={{
             greeting: `Bienvenido, ${userName}`,
-            subtitle: "Configuremos tu negocio para que pueda empezar a ayudar a tus clientes.",
+            subtitle: 'Cuéntame sobre tu negocio para que pueda empezar a acompañarte.',
           }}
         />
-        <div className="py-12 text-center border-2 border-dashed border-violet-200 rounded-xl">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
+        <div className="rounded-2xl border-2 border-dashed p-12 text-center"
+          style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--elevation-1)' }}>
+          <h2 className="mb-2 text-xl font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
             ¡Empecemos!
           </h2>
-          <p className="mb-6 text-gray-600">
-            Primero cuéntame sobre tu negocio para que pueda empezar a trabajar para ti.
+          <p className="mb-6" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+          Cuéntame sobre tu negocio para que pueda empezar a trabajar contigo.
           </p>
-          <Link href="/dashboard/onboarding">
-            <Button className="bg-violet-600 hover:bg-violet-700">
-              Contarle a MIA sobre mi negocio
-            </Button>
+          <Link
+            href="/dashboard/onboarding"
+            className="inline-flex items-center rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200"
+            style={{
+              backgroundColor: 'var(--atmosphere-accent)',
+              color: 'white',
+            }}
+          >
+            Contarle a MIA sobre mi negocio
           </Link>
         </div>
       </div>
@@ -59,24 +56,30 @@ export default async function DashboardPage() {
 
   if (business.assistants.length === 0) {
     return (
-      <div className="space-y-8">
+      <div className="animate-appear-up space-y-8">
         <MorningGreeting
           context={{
             greeting: `Hola, ${userName}`,
-            subtitle: "Estoy lista. Solo créame y empezaré a trabajar.",
+            subtitle: 'Estoy lista. Solo créame y empezaré a trabajar contigo.',
           }}
         />
-        <div className="py-12 text-center border-2 border-dashed border-violet-200 rounded-xl">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
+        <div className="rounded-2xl border-2 border-dashed p-12 text-center"
+          style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--elevation-1)' }}>
+          <h2 className="mb-2 text-xl font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
             Crea tu primera asistente
           </h2>
-          <p className="mb-6 text-gray-600">
-            Configuremos tu asistente paso a paso.
+          <p className="mb-6" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+          Configuremos a MIA para que empiece a conocer a tus clientes.
           </p>
-          <Link href="/dashboard/onboarding">
-            <Button className="bg-violet-600 hover:bg-violet-700">
-              Crear a MIA
-            </Button>
+          <Link
+            href="/dashboard/onboarding"
+            className="inline-flex items-center rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-200"
+            style={{
+              backgroundColor: 'var(--atmosphere-accent)',
+              color: 'white',
+            }}
+          >
+            Crear a MIA
           </Link>
         </div>
       </div>
@@ -84,92 +87,129 @@ export default async function DashboardPage() {
   }
 
   const data = await getDashboardData(supabase, business.id, userName)
-  const edition = getEdition()
-  const limits = getEditionLimits()
-
-  const firstAssistant = business.assistants?.[0]
-  const { data: learningEvents } = firstAssistant
-    ? await supabase
-        .from('learning_events')
-        .select('id, correction_type, created_at, status')
-        .eq('assistant_id', firstAssistant.id)
-        .in('status', ['approved', 'modified'])
-        .order('created_at', { ascending: false })
-        .limit(10)
-    : { data: [] }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-lg border border-violet-100 bg-violet-50/50 px-4 py-2">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-violet-800">{edition.label}</span>
-          <span className="text-xs text-violet-600">|</span>
-          <span className="text-xs text-violet-600">
-            {limits.businesses === 1 ? '1 negocio' : `${limits.businesses} negocios`} · 
-            {limits.assistants === 1 ? '1 asistente' : `${limits.assistants} asistentes`} · 
-            {limits.users === 1 ? '1 usuario' : `${limits.users} usuarios`}
-          </span>
-        </div>
-        <span className="text-xs text-violet-500">Environment Status</span>
-      </div>
-
+    <div className="animate-appear-up space-y-8">
       <MorningGreeting context={data.greetingContext} />
 
-      <CelebrateProgress milestones={data.milestones} />
-
-      <EmployeeStatusCard
-        status={data.employeeStatus}
-        skills={data.skillsSnapshot?.skills}
-      />
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <TodaysActivity metrics={data.todaysActivity} />
-        </div>
-        <MIAReadiness data={data.miaReadiness} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <DailyReport report={data.dailyReport} />
-        <NeedsFromYou data={data.needsFromYou} />
-      </div>
-
-      <ProactiveSuggestions suggestions={data.proactiveSuggestions} />
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ConversationTimeline data={data.conversationTimeline} />
-        <BusinessHealth data={data.businessHealth} />
-      </div>
-
-      {data.skillsSnapshot && data.skillsSnapshot.skills.length > 0 && (
-        <SkillsDisplay
-          skills={data.skillsSnapshot.skills}
-          overallLevel={data.skillsSnapshot.overall_level}
-          growthSummary={data.skillsSnapshot.growth_summary}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <VitalPresence
+          value={data.todaysActivity.conversations}
+          action="Conversaciones activas"
+          meaning="El corazón de MIA latiendo por tu negocio"
+          context="En las últimas 24 horas"
+          icon="MessageSquare"
+          trend={{ value: 8, positive: true }}
+          href="/dashboard/conversations"
         />
+        <VitalPresence
+          value={data.todaysActivity.newCustomers}
+          action="Nuevos clientes"
+          meaning="Personas que MIA está conociendo"
+          context="Llegaron hoy"
+          color="var(--mia-green)"
+          icon="UserPlus"
+        />
+        <VitalPresence
+          value={data.todaysActivity.messagesHandled}
+          action="Mensajes gestionados"
+          meaning="Conversaciones que MIA ha cuidado por ti"
+          context="Hoy"
+          color="var(--mia-cyan)"
+          icon="BellRing"
+          href="/dashboard/conversations"
+        />
+        <VitalPresence
+          value={Math.round(data.miaReadiness.overall)}
+          action="Preparación"
+          meaning="Qué tan lista está MIA para atender"
+          context="Score general de acompañamiento"
+          color="var(--mia-violet)"
+          icon="Sparkles"
+          trend={{ value: 5, positive: true }}
+          href="/dashboard/knowledge-studio"
+        />
+      </div>
+
+      {data.conversationTimeline.entries.length > 0 && (
+        <div style={{ backgroundColor: 'var(--elevation-1)', border: '1px solid var(--atmosphere-border)', borderRadius: '1rem' }}>
+          <div className="p-6">
+            <ConversationTimeline data={data.conversationTimeline} />
+          </div>
+        </div>
       )}
 
-      <MotivationBanner
-        milestones={data.milestones}
-        skills={data.skillsSnapshot?.skills ?? []}
-        preparationDelta={data.miaReadiness.deltas.preparation}
-        weeklyFacts={data.velocityHistory[0]?.new_facts ?? 0}
-      />
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <LearningTimeline
-          recentLessons={learningEvents ?? []}
-          velocity={data.velocityHistory[0] ?? null}
-        />
-        <OpportunityAlerts memories={data.businessMemory} />
+      <div>
+        <h2
+          className="mb-4 text-sm font-medium tracking-wide uppercase"
+          style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
+        >
+          Explora lo que MIA está haciendo por ti
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ModuleCard
+            title="Memoria"
+            description="Todo lo que MIA ha aprendido de tu negocio y tus clientes"
+            href="/dashboard/knowledge"
+            status="3 nuevos hoy"
+            statusColor="var(--mia-green)"
+            accentColor="var(--mia-green)"
+            icon={BookOpen}
+          />
+          <ModuleCard
+            title="Pensamiento"
+            description="Señales, ideas y estrategias que MIA está analizando para ti"
+            href="/dashboard/knowledge-studio"
+            status="5 hipótesis"
+            statusColor="var(--mia-violet)"
+            accentColor="var(--mia-violet)"
+            icon={Brain}
+          />
+          <ModuleCard
+            title="Laboratorio"
+            description="Entrena a MIA con simulaciones para que mejore cada día"
+            href="/dashboard/laboratorio"
+            status="Score 7.8"
+            statusColor="var(--mia-gold)"
+            accentColor="var(--mia-gold)"
+            icon={FlaskConical}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <WeeklyReportCard report={data.weeklyReport} />
-        {data.productIntelligence && data.productIntelligence.products.length > 0 && (
-          <ProductIntelligenceCard products={data.productIntelligence.products} />
-        )}
-      </div>
+      {data.dailyReport.items.length > 0 && (
+        <div
+          className="rounded-2xl border p-5"
+          style={{
+            backgroundColor: 'var(--elevation-1)',
+            borderColor: 'var(--atmosphere-border)',
+          }}
+        >
+          <h3
+            className="mb-3 text-sm font-semibold"
+            style={{ color: 'var(--atmosphere-text)' }}
+          >
+            {data.dailyReport.greeting}
+          </h3>
+          <div className="space-y-2">
+            {data.dailyReport.items.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-xl px-3 py-2"
+                style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+              >
+                <span className="text-base">{item.icon}</span>
+                <span
+                  className="text-sm"
+                  style={{ color: 'var(--atmosphere-text-secondary)' }}
+                >
+                  {item.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
