@@ -24,4 +24,5 @@ export * from './memory/commit-template';
 export * from './memory/git-adapter';
 export * from './memory/commit-gate';
 export * from './memory/development-memory-artifact';
+export * from './council';
 export * from './utils';

@@ -1,0 +1,10 @@
+{
+  "sessionId": "council-sprint",
+  "commitMessage": "feat(workshop): add council foundation layer",
+  "status": "ready-for-commit",
+  "verified": [
+    "build",
+    "lint",
+    "playwright"
+  ]
+}
