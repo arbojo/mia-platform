@@ -1,0 +1,10 @@
+{
+  "sessionId": "intelligence-layer",
+  "commitMessage": "feat(workshop): add deterministic intelligence layer and rule engine",
+  "status": "ready-for-commit",
+  "verified": [
+    "build",
+    "lint",
+    "playwright"
+  ]
+}

@@ -79,6 +79,11 @@ export interface WorkshopSessionReport {
   startedAt: string;
   endedAt?: string;
   durationMs?: number;
+  findings?: Array<{
+    type: string;
+    severity: string;
+    confidence: number;
+  }>;
   general: {
     eventCount: number;
     categories: Record<string, number>;

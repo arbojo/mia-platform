@@ -54,6 +54,9 @@ export interface CouncilContext {
     lint: boolean;
     tests: boolean;
   };
+  evidence?: Record<string, unknown>;
+  findings?: Array<Record<string, unknown>>;
+  validations?: Record<string, boolean>;
   artifacts?: string[];
   git?: Record<string, unknown>;
   affectedModules?: string[];

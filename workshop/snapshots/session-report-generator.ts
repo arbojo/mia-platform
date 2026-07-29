@@ -1,6 +1,13 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import type { WorkshopEvent, WorkshopSessionReport } from '../types';
+import { RuleRegistry } from '../intelligence/engine/rule-registry';
+import { RuleEngine } from '../intelligence/engine/rule-engine';
+import { DeadInteractionRule } from '../intelligence/rules/dead-interaction-rule';
+import { NavigationFailureRule } from '../intelligence/rules/navigation-failure-rule';
+import { RuntimeErrorRule } from '../intelligence/rules/runtime-error-rule';
+import { PerformanceRule } from '../intelligence/rules/performance-rule';
+import { RepeatedErrorRule } from '../intelligence/rules/repeated-error-rule';
 
 export interface SessionReportGeneratorOptions {
   sessionDir: string;
@@ -12,11 +19,25 @@ export class SessionReportGenerator {
   constructor(private readonly options: SessionReportGeneratorOptions) {}
 
   public generate(events: WorkshopEvent[]): WorkshopSessionReport {
+    const registry = new RuleRegistry();
+    registry.registerRule(new DeadInteractionRule());
+    registry.registerRule(new NavigationFailureRule());
+    registry.registerRule(new RuntimeErrorRule());
+    registry.registerRule(new PerformanceRule());
+    registry.registerRule(new RepeatedErrorRule());
+    const engine = new RuleEngine(registry);
+    const intelligence = engine.run(events, events[0]?.sessionId ?? 'unknown');
+
     const report: WorkshopSessionReport = {
       sessionId: events[0]?.sessionId ?? 'unknown',
       startedAt: events[0]?.timestamp ?? new Date().toISOString(),
       endedAt: events.at(-1)?.timestamp,
       durationMs: this.computeDuration(events),
+      findings: intelligence.findings.map((finding) => ({
+        type: finding.type,
+        severity: finding.severity,
+        confidence: finding.confidence,
+      })),
       general: {
         eventCount: events.length,
         categories: this.countBy(events, 'category'),
