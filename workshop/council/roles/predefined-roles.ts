@@ -1,0 +1,60 @@
+import type { CouncilRoleDefinition } from './role-model';
+
+export const predefinedRoles: CouncilRoleDefinition[] = [
+  {
+    id: 'architect',
+    name: 'Architect',
+    purpose: 'Evaluate structural impact and future coupling risk.',
+    responsibilities: ['architecture', 'dependencies', 'scalability', 'future impact'],
+    inputTypes: ['ARCHITECTURE', 'RUNTIME_FAILURE', 'PERFORMANCE'],
+    outputType: 'architectural-review',
+  },
+  {
+    id: 'backend',
+    name: 'Backend Engineer',
+    purpose: 'Assess API, logic, service, and data implications.',
+    responsibilities: ['apis', 'logic', 'services', 'data'],
+    inputTypes: ['RUNTIME_FAILURE', 'API', 'DATABASE'],
+    outputType: 'backend-review',
+  },
+  {
+    id: 'frontend',
+    name: 'Frontend Engineer',
+    purpose: 'Assess UX, components, state, and navigation impact.',
+    responsibilities: ['ux', 'components', 'state', 'navigation'],
+    inputTypes: ['NAVIGATION', 'UI', 'PERFORMANCE'],
+    outputType: 'frontend-review',
+  },
+  {
+    id: 'qa',
+    name: 'QA Engineer',
+    purpose: 'Assess regression and test coverage risk.',
+    responsibilities: ['regressions', 'tests', 'broken experience'],
+    inputTypes: ['NAVIGATION', 'RUNTIME_FAILURE', 'TESTS'],
+    outputType: 'qa-review',
+  },
+  {
+    id: 'performance',
+    name: 'Performance Engineer',
+    purpose: 'Assess speed, resource consumption, and degradation risk.',
+    responsibilities: ['speed', 'consumption', 'degradation'],
+    inputTypes: ['PERFORMANCE', 'RUNTIME_FAILURE'],
+    outputType: 'performance-review',
+  },
+  {
+    id: 'security',
+    name: 'Security Reviewer',
+    purpose: 'Assess exposure and unsafe configuration risk.',
+    responsibilities: ['risks', 'exposure', 'unsafe configuration'],
+    inputTypes: ['SECURITY', 'AUTHENTICATION'],
+    outputType: 'security-review',
+  },
+  {
+    id: 'product',
+    name: 'Product Reviewer',
+    purpose: 'Assess user impact, functional value, and product coherence.',
+    responsibilities: ['user impact', 'value', 'product coherence'],
+    inputTypes: ['NAVIGATION', 'UI', 'PERFORMANCE'],
+    outputType: 'product-review',
+  },
+];

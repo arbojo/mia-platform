@@ -1,9 +1,9 @@
-import type { CouncilContext } from '../types';
+import type { CouncilContext, CouncilDecisionFrameworkContext } from '../types';
 import { councilContextSchema } from '../schemas';
 
 export class CouncilContextBuilder {
-  public build(input: CouncilContext): CouncilContext {
+  public build(input: CouncilContext & CouncilDecisionFrameworkContext): CouncilContext & CouncilDecisionFrameworkContext {
     const parsed = councilContextSchema.parse(input);
-    return parsed;
+    return parsed as CouncilContext & CouncilDecisionFrameworkContext;
   }
 }
