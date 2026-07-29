@@ -54,4 +54,8 @@ export const councilContextSchema = z.object({
     lint: z.boolean(),
     tests: z.boolean(),
   }),
+  artifacts: z.array(z.string()).optional(),
+  git: z.record(z.string(), z.unknown()).optional(),
+  affectedModules: z.array(z.string()).optional(),
+  timeline: z.array(z.string()).optional(),
 });

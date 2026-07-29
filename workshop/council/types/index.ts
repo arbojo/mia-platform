@@ -54,6 +54,10 @@ export interface CouncilContext {
     lint: boolean;
     tests: boolean;
   };
+  artifacts?: string[];
+  git?: Record<string, unknown>;
+  affectedModules?: string[];
+  timeline?: string[];
 }
 
 export interface CouncilRole {
