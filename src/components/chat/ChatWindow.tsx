@@ -26,6 +26,8 @@ interface ChatWindowProps {
   mode?: string
   simulationSystemMessage?: string
   onTestAgain?: (question: string) => void
+  apiEndpoint?: string
+  customerExternalId?: string
 }
 
 function getRequestType(mode?: string): 'live_customer' | 'simulation' | 'training' {
@@ -42,6 +44,8 @@ export function ChatWindow({
   mode,
   simulationSystemMessage,
   onTestAgain,
+  apiEndpoint = '/api/chat',
+  customerExternalId,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -85,7 +89,7 @@ export function ChatWindow({
         chatMessages.unshift({ role: 'user', content: simulationSystemMessage })
       }
 
-      const response = await fetch('/api/chat', {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,6 +97,7 @@ export function ChatWindow({
           assistantId,
           conversationId,
           requestType: getRequestType(mode),
+          ...(customerExternalId ? { customerExternalId } : {}),
         }),
       })
 

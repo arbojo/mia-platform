@@ -1,4 +1,4 @@
-export type ChannelType = 'web' | 'whatsapp' | 'messenger' | 'instagram'
+export type ChannelType = 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget'
 
 export type ChannelStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
 
