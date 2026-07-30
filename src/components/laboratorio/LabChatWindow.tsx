@@ -29,6 +29,7 @@ export function LabChatWindow({
   conversationId,
   mode,
   simulationSystemMessage,
+  onTokensUsed,
   onCoaching,
 }: LabChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
@@ -125,6 +126,13 @@ export function LabChatWindow({
             return [...updated]
           })
         }
+      }
+
+      if (onTokensUsed && assistantContent) {
+        onTokensUsed({
+          input: Math.ceil(userMessage.content.length / 4),
+          output: Math.ceil(assistantContent.length / 4),
+        })
       }
 
       if (onCoaching && assistantContent) {

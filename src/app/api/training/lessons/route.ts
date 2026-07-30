@@ -43,7 +43,7 @@ export async function GET(request: Request) {
           .from('knowledge_items')
           .select('question, answer')
           .eq('id', lesson.knowledge_item_id)
-          .single()
+          .maybeSingle()
         entity_preview = item
       }
 

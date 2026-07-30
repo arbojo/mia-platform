@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         .from('sales_rules')
         .select('category, content')
         .eq('id', ctx.id)
-        .single()
+        .maybeSingle()
       if (rule) {
         label = `Regla de ${rule.category}`
         content = rule.content
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         .from('ai_instructions')
         .select('instruction')
         .eq('id', ctx.id)
-        .single()
+        .maybeSingle()
       if (instruction) {
         label = 'Instrucción de comportamiento'
         content = instruction.instruction
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
         .from('products')
         .select('name, price')
         .eq('id', ctx.id)
-        .single()
+        .maybeSingle()
       if (product) {
         label = 'Producto'
         content = `${product.name} — $${product.price ?? 'sin precio'}`
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
         .from('knowledge_items')
         .select('question, answer')
         .eq('id', ctx.id)
-        .single()
+        .maybeSingle()
       if (knowledge) {
         label = 'Conocimiento'
         content = `${knowledge.question} → ${knowledge.answer}`

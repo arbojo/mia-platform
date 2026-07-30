@@ -35,7 +35,7 @@ export async function getBusinessContext(businessId: string) {
         .from('brand_identities')
         .select('*')
         .eq('business_id', businessId)
-        .single(),
+        .maybeSingle(),
       supabase
         .from('products')
         .select('*')

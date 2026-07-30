@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       .eq('assistant_id', assistantId)
       .eq('channel', channel)
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (existing) {
       return NextResponse.json({ error: 'Channel already connected' }, { status: 409 })

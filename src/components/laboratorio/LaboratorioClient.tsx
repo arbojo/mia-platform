@@ -50,7 +50,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   const [context, setContext] = useState<LabContext | null>(null)
   const [sessions, setSessions] = useState<LabSession[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
-  const [currentConversationId] = useState<string | null>(null)
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [teachSuggestions, setTeachSuggestions] = useState<string[] | null>(null)
   const [tokenUsage, setTokenUsage] = useState({ input: 0, output: 0, cost: 0 })
   const [messageCount, setMessageCount] = useState(0)
@@ -92,6 +92,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
     const data = await res.json()
     if (data.session) {
       setCurrentSessionId(data.session.id)
+      setCurrentConversationId(data.conversationId)
       setTokenUsage({ input: 0, output: 0, cost: 0 })
       setMessageCount(0)
     }
@@ -188,13 +189,14 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
             conversationId={currentConversationId ?? undefined}
             mode={mode}
             simulationSystemMessage={activeScenario?.customerMessage}
-            onTokensUsed={(tokens) =>
+            onTokensUsed={(tokens) => {
               setTokenUsage((prev) => ({
                 input: prev.input + tokens.input,
                 output: prev.output + tokens.output,
                 cost: prev.cost + (tokens.input * 0.00015 + tokens.output * 0.0006) / 1000,
               }))
-            }
+              setMessageCount((prev) => prev + 1)
+            }}
             onCoaching={(feedback) => {
               setCoachingFeedback(feedback.tips)
               setCoachingScore(feedback.score)

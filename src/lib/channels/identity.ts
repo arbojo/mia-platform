@@ -31,7 +31,7 @@ export async function resolveCustomer(
     .eq('channel', message.channel)
     .not('customer_id', 'is', null)
     .limit(1)
-    .single()
+    .maybeSingle()
 
   if (existingByExternal?.customer_id) {
     const { data: customer } = await supabase
@@ -59,7 +59,7 @@ export async function resolveCustomer(
       .eq('business_id', businessId)
       .eq('phone', message.customerPhone)
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (existingByPhone) {
       return {
@@ -80,7 +80,7 @@ export async function resolveCustomer(
       .eq('business_id', businessId)
       .eq('email', message.customerEmail)
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (existingByEmail) {
       return {

@@ -17,7 +17,7 @@ export default async function DashboardLayout({
     .from('businesses')
     .select('*')
     .eq('owner_id', user.id)
-    .single()
+    .maybeSingle()
 
   return (
     <ThemeProvider>

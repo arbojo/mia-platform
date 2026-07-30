@@ -29,7 +29,7 @@ export default async function TrainingPage({
     .eq('type', 'training')
     .order('created_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   let conversationId = conversation?.id
 

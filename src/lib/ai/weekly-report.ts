@@ -54,7 +54,7 @@ export async function generateWeeklyReport(businessId: string): Promise<Generate
     .select('id')
     .eq('business_id', businessId)
     .eq('week_start', weekStart.toISOString().split('T')[0])
-    .single()
+    .maybeSingle()
 
   if (existingReport) {
     const { data: report } = await supabase

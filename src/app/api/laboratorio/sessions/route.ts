@@ -41,9 +41,34 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { business_id, assistant_id, mode, title, conversation_id } = body
+  const { business_id, assistant_id, mode, title } = body
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('id', business_id)
+    .maybeSingle()
+
+  if (!business) {
+    return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+  }
 
   const admin = createAdminClient()
+
+  const { data: conversation, error: convError } = await admin
+    .from('conversations')
+    .insert({
+      assistant_id,
+      type: 'simulation',
+      status: 'active',
+    })
+    .select('id')
+    .single()
+
+  if (convError || !conversation) {
+    return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 })
+  }
+
   const { data: session, error } = await admin
     .from('lab_sessions')
     .insert({
@@ -51,7 +76,7 @@ export async function POST(request: Request) {
       assistant_id,
       mode,
       title: title ?? `${mode} test`,
-      conversation_id,
+      conversation_id: conversation.id,
     })
     .select()
     .single()
@@ -60,5 +85,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ session })
+  return NextResponse.json({ session, conversationId: conversation.id })
 }
