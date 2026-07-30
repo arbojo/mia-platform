@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { processStreaming, RuntimeError } from '@/lib/runtime/runtime'
+import { resolveConversation } from '@/lib/conversation/resolver'
 import { WidgetAdapter } from '@/lib/channels/adapters/widget'
 import { resolveCustomer } from '@/lib/channels/identity'
 
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
       customerName: normalized.customerName,
     })
 
-    const conversationId = (await resolveWidgetConversation(assistantId, customer.id)) ?? undefined
+    const conversationId = (await resolveConversation(assistantId, customer.id)) ?? undefined
 
     const result = await processStreaming({
       assistantId,
@@ -64,39 +65,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
-}
-
-async function resolveWidgetConversation(
-  assistantId: string,
-  customerId: string
-): Promise<string | null> {
-  const supabase = createAdminClient()
-
-  const { data: existing } = await supabase
-    .from('conversations')
-    .select('id')
-    .eq('assistant_id', assistantId)
-    .eq('customer_id', customerId)
-    .eq('status', 'active')
-    .eq('type', 'live')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (existing) return existing.id
-
-  const { data: created } = await supabase
-    .from('conversations')
-    .insert({
-      assistant_id: assistantId,
-      customer_id: customerId,
-      type: 'live',
-      status: 'active',
-    })
-    .select()
-    .single()
-
-  return created?.id ?? null
 }
 
 export async function OPTIONS() {

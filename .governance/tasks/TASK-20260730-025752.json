@@ -1,0 +1,139 @@
+{
+  "id": "TASK-20260730-025752",
+  "title": "Sprint 2 — Product Trust",
+  "description": "Improve MIA from MVP into trustworthy AI sales assistant. Customer memory, persistent corrections, assistant lifecycle audit, conversation intelligence, AI context quality.",
+  "scope": {
+    "categories": [
+      "feature",
+      "refactor",
+      "schema_change",
+      "ai_behaviour",
+      "ui_change",
+      "api_change",
+      "security"
+    ],
+    "filesAffected": 30,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "ai",
+      "security"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 30 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "cto",
+      "decision": "approve",
+      "rationale": "Approved. Sprint 2 addresses critical trust gap — customer memory, correction persistence, and AI context quality are essential for product credibility. No strategic concerns.",
+      "timestamp": "2026-07-30T02:58:25.226Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Approved. Architecture impact is moderate — customer memory uses existing tables, no new vectors. Assistant lifecycle audit is analysis-only. Conversation intelligence extends existing patterns.",
+      "timestamp": "2026-07-30T02:58:26.682Z"
+    },
+    {
+      "agentRole": "domain_expert",
+      "decision": "approve",
+      "rationale": "Approved. Customer memory aligns with domain model (customers + conversations + messages). Persistent corrections connect learning events → knowledge. No domain boundary violations.",
+      "timestamp": "2026-07-30T02:58:27.882Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "Approved. These features directly address user trust: MIA remembering customers, learning from corrections, and providing useful conversation context. High value, moderate complexity.",
+      "timestamp": "2026-07-30T02:58:28.958Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Approved. Customer memory analysis first, schema changes minimal. No new tables anticipated — leverage existing customers, conversations, messages, assistant_memory, learning_events.",
+      "timestamp": "2026-07-30T02:58:38.003Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Approved. New API surface needed: customer memory CRUD, correction persistence, conversation search/filter. Existing patterns to follow.",
+      "timestamp": "2026-07-30T02:58:39.470Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Approved. Conversation page enhancements (search, filters, status). New customer memory panel. Reuse existing component patterns.",
+      "timestamp": "2026-07-30T02:58:40.782Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Approved. AI context quality audit is critical — need to verify what reaches the model. Customer memory injection into prompts. No hardcoded prompts.",
+      "timestamp": "2026-07-30T02:58:42.152Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Approved. Customer memory queries should be indexed by customer_id + business_id. No premature optimization needed.",
+      "timestamp": "2026-07-30T02:58:51.303Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Approved. Customer data isolation critical. Memory must be scoped to business. No cross-business leakage. RLS policies must cover new memory data.",
+      "timestamp": "2026-07-30T02:58:52.865Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Approved. Quality gates: lint, build, Playwright tests, DevTools check. Sprint 2 validation report required.",
+      "timestamp": "2026-07-30T02:58:54.324Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Approved. All governance artifacts must be committed. Atomic commits per phase.",
+      "timestamp": "2026-07-30T02:58:55.600Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Approved. Engineering memory must record: architecture decisions, schema changes, correction flow design, security audit.",
+      "timestamp": "2026-07-30T02:58:56.278Z"
+    }
+  ],
+  "createdAt": "2026-07-30T02:57:52.443Z",
+  "classifiedAt": "2026-07-30T02:57:52.443Z",
+  "approvedAt": "2026-07-30T02:58:56.280Z",
+  "startedAt": "2026-07-30T02:59:04.984Z"
+}

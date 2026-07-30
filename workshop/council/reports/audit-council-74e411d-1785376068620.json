@@ -1,0 +1,59 @@
+{
+  "sessionId": "council-74e411d-1785376068620",
+  "timestamp": "2026-07-30T01:48:27.342Z",
+  "rolesExecuted": [
+    "Architect",
+    "QA",
+    "Security",
+    "Performance",
+    "Product"
+  ],
+  "findings": [
+    {
+      "id": "architect-1785376107341-84a53b4d6782f",
+      "role": "Architect",
+      "severity": "medium",
+      "category": "architecture",
+      "title": "Cambio de arquitectura con alcance amplio",
+      "description": "Se detectó una modificación amplia que afecta varios módulos.",
+      "evidence": [
+        "Archivo modificado: AGENTS.md",
+        "Archivo modificado: package-lock.json",
+        "Archivo modificado: package.json",
+        "Archivo modificado: playwright.config.ts",
+        "Archivo modificado: src/app/api/widget/chat/route.ts",
+        "Archivo modificado: src/app/widget/page.tsx",
+        "Archivo modificado: src/components/chat/ChatWindow.tsx",
+        "Archivo modificado: src/lib/channels/adapters/widget.ts",
+        "Archivo modificado: src/lib/channels/gateway.ts",
+        "Archivo modificado: src/lib/channels/types.ts",
+        "Archivo modificado: src/lib/conversation/context.ts",
+        "Archivo modificado: src/lib/runtime/runtime.ts",
+        "Archivo modificado: workshop/council/core/council-engine.ts",
+        "Archivo modificado: workshop/council/core/council-session.ts",
+        "Archivo modificado: workshop/council/index.ts",
+        "Archivo modificado: workshop/council/schemas/index.ts",
+        "Archivo modificado: workshop/council/types/index.ts",
+        "Archivo modificado: workshop/tests/council-flow.test.ts"
+      ],
+      "affectedArea": "architecture",
+      "recommendation": "Documentar el impacto estructural y revisar el acoplamiento entre módulos."
+    },
+    {
+      "id": "security-1785376107341-4359711fc4af9",
+      "role": "Security",
+      "severity": "high",
+      "category": "security",
+      "title": "Cambio sensible en autenticación o sesión",
+      "description": "Se detectó un cambio en áreas sensibles relacionadas con seguridad.",
+      "evidence": [
+        "workshop/council/core/council-session.ts"
+      ],
+      "affectedArea": "security",
+      "recommendation": "Verificar permisos, manejo de sesión y cualquier exposición de secretos."
+    }
+  ],
+  "summary": "Council Audit Complete\n\nRoles: 5 executed\nFindings: 2\nCritical: 0\nWarnings: 2\nRecommendations: 2",
+  "status": "complete",
+  "performanceMs": 1
+}

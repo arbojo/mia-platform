@@ -141,7 +141,7 @@ export async function getRecentLessons(assistantId: string, limit: number = 10) 
 
   const { data } = await supabase
     .from('learning_events')
-    .select('id, original_response, corrected_response, correction_type, created_at')
+    .select('id, original_response, corrected_response, correction_type, severity, category, created_at')
     .eq('assistant_id', assistantId)
     .in('status', ['approved', 'modified'])
     .order('created_at', { ascending: false })
