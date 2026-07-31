@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { businessId, assistantId, channel } = await request.json()
+    const { businessId, assistantId, channel, credentials, configuration } = await request.json()
 
     if (!businessId || !assistantId || !channel) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -69,9 +69,16 @@ export async function POST(request: Request) {
 
     const admin = createAdminClient()
 
+    const storedCredentials =
+      credentials && typeof credentials === 'object' ? credentials : {}
+    const storedConfiguration =
+      configuration && typeof configuration === 'object' ? configuration : {}
+    const hasCredentials = Object.keys(storedCredentials).length > 0
+    const status = channel === 'web' || hasCredentials ? 'connected' : 'disconnected'
+
     const { data: existing } = await admin
       .from('channel_connections')
-      .select('id')
+      .select('*')
       .eq('business_id', businessId)
       .eq('assistant_id', assistantId)
       .eq('channel', channel)
@@ -79,7 +86,23 @@ export async function POST(request: Request) {
       .single()
 
     if (existing) {
-      return NextResponse.json({ error: 'Channel already connected' }, { status: 409 })
+      const { data: connection, error } = await admin
+        .from('channel_connections')
+        .update({
+          credentials: storedCredentials,
+          configuration: storedConfiguration,
+          status,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existing.id)
+        .select()
+        .single()
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+
+      return NextResponse.json({ connection, updated: true })
     }
 
     const { data: connection, error } = await admin
@@ -88,7 +111,9 @@ export async function POST(request: Request) {
         business_id: businessId,
         assistant_id: assistantId,
         channel,
-        status: channel === 'web' ? 'connected' : 'disconnected',
+        credentials: storedCredentials,
+        configuration: storedConfiguration,
+        status,
       })
       .select()
       .single()
@@ -97,7 +122,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ connection })
+    return NextResponse.json({ connection, updated: false })
   } catch (error) {
     console.error('Create connection error:', error)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

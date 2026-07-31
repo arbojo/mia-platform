@@ -7,7 +7,8 @@ import { loadConversationContext } from '@/lib/conversation/context'
 import { resolveCustomer } from '@/lib/channels/identity'
 import { validateAIResponse, retryWithSafety, logSafetyEvent } from '@/lib/safety'
 import type { SafetyTrigger } from '@/lib/safety'
-import type { ChannelAdapter } from '@/lib/channels/types'
+import * as frontline from '@/lib/channels/frontline'
+import type { ChannelConnection, ChannelStatus, ChannelType } from '@/lib/channels/types'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type { WireMessage } from './types'
 
@@ -98,16 +99,120 @@ export async function processStreaming(params: {
   return result
 }
 
-export async function processIncomingMessage(
-  channel: string,
-  wireMessage: WireMessage,
-  _adapter: ChannelAdapter
-): Promise<{ response: string; customerId: string; conversationId: string }> {
+export interface ResolvedChannelConnection {
+  connection: ChannelConnection | null
+  businessId: string
+  assistantId: string
+}
+
+interface ChannelConnectionRow {
+  id: string
+  business_id: string
+  assistant_id: string
+  channel: string
+  status: string
+  credentials: Record<string, unknown> | null
+  configuration: Record<string, unknown> | null
+  last_sync: string | null
+  error_message: string | null
+}
+
+function toChannelConnection(row: ChannelConnectionRow): ChannelConnection {
+  return {
+    id: row.id,
+    businessId: row.business_id,
+    assistantId: row.assistant_id,
+    channel: row.channel as ChannelType,
+    status: row.status as ChannelStatus,
+    credentials: row.credentials ?? {},
+    configuration: row.configuration ?? {},
+    lastSync: row.last_sync,
+    errorMessage: row.error_message,
+  }
+}
+
+export async function resolveChannelConnection(
+  channel: ChannelType,
+  wireMessage: WireMessage
+): Promise<ResolvedChannelConnection> {
+  const metadata = wireMessage.metadata
   const supabase = createAdminClient()
 
-  const connection = await resolveConnection(channel, wireMessage)
-  const businessId = connection.business_id
-  const assistantId = connection.assistant_id
+  if (channel === 'whatsapp' && metadata.phoneNumberId) {
+    const { data: row } = await supabase
+      .from('channel_connections')
+      .select('*')
+      .eq('channel', 'whatsapp')
+      .eq('status', 'connected')
+      .contains('credentials', { phone_number_id: metadata.phoneNumberId as string })
+      .limit(1)
+      .single()
+
+    if (row) {
+      return {
+        connection: toChannelConnection(row as ChannelConnectionRow),
+        businessId: row.business_id,
+        assistantId: row.assistant_id,
+      }
+    }
+  }
+
+  if (metadata.businessId) {
+    const { data: assistant } = await supabase
+      .from('assistants')
+      .select('id, business_id')
+      .eq('business_id', metadata.businessId as string)
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+
+    if (assistant) {
+      return {
+        connection: null,
+        businessId: assistant.business_id,
+        assistantId: assistant.id,
+      }
+    }
+    throw new RuntimeError('No active assistant found for business', 'NO_ASSISTANT', 404)
+  }
+
+  throw new RuntimeError(
+    `Cannot resolve connection for ${channel} channel. Ensure channel_connections is configured.`,
+    'CONNECTION_NOT_FOUND',
+    400
+  )
+}
+
+export async function processIncomingMessage(
+  channel: ChannelType,
+  wireMessage: WireMessage,
+  resolved: ResolvedChannelConnection
+): Promise<{
+  response: string
+  customerId: string
+  conversationId: string
+  duplicate?: boolean
+  outboundStatus?: string
+  outboundExternalId?: string
+}> {
+  const supabase = createAdminClient()
+
+  const businessId = resolved.businessId
+  const assistantId = resolved.assistantId
+
+  const { data: existingInbound } = await supabase
+    .from('channel_messages')
+    .select('id')
+    .eq('business_id', businessId)
+    .eq('channel', channel)
+    .eq('direction', 'incoming')
+    .eq('external_id', wireMessage.externalId)
+    .limit(1)
+    .single()
+
+  if (existingInbound?.id) {
+    return { response: '', customerId: '', conversationId: '', duplicate: true }
+  }
 
   const customer = await resolveCustomer(businessId, wireMessage)
 
@@ -224,15 +329,43 @@ export async function processIncomingMessage(
     status: 'received',
   })
 
-  await supabase.from('channel_messages').insert({
-    business_id: businessId,
-    customer_id: customer.id,
-    channel,
-    direction: 'outgoing',
-    content: finalResponse,
-    status: 'sent',
-    sent_at: new Date().toISOString(),
-  })
+  const { data: outgoing } = await supabase
+    .from('channel_messages')
+    .insert({
+      business_id: businessId,
+      customer_id: customer.id,
+      channel,
+      direction: 'outgoing',
+      content: finalResponse,
+      external_customer_id: wireMessage.customerExternalId,
+      status: 'processing',
+    })
+    .select()
+    .single()
+
+  let outboundStatus = 'processing'
+  let outboundExternalId: string | undefined
+
+  if (outgoing) {
+    const sendResult = await frontline.send(channel, resolved.connection, {
+      content: finalResponse,
+      contentType: 'text',
+      metadata: { to: wireMessage.customerPhone ?? wireMessage.customerExternalId },
+    })
+
+    outboundStatus = sendResult.success ? 'sent' : 'failed'
+    outboundExternalId = sendResult.externalId
+
+    await supabase
+      .from('channel_messages')
+      .update({
+        status: outboundStatus,
+        external_id: sendResult.externalId ?? null,
+        error_message: sendResult.error ?? null,
+        sent_at: sendResult.success ? new Date().toISOString() : null,
+      })
+      .eq('id', outgoing.id)
+  }
 
   await supabase
     .from('customers')
@@ -243,52 +376,9 @@ export async function processIncomingMessage(
     response: finalResponse,
     customerId: customer.id,
     conversationId: conversationId ?? '',
+    outboundStatus,
+    outboundExternalId,
   }
-}
-
-async function resolveConnection(
-  channel: string,
-  wireMessage: WireMessage
-): Promise<{ business_id: string; assistant_id: string }> {
-  const metadata = wireMessage.metadata
-
-  if (metadata.businessId) {
-    const supabase = createAdminClient()
-    const { data: assistant } = await supabase
-      .from('assistants')
-      .select('id, business_id')
-      .eq('business_id', metadata.businessId as string)
-      .eq('is_active', true)
-      .limit(1)
-      .single()
-
-    if (assistant) {
-      return { business_id: assistant.business_id, assistant_id: assistant.id }
-    }
-    throw new RuntimeError('No active assistant found for business', 'NO_ASSISTANT', 404)
-  }
-
-  if (channel === 'whatsapp' && metadata.phoneNumberId) {
-    const supabase = createAdminClient()
-    const { data: connection } = await supabase
-      .from('channel_connections')
-      .select('business_id, assistant_id')
-      .eq('channel', 'whatsapp')
-      .eq('status', 'connected')
-      .contains('credentials', { phone_number_id: metadata.phoneNumberId as string })
-      .limit(1)
-      .single()
-
-    if (connection) {
-      return { business_id: connection.business_id, assistant_id: connection.assistant_id }
-    }
-  }
-
-  throw new RuntimeError(
-    `Cannot resolve connection for ${channel} channel. Ensure channel_connections is configured.`,
-    'CONNECTION_NOT_FOUND',
-    400
-  )
 }
 
 async function resolveConversation(
