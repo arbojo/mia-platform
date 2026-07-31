@@ -44,6 +44,45 @@ export async function POST(request: Request) {
   const { business_id, assistant_id, mode, title, conversation_id } = body
 
   const admin = createAdminClient()
+
+  const { data: assistant } = await admin
+    .from('assistants')
+    .select('id, business_id, businesses!inner(id, owner_id)')
+    .eq('id', assistant_id)
+    .single()
+
+  if (!assistant) {
+    return NextResponse.json({ error: 'Assistant not found' }, { status: 404 })
+  }
+
+  const business = Array.isArray(assistant.businesses)
+    ? assistant.businesses[0]
+    : assistant.businesses
+
+  if (!business || business.owner_id !== user.id || business.id !== business_id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  let conversationId = conversation_id
+
+  if (!conversationId) {
+    const { data: conversation, error: conversationError } = await admin
+      .from('conversations')
+      .insert({
+        assistant_id,
+        type: 'simulation',
+        status: 'active',
+      })
+      .select('id')
+      .single()
+
+    if (conversationError || !conversation) {
+      return NextResponse.json({ error: conversationError?.message ?? 'Failed to create conversation' }, { status: 500 })
+    }
+
+    conversationId = conversation.id
+  }
+
   const { data: session, error } = await admin
     .from('lab_sessions')
     .insert({
@@ -51,7 +90,7 @@ export async function POST(request: Request) {
       assistant_id,
       mode,
       title: title ?? `${mode} test`,
-      conversation_id,
+      conversation_id: conversationId,
     })
     .select()
     .single()

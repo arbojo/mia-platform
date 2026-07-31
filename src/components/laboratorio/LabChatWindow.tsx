@@ -20,6 +20,7 @@ interface LabChatWindowProps {
   mode?: string
   simulationSystemMessage?: string
   onTokensUsed?: (tokens: { input: number; output: number }) => void
+  onMessageCount?: (count: number) => void
   onCoaching?: (feedback: { tips: string[]; score: number | null }) => void
 }
 
@@ -29,6 +30,8 @@ export function LabChatWindow({
   conversationId,
   mode,
   simulationSystemMessage,
+  onTokensUsed,
+  onMessageCount,
   onCoaching,
 }: LabChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
@@ -134,15 +137,14 @@ export function LabChatWindow({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               assistantId,
-              userMessage: userMessage.content,
-              assistantResponse: assistantContent,
+              conversationId,
               mode,
             }),
           })
           if (coachingRes.ok) {
             const coachingData = await coachingRes.json()
             onCoaching({
-              tips: coachingData.feedback?.tips ?? [],
+              tips: coachingData.tips ?? [],
               score: coachingData.score ?? null,
             })
           }
@@ -150,6 +152,27 @@ export function LabChatWindow({
           // Coaching is optional, don't break the flow
         }
       }
+
+      if (onTokensUsed && conversationId) {
+        try {
+          const usageRes = await fetch(
+            `/api/laboratorio/usage?conversationId=${conversationId}`
+          )
+          if (usageRes.ok) {
+            const usage = await usageRes.json()
+            onTokensUsed({
+              input: usage.input ?? 0,
+              output: usage.output ?? 0,
+            })
+          }
+        } catch {
+          // Usage tracking is optional, don't break the flow
+        }
+      }
+
+      onMessageCount?.(
+        [...messages, userMessage].filter((m) => m.role === 'user').length
+      )
     } catch (error) {
       console.error('Chat error:', error)
       setMessages((prev) => [
@@ -212,6 +235,7 @@ export function LabChatWindow({
                 <ResponseAnalysis
                   messageId={message.id}
                   assistantId={assistantId}
+                  conversationId={conversationId}
                 />
               )}
             </div>

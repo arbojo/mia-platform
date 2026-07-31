@@ -27,6 +27,7 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message_id: messageId,
+          conversation_id: conversationId,
           assistant_id: assistantId,
           user_question: userQuestion,
           original_response: originalContent,

@@ -169,6 +169,7 @@ export async function recordAiUsage(params: {
   assistant_id: string
   model: string
   request_type?: string
+  conversation_id?: string
   tokens_input: number
   tokens_output: number
   cost: number
@@ -180,6 +181,7 @@ export async function recordAiUsage(params: {
     assistant_id: params.assistant_id,
     model: params.model,
     request_type: params.request_type ?? 'live_customer',
+    conversation_id: params.conversation_id ?? null,
     tokens_input: params.tokens_input,
     tokens_output: params.tokens_output,
     cost: params.cost,

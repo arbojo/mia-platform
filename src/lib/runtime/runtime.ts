@@ -48,6 +48,7 @@ export async function processStreaming(params: {
         promptTokens,
         completionTokens,
         request_type: requestType,
+        conversation_id: conversationId,
       })
 
       const fullText = text ?? ''

@@ -20,6 +20,7 @@ export async function trackAiUsage(params: {
   promptTokens: number
   completionTokens: number
   request_type?: string
+  conversation_id?: string
 }): Promise<void> {
   const { promptTokens, completionTokens, ...rest } = params
   if (promptTokens > 0 || completionTokens > 0) {

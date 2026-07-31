@@ -8,11 +8,13 @@ import { Textarea } from '@/components/ui/textarea'
 interface TeachModalProps {
   suggestions: string[]
   businessId: string
+  assistantId: string
+  conversationId?: string
   onClose: () => void
   onTaught: () => void
 }
 
-export function TeachModal({ suggestions, businessId, onClose, onTaught }: TeachModalProps) {
+export function TeachModal({ suggestions, businessId, assistantId, conversationId, onClose, onTaught }: TeachModalProps) {
   const [items, setItems] = useState(
     suggestions.map((s) => ({
       type: 'knowledge' as 'knowledge' | 'rule' | 'instruction',
@@ -38,7 +40,12 @@ export function TeachModal({ suggestions, businessId, onClose, onTaught }: Teach
       const res = await fetch('/api/laboratorio/teach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ business_id: businessId, items }),
+        body: JSON.stringify({
+          business_id: businessId,
+          assistant_id: assistantId,
+          conversation_id: conversationId,
+          items,
+        }),
       })
       const data = await res.json()
       if (data.count > 0) {

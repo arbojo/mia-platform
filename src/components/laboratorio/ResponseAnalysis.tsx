@@ -13,9 +13,10 @@ interface AnalysisReason {
 interface ResponseAnalysisProps {
   messageId: string
   assistantId: string
+  conversationId?: string
 }
 
-export function ResponseAnalysis({ messageId, assistantId }: ResponseAnalysisProps) {
+export function ResponseAnalysis({ messageId, assistantId, conversationId }: ResponseAnalysisProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [analysis, setAnalysis] = useState<{
@@ -34,7 +35,11 @@ export function ResponseAnalysis({ messageId, assistantId }: ResponseAnalysisPro
       const res = await fetch('/api/laboratorio/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId, assistantId }),
+        body: JSON.stringify(
+          conversationId
+            ? { conversationId, assistantId }
+            : { messageId, assistantId }
+        ),
       })
       const data = await res.json()
       setAnalysis(data)
