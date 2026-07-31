@@ -184,7 +184,8 @@ async function calculatePreparation(
     supabase
       .from('learning_events')
       .select('id, status, created_at')
-      .eq('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+      .eq('business_id', businessId)
+      .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
     supabase
       .from('lab_sessions')
       .select('id, score')
@@ -388,7 +389,8 @@ async function calculateConfidence(
     supabase
       .from('learning_events')
       .select('id, status, created_at')
-      .eq('created_at', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()),
+      .eq('business_id', businessId)
+      .gte('created_at', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()),
     supabase
       .from('lab_sessions')
       .select('id, score, criteria')
@@ -557,7 +559,9 @@ async function calculatePerformance(
       .eq('business_id', businessId),
     supabase
       .from('messages')
-      .select('id, role, created_at')
+      .select('id, role, created_at, conversations!inner(type, assistants!inner(business_id))')
+      .eq('conversations.type', 'live')
+      .eq('conversations.assistants.business_id', businessId)
       .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
   ])
 

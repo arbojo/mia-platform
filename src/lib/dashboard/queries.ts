@@ -170,6 +170,7 @@ export async function getEmployeeStatus(
           .from('messages')
           .select('created_at, conversations!inner(type, assistants!inner(business_id))')
           .eq('conversations.type', 'live')
+          .eq('conversations.assistants.business_id', businessId)
           .order('created_at', { ascending: false })
           .limit(1)
           .single(),
@@ -236,7 +237,8 @@ export async function getTodaysActivity(
       await Promise.all([
         supabase
           .from('conversations')
-          .select('id, type', { count: 'exact', head: true })
+          .select('id, assistants!inner(business_id)', { count: 'exact', head: true })
+          .eq('assistants.business_id', businessId)
           .eq('type', 'live')
           .gte('created_at', todayISO),
         supabase
@@ -251,7 +253,8 @@ export async function getTodaysActivity(
           .gte('created_at', todayISO),
         supabase
           .from('messages')
-          .select('id, role, created_at', { count: 'exact', head: true })
+          .select('id, conversations!inner(type, assistants!inner(business_id))', { count: 'exact', head: true })
+          .eq('conversations.assistants.business_id', businessId)
           .gte('created_at', todayISO),
       ])
 
@@ -301,6 +304,7 @@ export async function getDailyReport(
         .from('messages')
         .select('id, role, conversations!inner(type, assistants!inner(business_id))')
         .eq('conversations.type', 'live')
+        .eq('conversations.assistants.business_id', businessId)
         .gte('created_at', yesterdayISO),
       supabase
         .from('learning_events')
@@ -380,10 +384,12 @@ export async function getNeedsFromYou(
         supabase
           .from('learning_events')
           .select('id')
+          .eq('business_id', businessId)
           .eq('status', 'pending'),
         supabase
           .from('knowledge_suggestions')
           .select('id, title, severity')
+          .eq('business_id', businessId)
           .eq('status', 'pending'),
       ])
 
@@ -607,7 +613,8 @@ export async function getGreetingContext(
 
     const { count: activeConversations } = await supabase
       .from('conversations')
-      .select('id', { count: 'exact', head: true })
+      .select('id, assistants!inner(business_id)', { count: 'exact', head: true })
+      .eq('assistants.business_id', businessId)
       .eq('status', 'active')
       .eq('type', 'live')
 
@@ -658,6 +665,7 @@ export async function getProactiveSuggestions(
       supabase
         .from('learning_events')
         .select('id')
+        .eq('business_id', businessId)
         .eq('status', 'pending'),
     ])
 
@@ -703,7 +711,8 @@ export async function getMilestones(
     const [conversationsResult, knowledgeResult, connectionsResult] = await Promise.all([
       supabase
         .from('conversations')
-        .select('id', { count: 'exact', head: true })
+        .select('id, assistants!inner(business_id)', { count: 'exact', head: true })
+        .eq('assistants.business_id', businessId)
         .eq('type', 'live'),
       supabase
         .from('knowledge_items')
