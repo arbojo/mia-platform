@@ -10,6 +10,9 @@ import { getSkillsSnapshot, type SkillsSnapshot } from '@/lib/ai/skills'
 import { getProductIntelligence, type ProductIntelligenceSummary } from '@/lib/ai/product-intelligence'
 import { getLatestWeeklyReport, type WeeklyReportData } from '@/lib/ai/weekly-report'
 import { getBusinessMemory, getVelocityHistory, type BusinessMemoryItem, type LearningVelocitySnapshot } from '@/lib/ai/memory'
+import { determineStage, type MaturityResult } from '@/lib/ai/maturity'
+import { getSalesFunnel, getRevenueSummary, type SalesFunnel, type RevenueSummary } from './sales-intelligence'
+import { getActiveRecommendation, type CoachingRecommendation } from '@/lib/ai/recommendation-engine'
 
 export type { ReadinessScore, ReadinessIndicatorDetail, SubcategoryScore, GuidanceItem }
 
@@ -100,6 +103,14 @@ export interface GreetingContext {
 
 export type MIAReadiness = ReadinessScore
 
+export interface MistakePreventionItem {
+  id: string
+  content: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  category: string
+  created_at: string
+}
+
 export interface DashboardData {
   greetingContext: GreetingContext
   employeeStatus: EmployeeStatus
@@ -116,6 +127,11 @@ export interface DashboardData {
   weeklyReport: WeeklyReportData | null
   businessMemory: BusinessMemoryItem[]
   velocityHistory: LearningVelocitySnapshot[]
+  mistakePrevention: MistakePreventionItem[]
+  maturityStage: MaturityResult
+  salesFunnel: SalesFunnel
+  revenueSummary: RevenueSummary
+  ownerGuidance: CoachingRecommendation | null
 }
 
 export async function getEmployeeStatus(
@@ -788,6 +804,70 @@ export async function getMIAReadiness(
   }
 }
 
+export async function getMistakePrevention(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<MistakePreventionItem[]> {
+  try {
+    const { data } = await supabase
+      .from('learning_events')
+      .select('id, content, severity, category, created_at')
+      .eq('business_id', businessId)
+      .eq('correction_type', 'mistake_prevention')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(20)
+
+    return (data ?? []) as MistakePreventionItem[]
+  } catch {
+    return []
+  }
+}
+
+export async function getMaturityStage(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<MaturityResult> {
+  try {
+    const snapshot = await getLastSnapshotInternal(supabase, businessId)
+    if (!snapshot) {
+      return determineStage({ overall: 0, confidence: 0, preparation: 0, performance: null, mentorSessionsCompleted: 0 })
+    }
+
+    const { data: labSessions } = await supabase
+      .from('lab_sessions')
+      .select('id')
+      .eq('business_id', businessId)
+      .eq('mode', 'mentor')
+      .eq('status', 'completed')
+
+    return determineStage({
+      overall: snapshot.overall,
+      confidence: snapshot.confidence,
+      preparation: snapshot.preparation,
+      performance: snapshot.performance,
+      mentorSessionsCompleted: labSessions?.length ?? 0,
+    })
+  } catch {
+    return determineStage({ overall: 0, confidence: 0, preparation: 0, performance: null, mentorSessionsCompleted: 0 })
+  }
+}
+
+async function getLastSnapshotInternal(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<{ overall: number; confidence: number; preparation: number; performance: number | null } | null> {
+  const { data } = await supabase
+    .from('readiness_snapshots')
+    .select('preparation, confidence, performance, overall')
+    .eq('business_id', businessId)
+    .order('calculated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  return data
+}
+
 export async function getDashboardData(
   supabase: SupabaseClient,
   businessId: string,
@@ -817,13 +897,18 @@ export async function getDashboardData(
     getMilestones(supabase, businessId),
   ])
 
-  const [skillsSnapshot, productIntelligence, weeklyReport, businessMemory, velocityHistory] =
+  const [skillsSnapshot, productIntelligence, weeklyReport, businessMemory, velocityHistory, mistakePrevention, maturityStage, salesFunnel, revenueSummary, activeRecommendation] =
     await Promise.all([
       getSkillsSnapshot(businessId).catch(() => null),
       getProductIntelligence(businessId).catch(() => null),
       getLatestWeeklyReport(businessId).catch(() => null),
       getBusinessMemory(businessId).catch(() => []),
       getVelocityHistory(businessId).catch(() => []),
+      getMistakePrevention(supabase, businessId),
+      getMaturityStage(supabase, businessId),
+      getSalesFunnel(supabase, businessId),
+      getRevenueSummary(supabase, businessId),
+      getActiveRecommendation(businessId).catch(() => null),
     ])
 
   return {
@@ -842,5 +927,10 @@ export async function getDashboardData(
     weeklyReport,
     businessMemory,
     velocityHistory,
+    mistakePrevention,
+    maturityStage,
+    salesFunnel,
+    revenueSummary,
+    ownerGuidance: activeRecommendation,
   }
 }

@@ -363,6 +363,11 @@ export interface Database {
           customer_id: string | null
           type: 'training' | 'live' | 'simulation'
           status: 'active' | 'archived'
+          outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
+          deal_value: number | null
+          potential_value: number | null
+          outcome_updated_at: string | null
+          outcome_history: Json
           assigned_to: string | null
           handover_reason: string | null
           created_at: string
@@ -373,6 +378,11 @@ export interface Database {
           customer_id?: string | null
           type: 'training' | 'live' | 'simulation'
           status?: 'active' | 'archived'
+          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
+          deal_value?: number | null
+          potential_value?: number | null
+          outcome_updated_at?: string | null
+          outcome_history?: Json
           assigned_to?: string | null
           handover_reason?: string | null
           created_at?: string
@@ -383,6 +393,11 @@ export interface Database {
           customer_id?: string | null
           type?: 'training' | 'live' | 'simulation'
           status?: 'active' | 'archived'
+          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
+          deal_value?: number | null
+          potential_value?: number | null
+          outcome_updated_at?: string | null
+          outcome_history?: Json
           assigned_to?: string | null
           handover_reason?: string | null
           created_at?: string
@@ -578,7 +593,7 @@ export interface Database {
       knowledge_suggestions: {
         Row: {
           id: string
-          report_id: string
+          report_id: string | null
           business_id: string
           type: 'missing_knowledge' | 'missing_product' | 'missing_rule' | 'contradiction' | 'improvement'
           severity: 'low' | 'medium' | 'high' | 'critical'
@@ -592,10 +607,18 @@ export interface Database {
           knowledge_item_id: string | null
           created_at: string
           resolved_at: string | null
+          suggestion_type: 'coaching' | 'success_pattern' | 'safety' | null
+          lifecycle_state: 'draft' | 'active' | 'accepted' | 'practiced' | 'applied' | 'verified' | 'completed' | 'archived' | null
+          observation: string | null
+          suggested_improvement: string | null
+          recommended_practice: string | null
+          behavior_key: string | null
+          applied_at: string | null
+          rejection_reason: string | null
         }
         Insert: {
           id?: string
-          report_id: string
+          report_id?: string | null
           business_id: string
           type: 'missing_knowledge' | 'missing_product' | 'missing_rule' | 'contradiction' | 'improvement'
           severity?: 'low' | 'medium' | 'high' | 'critical'
@@ -609,10 +632,18 @@ export interface Database {
           knowledge_item_id?: string | null
           created_at?: string
           resolved_at?: string | null
+          suggestion_type?: 'coaching' | 'success_pattern' | null
+          lifecycle_state?: 'draft' | 'active' | 'accepted' | 'practiced' | 'applied' | 'verified' | 'completed' | 'archived' | null
+          observation?: string | null
+          suggested_improvement?: string | null
+          recommended_practice?: string | null
+          behavior_key?: string | null
+          applied_at?: string | null
+          rejection_reason?: string | null
         }
         Update: {
           id?: string
-          report_id?: string
+          report_id?: string | null
           business_id?: string
           type?: 'missing_knowledge' | 'missing_product' | 'missing_rule' | 'contradiction' | 'improvement'
           severity?: 'low' | 'medium' | 'high' | 'critical'
@@ -626,6 +657,14 @@ export interface Database {
           knowledge_item_id?: string | null
           created_at?: string
           resolved_at?: string | null
+          suggestion_type?: 'coaching' | 'success_pattern' | null
+          lifecycle_state?: 'draft' | 'active' | 'accepted' | 'practiced' | 'applied' | 'verified' | 'completed' | 'archived' | null
+          observation?: string | null
+          suggested_improvement?: string | null
+          recommended_practice?: string | null
+          behavior_key?: string | null
+          applied_at?: string | null
+          rejection_reason?: string | null
         }
       }
       channel_connections: {

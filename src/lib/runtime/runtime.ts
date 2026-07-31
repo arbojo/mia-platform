@@ -5,6 +5,8 @@ import { getOpenAIClient, MODEL } from '@/lib/ai/client'
 import { trackAiUsage } from '@/lib/ai/cost'
 import { loadConversationContext } from '@/lib/conversation/context'
 import { resolveCustomer } from '@/lib/channels/identity'
+import { validateAIResponse, retryWithSafety, logSafetyEvent } from '@/lib/safety'
+import type { SafetyTrigger } from '@/lib/safety'
 import type { ChannelAdapter } from '@/lib/channels/types'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type { WireMessage } from './types'
@@ -29,7 +31,7 @@ export async function processStreaming(params: {
 }) {
   const { assistantId, businessId, conversationId, messages, requestType } = params
 
-  const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId)
+  const { systemPrompt, usedContext, safetyContext } = await loadConversationContext(businessId, assistantId)
 
   const result = streamText({
     model: openai(MODEL),
@@ -48,6 +50,20 @@ export async function processStreaming(params: {
         request_type: requestType,
       })
 
+      const fullText = text ?? ''
+      const safetyResult = await validateAIResponse(fullText, safetyContext)
+
+      if (!safetyResult.passed) {
+        await logSafetyEvent({
+          businessId,
+          assistantId,
+          originalResponse: fullText,
+          correctedResponse: null,
+          triggers: safetyResult.triggers,
+          outcome: 'blocked_with_retry',
+        })
+      }
+
       if (conversationId) {
         const lastUserMessage = messages[messages.length - 1]
         const supabase = createAdminClient()
@@ -61,8 +77,14 @@ export async function processStreaming(params: {
             {
               conversation_id: conversationId,
               role: 'assistant',
-              content: text ?? '',
-              metadata: { used_context: usedContext },
+              content: fullText,
+              metadata: {
+                used_context: usedContext,
+                safety: {
+                  triggered: safetyResult.triggers.length > 0,
+                  blocked: safetyResult.blocked,
+                },
+              },
             },
           ])
         } catch (err) {
@@ -102,7 +124,7 @@ export async function processIncomingMessage(
     })
   }
 
-  const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId)
+  const { systemPrompt, usedContext, safetyContext } = await loadConversationContext(businessId, assistantId)
 
   const chatHistory = conversationId
     ? await supabase
@@ -140,14 +162,52 @@ export async function processIncomingMessage(
     request_type: 'live_customer',
   })
 
+  let finalResponse = response
+  let safetyOutcome: 'passed' | 'blocked_with_retry' | 'pending_ai' = 'passed'
+  let safetyTriggers: SafetyTrigger[] = []
+
+  try {
+    const safetyResult = await validateAIResponse(response, safetyContext)
+    safetyTriggers = safetyResult.triggers
+
+    if (!safetyResult.passed) {
+      const retryResult = await retryWithSafety(
+        response,
+        openaiMessages,
+        safetyContext,
+        businessId,
+        assistantId
+      )
+
+      finalResponse = retryResult.finalResponse
+      safetyOutcome = retryResult.passed ? 'blocked_with_retry' : 'pending_ai'
+    }
+  } catch (err) {
+    console.error('Safety layer failure, delivering original response:', err)
+  }
+
+  await logSafetyEvent({
+    businessId,
+    assistantId,
+    originalResponse: response,
+    correctedResponse: finalResponse !== response ? finalResponse : null,
+    triggers: safetyTriggers,
+    outcome: safetyOutcome,
+  })
+
   if (conversationId) {
     await supabase.from('messages').insert({
       conversation_id: conversationId,
       role: 'assistant',
-      content: response,
+      content: finalResponse,
       metadata: {
         channel,
         used_context: usedContext,
+        safety: {
+          triggered: safetyTriggers.length > 0,
+          retries: safetyOutcome === 'blocked_with_retry' ? 1 : 0,
+          degraded: safetyOutcome === 'pending_ai',
+        },
       },
     })
   }
@@ -168,7 +228,7 @@ export async function processIncomingMessage(
     customer_id: customer.id,
     channel,
     direction: 'outgoing',
-    content: response,
+    content: finalResponse,
     status: 'sent',
     sent_at: new Date().toISOString(),
   })
@@ -179,7 +239,7 @@ export async function processIncomingMessage(
     .eq('id', customer.id)
 
   return {
-    response,
+    response: finalResponse,
     customerId: customer.id,
     conversationId: conversationId ?? '',
   }

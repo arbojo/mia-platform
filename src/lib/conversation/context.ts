@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getBusinessContext, getRecentLessons } from '@/lib/ai/knowledge'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
+import type { SafetyContext } from '@/lib/safety/types'
 
 export class ContextError extends Error {
   constructor(
@@ -19,6 +20,7 @@ export interface LoadedContext {
   fullAssistant: unknown
   businessId: string
   assistantId: string
+  safetyContext: SafetyContext
 }
 
 export async function loadConversationContext(
@@ -67,5 +69,10 @@ export async function loadConversationContext(
     fullAssistant,
     businessId,
     assistantId,
+    safetyContext: {
+      products: context.products.map((p) => ({ id: p.id, name: p.name, price: p.price })),
+      rules: context.rules.map((r) => ({ id: r.id, category: r.category, content: r.content })),
+      memory: context.memory.map((m) => ({ id: m.id, content: m.content, is_immutable: m.is_immutable })),
+    },
   }
 }

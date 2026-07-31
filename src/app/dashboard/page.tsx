@@ -4,6 +4,17 @@ import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
 import { VitalPresence } from '@/components/dashboard/VitalPresence'
 import { ModuleCard } from '@/components/dashboard/ModuleCard'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
+import { DailyReport } from '@/components/dashboard/DailyReport'
+import { EmployeeStatusCard } from '@/components/dashboard/EmployeeStatusCard'
+import { MIAReadiness } from '@/components/dashboard/MIAReadiness'
+import { SkillsDisplay } from '@/components/dashboard/SkillsDisplay'
+import { LearningTimeline } from '@/components/dashboard/LearningTimeline'
+import { OpportunityAlerts } from '@/components/dashboard/OpportunityAlerts'
+import { ProactiveSuggestions } from '@/components/dashboard/ProactiveSuggestions'
+import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
+import { MistakePrevention } from '@/components/dashboard/MistakePrevention'
+import { MaturityStageBadge } from '@/components/dashboard/MaturityStageBadge'
+import { OwnerGuidance } from '@/components/dashboard/OwnerGuidance'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -92,6 +103,18 @@ export default async function DashboardPage() {
     <div className="animate-appear-up space-y-8">
       <MorningGreeting context={data.greetingContext} />
 
+      {/* MIA's Current State */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <EmployeeStatusCard
+            status={data.employeeStatus}
+            skills={data.skillsSnapshot?.skills ?? []}
+          />
+        </div>
+        <MaturityStageBadge maturity={data.maturityStage} />
+      </div>
+
+      {/* Today's Activity */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <VitalPresence
           value={data.todaysActivity.conversations}
@@ -131,6 +154,66 @@ export default async function DashboardPage() {
         />
       </div>
 
+      {/* What MIA Knows & How Confident She Feels */}
+      <div>
+        <h2
+          className="mb-4 text-sm font-medium tracking-wide uppercase"
+          style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
+        >
+          Lo que sé y cómo me siento
+        </h2>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {data.skillsSnapshot && (
+            <SkillsDisplay
+              skills={data.skillsSnapshot.skills}
+              overallLevel={data.skillsSnapshot.overall_level}
+              growthSummary={data.skillsSnapshot.growth_summary}
+            />
+          )}
+          <MIAReadiness data={data.miaReadiness} />
+        </div>
+      </div>
+
+      {/* Coaching Guidance */}
+      <div>
+        <h2
+          className="mb-4 text-sm font-medium tracking-wide uppercase"
+          style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
+        >
+          Coaching del día
+        </h2>
+        <OwnerGuidance recommendation={data.ownerGuidance} />
+      </div>
+
+      {/* Patterns & Learning */}
+      <div>
+        <h2
+          className="mb-4 text-sm font-medium tracking-wide uppercase"
+          style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
+        >
+          Lo que aprendo y observo
+        </h2>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <OpportunityAlerts memories={data.businessMemory} />
+          <div className="space-y-6">
+            <LearningTimeline
+              recentLessons={[]}
+              velocity={data.velocityHistory[0] ?? null}
+            />
+            <MistakePrevention items={data.mistakePrevention} />
+          </div>
+        </div>
+      </div>
+
+      {/* Suggestions & Needs */}
+      {data.proactiveSuggestions.length > 0 && (
+        <ProactiveSuggestions suggestions={data.proactiveSuggestions} />
+      )}
+
+      {/* Weekly Report */}
+      <WeeklyReportCard report={data.weeklyReport} />
+
+      {/* Recent Conversations */}
       {data.conversationTimeline.entries.length > 0 && (
         <div style={{ backgroundColor: 'var(--elevation-1)', border: '1px solid var(--atmosphere-border)', borderRadius: '1rem' }}>
           <div className="p-6">
@@ -139,6 +222,12 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Daily Report */}
+      {data.dailyReport.items.length > 0 && (
+        <DailyReport report={data.dailyReport} />
+      )}
+
+      {/* Explore Modules */}
       <div>
         <h2
           className="mb-4 text-sm font-medium tracking-wide uppercase"
@@ -176,40 +265,6 @@ export default async function DashboardPage() {
           />
         </div>
       </div>
-
-      {data.dailyReport.items.length > 0 && (
-        <div
-          className="rounded-2xl border p-5"
-          style={{
-            backgroundColor: 'var(--elevation-1)',
-            borderColor: 'var(--atmosphere-border)',
-          }}
-        >
-          <h3
-            className="mb-3 text-sm font-semibold"
-            style={{ color: 'var(--atmosphere-text)' }}
-          >
-            {data.dailyReport.greeting}
-          </h3>
-          <div className="space-y-2">
-            {data.dailyReport.items.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 rounded-xl px-3 py-2"
-                style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
-              >
-                <span className="text-base">{item.icon}</span>
-                <span
-                  className="text-sm"
-                  style={{ color: 'var(--atmosphere-text-secondary)' }}
-                >
-                  {item.text}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
