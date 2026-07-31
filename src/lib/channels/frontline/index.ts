@@ -1,5 +1,6 @@
 import { getProvider } from '@/lib/channels/providers'
 import { getAdapter } from '@/lib/channels/gateway'
+import type { ProviderHealth } from '@/lib/channels/providers/types'
 import type {
   ChannelConnection,
   ChannelType,
@@ -66,6 +67,54 @@ export function validateWebhook(
   }
 
   return getAdapter(channel).validateWebhook(signature, body)
+}
+
+export async function ping(
+  channel: ChannelType,
+  connection: ChannelConnection | null
+): Promise<ProviderHealth> {
+  const provider = getProvider(channel)
+
+  if (provider) {
+    if (!connection) {
+      return { ok: false, status: 'error', error: `No connection for channel ${channel}` }
+    }
+    return provider.ping(connection)
+  }
+
+  return { ok: true, status: 'connected' }
+}
+
+export async function connect(
+  channel: ChannelType,
+  connection: ChannelConnection | null
+): Promise<ProviderHealth> {
+  const provider = getProvider(channel)
+
+  if (provider) {
+    if (!connection) {
+      return { ok: false, status: 'error', error: `No connection for channel ${channel}` }
+    }
+    return provider.connect(connection)
+  }
+
+  return { ok: true, status: 'connected' }
+}
+
+export async function disconnect(
+  channel: ChannelType,
+  connection: ChannelConnection | null
+): Promise<ProviderHealth> {
+  const provider = getProvider(channel)
+
+  if (provider) {
+    if (!connection) {
+      return { ok: false, status: 'error', error: `No connection for channel ${channel}` }
+    }
+    return provider.disconnect(connection)
+  }
+
+  return { ok: true, status: 'disconnected' }
 }
 
 export async function getStatus(

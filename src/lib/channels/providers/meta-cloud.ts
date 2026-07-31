@@ -7,7 +7,7 @@ import type {
   SendResult,
   ChannelStatus,
 } from '../types'
-import type { ProviderAdapter } from './types'
+import type { ProviderAdapter, ProviderHealth } from './types'
 
 const GRAPH_API_VERSION = 'v19.0'
 
@@ -184,15 +184,64 @@ export class MetaCloudProvider implements ProviderAdapter {
     }
   }
 
-  async getStatus(connection: ChannelConnection): Promise<ChannelStatus> {
+  async ping(connection: ChannelConnection): Promise<ProviderHealth> {
     if (isMockMode(connection)) {
-      return 'connected'
+      return { ok: true, status: 'connected', latencyMs: 0 }
     }
 
     const accessToken = resolveCredential(connection, 'access_token', 'WHATSAPP_ACCESS_TOKEN')
     const phoneNumberId = resolveCredential(connection, 'phone_number_id', 'WHATSAPP_PHONE_NUMBER_ID')
 
-    return accessToken && phoneNumberId ? 'connected' : 'disconnected'
+    if (!accessToken || !phoneNumberId) {
+      return {
+        ok: false,
+        status: 'disconnected',
+        error: 'Meta Cloud: access_token or phone_number_id not configured',
+      }
+    }
+
+    const startedAt = Date.now()
+
+    try {
+      const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${phoneNumberId}?access_token=${accessToken}&fields=id`
+      const response = await fetch(url, { method: 'GET' })
+      const latencyMs = Date.now() - startedAt
+
+      if (response.ok) {
+        return { ok: true, status: 'connected', latencyMs }
+      }
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: { message?: string }
+      }
+
+      return {
+        ok: false,
+        status: 'error',
+        latencyMs,
+        error: payload.error?.message ?? `Meta Cloud API ${response.status}`,
+      }
+    } catch (err) {
+      return {
+        ok: false,
+        status: 'error',
+        latencyMs: Date.now() - startedAt,
+        error: err instanceof Error ? err.message : String(err),
+      }
+    }
+  }
+
+  async connect(connection: ChannelConnection): Promise<ProviderHealth> {
+    return this.ping(connection)
+  }
+
+  async disconnect(_connection: ChannelConnection): Promise<ProviderHealth> {
+    return { ok: true, status: 'disconnected' }
+  }
+
+  async getStatus(connection: ChannelConnection): Promise<ChannelStatus> {
+    const health = await this.ping(connection)
+    return health.status
   }
 
   async verifySubscription(params: URLSearchParams): Promise<{ valid: boolean; challenge: string | null }> {

@@ -32,6 +32,7 @@ interface Connection {
   channel: string
   status: string
   last_sync: string | null
+  error_message: string | null
   created_at: string
 }
 
@@ -49,6 +50,7 @@ export function ConnectionsManager() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [pingFeedback, setPingFeedback] = useState<Record<string, string>>({})
 
   const channels = [
     { id: 'web' as ChannelType, label: 'Chat Web', emoji: '\u{1F310}' },
@@ -118,12 +120,32 @@ export function ConnectionsManager() {
 
       if (res.ok) {
         const { connection } = await res.json()
-        setConnections((prev) => [connection, ...prev])
+        setConnections((prev) => [connection, ...prev.filter((c) => c.id !== connection.id)])
         setSelectedChannel('')
         setSelectedAssistant('')
       }
     } finally {
       setCreating(false)
+    }
+  }
+
+  async function handlePing(conn: Connection) {
+    setPingFeedback((prev) => ({ ...prev, [conn.id]: 'Probando...' }))
+
+    const res = await fetch(`/api/channels/connections/${conn.id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'ping' }),
+    })
+
+    if (res.ok) {
+      const { connection, health } = await res.json()
+      setConnections((prev) => prev.map((c) => (c.id === conn.id ? connection : c)))
+      const latency = health?.latencyMs !== undefined ? ` · ${health.latencyMs}ms` : ''
+      const detail = health?.error ? ` · ${health.error}` : latency
+      setPingFeedback((prev) => ({ ...prev, [conn.id]: `${health?.status ?? connection.status}${detail}` }))
+    } else {
+      setPingFeedback((prev) => ({ ...prev, [conn.id]: 'Error al probar conexion' }))
     }
   }
 
@@ -216,13 +238,24 @@ export function ConnectionsManager() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {conn.status === 'connected' ? 'Conectado' : 'Desconectado'}
+                      {conn.error_message ? ` · ${conn.error_message}` : ''}
                     </div>
+                    {pingFeedback[conn.id] && (
+                      <div className="text-xs text-muted-foreground">{pingFeedback[conn.id]}</div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge variant={conn.status === 'connected' ? 'default' : 'secondary'}>
                     {conn.status}
                   </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePing(conn)}
+                  >
+                    Probar
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

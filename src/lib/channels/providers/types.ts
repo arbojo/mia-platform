@@ -7,6 +7,13 @@ import type {
   ChannelStatus,
 } from '../types'
 
+export interface ProviderHealth {
+  ok: boolean
+  status: ChannelStatus
+  latencyMs?: number
+  error?: string
+}
+
 export interface ProviderAdapter {
   readonly id: string
   readonly channel: ChannelType
@@ -16,6 +23,12 @@ export interface ProviderAdapter {
   receiveMessage(webhookBody: unknown): Promise<NormalizedMessage | null>
 
   validateWebhook(connection: ChannelConnection | null, signature: string, body: string): boolean
+
+  ping(connection: ChannelConnection): Promise<ProviderHealth>
+
+  connect(connection: ChannelConnection): Promise<ProviderHealth>
+
+  disconnect(connection: ChannelConnection): Promise<ProviderHealth>
 
   getStatus(connection: ChannelConnection): Promise<ChannelStatus>
 

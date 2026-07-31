@@ -8,7 +8,9 @@ import { resolveCustomer } from '@/lib/channels/identity'
 import { validateAIResponse, retryWithSafety, logSafetyEvent } from '@/lib/safety'
 import type { SafetyTrigger } from '@/lib/safety'
 import * as frontline from '@/lib/channels/frontline'
-import type { ChannelConnection, ChannelStatus, ChannelType } from '@/lib/channels/types'
+import { toChannelConnection } from '@/lib/channels/connection'
+import type { ChannelConnectionRow } from '@/lib/channels/connection'
+import type { ChannelConnection, ChannelType } from '@/lib/channels/types'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type { WireMessage } from './types'
 
@@ -103,32 +105,6 @@ export interface ResolvedChannelConnection {
   connection: ChannelConnection | null
   businessId: string
   assistantId: string
-}
-
-interface ChannelConnectionRow {
-  id: string
-  business_id: string
-  assistant_id: string
-  channel: string
-  status: string
-  credentials: Record<string, unknown> | null
-  configuration: Record<string, unknown> | null
-  last_sync: string | null
-  error_message: string | null
-}
-
-function toChannelConnection(row: ChannelConnectionRow): ChannelConnection {
-  return {
-    id: row.id,
-    businessId: row.business_id,
-    assistantId: row.assistant_id,
-    channel: row.channel as ChannelType,
-    status: row.status as ChannelStatus,
-    credentials: row.credentials ?? {},
-    configuration: row.configuration ?? {},
-    lastSync: row.last_sync,
-    errorMessage: row.error_message,
-  }
 }
 
 export async function resolveChannelConnection(

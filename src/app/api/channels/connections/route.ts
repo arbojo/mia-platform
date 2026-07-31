@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import * as frontline from '@/lib/channels/frontline'
+import { toChannelConnection } from '@/lib/channels/connection'
+import type { ChannelConnectionRow } from '@/lib/channels/connection'
 import type { ChannelType } from '@/lib/channels/types'
 
 export async function GET() {
@@ -85,8 +88,11 @@ export async function POST(request: Request) {
       .limit(1)
       .single()
 
+    let connection: ChannelConnectionRow | null = null
+    let updated = false
+
     if (existing) {
-      const { data: connection, error } = await admin
+      const result = await admin
         .from('channel_connections')
         .update({
           credentials: storedCredentials,
@@ -98,31 +104,56 @@ export async function POST(request: Request) {
         .select()
         .single()
 
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 })
+      if (result.error) {
+        return NextResponse.json({ error: result.error.message }, { status: 500 })
       }
 
-      return NextResponse.json({ connection, updated: true })
+      connection = result.data
+      updated = true
+    } else {
+      const result = await admin
+        .from('channel_connections')
+        .insert({
+          business_id: businessId,
+          assistant_id: assistantId,
+          channel,
+          credentials: storedCredentials,
+          configuration: storedConfiguration,
+          status,
+        })
+        .select()
+        .single()
+
+      if (result.error) {
+        return NextResponse.json({ error: result.error.message }, { status: 500 })
+      }
+
+      connection = result.data
     }
 
-    const { data: connection, error } = await admin
-      .from('channel_connections')
-      .insert({
-        business_id: businessId,
-        assistant_id: assistantId,
-        channel,
-        credentials: storedCredentials,
-        configuration: storedConfiguration,
-        status,
-      })
-      .select()
-      .single()
+    let health = null
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (channel !== 'web' && connection) {
+      health = await frontline.ping(
+        channel as ChannelType,
+        toChannelConnection(connection as ChannelConnectionRow)
+      )
+
+      await admin
+        .from('channel_connections')
+        .update({
+          status: health.status,
+          last_sync: new Date().toISOString(),
+          error_message: health.error ?? null,
+        })
+        .eq('id', connection.id)
+
+      connection.status = health.status
+      connection.error_message = health.error ?? null
+      connection.last_sync = new Date().toISOString()
     }
 
-    return NextResponse.json({ connection, updated: false })
+    return NextResponse.json({ connection, updated, health })
   } catch (error) {
     console.error('Create connection error:', error)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
