@@ -1,0 +1,45 @@
+name: Council Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'workshop/**'
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  audit:
+    name: Run Council Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Council Audit
+        run: npm run council-audit
+        continue-on-error: true
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ vars.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key' }}
+          OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY || 'placeholder-key' }}
+
+      - name: Upload Audit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: council-audit-report
+          path: workshop/council/reports/

@@ -1,0 +1,146 @@
+{
+  "id": "TASK-20260729-173000",
+  "title": "Sprint 3 — Business Intelligence & Learning Evolution",
+  "description": "Analyze what MIA still lacks to become a true AI business employee. Focus areas: Business Intelligence (sales patterns, insights, employee improvement metrics), Learning Evolution (progress tracking, mentor mode, refinement), Product Intelligence (objection analysis, conversion patterns, customer segments), Memory Architecture (business/assistant/customer/decision memory layers), Dashboard Evolution (gap analysis, UX audit). Output: Sprint 3 proposal with priority ranking, architecture impact, DB/UX/AI/security impact, implementation phases.",
+  "scope": {
+    "categories": [
+      "feature",
+      "refactor",
+      "schema_change",
+      "ai_behaviour",
+      "ui_change",
+      "api_change",
+      "security",
+      "infrastructure"
+    ],
+    "filesAffected": 25,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "ai",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX. Cross-cutting (5 domains), schema changes, AI behaviour changes, security implications, 25+ files affected. Full council review required."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "cto",
+      "decision": "approve",
+      "rationale": "Approved with conditions: Sprint 3 MUST prioritize (1) fixing fake dashboard data, (2) wiring conversation outcomes, (3) activating maturity_stage before new feature work. Architecture drift from migration 009 must be resolved. Five focus areas (BI, Learning, Product Intelligence, Memory, Dashboard) are correct but re-order by: fix fake data first, then sales metrics, then learning evolution, then product intelligence, then memory architecture.",
+      "timestamp": "2026-07-30T03:47:19.261Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Approved. Architecture proposal: Phase 1 — Fix fake dashboard data (replace hardcoded ModuleCard values with real queries, wire outcomes). Phase 2 — Activate maturity_stage as foundation for mentor mode. Phase 3 — Conversation detail page (new route /dashboard/conversations/[id]). Phase 4 — Sales metrics pipeline with Sales Intelligence events per ADR-010. Phase 5 — Business memory CRUD and memory browser UI. Architecture impact: no new tables needed for Phase 1-3, Phase 4 requires event_log table, Phase 5 needs business_memory UI. Recommend ADR-013 for maturity_stage activation and ADR-014 for sales event system.",
+      "timestamp": "2026-07-30T03:47:30.297Z"
+    },
+    {
+      "agentRole": "domain_expert",
+      "decision": "approve",
+      "rationale": "Approved. Domain consistency check: (1) Business Intelligence — new domain concept 'Sales Intelligence Event' formalizes ADR-010 integration model. No conflict with existing entities. (2) Learning Evolution — maturity_stage exists in schema but is dead code. Activation aligns with Learning domain. Mentor mode is natural evolution of Lab Sessions. (3) Product Intelligence — extends existing Products entity. Objection analysis is within Conversational Sales domain. (4) Memory Architecture — assistant_memories table already exists in schema (migration 001), just needs activation. Decision memory is new concept, must be distinguished from Business Memory. (5) Dashboard Evolution — pure UI, no domain boundary issues. One boundary warning: Sales Intelligence events MUST NOT include ERP/operational data per ADR-010.",
+      "timestamp": "2026-07-30T03:47:40.958Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "Approved with guidance. User value assessment: (1) Fixing fake dashboard data is CRITICAL — every user sees fabricated numbers. This erodes trust immediately. MUST be Sprint 3 priority 0. (2) Conversation detail page is HIGH — users can't review actual AI conversations, which is a fundamental trust gap. (3) Sales metrics are HIGH — a 'sales assistant' that can't show sales data is incomplete. (4) Mentor mode / learning evolution is MEDIUM — valuable for power users but most will first need basic trust. (5) Memory browser is LOW — only advanced users will use it. Simplicity warning: do NOT build a full BI dashboard. Start with 3-5 key metrics (conversations→sales, objections→resolved, learning velocity). Let users ask for more.",
+      "timestamp": "2026-07-30T03:47:50.962Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Approved. Database impact: Phase 1 (fix fake data) — zero schema changes, just new queries. Phase 2 (maturity_stage) — re-use existing column, zero migration. Phase 3 (conversation detail) — zero schema changes. Phase 4 (sales events) — needs new event_log table with columns: id, business_id, event_type (using ADR-010 enum), conversation_id, product_id, metadata JSONB, created_at. Also needs RLS policies. Phase 5 (business memory CRUD) — zero schema changes. Total: 1 new table. assistant_memories activation needs code only, no migration.",
+      "timestamp": "2026-07-30T03:48:00.258Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Approved. Backend scope: (1) New API route GET /api/conversations/[id] for conversation detail with full message history. (2) New API route PATCH /api/conversations/[id]/outcome to set sold/interested/answered/pending with ownership validation. (3) New API route /api/sales/events for Sales Intelligence events. (4) New API route GET /api/sales/metrics for dashboard metrics (conversion rate, pipeline, revenue). (5) Wire learning_events maturity calculations in memory.ts. (6) Activate assistant_memories reads/writes in context.ts and runtime.ts. Follow existing patterns: admin client for writes, server client for reads, requireAuth for all routes.",
+      "timestamp": "2026-07-30T03:48:09.660Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Approved. Frontend scope: (1) Replace hardcoded ModuleCard values with real queries in dashboard page.tsx. (2) New /dashboard/conversations/[id] conversation detail page with message transcript (Server Component, re-use ChatWindow props for read-only mode). (3) Replace hardcoded trends with real delta queries. (4) Add outcome selector to conversation list. (5) Add sales metrics section to dashboard (new MetricsCard components). (6) Business memory browser in /dashboard/knowledge page (new MemoryBrowser component). Server Components by default, no business logic in UI, use shadcn/ui, <150 lines per component.",
+      "timestamp": "2026-07-30T03:48:19.160Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Approved. AI scope: (1) Activate assistant_memories — read per-customer memories in context.ts and inject into prompt. Write new memories from runtime.ts after AI response. (2) Maturity stage detection — use readiness_snapshots and learning_velocity to set and update maturity_stage (observation→understanding→mentor→advisor→autonomous). (3) Outcome detection — use gpt-4o-mini to classify conversation outcome from message history (sold/interested/answered/pending). (4) Sales event generation — emit events from prompt analysis (PRODUCT_SELECTED, OBJECTION_DETECTED, SALE_WON, etc.). (5) Improve customer memory extraction — move beyond 4 keyword patterns to AI-assisted extraction. Use fewer tokens: batch analyze last N messages not full history.",
+      "timestamp": "2026-07-30T03:48:28.877Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Approved with requirements. Performance review: (1) Sales metrics queries must be aggregate-friendly — use summary tables or materialized views for dashboard queries. Daily rollups preferred over live aggregation of thousands of conversations. (2) Conversation detail page must paginate messages (load 50 at a time, lazy load older). Single conversation with 500+ messages must not crash. (3) AI outcome detection must be batched or event-driven — do NOT call OpenAI for every message. Use webhook/background trigger on conversation completion. (4) Token budget: assistant_memories injection must be truncated to 500 tokens max. (5) Cache dashboard metrics with 5-min TTL. (6) Query complexity warning: joining conversations→messages→customers→products across millions of rows needs indexed access paths.",
+      "timestamp": "2026-07-30T03:48:38.880Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Approved with mandatory requirements. Security review: (1) Sales Intelligence events table MUST have RLS policy scoped to business_id via get_user_business_ids(). (2) Outcome API route (PATCH /api/conversations/[id]/outcome) MUST have ownership validation same pattern as PATCH /api/conversations/[id]/status. (3) assistant_memories must be isolated by (business_id, assistant_id, customer_id) — no cross-tenant reads. (4) Sales metrics API must filter by user's businesses. (5) AI-based outcome detection runs on server side only — never expose analysis prompt or raw conversation to client. (6) No new API keys or secrets needed for Sprint 3. (7) Memory browser UI must enforce read-only for non-owner roles if/when multi-user roles are added. BLOCKING ISSUES: None identified. Proceed with mandatory RLS on event_log.",
+      "timestamp": "2026-07-30T03:48:48.673Z"
+    },
+    {
+      "agentRole": "analytics_engineer",
+      "decision": "approve",
+      "rationale": "Approved. Metrics design: Success metrics for Sprint 3: (1) Fake data elimination — zero hardcoded dashboard values after implementation (measured by code review). (2) Outcome tracking — % of conversations with non-null outcome should reach >80% within 1 week of activation. (3) Conversion rate visible on dashboard — metric displayed prominently. (4) Learning velocity shown — trend of weekly new facts/products/rules visible. (5) Maturity stage progression — business should advance at least one stage within 30 days of Sprint 3 completion. Key KPIs to track post-launch: conversations per day, outcome distribution (sold/interested/answered/pending), conversion rate per assistant, objection resolution rate, learning velocity trend.",
+      "timestamp": "2026-07-30T03:48:58.637Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Approved. Memory architecture review: (1) CUSTOMER MEMORY — currently rule-based keyword extraction. Sprint 3 must add AI-assisted extraction to move beyond 4 keyword patterns. Store in customers.memory JSONB. (2) ASSISTANT MEMORY — activate assistant_memories table. Per-customer-per-assistant storage for preferences, purchase history, important notes. Injected into prompt via context.ts. Written post-response in runtime.ts. (3) BUSINESS MEMORY — already functional. Needs CRUD UI. Add memory browser page under /dashboard/knowledge or /dashboard/memory. (4) DECISION MEMORY — new concept. Use business_memory with is_immutable=true and decision_priority. Distinguish by is_immutable flag. (5) ENGINEERING MEMORY — .mia-memory/index.json and .governance/artifacts. Not affected by Sprint 3. (6) SEPARATION confirmed: customer memory (conversation-specific), assistant memory (per-customer-per-assistant), business memory (business-wide patterns), decision memory (immutable business decisions). No concept mixing.",
+      "timestamp": "2026-07-30T03:49:10.029Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Approved. Quality gates: (1) lint — 0 errors throughout Sprint 3. (2) build — 0 TypeScript errors. (3) Playwright tests — existing 4 tests must remain passing. New tests: conversation detail page, dashboard metrics rendering, outcome update flow. (4) Chrome DevTools — console checks on all new pages. (5) Ensure no hardcoded values survive in dashboard components. (6) Accessibility check on new MemoryBrowser and MetricsCard components. (7) Performance check: conversation detail page with 50+ messages loads under 2s.",
+      "timestamp": "2026-07-30T03:49:19.434Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Approved. All 10 required agents approve. Sprint 3 planning phase complete. No blocking issues.",
+      "timestamp": "2026-07-30T03:50:04.178Z"
+    }
+  ],
+  "createdAt": "2026-07-29T17:30:00.000Z",
+  "classifiedAt": "2026-07-29T17:30:00.000Z",
+  "approvedAt": "2026-07-30T03:50:04.193Z",
+  "startedAt": "2026-07-30T03:50:13.357Z"
+}
