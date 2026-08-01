@@ -100,6 +100,12 @@ export interface GreetingContext {
 
 export type MIAReadiness = ReadinessScore
 
+export interface ModuleCardData {
+  memoriaStatus: string
+  pensamientoStatus: string
+  laboratorioStatus: string
+}
+
 export interface DashboardData {
   greetingContext: GreetingContext
   employeeStatus: EmployeeStatus
@@ -111,6 +117,9 @@ export interface DashboardData {
   businessHealth: BusinessHealth
   proactiveSuggestions: ProactiveSuggestion[]
   milestones: Milestone[]
+  moduleCards: ModuleCardData
+  conversationTrend: { value: number; positive: boolean }
+  readinessTrend: { value: number; positive: boolean }
   skillsSnapshot: SkillsSnapshot | null
   productIntelligence: ProductIntelligenceSummary | null
   weeklyReport: WeeklyReportData | null
@@ -216,7 +225,7 @@ export async function getTodaysActivity(
   }
 
   try {
-    const [conversationsResult, customersResult, aiUsageResult, messagesResult] =
+    const [conversationsResult, customersTodayResult, customersBeforeTodayResult, aiUsageResult, messagesResult] =
       await Promise.all([
         supabase
           .from('conversations')
@@ -225,9 +234,14 @@ export async function getTodaysActivity(
           .gte('created_at', todayISO),
         supabase
           .from('customers')
-          .select('id, created_at')
+          .select('id')
           .eq('business_id', businessId)
           .gte('created_at', todayISO),
+        supabase
+          .from('customers')
+          .select('id')
+          .eq('business_id', businessId)
+          .lt('created_at', todayISO),
         supabase
           .from('ai_usage')
           .select('tokens_input, tokens_output, cost')
@@ -239,19 +253,18 @@ export async function getTodaysActivity(
           .gte('created_at', todayISO),
       ])
 
-    const customers = customersResult.data ?? []
+    const customersToday = customersTodayResult.data ?? []
+    const customersBefore = customersBeforeTodayResult.data ?? []
     const aiUsage = aiUsageResult.data ?? []
+
+    const newCustomerCount = customersToday.length
+    const existingCustomerIds = new Set(customersBefore.map((c: { id: string }) => c.id))
+    const returningCount = customersToday.filter((c: { id: string }) => existingCustomerIds.has(c.id)).length
 
     return {
       conversations: conversationsResult.count ?? 0,
-      newCustomers: customers.filter((c) => {
-        const created = new Date(c.created_at)
-        return created >= today
-      }).length,
-      returningCustomers: customers.filter((c) => {
-        const created = new Date(c.created_at)
-        return created < today
-      }).length,
+      newCustomers: newCustomerCount - returningCount,
+      returningCustomers: returningCount,
       tokensConsumed: aiUsage.reduce(
         (sum, u) => sum + (u.tokens_input ?? 0) + (u.tokens_output ?? 0),
         0
@@ -429,7 +442,7 @@ export async function getConversationTimeline(
     const { data: conversations } = await supabase
       .from('conversations')
       .select(
-        'id, created_at, status, customers(name), assistants!inner(business_id), messages(role, content, created_at)'
+        'id, created_at, status, channel, customers(name), assistants!inner(business_id), messages(role, content, created_at)'
       )
       .eq('assistants.business_id', businessId)
       .eq('type', 'live')
@@ -458,7 +471,7 @@ export async function getConversationTimeline(
             ? (conv.customers[0] as { name: string } | undefined)?.name ?? 'Cliente'
             : (conv.customers as { name: string } | null)?.name ?? 'Cliente',
           lastMessage: lastUserMsg.content?.slice(0, 80) ?? '',
-          channel: 'web',
+          channel: conv.channel ?? 'web',
           outcome: lastAssistantMsg ? 'answered' : 'pending',
         })
       }
@@ -788,6 +801,117 @@ export async function getMIAReadiness(
   }
 }
 
+export async function getModuleCardData(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<ModuleCardData> {
+  const defaultCards: ModuleCardData = {
+    memoriaStatus: 'Sin novedades',
+    pensamientoStatus: 'En análisis',
+    laboratorioStatus: 'Sin simulaciones',
+  }
+
+  try {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayISO = today.toISOString()
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    const [learningResult, knowledgeResult, suggestionsResult, memoryResult, labResult] =
+      await Promise.all([
+        supabase
+          .from('learning_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('status', 'approved')
+          .gte('created_at', todayISO),
+        supabase
+          .from('knowledge_items')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('is_active', true)
+          .gte('created_at', todayISO),
+        supabase
+          .from('knowledge_suggestions')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'pending'),
+        supabase
+          .from('business_memory')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('memory_type', 'pattern'),
+        supabase
+          .from('lab_sessions')
+          .select('score')
+          .eq('business_id', businessId)
+          .eq('status', 'completed')
+          .gte('created_at', weekAgo),
+      ])
+
+    const approvedToday = learningResult.count ?? 0
+    const newKnowledgeToday = knowledgeResult.count ?? 0
+    const totalToday = approvedToday + newKnowledgeToday
+
+    if (totalToday > 0) {
+      defaultCards.memoriaStatus = `${totalToday} nuev${totalToday === 1 ? 'o' : 'os'} hoy`
+    }
+
+    const pendingSuggestions = suggestionsResult.count ?? 0
+    const activePatterns = memoryResult.count ?? 0
+    const totalAnalyses = pendingSuggestions + activePatterns
+
+    if (totalAnalyses > 0) {
+      defaultCards.pensamientoStatus = `${totalAnalyses} ${totalAnalyses === 1 ? 'hipótesis' : 'hipótesis'}`
+    }
+
+    const labSessions = labResult.data ?? []
+    if (labSessions.length > 0) {
+      const avgScore = labSessions.reduce((sum, s) => sum + (s.score ?? 0), 0) / labSessions.length
+      defaultCards.laboratorioStatus = `Score ${avgScore.toFixed(1)}`
+    }
+  } catch {
+    // Graceful degradation — use defaults
+  }
+
+  return defaultCards
+}
+
+export async function getConversationTrend(
+  supabase: SupabaseClient
+): Promise<{ value: number; positive: boolean }> {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayISO = today.toISOString()
+  const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+  const yesterdayISO = yesterday.toISOString()
+
+  try {
+    const [todayCount, yesterdayCount] = await Promise.all([
+      supabase
+        .from('conversations')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'live')
+        .eq('status', 'active')
+        .gte('created_at', todayISO),
+      supabase
+        .from('conversations')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'live')
+        .eq('status', 'active')
+        .gte('created_at', yesterdayISO)
+        .lt('created_at', todayISO),
+    ])
+
+    const tod = todayCount.count ?? 0
+    const yest = yesterdayCount.count ?? 0
+    const diff = tod - yest
+
+    return { value: Math.abs(diff), positive: diff >= 0 }
+  } catch {
+    return { value: 0, positive: true }
+  }
+}
+
 export async function getDashboardData(
   supabase: SupabaseClient,
   businessId: string,
@@ -804,6 +928,8 @@ export async function getDashboardData(
     businessHealth,
     proactiveSuggestions,
     milestones,
+    moduleCards,
+    conversationTrend,
   ] = await Promise.all([
     getGreetingContext(supabase, businessId, userName),
     getEmployeeStatus(supabase, businessId),
@@ -815,6 +941,8 @@ export async function getDashboardData(
     getBusinessHealth(supabase, businessId),
     getProactiveSuggestions(supabase, businessId),
     getMilestones(supabase, businessId),
+    getModuleCardData(supabase, businessId),
+    getConversationTrend(supabase),
   ])
 
   const [skillsSnapshot, productIntelligence, weeklyReport, businessMemory, velocityHistory] =
@@ -825,6 +953,11 @@ export async function getDashboardData(
       getBusinessMemory(businessId).catch(() => []),
       getVelocityHistory(businessId).catch(() => []),
     ])
+
+  const readinessTrend: { value: number; positive: boolean } = {
+    value: Math.abs(miaReadiness.deltas?.overall ?? 0),
+    positive: (miaReadiness.deltas?.overall ?? 0) >= 0,
+  }
 
   return {
     greetingContext,
@@ -837,6 +970,9 @@ export async function getDashboardData(
     businessHealth,
     proactiveSuggestions,
     milestones,
+    moduleCards,
+    conversationTrend,
+    readinessTrend,
     skillsSnapshot,
     productIntelligence,
     weeklyReport,

@@ -99,7 +99,7 @@ export default async function DashboardPage() {
           meaning="El corazón de MIA latiendo por tu negocio"
           context="En las últimas 24 horas"
           icon="MessageSquare"
-          trend={{ value: 8, positive: true }}
+          trend={data.conversationTrend}
           href="/dashboard/conversations"
         />
         <VitalPresence
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
           context="Score general de acompañamiento"
           color="var(--mia-violet)"
           icon="Sparkles"
-          trend={{ value: 5, positive: true }}
+          trend={data.readinessTrend}
           href="/dashboard/knowledge-studio"
         />
       </div>
@@ -151,7 +151,7 @@ export default async function DashboardPage() {
             title="Memoria"
             description="Todo lo que MIA ha aprendido de tu negocio y tus clientes"
             href="/dashboard/knowledge"
-            status="3 nuevos hoy"
+            status={data.moduleCards.memoriaStatus}
             statusColor="var(--mia-green)"
             accentColor="var(--mia-green)"
             icon={BookOpen}
@@ -160,7 +160,7 @@ export default async function DashboardPage() {
             title="Pensamiento"
             description="Señales, ideas y estrategias que MIA está analizando para ti"
             href="/dashboard/knowledge-studio"
-            status="5 hipótesis"
+            status={data.moduleCards.pensamientoStatus}
             statusColor="var(--mia-violet)"
             accentColor="var(--mia-violet)"
             icon={Brain}
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
             title="Laboratorio"
             description="Entrena a MIA con simulaciones para que mejore cada día"
             href="/dashboard/laboratorio"
-            status="Score 7.8"
+            status={data.moduleCards.laboratorioStatus}
             statusColor="var(--mia-gold)"
             accentColor="var(--mia-gold)"
             icon={FlaskConical}
