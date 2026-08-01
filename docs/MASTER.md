@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `cd9d57b`.
+> Fuente de verdad: este repositorio en `873bf92`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `cd9d57b` |
+| **Commit HEAD** | `873bf92` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-01T15:12:21-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-01T15:31:13-06:00 |
 
 ---
 
@@ -362,7 +362,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260729-173000 | Sprint 3 — Business Intelligence & Learning Evolution | in_progress |
 | TASK-20260730-022854 | Sprint 1 — Product Survival | completed |
 | TASK-20260730-025752 | Sprint 2 — Product Trust | completed |
-| TASK-20260801-211951 | Documento maestro de arquitectura | in_progress |
+| TASK-20260801-211951 | Documento maestro de arquitectura | completed |
 
 ---
 
@@ -399,6 +399,9 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+873bf92 governance: complete TASK-20260801-211951 (master doc)
+7e53303 docs: add MASTER.md generated at fdaee30 + governance artifacts
+fdaee30 feat(docs): add auto-generated master architecture document (MASTER.md)
 cd9d57b feat(sprint-3): add governance artifacts, sprint proposal, audits and CI workflows
 9758d68 fix(dashboard): replace fake values with real queries (Sprint 3 Phase 1)
 bff027b feat: Sprint 2 - Product Trust
@@ -416,9 +419,6 @@ f537ffd feat(training): add Vitanova training simulation generator
 3720ea6 feat: Feature Complete Sprint — corrections, feedback, CRUD, onboarding, edition channels
 80a6469 feat: Sprint 10.4 — Motivation system + integration (MIA celebrates growth)
 3f63f4e feat: Sprint 10.3 — Dashboard evolution (employee desk metaphor)
-e2162da feat: Sprint 10.2 — Core Intelligence (skills, product intel, weekly reports)
-740cffb feat: Sprint 10.1 — Business Memory foundation (patterns, skills, velocity)
-df5e649 feat: MIA Aprende de tus Archivos — file learning with extraction and review UI
 ```
 
 ---
