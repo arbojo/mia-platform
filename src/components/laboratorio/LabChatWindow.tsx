@@ -142,9 +142,7 @@ export function LabChatWindow({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               assistantId,
-              userMessage: userMessage.content,
-              assistantResponse: assistantContent,
-              mode,
+              conversationId,
             }),
           })
           if (coachingRes.ok) {

@@ -10,20 +10,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { messageId, assistantId } = body
-
-  const { data: message } = await supabase
-    .from('messages')
-    .select('*')
-    .eq('id', messageId)
-    .single()
-
-  if (!message) {
-    return NextResponse.json({ error: 'Message not found' }, { status: 404 })
-  }
-
-  const metadata = message.metadata as Record<string, unknown>
-  const usedContext = (metadata as { used_context?: Array<Record<string, string>> })?.used_context ?? []
+  const { messageId, assistantId, conversationId } = body
 
   const { data: assistant } = await supabase
     .from('assistants')
@@ -34,6 +21,40 @@ export async function POST(request: Request) {
   if (!assistant) {
     return NextResponse.json({ error: 'Assistant not found' }, { status: 404 })
   }
+
+  let message: { metadata: Record<string, unknown> } | null = null
+
+  if (messageId) {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('id', messageId)
+      .single()
+    message = data as { metadata: Record<string, unknown> } | null
+  } else if (conversationId) {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .eq('role', 'assistant')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    message = data as { metadata: Record<string, unknown> } | null
+  }
+
+  if (!message) {
+    return NextResponse.json({
+      reasoning: [],
+      confidence: 0,
+      sources: [],
+      feedback: { tips: [] },
+      score: null,
+    })
+  }
+
+  const metadata = message.metadata as Record<string, unknown>
+  const usedContext = (metadata as { used_context?: Array<Record<string, string>> })?.used_context ?? []
 
   const resolvedContext: Array<{
     type: string
@@ -92,9 +113,15 @@ export async function POST(request: Request) {
     }
   }
 
+  const confidence = resolvedContext.length > 0 ? 95 : 50
+
   return NextResponse.json({
     reasoning: resolvedContext,
-    confidence: resolvedContext.length > 0 ? 95 : 50,
+    confidence,
     sources: usedContext.map((c) => c.type),
+    feedback: {
+      tips: resolvedContext.map((c) => `${c.label}: ${c.content}`),
+    },
+    score: confidence,
   })
 }

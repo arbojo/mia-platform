@@ -29,15 +29,16 @@ export default async function AssistantDetailPage({
 
   const admin = createAdminClient()
 
-  const [productsCount, rulesCount, knowledgeCount, lessonsCount] = await Promise.all([
+  const [productsCount, rulesCount, knowledgeCount, lessonsCount, brandCount] = await Promise.all([
     admin.from('products').select('id', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true),
     admin.from('sales_rules').select('id', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true),
     admin.from('knowledge_items').select('id', { count: 'exact', head: true }).eq('business_id', business.id).eq('is_active', true),
     admin.from('learning_events').select('id', { count: 'exact', head: true }).eq('assistant_id', id).in('status', ['approved', 'modified']),
+    admin.from('brand_identities').select('id', { count: 'exact', head: true }).eq('business_id', business.id),
   ])
 
   const readiness = {
-    hasBrand: true,
+    hasBrand: (brandCount.count ?? 0) > 0,
     hasProducts: (productsCount.count ?? 0) > 0,
     hasRules: (rulesCount.count ?? 0) > 0,
     hasKnowledge: (knowledgeCount.count ?? 0) > 0,

@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260801-222236",
+  "title": "Ejecución de Concilio: Corrección de Auditoría UX/UI",
+  "description": "Implementar las correcciones recomendadas por el PM en docs/audits/ux-ui-disconnected-audit.md. P0: eliminar data fabricada de MIAInbox (D-01/D-02) y hasBrand hardcodeado (A-01). P1: fix disabled atascado en ConversationList (C-01), limpiar input de búsqueda (C-02), arreglar contrato de POST /api/laboratorio/analyze (L-02). P2: ocultar botones Publicar/Embed en tarjeta de asistentes (A-04). Gates: lint, build, unit_tests, e2e_tests, chrome_devtools.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "ui_change",
+      "api_change"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer",
+      "product_manager"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected, cross-cutting (multi-domain). Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Correcciones puntuales de UI y 1 contrato API; sin cambios de schema ni AI. Alcance quirúrgico sobre 7 archivos.",
+      "timestamp": "2026-08-01T22:22:49.931Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Corregir contrato POST /api/laboratorio/analyze (L-02) para eliminar 404; usar payload correcto desde la UI.",
+      "timestamp": "2026-08-01T22:22:52.368Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Líder de implementación UI/React: eliminar data fabricada, fix disabled atascado, limpiar input, ocultar Publicar/Embed.",
+      "timestamp": "2026-08-01T22:22:52.709Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "Las correcciones P0/P1 son obligatorias para el lanzamiento del lunes; P2 ocultar Publicar/Embed con tooltip Próximamente.",
+      "timestamp": "2026-08-01T22:22:53.672Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin implicaciones de seguridad: cambios de UI y un contrato API de análisis existente; se revisa que no se expongan datos.",
+      "timestamp": "2026-08-01T22:23:02.237Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Validar estado de botones, limpieza de input, ausencia de 404 y ocultamiento de CTAs. Ejecutar lint/build/test.",
+      "timestamp": "2026-08-01T22:23:03.437Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Verificar gates y hacer commit/push en main al completar.",
+      "timestamp": "2026-08-01T22:23:04.736Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar el reporte de ejecución en la memoria de ingeniería.",
+      "timestamp": "2026-08-01T22:23:05.569Z"
+    }
+  ],
+  "createdAt": "2026-08-01T22:22:36.252Z",
+  "classifiedAt": "2026-08-01T22:22:36.252Z",
+  "approvedAt": "2026-08-01T22:23:05.570Z",
+  "startedAt": "2026-08-01T22:23:13.784Z",
+  "completedAt": "2026-08-01T22:50:34.853Z"
+}

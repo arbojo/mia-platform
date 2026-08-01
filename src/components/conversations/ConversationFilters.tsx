@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, X } from 'lucide-react'
 
@@ -20,6 +21,20 @@ export function ConversationFilters({
   const status = searchParams.get('status') ?? ''
   const assistantId = searchParams.get('assistant_id') ?? ''
 
+  const [draft, setDraft] = useState(search)
+
+  useEffect(() => {
+    if (draft === search) return
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams()
+      if (status) params.set('status', status)
+      if (assistantId) params.set('assistant_id', assistantId)
+      if (draft) params.set('search', draft)
+      router.push(`?${params.toString()}`)
+    }, 300)
+    return () => clearTimeout(timeout)
+  }, [draft, search, status, assistantId, router])
+
   function setParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
     if (value) {
@@ -37,18 +52,19 @@ export function ConversationFilters({
         <input
           type="text"
           placeholder="Buscar por cliente..."
-          defaultValue={search}
-          onChange={(e) => setParam('search', e.target.value)}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
           className="w-full rounded-xl border bg-transparent py-2 pl-9 pr-8 text-sm outline-none transition-all duration-200 focus:ring-2"
           style={{
             borderColor: 'var(--elevation-3, rgba(0,0,0,0.08))',
             color: 'var(--atmosphere-text)',
           }}
         />
-        {search && (
+        {draft && (
           <button
-            onClick={() => setParam('search', '')}
+            onClick={() => setDraft('')}
             className="absolute right-2 top-1/2 -translate-y-1/2"
+            aria-label="Limpiar búsqueda"
           >
             <X className="h-4 w-4" style={{ color: 'var(--atmosphere-text-secondary)' }} />
           </button>

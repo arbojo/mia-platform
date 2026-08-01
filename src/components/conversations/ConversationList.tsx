@@ -90,7 +90,9 @@ export function ConversationList({
       })
       if (!res.ok) throw new Error('Failed to update')
       router.refresh()
-    } catch {
+    } catch (error) {
+      console.error('Failed to update conversation status:', error)
+    } finally {
       setToggling((prev) => {
         const next = new Set(prev)
         next.delete(convId)
