@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1756034`.
+> Fuente de verdad: este repositorio en `024ab3a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1756034` |
+| **Commit HEAD** | `024ab3a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T15:45:29-06:00 |
+| **Generado** | 2026-08-01T16:18:47-06:00 |
 
 ---
 
@@ -355,7 +355,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (5)**:
+**Tareas registradas (6)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -364,6 +364,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260730-025752 | Sprint 2 — Product Trust | completed |
 | TASK-20260801-211951 | Documento maestro de arquitectura | completed |
 | TASK-20260801-214104 | Arreglar tests unitarios con fallos pre-existentes | completed |
+| TASK-20260801-215301 | Auditoría de Concilio: UX/UI - Enlaces y Botones Desconectados (Alcance Global) | completed |
 
 ---
 
@@ -400,6 +401,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+024ab3a docs(audit): UX/UI disconnected buttons and links global audit
+681b67a docs: regenerate MASTER.md at 1756034
 1756034 fix(tests): align mocks with resolveCustomer and processStreaming
 fe8d78e docs: regenerate MASTER.md at 873bf92
 873bf92 governance: complete TASK-20260801-211951 (master doc)
@@ -418,8 +421,6 @@ bff027b feat: Sprint 2 - Product Trust
 d4cb34a feat(workshop): implement passive observability foundation
 f537ffd feat(training): add Vitanova training simulation generator
 619c79f feat(seed): add Vitanova knowledge base import scripts
-6d4f604 feat: Messaging Runtime Sprint 1 — extract conversation engine into runtime module
-3720ea6 feat: Feature Complete Sprint — corrections, feedback, CRUD, onboarding, edition channels
 ```
 
 ---
