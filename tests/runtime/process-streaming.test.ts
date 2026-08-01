@@ -35,6 +35,23 @@ const onFinishPayload = {
   steps: [] as Array<unknown>,
 }
 
+function makeMockSupabase() {
+  const insertMock = vi.fn(() => Promise.resolve({ data: null, error: null }))
+  const mockMaybeSingle = vi.fn(() => Promise.resolve({ data: null, error: null }))
+  const chain = {
+    select: vi.fn(() => chain),
+    eq: vi.fn(() => chain),
+    order: vi.fn(() => chain),
+    limit: vi.fn(() => Promise.resolve({ data: [], error: null })),
+    insert: insertMock,
+    maybeSingle: mockMaybeSingle,
+  }
+  const fromMock = vi.fn(() => chain)
+  const supabase = { from: fromMock }
+
+  return { supabase, fromMock, insertMock, mockMaybeSingle }
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(loadConversationContext).mockResolvedValue({
@@ -60,7 +77,8 @@ describe('processStreaming', () => {
     await processStreaming(defaultParams)
     expect(loadConversationContext).toHaveBeenCalledWith(
       FAKE_UUIDS.business,
-      FAKE_UUIDS.assistant
+      FAKE_UUIDS.assistant,
+      undefined
     )
   })
 
@@ -97,30 +115,30 @@ describe('processStreaming', () => {
   })
 
   it('persists messages when conversationId is provided', async () => {
-    const insertMock = vi.fn(() => Promise.resolve({ data: null, error: null }))
-    const supabaseMock = {
-      from: vi.fn(() => ({ insert: insertMock })),
-    }
-    vi.mocked(createAdminClient).mockReturnValue(supabaseMock as never)
+    const { supabase, insertMock, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle.mockResolvedValueOnce({
+      data: { customer_id: FAKE_UUIDS.customer },
+      error: null,
+    })
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
 
     await processStreaming({ ...defaultParams, conversationId: FAKE_UUIDS.conversation })
     const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish!
     await onFinish(onFinishPayload)
 
-    expect(supabaseMock.from).toHaveBeenCalledWith('messages')
-    expect(insertMock).toHaveBeenCalledTimes(1)
-    const insertedRows = insertMock.mock.calls[0][0] as Array<Record<string, unknown>>
-    expect(insertedRows).toHaveLength(2)
-    expect(insertedRows[0].role).toBe('user')
-    expect(insertedRows[1].role).toBe('assistant')
+    expect(supabase.from).toHaveBeenCalledWith('messages')
+    expect(insertMock).toHaveBeenCalledTimes(2)
+    const userCall = insertMock.mock.calls[0][0] as Record<string, unknown>
+    expect(userCall.role).toBe('user')
+    expect(userCall.conversation_id).toBe(FAKE_UUIDS.conversation)
+    const assistantCall = insertMock.mock.calls[1][0] as Record<string, unknown>
+    expect(assistantCall.role).toBe('assistant')
+    expect(assistantCall.conversation_id).toBe(FAKE_UUIDS.conversation)
   })
 
   it('does NOT persist messages when conversationId is absent', async () => {
-    const insertMock = vi.fn(() => Promise.resolve({ data: null, error: null }))
-    const supabaseMock = {
-      from: vi.fn(() => ({ insert: insertMock })),
-    }
-    vi.mocked(createAdminClient).mockReturnValue(supabaseMock as never)
+    const { supabase, insertMock } = makeMockSupabase()
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
 
     await processStreaming(defaultParams)
     const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish!

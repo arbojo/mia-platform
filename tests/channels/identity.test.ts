@@ -8,6 +8,7 @@ import { FAKE_UUIDS, mockCustomer } from '../fixtures'
 
 function makeMockSupabase() {
   const mockSingle = vi.fn()
+  const mockMaybeSingle = vi.fn()
   const chain = {
     select: vi.fn(() => chain),
     from: vi.fn(() => chain),
@@ -16,13 +17,13 @@ function makeMockSupabase() {
     limit: vi.fn(() => chain),
     not: vi.fn(() => chain),
     single: mockSingle,
-    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    maybeSingle: mockMaybeSingle,
   }
 
   const fromMock = vi.fn(() => chain)
   const supabase = { from: fromMock }
 
-  return { supabase, fromMock, mockSingle, chain }
+  return { supabase, fromMock, mockSingle, mockMaybeSingle, chain }
 }
 
 beforeEach(() => {
@@ -38,10 +39,9 @@ describe('resolveCustomer', () => {
   }
 
   it('finds existing customer by external_customer_id', async () => {
-    const { supabase, mockSingle } = makeMockSupabase()
-    mockSingle
-      .mockResolvedValueOnce({ data: { customer_id: FAKE_UUIDS.customer }, error: null })
-      .mockResolvedValueOnce({ data: mockCustomer, error: null })
+    const { supabase, mockSingle, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle.mockResolvedValueOnce({ data: { customer_id: FAKE_UUIDS.customer }, error: null })
+    mockSingle.mockResolvedValueOnce({ data: mockCustomer, error: null })
     vi.mocked(createAdminClient).mockReturnValue(supabase as never)
 
     const result = await resolveCustomer(businessId, baseMessage)
@@ -51,8 +51,8 @@ describe('resolveCustomer', () => {
   })
 
   it('finds existing customer by phone', async () => {
-    const { supabase, mockSingle } = makeMockSupabase()
-    mockSingle
+    const { supabase, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle
       .mockResolvedValueOnce({ data: null, error: null })
       .mockResolvedValueOnce({ data: { ...mockCustomer, id: FAKE_UUIDS.customer }, error: null })
     vi.mocked(createAdminClient).mockReturnValue(supabase as never)
@@ -67,8 +67,8 @@ describe('resolveCustomer', () => {
   })
 
   it('finds existing customer by email', async () => {
-    const { supabase, mockSingle } = makeMockSupabase()
-    mockSingle
+    const { supabase, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle
       .mockResolvedValueOnce({ data: null, error: null })
       .mockResolvedValueOnce({ data: { ...mockCustomer, id: FAKE_UUIDS.customer }, error: null })
     vi.mocked(createAdminClient).mockReturnValue(supabase as never)
@@ -83,10 +83,12 @@ describe('resolveCustomer', () => {
   })
 
   it('creates a new customer when no match found', async () => {
-    const { supabase, mockSingle, chain } = makeMockSupabase()
-    mockSingle
-      .mockResolvedValueOnce({ data: null, error: null })
-      .mockResolvedValueOnce({ data: { ...mockCustomer, id: FAKE_UUIDS.customer, name: 'Juan Pérez' }, error: null })
+    const { supabase, mockSingle, mockMaybeSingle, chain } = makeMockSupabase()
+    mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null })
+    mockSingle.mockResolvedValueOnce({
+      data: { ...mockCustomer, id: FAKE_UUIDS.customer, name: 'Juan Pérez' },
+      error: null,
+    })
 
     const insertCalls: Array<Record<string, unknown>> = []
     chain.insert = vi.fn((row: Record<string, unknown>) => {
@@ -111,12 +113,13 @@ describe('resolveCustomer', () => {
   })
 
   it('returns isNew:true for newly created customer', async () => {
-    const { supabase, mockSingle, chain } = makeMockSupabase()
-    mockSingle
-      .mockResolvedValueOnce({ data: null, error: null })
-      .mockResolvedValueOnce({ data: { ...mockCustomer, id: FAKE_UUIDS.customer }, error: null })
+    const { supabase, mockSingle, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null })
+    mockSingle.mockResolvedValueOnce({
+      data: { ...mockCustomer, id: FAKE_UUIDS.customer },
+      error: null,
+    })
 
-    chain.insert = vi.fn(() => chain)
     vi.mocked(createAdminClient).mockReturnValue(supabase as never)
 
     const result = await resolveCustomer(businessId, {

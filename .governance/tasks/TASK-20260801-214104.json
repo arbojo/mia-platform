@@ -1,0 +1,39 @@
+{
+  "id": "TASK-20260801-214104",
+  "title": "Arreglar tests unitarios con fallos pre-existentes",
+  "description": "Corregir 7 fallos en tests unitarios pre-existentes: tests/channels/identity.test.ts (5 fallos, mocks desalineados con resolveCustomer que usa maybeSingle) y tests/runtime/process-streaming.test.ts (2 fallos de persistencia de mensajes). Los mocks no reflejan el codigo actual.",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): backend, frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-01T21:41:04.504Z",
+  "classifiedAt": "2026-08-01T21:41:04.504Z",
+  "approvedAt": "2026-08-01T21:41:04.504Z",
+  "startedAt": "2026-08-01T21:41:13.154Z",
+  "completedAt": "2026-08-01T21:45:07.003Z"
+}
