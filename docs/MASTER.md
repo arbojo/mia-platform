@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `024ab3a`.
+> Fuente de verdad: este repositorio en `40a1b07`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `024ab3a` |
+| **Commit HEAD** | `40a1b07` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T16:18:47-06:00 |
+| **Generado** | 2026-08-01T16:50:50-06:00 |
 
 ---
 
@@ -355,7 +355,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (6)**:
+**Tareas registradas (7)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -365,6 +365,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260801-211951 | Documento maestro de arquitectura | completed |
 | TASK-20260801-214104 | Arreglar tests unitarios con fallos pre-existentes | completed |
 | TASK-20260801-215301 | Auditoría de Concilio: UX/UI - Enlaces y Botones Desconectados (Alcance Global) | completed |
+| TASK-20260801-222236 | Ejecución de Concilio: Corrección de Auditoría UX/UI | completed |
 
 ---
 
@@ -401,6 +402,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+40a1b07 fix(ux): apply UX/UI audit corrections P0-P2
+395a068 docs: regenerate MASTER.md at 024ab3a
 024ab3a docs(audit): UX/UI disconnected buttons and links global audit
 681b67a docs: regenerate MASTER.md at 1756034
 1756034 fix(tests): align mocks with resolveCustomer and processStreaming
@@ -419,8 +422,6 @@ bff027b feat: Sprint 2 - Product Trust
 5a1e530 feat(workshop): add development memory and council context foundation
 7ac4709 feat(workshop): add council foundation layer
 d4cb34a feat(workshop): implement passive observability foundation
-f537ffd feat(training): add Vitanova training simulation generator
-619c79f feat(seed): add Vitanova knowledge base import scripts
 ```
 
 ---
