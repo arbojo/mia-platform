@@ -1,0 +1,51 @@
+name: Generate Master Doc
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - '.governance/tasks/**'
+      - 'workshop/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    name: Regenerate docs/MASTER.md
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate master doc
+        run: npm run docs:generate
+
+      - name: Commit if changed (normalized)
+        run: |
+          git show HEAD:docs/MASTER.md 2>/dev/null | sed 's/`[0-9a-f]\{7\}`//g; /| \*\*Generado\*\*/d' > /tmp/old-master.md || echo "" > /tmp/old-master.md
+          sed 's/`[0-9a-f]\{7\}`//g; /| \*\*Generado\*\*/d' docs/MASTER.md > /tmp/new-master.md
+          if ! diff -q /tmp/old-master.md /tmp/new-master.md >/dev/null 2>&1; then
+            git config user.name "mia-platform-bot"
+            git config user.email "bot@mia-platform.local"
+            git add docs/MASTER.md
+            git commit -m "docs: regenerate MASTER.md at $(git rev-parse --short HEAD)"
+            git push
+          else
+            echo "MASTER.md is up to date — no commit needed"
+          fi

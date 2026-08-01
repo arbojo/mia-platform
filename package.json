@@ -16,6 +16,7 @@
     "post-audit": "npx tsx workshop/scripts/post-development-audit.ts",
     "memory-index": "npx tsx workshop/scripts/memory-index.ts",
     "memory-query": "npx tsx workshop/scripts/memory-query.ts",
+    "docs:generate": "npx tsx workshop/docs/generate-master-doc.ts",
     "distribute": "build-distribute.bat",
     "governance": "npx tsx workshop/governance/cli.ts",
     "governance:validate": "npx tsx workshop/governance/cli.ts validate",
