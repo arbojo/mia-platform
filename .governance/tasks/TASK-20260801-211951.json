@@ -1,0 +1,89 @@
+{
+  "id": "TASK-20260801-211951",
+  "title": "Documento maestro de arquitectura",
+  "description": "Script TS que escanea el repo y genera docs/MASTER.md auto-actualizable, mas GitHub Action que lo regenera en cada commit. Objetivo: que otra IA entienda el proyecto a la perfeccion.",
+  "scope": {
+    "categories": [
+      "documentation",
+      "infrastructure"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado. Documento maestro generado por script que refleja estado real del repo (HEAD, ADRs, migrations, gobernanza). Evita desactualizacion porque se regenera en cada commit. Requiere: script TS en workshop/, GitHub Action con permisos workflow (ya disponible).",
+      "timestamp": "2026-08-01T21:19:59.294Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado. El script escaneara la estructura de src/ y generara secciones por dominio. Sin cambios de runtime en la app. Solo infraestructura de documentacion.",
+      "timestamp": "2026-08-01T21:20:07.153Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Aprobado. No requiere instalacion de herramientas adicionales: el script usa Node/TS nativos ya presentes. GitHub Action usa ubuntu-latest + Node 22 estandar.",
+      "timestamp": "2026-08-01T21:20:14.158Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Aprobado. El entorno ya valida (npm run build, lint). El script debe fallar si HEAD no es legible o el repo no esta limpio, para no documentar estado erroneo. Sin impacto en toolchain.",
+      "timestamp": "2026-08-01T21:20:21.346Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado. El documento maestro sera la fuente de verdad viva para otras IAs. Debe incluir seccion de memoria de ingenieria (lecciones, decisiones) y actualizarse con cada commit. Reutiliza ADRs y gobernanza existentes.",
+      "timestamp": "2026-08-01T21:20:29.076Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado. Gates: lint (0 errores), build (0 errores TS). El script generador debe probarse ejecutandolo y verificando que docs/MASTER.md se genera correctamente. Sin cambios en Playwright.",
+      "timestamp": "2026-08-01T21:20:36.483Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado. GitHub Action regenerara MASTER.md en cada push a main. El script debe detectar si MASTER.md cambio y solo commitear cuando haya diferencias, evitando commits vacios. Commits atomicos.",
+      "timestamp": "2026-08-01T21:20:43.818Z"
+    }
+  ],
+  "createdAt": "2026-08-01T21:19:51.069Z",
+  "classifiedAt": "2026-08-01T21:19:51.069Z",
+  "approvedAt": "2026-08-01T21:20:43.820Z",
+  "startedAt": "2026-08-01T21:20:50.855Z"
+}
