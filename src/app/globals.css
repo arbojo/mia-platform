@@ -10,6 +10,8 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-display: var(--cn-font-display, Georgia), Georgia, serif;
+  --font-body: var(--cn-font-body, system-ui), system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -25,6 +27,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-input-background: var(--input-background);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -66,6 +69,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
+  --input-background: oklch(0.97 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -166,6 +170,39 @@
   --atmosphere-gradient: linear-gradient(135deg, #152035, #1E2D42);
   --atmosphere-accent: var(--mia-gold);
   --atmosphere-glow: rgba(201, 168, 76, 0.1);
+}
+
+/* Clean Nails — landing funnel (always light, crema + dorado) */
+[data-atmosphere="clean-nails"] {
+  --background: #faf8f5;
+  --foreground: #1c1917;
+  --card: #fafaf9;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+  --primary: #1c1917;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f0eb;
+  --secondary-foreground: #1c1917;
+  --muted: #f5f0eb;
+  --muted-foreground: #78716c;
+  --accent: #c4a17a;
+  --accent-foreground: #1c1917;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(28, 25, 23, 0.1);
+  --input: transparent;
+  --input-background: #f5f0eb;
+  --ring: #c4a17a;
+  --radius: 1.25rem;
+  --atmosphere-bg: #faf8f5;
+  --atmosphere-gradient: linear-gradient(160deg, #faf8f5, #f5f0eb);
+  --atmosphere-accent: #c4a17a;
+  --atmosphere-text: #1c1917;
+  --atmosphere-text-secondary: #78716c;
+  --atmosphere-glow: rgba(196, 161, 122, 0.15);
+  --atmosphere-surface: rgba(255, 255, 255, 0.6);
+  --atmosphere-border: rgba(28, 25, 23, 0.08);
 }
 
 /* Light mode atmospheres */
