@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `40a1b07`.
+> Fuente de verdad: este repositorio en `42dcac4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `40a1b07` |
+| **Commit HEAD** | `42dcac4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T16:50:50-06:00 |
+| **Generado** | 2026-08-01T17:16:58-06:00 |
 
 ---
 
@@ -355,7 +355,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (7)**:
+**Tareas registradas (8)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -366,6 +366,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260801-214104 | Arreglar tests unitarios con fallos pre-existentes | completed |
 | TASK-20260801-215301 | Auditoría de Concilio: UX/UI - Enlaces y Botones Desconectados (Alcance Global) | completed |
 | TASK-20260801-222236 | Ejecución de Concilio: Corrección de Auditoría UX/UI | completed |
+| TASK-20260801-231453 | Refino UI/UX: Modal MIA Signals y Banner Enséñame más | completed |
 
 ---
 
@@ -402,6 +403,9 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+42dcac4 fix(ui): solid MIA Signals modal and closable onboarding banner
+91526d5 chore: ignore .env files for Vercel CLI integration
+806b5f4 docs: regenerate MASTER.md at 40a1b07
 40a1b07 fix(ux): apply UX/UI audit corrections P0-P2
 395a068 docs: regenerate MASTER.md at 024ab3a
 024ab3a docs(audit): UX/UI disconnected buttons and links global audit
@@ -419,9 +423,6 @@ bff027b feat: Sprint 2 - Product Trust
 959d049 feat(whatsapp): complete cloud api adapter implementation
 56583b5 feat(council): implement decision framework with roles reviews consensus and reports
 067075d feat(workshop): add deterministic intelligence layer and rule engine
-5a1e530 feat(workshop): add development memory and council context foundation
-7ac4709 feat(workshop): add council foundation layer
-d4cb34a feat(workshop): implement passive observability foundation
 ```
 
 ---
