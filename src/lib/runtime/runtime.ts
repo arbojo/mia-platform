@@ -7,7 +7,7 @@ import { loadConversationContext } from '@/lib/conversation/context'
 import { resolveCustomer } from '@/lib/channels/identity'
 import { validateAIResponse, retryWithSafety, logSafetyEvent } from '@/lib/safety'
 import type { SafetyTrigger } from '@/lib/safety'
-import * as frontline from '@/lib/channels/frontline'
+import { send } from '@/lib/channels/router'
 import { toChannelConnection } from '@/lib/channels/connection'
 import type { ChannelConnectionRow } from '@/lib/channels/connection'
 import type { ChannelConnection, ChannelType } from '@/lib/channels/types'
@@ -323,7 +323,7 @@ export async function processIncomingMessage(
   let outboundExternalId: string | undefined
 
   if (outgoing) {
-    const sendResult = await frontline.send(channel, resolved.connection, {
+    const sendResult = await send(channel, resolved.connection, {
       content: finalResponse,
       contentType: 'text',
       metadata: { to: wireMessage.customerPhone ?? wireMessage.customerExternalId },

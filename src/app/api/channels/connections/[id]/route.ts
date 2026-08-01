@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import * as frontline from '@/lib/channels/frontline'
+import { ping, connect, disconnect } from '@/lib/channels/router'
 import { toChannelConnection } from '@/lib/channels/connection'
 import type { ChannelConnectionRow } from '@/lib/channels/connection'
 
@@ -53,10 +53,10 @@ export async function POST(
 
     const health =
       action === 'ping'
-        ? await frontline.ping(connection.channel, connection)
+        ? await ping(connection.channel, connection)
         : action === 'connect'
-          ? await frontline.connect(connection.channel, connection)
-          : await frontline.disconnect(connection.channel, connection)
+          ? await connect(connection.channel, connection)
+          : await disconnect(connection.channel, connection)
 
     const updateFields: Record<string, unknown> = {
       status: health.status,

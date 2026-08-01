@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import * as frontline from '@/lib/channels/frontline'
+import { ping } from '@/lib/channels/router'
 import { toChannelConnection } from '@/lib/channels/connection'
 import type { ChannelConnectionRow } from '@/lib/channels/connection'
 import type { ChannelType } from '@/lib/channels/types'
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
     let health = null
 
     if (channel !== 'web' && connection) {
-      health = await frontline.ping(
+      health = await ping(
         channel as ChannelType,
         toChannelConnection(connection as ChannelConnectionRow)
       )

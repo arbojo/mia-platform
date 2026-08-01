@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import * as frontline from '@/lib/channels/frontline'
+import { receive, validateWebhook, verifySubscription } from '@/lib/channels/router'
 import {
   processIncomingMessage,
   resolveChannelConnection,
@@ -31,7 +31,7 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
-    const wireMessage = await frontline.receive(channelType, body)
+    const wireMessage = await receive(channelType, body)
 
     if (!wireMessage) {
       return NextResponse.json({ success: true })
@@ -52,7 +52,7 @@ export async function POST(
 
     if (channelType !== 'web') {
       const signature = request.headers.get('x-hub-signature-256') ?? ''
-      if (!frontline.validateWebhook(channelType, resolved.connection, signature, raw)) {
+      if (!validateWebhook(channelType, resolved.connection, signature, raw)) {
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
       }
     }
@@ -100,7 +100,7 @@ export async function GET(
 
     const searchParams = new URL(request.url).searchParams
 
-    const subscription = await frontline.verifySubscription(channelType, searchParams)
+    const subscription = await verifySubscription(channelType, searchParams)
 
     if (subscription.valid) {
       return new Response(subscription.challenge, { status: 200 })
