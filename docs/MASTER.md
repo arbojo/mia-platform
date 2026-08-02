@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e1503c1`.
+> Fuente de verdad: este repositorio en `80bc27a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e1503c1` |
+| **Commit HEAD** | `80bc27a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T20:48:14-06:00 |
+| **Generado** | 2026-08-01T21:56:41-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-28 tablas definidas en `supabase/migrations/`:
+29 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -104,7 +104,7 @@ Patrón de cliente Supabase:
 | learning_velocity_snapshots | 008_business_memory.sql |
 | mia_signals | 011_mia_signals.sql |
 | whatsapp_sessions | 015_whatsapp_sessions.sql |
-| chat_media_dispatched | 016_knowledge_media.sql |
+| IF | 016_knowledge_media.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -115,7 +115,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 1 | 001_initial_schema.sql |
 | 2 | 002_lab_sessions.sql |
 | 3 | 003_knowledge_studio.sql |
-| 4 | 003_training_corrections.sql |
+| 4 | 004_training_corrections.sql |
 | 5 | 005_channel_connections.sql |
 | 6 | 006_readiness_index.sql |
 | 7 | 007_file_learning.sql |
@@ -165,7 +165,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-34 rutas en `src/app/api/`:
+35 rutas en `src/app/api/`:
 
 ```
 assistants/[id]
@@ -192,6 +192,7 @@ knowledge/items/[id]
 knowledge/items
 knowledge/learn/[id]
 knowledge/learn
+knowledge/media/upload
 knowledge/suggestions/[id]
 laboratorio/analyze
 laboratorio/context
@@ -304,7 +305,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-37 módulos:
+39 módulos:
 
 ```
 ai/client.ts
@@ -334,7 +335,9 @@ channels/types.ts
 conversation/context.ts
 conversation/resolver.ts
 dashboard/queries.ts
+runtime/conditional-media.ts
 runtime/execute-ai.ts
+runtime/media.ts
 runtime/runtime.ts
 runtime/types.ts
 supabase/admin.ts
@@ -362,7 +365,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (11)**:
+**Tareas registradas (12)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -377,6 +380,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-013217 | Aplicar migraciones faltantes en MIA Lab y corregir 011_mia_signals a esquema UUID | completed |
 | TASK-20260802-014814 | Purga de datos demo y refino UX/UI del Simulador de Ventas | completed |
 | TASK-20260802-021850 | Integracion WhatsApp con Baileys (QR + puente de mensajeria) | completed |
+| TASK-20260802-032051 | Imagenes condicionales en Knowledge Studio (media por gatillo + envio unico) | in_progress |
 
 ---
 
@@ -400,7 +404,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 011-evidence-first-protocol | 011: Evidence First Protocol — Council Audit Reliability |
 | 012-council-advisory-gate | 012: Council Advisory Gate — Automated Post-Development Audit |
 | 013-whatsapp-baileys-bridge | 013: WhatsApp Bridge with Baileys |
-| 014-conditional-knowledge-media | 014: Conditional Knowledge Media |
+| 014-conditional-knowledge-media | 014: Conditional Knowledge Media (Imágenes condicionales en Knowledge Studio) |
 
 ---
 
@@ -415,6 +419,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+80bc27a feat: implement conditional images in Knowledge Studio and media dispatch tracking
+a330ac9 docs: regenerate MASTER.md at e1503c1
 e1503c1 docs: regenerate MASTER.md at f5418bd
 f5418bd docs: regenerate MASTER.md at 38fc33e
 6accd4c feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
@@ -433,8 +439,6 @@ b25a8f9 docs: regenerate MASTER.md at 3565d39
 024ab3a docs(audit): UX/UI disconnected buttons and links global audit
 681b67a docs: regenerate MASTER.md at 1756034
 1756034 fix(tests): align mocks with resolveCustomer and processStreaming
-fe8d78e docs: regenerate MASTER.md at 873bf92
-873bf92 governance: complete TASK-20260801-211951 (master doc)
 ```
 
 ---
