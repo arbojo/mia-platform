@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e5581e5`.
+> Fuente de verdad: este repositorio en `5ec73fc`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e5581e5` |
+| **Commit HEAD** | `5ec73fc` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T15:37:25-06:00 |
+| **Generado** | 2026-08-02T16:00:33-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-29 tablas definidas en `supabase/migrations/`:
+30 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -105,6 +105,7 @@ Patrón de cliente Supabase:
 | mia_signals | 011_mia_signals.sql |
 | whatsapp_sessions | 015_whatsapp_sessions.sql |
 | IF | 016_knowledge_media.sql |
+| IF | 017_profiles_demo.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -128,6 +129,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 14 | 014_conversation_notes.sql |
 | 15 | 015_whatsapp_sessions.sql |
 | 16 | 016_knowledge_media.sql |
+| 17 | 017_profiles_demo.sql |
 
 ---
 
@@ -235,7 +237,7 @@ widget
 
 ## 9. Componentes
 
-61 componentes en `src/components/`:
+62 componentes en `src/components/`:
 
 ```
 chat/ChatWindow.tsx
@@ -273,6 +275,7 @@ dashboard/TodaysActivity.tsx
 dashboard/TopBar.tsx
 dashboard/VitalPresence.tsx
 dashboard/WeeklyReportCard.tsx
+demo/DemoPaywall.tsx
 knowledge/FileUpload.tsx
 knowledge/InstructionsManager.tsx
 knowledge/KnowledgeCenter.tsx
@@ -305,7 +308,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-39 módulos:
+41 módulos:
 
 ```
 ai/client.ts
@@ -344,7 +347,9 @@ supabase/admin.ts
 supabase/client.ts
 supabase/route-handler.ts
 supabase/server.ts
+system/demo.ts
 system/edition.ts
+system/routing.ts
 types/index.ts
 utils.ts
 ```
@@ -365,7 +370,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (14)**:
+**Tareas registradas (15)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -383,6 +388,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-032051 | Imagenes condicionales en Knowledge Studio (media por gatillo + envio unico) | in_progress |
 | TASK-20260802-194636 | Auditoria critica UX Lab: foco chat, logout sesion Baileys, revision Google Auth | completed |
 | TASK-20260802-195924 | Cursor arcoiris global en todos los inputs del sistema | completed |
+| TASK-20260802-213951436 | Demo publica y captura de leads: auto-registro hibrido con Google Auth | completed |
 
 ---
 
@@ -421,6 +427,11 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+5ec73fc chore(governance): record demo lead capture task completion
+fd24b12 chore(demo): add idempotent demo seed script
+fcb5ee3 feat(demo): add public demo lead capture flow with paywall
+85f00be feat(demo): add profiles table and widen ai_usage request_type check
+1858063 docs: regenerate MASTER.md at e5581e5
 e5581e5 docs: add UBSE sales model design and research notes
 b9b1fd6 docs: regenerate MASTER.md at d957490
 d957490 fix(governance): prevent task id collision with random suffix
@@ -436,11 +447,6 @@ f17960d merge: integrate origin/main taking remote as base
 dc3bf90 docs: regenerate MASTER.md at 80bc27a
 80bc27a feat: implement conditional images in Knowledge Studio and media dispatch tracking
 a330ac9 docs: regenerate MASTER.md at e1503c1
-e1503c1 docs: regenerate MASTER.md at f5418bd
-f5418bd docs: regenerate MASTER.md at 38fc33e
-6accd4c feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
-3ecf63e docs: regenerate MASTER.md at 86d3000
-86d3000 chore(governance): complete TASK-20260802-014814
 ```
 
 ---
