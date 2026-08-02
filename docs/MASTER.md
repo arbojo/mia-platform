@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f5418bd`.
+> Fuente de verdad: este repositorio en `e1503c1`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f5418bd` |
+| **Commit HEAD** | `e1503c1` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-01T20:47:18-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-01T20:48:14-06:00 |
 
 ---
 
@@ -412,6 +412,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+e1503c1 docs: regenerate MASTER.md at f5418bd
 f5418bd docs: regenerate MASTER.md at 38fc33e
 6accd4c feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
 3ecf63e docs: regenerate MASTER.md at 86d3000
@@ -431,7 +432,6 @@ b25a8f9 docs: regenerate MASTER.md at 3565d39
 1756034 fix(tests): align mocks with resolveCustomer and processStreaming
 fe8d78e docs: regenerate MASTER.md at 873bf92
 873bf92 governance: complete TASK-20260801-211951 (master doc)
-7e53303 docs: add MASTER.md generated at fdaee30 + governance artifacts
 ```
 
 ---
