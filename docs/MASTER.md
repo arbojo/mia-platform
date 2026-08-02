@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f17960d`.
+> Fuente de verdad: este repositorio en `c91360a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f17960d` |
+| **Commit HEAD** | `c91360a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T13:05:39-06:00 |
+| **Generado** | 2026-08-02T13:55:41-06:00 |
 
 ---
 
@@ -365,7 +365,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (12)**:
+**Tareas registradas (13)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -381,6 +381,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-014814 | Purga de datos demo y refino UX/UI del Simulador de Ventas | completed |
 | TASK-20260802-021850 | Integracion WhatsApp con Baileys (QR + puente de mensajeria) | completed |
 | TASK-20260802-032051 | Imagenes condicionales en Knowledge Studio (media por gatillo + envio unico) | in_progress |
+| TASK-20260802-194636 | Auditoria critica UX Lab: foco chat, logout sesion Baileys, revision Google Auth | completed |
 
 ---
 
@@ -419,6 +420,10 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+c91360a chore: mark TASK-20260802-194636 as completed in governance
+a742be6 fix: restore chat input focus, resilient WhatsApp logout, hide unconfigured Google Auth
+a67bcf2 chore: add git-crypt encryption for env files and sync .env.local across machines
+8de8a52 docs: regenerate MASTER.md at f17960d
 f17960d merge: integrate origin/main taking remote as base
 dc3bf90 docs: regenerate MASTER.md at 80bc27a
 80bc27a feat: implement conditional images in Knowledge Studio and media dispatch tracking
@@ -435,10 +440,6 @@ b25a8f9 docs: regenerate MASTER.md at 3565d39
 414c639 docs: regenerate MASTER.md at 42dcac4
 42dcac4 fix(ui): solid MIA Signals modal and closable onboarding banner
 91526d5 chore: ignore .env files for Vercel CLI integration
-806b5f4 docs: regenerate MASTER.md at 40a1b07
-40a1b07 fix(ux): apply UX/UI audit corrections P0-P2
-395a068 docs: regenerate MASTER.md at 024ab3a
-024ab3a docs(audit): UX/UI disconnected buttons and links global audit
 ```
 
 ---
