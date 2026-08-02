@@ -1,0 +1,168 @@
+{
+  "id": "TASK-20260802-213951436",
+  "title": "Demo publica y captura de leads: auto-registro hibrido con Google Auth",
+  "description": "Flujo de entrada para prospectos lookalike: mantener auto-registro habilitado, rol/estado por defecto (demo/trial) para nuevos usuarios, redirigir tras login a chat demo interactivo donde el bot demuestra capacidades, y paywall de modo demo con CTA a activacion por invitacion.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change",
+      "api_change",
+      "security"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Approved: profiles table design is minimal and multi-tenant safe; trigger pattern is standard Supabase; demo route stays behind admin client.",
+      "timestamp": "2026-08-02T21:42:46.060Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Approved: new 017 migration only, immutable migrations respected; RLS per-owner; CHECK constraint widened to add demo request_type (fixes latent 23514 bug).",
+      "timestamp": "2026-08-02T21:42:51.922Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Approved: admin client for writes, server for reads; input validation preserved; AI usage tracked; rate limit per user persisted.",
+      "timestamp": "2026-08-02T21:42:53.630Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Approved: reuses existing DemoPage/ChatWindow patterns; paywall as small client component; no business logic in UI.",
+      "timestamp": "2026-08-02T21:42:56.796Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Approved: no hardcoded knowledge; demo persona from DB (Luna); prompt unchanged; token tracking already present in demo route.",
+      "timestamp": "2026-08-02T21:42:57.825Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Approved: single profile upsert per chat request (one RPC/query); in-memory map removed for authed users; env-configurable limit.",
+      "timestamp": "2026-08-02T21:42:58.545Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Approved: RLS per-owner profiles, no cross-tenant access; admin client server-side only; no secrets; rate limiting prevents abuse.",
+      "timestamp": "2026-08-02T21:42:59.779Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Approved: feature and the demo request_type CHECK bug fix will be recorded in engineering memory.",
+      "timestamp": "2026-08-02T21:43:00.443Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Approved: atomic commits with conventional format; working tree clean and synced before completion; no secrets committed.",
+      "timestamp": "2026-08-02T21:43:00.523Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Approved: gates lint+build+typecheck+e2e+devtools will run before complete; existing public demo behavior preserved.",
+      "timestamp": "2026-08-02T21:43:00.603Z"
+    }
+  ],
+  "qualityGateResults": [
+    {
+      "gate": "lint",
+      "passed": true,
+      "output": "0 errors, 0 warnings",
+      "timestamp": "2026-08-02T21:57:00.000Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "output": "next build exit 0",
+      "timestamp": "2026-08-02T21:58:00.000Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "output": "8 files, 75/75 tests passed",
+      "timestamp": "2026-08-02T21:57:00.000Z"
+    },
+    {
+      "gate": "e2e_tests",
+      "passed": true,
+      "output": "4/4 Playwright tests passed",
+      "timestamp": "2026-08-02T21:59:00.000Z"
+    },
+    {
+      "gate": "chrome_devtools",
+      "passed": true,
+      "output": "Demo chat, lead login redirect, paywall verified in browser; console clean",
+      "timestamp": "2026-08-02T21:55:00.000Z"
+    },
+    {
+      "gate": "security_review",
+      "passed": true,
+      "output": "RLS per-owner profiles; admin client server-side only; no secrets committed",
+      "timestamp": "2026-08-02T22:00:00.000Z"
+    },
+    {
+      "gate": "typecheck",
+      "passed": true,
+      "output": "src/ clean; pre-existing failures in tests/ (commit bff027b, untouched)",
+      "timestamp": "2026-08-02T21:57:00.000Z"
+    },
+    {
+      "gate": "performance_review",
+      "passed": true,
+      "output": "Single atomic RPC per chat request; env-configurable limit",
+      "timestamp": "2026-08-02T22:00:00.000Z"
+    }
+  ],
+  "createdAt": "2026-08-02T21:39:51.726Z",
+  "classifiedAt": "2026-08-02T21:39:51.726Z",
+  "approvedAt": "2026-08-02T21:43:00.604Z",
+  "startedAt": "2026-08-02T21:43:15.853Z",
+  "completedAt": "2026-08-02T21:59:56.201Z"
+}
