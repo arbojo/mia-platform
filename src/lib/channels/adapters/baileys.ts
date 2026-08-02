@@ -71,6 +71,8 @@ export class BaileysAdapter implements ChannelAdapter {
     }
 
     try {
+      const imageUrl = message.metadata?.imageUrl as string | undefined
+
       const res = await fetch(
         `${getBridgeUrl()}/v1/sessions/${encodeURIComponent(businessId)}/send`,
         {
@@ -79,7 +81,11 @@ export class BaileysAdapter implements ChannelAdapter {
             'Content-Type': 'application/json',
             'x-mia-bridge-secret': getBridgeSecret(),
           },
-          body: JSON.stringify({ to, content: message.content }),
+          body: JSON.stringify({
+            to,
+            content: message.content,
+            ...(imageUrl ? { imageUrl } : {}),
+          }),
         }
       )
 

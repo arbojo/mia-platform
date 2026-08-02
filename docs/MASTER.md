@@ -104,6 +104,7 @@ Patrón de cliente Supabase:
 | learning_velocity_snapshots | 008_business_memory.sql |
 | mia_signals | 011_mia_signals.sql |
 | whatsapp_sessions | 015_whatsapp_sessions.sql |
+| chat_media_dispatched | 016_knowledge_media.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -126,6 +127,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 13 | 013_assistant_lifecycle.sql |
 | 14 | 014_conversation_notes.sql |
 | 15 | 015_whatsapp_sessions.sql |
+| 16 | 016_knowledge_media.sql |
 
 ---
 
@@ -380,7 +382,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-14 ADRs en `docs/adr/`:
+15 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -398,6 +400,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 011-evidence-first-protocol | 011: Evidence First Protocol — Council Audit Reliability |
 | 012-council-advisory-gate | 012: Council Advisory Gate — Automated Post-Development Audit |
 | 013-whatsapp-baileys-bridge | 013: WhatsApp Bridge with Baileys |
+| 014-conditional-knowledge-media | 014: Conditional Knowledge Media |
 
 ---
 

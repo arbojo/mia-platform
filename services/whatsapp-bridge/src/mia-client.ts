@@ -14,6 +14,7 @@ export interface MiaReply {
   response: string
   customerId: string
   conversationId: string
+  imageUrl?: string
 }
 
 /**
@@ -42,12 +43,19 @@ export async function sendToMia(
     return null
   }
 
-  const data = (await res.json()) as { success: boolean; response: string; customerId: string; conversationId: string }
+  const data = (await res.json()) as {
+    success: boolean
+    response: string
+    customerId: string
+    conversationId: string
+    imageUrl?: string
+  }
   if (!data.success) return null
 
   return {
     response: data.response,
     customerId: data.customerId,
     conversationId: data.conversationId,
+    imageUrl: data.imageUrl ?? undefined,
   }
 }

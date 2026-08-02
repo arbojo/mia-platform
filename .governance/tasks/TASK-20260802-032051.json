@@ -1,0 +1,116 @@
+{
+  "id": "TASK-20260802-032051",
+  "title": "Imagenes condicionales en Knowledge Studio (media por gatillo + envio unico)",
+  "description": "Permitir asociar imagenes a Knowledge Items con una condicion de detonacion contextual (gatillo) y restriccion de envio unico por conversacion. Incluye: ampliacion de esquema (knowledge_items + tabla de historial de envio), Storage de Supabase para las imagenes, UI del Knowledge Studio (subidor, campo de gatillo, vista previa), ajuste del prompt del motor conversacional para evaluar gatillos, y extension del BaileysAdapter/puente para disparar mensajes multimedia (imagen + leyenda).",
+  "scope": {
+    "categories": [
+      "feature",
+      "api_change",
+      "schema_change"
+    ],
+    "filesAffected": 12,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend",
+      "database",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 12 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Diseno: migracion 016 amplia knowledge_items (image_url, trigger_condition) + tabla chat_media_dispatched con UNIQUE(knowledge_item_id, conversation_id) para envio unico. Storage: bucket knowledge-media publico de lectura. Runtime: matcher determinista por keywords del trigger sobre mensaje del usuario; respuesta ampliada con imageUrl/imageCaption; adaptador Baileys envia { image:{url}, caption }. Sin cambios en gateway ni en tipos del prompt.",
+      "timestamp": "2026-08-02T03:24:12.447Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migracion nueva (016), nunca se tocan las aplicadas. knowledge_items: ADD COLUMN image_url TEXT NULL, trigger_condition TEXT NULL. Nueva tabla chat_media_dispatched (business_id, conversation_id, customer_id, knowledge_item_id, created_at) con UNIQUE(knowledge_item_id, conversation_id) como constraint anti-duplicado. RLS para ambas, bucket storage.knowledge-media con policies owner-insert + public-select.",
+      "timestamp": "2026-08-02T03:24:14.722Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Writes con admin client, reads con server. PATCH items/[id] acepta image_url y trigger_condition. Nuevo route POST /api/knowledge/media/upload: valida ownership, mime image/*, tamano max 5MB, sube a storage via admin, devuelve publicUrl. runtime.processIncomingMessage: evalua gatillos y registra en chat_media_dispatched. Sin romper el contrato existente (se amplia respuesta con campos opcionales).",
+      "timestamp": "2026-08-02T03:24:17.062Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "KnowledgeManager: agregar subidor de imagen (input file -> POST media/upload -> preview), campo trigger_condition en form de alta y modal de edicion, y thumbnail en las cards del listado. Reutilizar shadcn/ui existente (Input, Label, Textarea, AlertDialog). Sin dependencias nuevas.",
+      "timestamp": "2026-08-02T03:24:30.244Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "prompts.ts formatKnowledge anade la regla de envio de imagen al system prompt: [IMAGEN_CONDICIONAL] trigger + instruccion de usarla UNA vez. El runtime decide el disparo con matcher determinista (no se gasta un call extra de OpenAI). No se requieren tokens de vision; gpt-4o-mini texto plano.",
+      "timestamp": "2026-08-02T03:24:32.484Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin calls de AI adicionales: el gatillo se evalua con substring match en el runtime (coste O(n*k) trivial sobre knowledge con imagen). La consulta a chat_media_dispatched se indexa por (knowledge_item_id, conversation_id). Una sola query admin adicional por mensaje.",
+      "timestamp": "2026-08-02T03:24:34.761Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Bucket publico SOLO de lectura (policies de lectura publica), subida restringida a owner del business via admin + verificacion de ownership en el route. chat_media_dispatched con RLS y scoping por business. Sin credenciales en client; el bridge autentica con secret compartido. Imagenes de negocio no sensibles.",
+      "timestamp": "2026-08-02T03:24:37.144Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Quality gates: lint, build, unit_tests, e2e_tests, chrome_devtools, typecheck. Se anadiran tests unitarios del matcher de gatillos y del contrato de respuesta extendido (imageUrl opcional).",
+      "timestamp": "2026-08-02T03:24:47.259Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico siguiendo convencion: feat(knowledge): conditional images. Se verificara git diff, secretos (sin credenciales reales en .env.example), y push a origin/main tras quality gates.",
+      "timestamp": "2026-08-02T03:24:49.546Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentara en ADR-014 (conditional knowledge media) y en informe tecnico docs/features/knowledge-conditional-images.md la decision de matcher determinista vs LLM para el disparo de imagenes.",
+      "timestamp": "2026-08-02T03:24:51.810Z"
+    }
+  ],
+  "createdAt": "2026-08-02T03:20:51.226Z",
+  "classifiedAt": "2026-08-02T03:20:51.226Z",
+  "approvedAt": "2026-08-02T03:24:51.812Z",
+  "startedAt": "2026-08-02T03:25:03.103Z"
+}

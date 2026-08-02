@@ -73,11 +73,13 @@ export async function PATCH(
   }
 
   const body = await request.json()
-  const { category, question, answer, confidence } = body as {
+  const { category, question, answer, confidence, image_url, trigger_condition } = body as {
     category?: string
     question?: string
     answer?: string
     confidence?: string
+    image_url?: string | null
+    trigger_condition?: string | null
   }
 
   const admin = createAdminClient()
@@ -87,6 +89,8 @@ export async function PATCH(
   if (question !== undefined) updates.question = question
   if (answer !== undefined) updates.answer = answer
   if (confidence !== undefined) updates.confidence = confidence
+  if (image_url !== undefined) updates.image_url = image_url
+  if (trigger_condition !== undefined) updates.trigger_condition = trigger_condition
 
   const { data, error } = await admin
     .from('knowledge_items')

@@ -108,7 +108,11 @@ function formatKnowledge(knowledge: KnowledgeItem[]): string {
   return knowledge
     .map((k) => {
       const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
-      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] Pregunta: ${k.question}\nRespuesta: ${k.answer}`
+      const imageNote =
+        k.image_url && k.trigger_condition
+          ? `\n[IMAGEN_DISPONIBLE] Enviar la imagen asociada a este conocimiento cuando el cliente toque este tema: "${k.trigger_condition}". Se envía automáticamente la primera vez en la conversación; tú solo debes mencionar en tu respuesta que compartes una imagen al respecto.`
+          : ''
+      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] Pregunta: ${k.question}\nRespuesta: ${k.answer}${imageNote}`
     })
     .join('\n\n')
 }

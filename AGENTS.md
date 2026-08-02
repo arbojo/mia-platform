@@ -765,6 +765,8 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | [001](docs/adr/001-agent-system.md) | Specialized Engineering Agent System | Accepted |
 | [010](docs/adr/010-sales-domain-boundary.md) | MIA Sales Domain Boundary | Accepted |
 | [011](docs/adr/011-evidence-first-protocol.md) | Evidence First Protocol | Accepted |
+| [013](docs/adr/013-whatsapp-baileys-bridge.md) | WhatsApp Baileys Bridge | Accepted |
+| [014](docs/adr/014-conditional-knowledge-media.md) | Conditional Knowledge Media | Accepted |
 
 ---
 

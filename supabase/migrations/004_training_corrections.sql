@@ -1,9 +1,10 @@
--- Migration 003: Add correction_type to learning_events
+-- Migration 004: Add correction_type to learning_events
 -- Sprint 7: Memory, Learning and Continuous Improvement
+-- Idempotent version: applied to remote outside migration history, now registered as 004.
 
 -- Add correction_type column to distinguish between different types of corrections
 ALTER TABLE public.learning_events 
-  ADD COLUMN correction_type TEXT CHECK (correction_type IN ('knowledge', 'rule', 'instruction'));
+  ADD COLUMN IF NOT EXISTS correction_type TEXT CHECK (correction_type IN ('knowledge', 'rule', 'instruction'));
 
 -- Populate correction_type for existing events based on knowledge_item_id presence
 -- If it has a knowledge_item_id, it's a knowledge correction

@@ -5,7 +5,6 @@ import type {
   GovernanceStatus,
   CouncilDecision,
   QualityGateResult,
-  AgentRole,
 } from './types'
 import { createTaskId } from './types'
 

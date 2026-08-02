@@ -93,12 +93,16 @@ export function startBridgeServer(
           json(res, 400, { error: 'Missing businessId' })
           return
         }
-        const body = JSON.parse(await readBody(req)) as { to?: string; content?: string }
+        const body = JSON.parse(await readBody(req)) as {
+          to?: string
+          content?: string
+          imageUrl?: string
+        }
         if (!body.to || !body.content) {
           json(res, 400, { error: 'Missing to or content' })
           return
         }
-        const result = await manager.sendMessage(businessId, body.to, body.content)
+        const result = await manager.sendMessage(businessId, body.to, body.content, body.imageUrl)
         json(res, result.success ? 200 : 400, result)
         return
       }

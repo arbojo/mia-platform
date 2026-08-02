@@ -228,7 +228,14 @@ export class SessionManager {
       })
 
       if (miaReply?.response && session.socket.user?.id) {
-        await session.socket.sendMessage(remoteJid, { text: miaReply.response })
+        if (miaReply.imageUrl) {
+          await session.socket.sendMessage(remoteJid, {
+            image: { url: miaReply.imageUrl },
+            caption: miaReply.response,
+          })
+        } else {
+          await session.socket.sendMessage(remoteJid, { text: miaReply.response })
+        }
       }
     }
   }
@@ -236,7 +243,8 @@ export class SessionManager {
   async sendMessage(
     businessId: string,
     to: string,
-    content: string
+    content: string,
+    imageUrl?: string
   ): Promise<{ success: boolean; error?: string }> {
     const session = this.sessions.get(businessId)
     if (!session || session.status !== 'connected') {
@@ -244,7 +252,11 @@ export class SessionManager {
     }
     try {
       const jid = jidNormalizedUser(to)
-      await session.socket.sendMessage(jid, { text: content })
+      if (imageUrl) {
+        await session.socket.sendMessage(jid, { image: { url: imageUrl }, caption: content })
+      } else {
+        await session.socket.sendMessage(jid, { text: content })
+      }
       return { success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

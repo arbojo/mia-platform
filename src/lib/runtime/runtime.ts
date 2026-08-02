@@ -4,6 +4,7 @@ import { resolveCustomer } from '@/lib/channels/identity'
 import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
+import { resolveConditionalMedia } from './conditional-media'
 import type { ChannelAdapter } from '@/lib/channels/types'
 import type { WireMessage } from './types'
 
@@ -92,7 +93,12 @@ export async function processIncomingMessage(
   channel: string,
   wireMessage: WireMessage,
   _adapter: ChannelAdapter
-): Promise<{ response: string; customerId: string; conversationId: string }> {
+): Promise<{
+  response: string
+  customerId: string
+  conversationId: string
+  imageUrl?: string
+}> {
   const supabase = createAdminClient()
 
   const connection = await resolveConnection(channel, wireMessage)
@@ -181,9 +187,17 @@ export async function processIncomingMessage(
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
 
+  const media = await resolveConditionalMedia({
+    businessId,
+    customerId: customer.id,
+    conversationId: conversationId ?? null,
+    userMessage: wireMessage.content,
+  })
+
   return {
     response,
     customerId: customer.id,
     conversationId: conversationId ?? '',
+    imageUrl: media?.imageUrl,
   }
 }
