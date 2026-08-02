@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `86d3000`.
+> Fuente de verdad: este repositorio en `38fc33e`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `86d3000` |
+| **Commit HEAD** | `38fc33e` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T19:59:10-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-01T20:45:56-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-27 tablas definidas en `supabase/migrations/`:
+28 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -103,6 +103,7 @@ Patrón de cliente Supabase:
 | weekly_reports | 008_business_memory.sql |
 | learning_velocity_snapshots | 008_business_memory.sql |
 | mia_signals | 011_mia_signals.sql |
+| whatsapp_sessions | 015_whatsapp_sessions.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -124,6 +125,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 12 | 012_customer_memory.sql |
 | 13 | 013_assistant_lifecycle.sql |
 | 14 | 014_conversation_notes.sql |
+| 15 | 015_whatsapp_sessions.sql |
 
 ---
 
@@ -161,7 +163,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-31 rutas en `src/app/api/`:
+34 rutas en `src/app/api/`:
 
 ```
 assistants/[id]
@@ -170,6 +172,9 @@ business/memory
 business/product-intelligence
 business/skills
 business/weekly-report
+channels/baileys/session
+channels/baileys/webhook
+channels/baileys/ws-token
 channels/connections
 channels/webhook/[channel]
 chat
@@ -297,7 +302,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-34 módulos:
+37 módulos:
 
 ```
 ai/client.ts
@@ -315,6 +320,9 @@ ai/skills.ts
 ai/usage-report.ts
 ai/weekly-report.ts
 auth.ts
+baileys/bridge.ts
+baileys/config.ts
+channels/adapters/baileys.ts
 channels/adapters/web.ts
 channels/adapters/whatsapp.ts
 channels/adapters/widget.ts
@@ -352,7 +360,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (10)**:
+**Tareas registradas (11)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -366,12 +374,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260801-231453 | Refino UI/UX: Modal MIA Signals y Banner Enséñame más | completed |
 | TASK-20260802-013217 | Aplicar migraciones faltantes en MIA Lab y corregir 011_mia_signals a esquema UUID | completed |
 | TASK-20260802-014814 | Purga de datos demo y refino UX/UI del Simulador de Ventas | completed |
+| TASK-20260802-021850 | Integracion WhatsApp con Baileys (QR + puente de mensajeria) | completed |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-13 ADRs en `docs/adr/`:
+14 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -388,6 +397,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 010-sales-domain-boundary | 010: MIA Sales Domain Boundary |
 | 011-evidence-first-protocol | 011: Evidence First Protocol — Council Audit Reliability |
 | 012-council-advisory-gate | 012: Council Advisory Gate — Automated Post-Development Audit |
+| 013-whatsapp-baileys-bridge | 013: WhatsApp Bridge with Baileys |
 
 ---
 
@@ -402,6 +412,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+38fc33e feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
 86d3000 chore(governance): complete TASK-20260802-014814
 fd72f1c docs: regenerate MASTER.md at 48d47e1
 48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
@@ -421,7 +432,6 @@ fe8d78e docs: regenerate MASTER.md at 873bf92
 7e53303 docs: add MASTER.md generated at fdaee30 + governance artifacts
 fdaee30 feat(docs): add auto-generated master architecture document (MASTER.md)
 cd9d57b feat(sprint-3): add governance artifacts, sprint proposal, audits and CI workflows
-9758d68 fix(dashboard): replace fake values with real queries (Sprint 3 Phase 1)
 ```
 
 ---
