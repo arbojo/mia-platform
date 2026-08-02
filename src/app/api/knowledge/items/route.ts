@@ -63,15 +63,24 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { business_id, category, question, answer } = body as {
+  const { business_id, category, question, answer, image_url, trigger_condition } = body as {
     business_id: string
     category: string
     question: string
     answer: string
+    image_url?: string | null
+    trigger_condition?: string | null
   }
 
   if (!business_id || !category || !question || !answer) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  if (image_url && !trigger_condition) {
+    return NextResponse.json(
+      { error: 'trigger_condition is required when attaching an image' },
+      { status: 400 }
+    )
   }
 
   const { data: business } = await supabase
@@ -94,6 +103,8 @@ export async function POST(request: Request) {
       category,
       question,
       answer,
+      image_url: image_url ?? null,
+      trigger_condition: trigger_condition ?? null,
       source: 'manual',
       confidence: 'medium',
     })

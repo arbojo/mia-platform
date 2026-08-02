@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     .select('id, status')
     .eq('business_id', business_id)
     .eq('status', 'analyzing')
-    .single()
+    .maybeSingle()
 
   if (existingReport) {
     return NextResponse.json({ error: 'Analysis already in progress' }, { status: 409 })
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
       admin.from('products').select('*').eq('business_id', business_id).eq('is_active', true),
       admin.from('sales_rules').select('*').eq('business_id', business_id).eq('is_active', true),
       admin.from('ai_instructions').select('*').eq('business_id', business_id).eq('is_active', true),
-      admin.from('brand_identities').select('*').eq('business_id', business_id).single(),
+      admin.from('brand_identities').select('*').eq('business_id', business_id).maybeSingle(),
     ])
 
   const knowledge = knowledgeResult.data ?? []

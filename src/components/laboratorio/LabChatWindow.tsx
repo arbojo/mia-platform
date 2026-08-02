@@ -130,6 +130,13 @@ export function LabChatWindow({
         }
       }
 
+      if (onTokensUsed && assistantContent) {
+        onTokensUsed({
+          input: Math.ceil(userMessage.content.length / 4),
+          output: Math.ceil(assistantContent.length / 4),
+        })
+      }
+
       if (onCoaching && assistantContent) {
         try {
           const coachingRes = await fetch('/api/laboratorio/analyze', {
@@ -150,23 +157,6 @@ export function LabChatWindow({
           }
         } catch {
           // Coaching is optional, don't break the flow
-        }
-      }
-
-      if (onTokensUsed && conversationId) {
-        try {
-          const usageRes = await fetch(
-            `/api/laboratorio/usage?conversationId=${conversationId}`
-          )
-          if (usageRes.ok) {
-            const usage = await usageRes.json()
-            onTokensUsed({
-              input: usage.input ?? 0,
-              output: usage.output ?? 0,
-            })
-          }
-        } catch {
-          // Usage tracking is optional, don't break the flow
         }
       }
 

@@ -8,10 +8,19 @@
     "start": "next start",
     "lint": "eslint",
     "test": "npx playwright test",
+    "test:unit": "vitest",
     "test:ui": "npx playwright test --ui",
     "test:report": "npx playwright show-report",
     "memory-scan": "node scripts/memory-scan.cjs",
-    "distribute": "build-distribute.bat"
+    "council-audit": "npx tsx workshop/scripts/run-council-audit.ts",
+    "post-audit": "npx tsx workshop/scripts/post-development-audit.ts",
+    "memory-index": "npx tsx workshop/scripts/memory-index.ts",
+    "memory-query": "npx tsx workshop/scripts/memory-query.ts",
+    "docs:generate": "npx tsx workshop/docs/generate-master-doc.ts",
+    "distribute": "build-distribute.bat",
+    "governance": "npx tsx workshop/governance/cli.ts",
+    "governance:validate": "npx tsx workshop/governance/cli.ts validate",
+    "governance:classify": "npx tsx workshop/governance/cli.ts classify"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.20",
@@ -23,7 +32,6 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.27.0",
-    "motion": "^12.43.0",
     "next": "16.2.12",
     "openai": "^6.49.0",
     "pdf-parse": "^2.4.5",
@@ -44,6 +52,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

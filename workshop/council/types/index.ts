@@ -2,10 +2,13 @@ import type { z } from 'zod';
 import type {
   councilSeveritySchema,
   councilFindingSchema,
+  councilFindingStateSchema,
   councilContextSchema,
 } from '../schemas';
 
 export type CouncilSeverity = z.infer<typeof councilSeveritySchema>;
+
+export type CouncilFindingState = z.infer<typeof councilFindingStateSchema>;
 
 export type CouncilFinding = z.infer<typeof councilFindingSchema>;
 
@@ -15,7 +18,7 @@ export interface CouncilRole {
   id: string;
   name: string;
   responsibility: string;
-  audit(context: CouncilContext): CouncilFinding[];
+  audit(context: CouncilContext): CouncilFinding[] | Promise<CouncilFinding[]>;
 }
 
 export interface CouncilAuditReport {
@@ -25,6 +28,8 @@ export interface CouncilAuditReport {
   findings: CouncilFinding[];
   summary: string;
   status: 'complete' | 'partial';
+  rolesFailed?: string[];
+  performanceMs?: number;
 }
 
 export type CouncilDecisionFrameworkContext = Pick<

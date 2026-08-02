@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 export const councilSeveritySchema = z.enum(['low', 'medium', 'high', 'critical']);
 
+export const councilFindingStateSchema = z.enum(['open', 'in_progress', 'resolved', 'superseded', 'invalidated']);
+
 export const councilFindingSchema = z.object({
   id: z.string(),
   role: z.string(),
@@ -12,6 +14,9 @@ export const councilFindingSchema = z.object({
   evidence: z.array(z.string()),
   affectedArea: z.string(),
   recommendation: z.string(),
+  state: councilFindingStateSchema.optional(),
+  filePath: z.string().optional(),
+  headCommit: z.string().optional(),
 });
 
 export const councilConsensusSchema = z.object({

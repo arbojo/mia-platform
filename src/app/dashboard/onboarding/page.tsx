@@ -8,7 +8,7 @@ export default async function OnboardingPage() {
     .from('businesses')
     .select('id')
     .eq('owner_id', user.id)
-    .single()
+    .maybeSingle()
 
   return (
     <div className="py-8">

@@ -39,6 +39,9 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
   const [category, setCategory] = useState<string>('faq')
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [triggerCondition, setTriggerCondition] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [search, setSearch] = useState('')
   const [filterCategory, setFilterCategory] = useState<string>('')
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeItem | null>(null)
@@ -46,6 +49,8 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
   const [editQuestion, setEditQuestion] = useState('')
   const [editAnswer, setEditAnswer] = useState('')
   const [editCategory, setEditCategory] = useState<string>('faq')
+  const [editImageUrl, setEditImageUrl] = useState<string | null>(null)
+  const [editTriggerCondition, setEditTriggerCondition] = useState('')
 
   const filteredItems = items.filter((item) => {
     const matchesCategory = !filterCategory || item.category === filterCategory
@@ -55,6 +60,31 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     return matchesCategory && matchesSearch
   })
 
+  const handleUpload = async (file: File): Promise<string | null> => {
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('business_id', businessId)
+      formData.append('file', file)
+
+      const res = await fetch('/api/knowledge/media/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        const { url } = await res.json()
+        return url
+      }
+
+      const { error } = await res.json()
+      console.error('Upload failed:', error)
+      return null
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleAdd = async () => {
     if (!question.trim() || !answer.trim()) return
     setLoading(true)
@@ -62,7 +92,14 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     const res = await fetch('/api/knowledge/items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ business_id: businessId, category, question, answer }),
+      body: JSON.stringify({
+        business_id: businessId,
+        category,
+        question,
+        answer,
+        image_url: imageUrl,
+        trigger_condition: triggerCondition.trim() || null,
+      }),
     })
 
     if (res.ok) {
@@ -70,6 +107,8 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
       setItems((prev) => [item, ...prev])
       setQuestion('')
       setAnswer('')
+      setImageUrl(null)
+      setTriggerCondition('')
     }
 
     setLoading(false)
@@ -82,7 +121,13 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     const res = await fetch(`/api/knowledge/items/${editTarget.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ category: editCategory, question: editQuestion, answer: editAnswer }),
+      body: JSON.stringify({
+        category: editCategory,
+        question: editQuestion,
+        answer: editAnswer,
+        image_url: editImageUrl,
+        trigger_condition: editTriggerCondition.trim() || null,
+      }),
     })
 
     if (res.ok) {
@@ -112,6 +157,8 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     setEditQuestion(item.question)
     setEditAnswer(item.answer)
     setEditCategory(item.category)
+    setEditImageUrl(item.image_url)
+    setEditTriggerCondition(item.trigger_condition ?? '')
   }
 
   const getCategoryLabel = (id: string) =>
@@ -154,9 +201,49 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
             rows={3}
           />
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="image">Imagen condicional (opcional)</Label>
+          <Input
+            id="image"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            disabled={uploading}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) void handleUpload(file).then((url) => url && setImageUrl(url))
+            }}
+          />
+          {imageUrl && (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageUrl} alt="Vista previa" className="h-16 w-16 rounded-lg object-cover" />
+              <Button variant="outline" size="sm" onClick={() => setImageUrl(null)}>
+                Quitar imagen
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="trigger">Condición de envío (opcional)</Label>
+          <Input
+            id="trigger"
+            value={triggerCondition}
+            onChange={(e) => setTriggerCondition(e.target.value)}
+            placeholder="Ej: precio, aspecto físico, testimonio, resultados"
+          />
+          <p className="text-xs text-gray-500">
+            La imagen se enviará automáticamente la primera vez que el cliente mencione este tema en una conversación.
+          </p>
+        </div>
         <Button
           onClick={handleAdd}
-          disabled={loading || !question.trim() || !answer.trim()}
+          disabled={
+            loading ||
+            !question.trim() ||
+            !answer.trim() ||
+            uploading ||
+            (!!imageUrl && !triggerCondition.trim())
+          }
           className="bg-violet-600 hover:bg-violet-700"
         >
           {loading ? 'Agregando...' : 'Agregar conocimiento'}
@@ -193,6 +280,21 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
                 </div>
                 <h3 className="font-medium text-gray-900">{item.question}</h3>
                 <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{item.answer}</p>
+                {item.image_url && (
+                  <div className="mt-3 flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image_url}
+                      alt={item.question}
+                      className="h-16 w-16 rounded-lg object-cover"
+                    />
+                    {item.trigger_condition && (
+                      <Badge variant="outline" className="text-xs">
+                        Se envía cuando mencione: {item.trigger_condition}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex gap-1">
                 <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
@@ -284,6 +386,40 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
                 value={editAnswer}
                 onChange={(e) => setEditAnswer(e.target.value)}
                 rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Imagen condicional</Label>
+              {editImageUrl ? (
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={editImageUrl}
+                    alt="Vista previa"
+                    className="h-16 w-16 rounded-lg object-cover"
+                  />
+                  <Button variant="outline" size="sm" onClick={() => setEditImageUrl(null)}>
+                    Quitar imagen
+                  </Button>
+                </div>
+              ) : (
+                <Input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) void handleUpload(file).then((url) => url && setEditImageUrl(url))
+                  }}
+                />
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Condición de envío</Label>
+              <Input
+                value={editTriggerCondition}
+                onChange={(e) => setEditTriggerCondition(e.target.value)}
+                placeholder="Ej: precio, aspecto físico, testimonio, resultados"
               />
             </div>
           </div>

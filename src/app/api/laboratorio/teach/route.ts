@@ -11,10 +11,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { business_id, assistant_id, conversation_id, items } = body as {
+  const { business_id, items } = body as {
     business_id: string
-    assistant_id?: string
-    conversation_id?: string
     items: Array<{
       type: 'knowledge' | 'rule' | 'instruction'
       question?: string
@@ -52,16 +50,6 @@ export async function POST(request: Request) {
           change_source: 'correction',
           changed_by: user.id,
         })
-
-        await recordLearningEvent(admin, {
-          assistantId: assistant_id,
-          conversationId: conversation_id,
-          correctionType: 'knowledge',
-          originalResponse: item.answer,
-          correctedResponse: item.answer,
-          entityId: data.id,
-          authorizedBy: user.id,
-        })
       }
     } else if (item.type === 'rule') {
       const { data, error } = await admin
@@ -84,16 +72,6 @@ export async function POST(request: Request) {
           new_value: { content: item.answer },
           change_source: 'correction',
           changed_by: user.id,
-        })
-
-        await recordLearningEvent(admin, {
-          assistantId: assistant_id,
-          conversationId: conversation_id,
-          correctionType: 'rule',
-          originalResponse: item.answer,
-          correctedResponse: item.answer,
-          entityId: data.id,
-          authorizedBy: user.id,
         })
       }
     } else if (item.type === 'instruction') {
@@ -118,48 +96,9 @@ export async function POST(request: Request) {
           change_source: 'correction',
           changed_by: user.id,
         })
-
-        await recordLearningEvent(admin, {
-          assistantId: assistant_id,
-          conversationId: conversation_id,
-          correctionType: 'instruction',
-          originalResponse: item.answer,
-          correctedResponse: item.answer,
-          entityId: data.id,
-          authorizedBy: user.id,
-        })
       }
     }
   }
 
   return NextResponse.json({ created, count: created.length })
-}
-
-async function recordLearningEvent(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  params: {
-    assistantId?: string
-    conversationId?: string
-    correctionType: 'knowledge' | 'rule' | 'instruction'
-    originalResponse: string
-    correctedResponse: string
-    entityId: string
-    authorizedBy: string
-  }
-): Promise<void> {
-  const { assistantId, conversationId, correctionType, originalResponse, correctedResponse, entityId, authorizedBy } = params
-
-  if (!assistantId) return
-
-  await admin.from('learning_events').insert({
-    conversation_id: conversationId ?? null,
-    assistant_id: assistantId,
-    original_response: originalResponse,
-    corrected_response: correctedResponse,
-    knowledge_item_id: correctionType === 'knowledge' ? entityId : null,
-    status: 'approved',
-    correction_type: correctionType,
-    authorized_by: authorizedBy,
-    resolved_at: new Date().toISOString(),
-  })
 }

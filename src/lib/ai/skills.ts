@@ -78,7 +78,7 @@ export async function getSkillsSnapshot(businessId: string): Promise<SkillsSnaps
     .eq('business_id', businessId)
     .order('calculated_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   const previousSkills = (previousSnapshot?.metadata as Record<string, unknown> | undefined)?.skills as
     | Array<{ skill_key: string; level: number }>

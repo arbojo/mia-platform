@@ -1,0 +1,84 @@
+{
+  "id": "TASK-20260802-014814",
+  "title": "Purga de datos demo y refino UX/UI del Simulador de Ventas",
+  "description": "Eliminar el negocio demo Vitanova y sus datos de la DB MIA Lab. Eliminar seeds automáticos de datos demo en migraciones y scripts. Corregir el solapamiento del TeachModal en el Simulador de Ventas.",
+  "scope": {
+    "categories": [
+      "refactor",
+      "ui_change"
+    ],
+    "filesAffected": 9,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 9 files affected, cross-cutting (multi-domain). Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Purga de datos demo no afecta el esquema. El dashboard mostrará Empty State genuino tras eliminar Vitanova. El TeachModal se corregirá con scroll y altura máxima. Sin riesgos de seguridad. Verificado contra el estado actual del repo.",
+      "timestamp": "2026-08-02T01:48:14.297Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Purga de datos demo no afecta el esquema. El dashboard mostrará Empty State genuino tras eliminar Vitanova. El TeachModal se corregirá con scroll y altura máxima. Sin riesgos de seguridad. Verificado contra el estado actual del repo.",
+      "timestamp": "2026-08-02T01:48:14.313Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Purga de datos demo no afecta el esquema. El dashboard mostrará Empty State genuino tras eliminar Vitanova. El TeachModal se corregirá con scroll y altura máxima. Sin riesgos de seguridad. Verificado contra el estado actual del repo.",
+      "timestamp": "2026-08-02T01:48:14.324Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Purga de datos demo no afecta el esquema. El dashboard mostrará Empty State genuino tras eliminar Vitanova. El TeachModal se corregirá con scroll y altura máxima. Sin riesgos de seguridad. Verificado contra el estado actual del repo.",
+      "timestamp": "2026-08-02T01:48:14.338Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Purga de datos demo no afecta el esquema. El dashboard mostrará Empty State genuino tras eliminar Vitanova. El TeachModal se corregirá con scroll y altura máxima. Sin riesgos de seguridad. Verificado contra el estado actual del repo.",
+      "timestamp": "2026-08-02T01:48:14.349Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Purga de datos demo no afecta el esquema. El dashboard mostrará Empty State genuino tras eliminar Vitanova. El TeachModal se corregirá con scroll y altura máxima. Sin riesgos de seguridad. Verificado contra el estado actual del repo.",
+      "timestamp": "2026-08-02T01:48:14.359Z"
+    }
+  ],
+  "createdAt": "2026-08-02T01:48:14.295Z",
+  "classifiedAt": "2026-08-02T01:48:14.295Z",
+  "approvedAt": "2026-08-02T01:48:14.368Z",
+  "startedAt": "2026-08-02T01:48:25.360Z",
+  "completedAt": "2026-08-02T01:58:59.970Z"
+}

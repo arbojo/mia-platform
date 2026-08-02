@@ -21,7 +21,7 @@ export default async function KnowledgeStudioPage() {
     .eq('business_id', business.id)
     .order('created_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   let suggestions: unknown[] = []
   if (latestReport) {

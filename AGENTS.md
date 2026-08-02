@@ -18,6 +18,16 @@ The platform is designed as a future SaaS multi-tenant product. The first client
 
 **Core philosophy**: MIA should feel like **hiring and training a new employee**, not configuring software.
 
+### Domain Boundary
+
+MIA is a **Conversational Sales Intelligence** platform. Its responsibility begins when a conversation with a customer starts. Its responsibility ends when:
+
+1. The sale is closed or discarded,
+2. Customer data is structured,
+3. Sales Intelligence events are emitted.
+
+MIA does **not** perform operational, logistical, or administrative tasks. No inventory, no billing, no routing, no collections, no ERP. See [ADR-010](docs/adr/010-sales-domain-boundary.md) for the complete domain boundary definition.
+
 ---
 
 ## 2. Agent System
@@ -52,6 +62,8 @@ MIA uses a **specialized engineering agent system** with 18 distinct roles. The 
 Every task must follow this workflow:
 
 ```
+G. Governance Gate (MANDATORY — see Section 23)
+   ↓
 0. Orchestrator (analyzes request, classifies complexity, selects agents)
    ↓
 1. Infrastructure Bootstrap (environment preparation, tool installation)
@@ -85,9 +97,33 @@ Every task must follow this workflow:
 15. Release Manager (git verification, commit, push, final report)
 ```
 
-**No agent may skip this workflow.** Each agent must complete their responsibilities before handing off to the next.
+**No agent may skip this workflow.** The Governance Gate (G) MUST be the first action before ANY code modification. See Section 23 for complete governance enforcement rules.
 
-### 2.3 Guardian Agents
+### 2.3 Evidence First Pre-Audit
+
+Every agent **must** execute the Evidence First protocol (see Section 22) **before** their domain-specific analysis. This protocol ensures every conclusion is based on the current repository state, not conversation memory or previous audits.
+
+```
+Before EACH agent's analysis:
+  ┌──────────────────────────────────────┐
+  │  Evidence First Pre-Audit:           │
+  │  · Read HEAD                         │
+  │  · Read git diff from last audit     │
+  │  · Load previous findings            │
+  │  · Re-validate against current code  │
+  │  · Mark resolved/superseded findings │
+  │  · Document evidence for each claim  │
+  └──────────────────────────────────────┘
+                    ↓
+  ┌──────────────────────────────────────┐
+  │  Agent-specific analysis             │
+  │  (domain logic, unchanged)           │
+  └──────────────────────────────────────┘
+```
+
+The Orchestrator verifies evidence compliance before accepting any agent's output. Findings without evidence (file:line, snippet, commit hash) are rejected.
+
+### 2.4 Guardian Agents
 
 Certain agents hold **guardian authority** — the power to block progress when their domain is at risk:
 
@@ -100,7 +136,7 @@ Certain agents hold **guardian authority** — the power to block progress when 
 | **QA Engineer** | May block releases if quality gates fail | Releases that fail lint, build, or tests |
 | **Release Manager** | May refuse deployment if any guardian has unresolved blocking issues | Any deployment |
 
-### 2.4 Agent Rules
+### 2.5 Agent Rules
 
 #### CTO Rules
 - Never writes implementation code
@@ -351,7 +387,63 @@ Business → Assistants → Customers → Conversations → Messages
 
 ---
 
-## 6. Project Structure
+## 6. Sales Domain Boundary
+
+MIA's domain is strictly limited to **Conversational Sales Intelligence**. This boundary is formalized in [ADR-010](docs/adr/010-sales-domain-boundary.md).
+
+### 6.1 What MIA Does (In Domain)
+
+| Area | Description |
+|------|-------------|
+| Conversation | Natural dialogue across channels |
+| Rapport | Emotional connection and trust building |
+| Need Discovery | Uncover customer pain points and desires |
+| Product Presentation | Show products aligned to discovered needs |
+| Objection Handling | Address and resolve customer objections |
+| Closing | Guide toward commitment |
+| Customer Recovery | Re-engage inactive or lost customers |
+| Intelligent Follow-up | Timely, context-aware re-contact |
+| Consultative Selling | Act as advisor, not order-taker |
+| Upselling / Cross-selling | Offer premium or complementary products |
+| Data Capture | Structure customer-provided information |
+| Sales Events | Generate Sales Intelligence events |
+
+### 6.2 What MIA Does NOT Do (Out of Domain)
+
+MIA **must never** perform:
+- ERP operations (purchase orders, supplier management)
+- Inventory control (stock tracking, warehouse management)
+- Route calculation or delivery logistics
+- Driver or personnel management
+- Payment collection or processing
+- Invoice generation or billing
+- Financial reconciliation
+- Operational dashboards for logistics, inventory, or finance
+
+### 6.3 Integration Model
+
+MIA communicates with external systems exclusively through **Sales Intelligence events**:
+
+```
+SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED,
+UPSELL_ACCEPTED, CROSSSELL_ACCEPTED, FOLLOWUP_REQUIRED,
+SALE_WON, SALE_LOST, CUSTOMER_HESITATION,
+PRICE_ACCEPTED, PRICE_REJECTED
+```
+
+MIA emits events. External systems (ERP, CRM, billing, logistics) consume them. MIA never calls external operational APIs directly.
+
+### 6.4 Boundary Test
+
+Every feature must pass this test:
+
+> **"Does this help MIA sell better?"**
+
+If the answer is no, the feature belongs to another domain.
+
+---
+
+## 7. Project Structure
 
 ```
 mia/
@@ -372,7 +464,6 @@ mia/
 │   └── release.md
 ├── docs/
 │   └── adr/                     # Architecture Decision Records
-│       └── 001-agent-system.md
 ├── opencode.json                # OpenCode config (Chrome DevTools MCP)
 ├── playwright.config.ts         # Playwright e2e config
 ├── tests/
@@ -418,7 +509,7 @@ mia/
 
 ---
 
-## 7. Development Rules
+## 8. Development Rules
 
 The agent **must always**:
 
@@ -435,7 +526,7 @@ The agent **must always**:
 
 ---
 
-## 8. Database Rules
+## 9. Database Rules
 
 1. **Never modify applied migrations.** Once a migration is run, it is immutable.
 2. **Schema changes go through new migrations only.** Create a new file in `supabase/migrations/`.
@@ -446,7 +537,7 @@ The agent **must always**:
 
 ---
 
-## 9. API Rules
+## 10. API Rules
 
 All API routes (`src/app/api/`) must:
 
@@ -459,7 +550,7 @@ All API routes (`src/app/api/`) must:
 
 ---
 
-## 10. Components
+## 11. Components
 
 1. **Server Components by default** — only mark as Client (`'use client'`) when needed for interactivity
 2. **Client Components only when necessary** — for state, effects, event handlers, or browser APIs
@@ -470,9 +561,9 @@ All API routes (`src/app/api/`) must:
 
 ---
 
-## 11. Artificial Intelligence
+## 12. Artificial Intelligence
 
-### 11.1 Prompt Management
+### 12.1 Prompt Management
 
 1. **Never hardcode prompts.** All prompts must be built through reusable functions.
 2. **Separate concerns** into distinct layers:
@@ -488,7 +579,7 @@ All API routes (`src/app/api/`) must:
 3. **Context must be built exclusively from database data.** Never invent information.
 4. **Never fabricate products, rules, or knowledge** that does not exist in the database.
 
-### 11.2 AI Usage
+### 12.2 AI Usage
 
 - Model: `gpt-4o-mini` (via OpenAI)
 - All AI calls must be tracked via `recordAiUsage()` with `request_type` (training/simulation/live_customer)
@@ -496,7 +587,7 @@ All API routes (`src/app/api/`) must:
 
 ---
 
-## 12. Laboratorio MIA
+## 13. Laboratorio MIA
 
 The Laboratorio is an **internal simulation tool**. It must:
 
@@ -528,7 +619,7 @@ Each response is evaluated on a 1-10 scale:
 
 ---
 
-## 13. Quality Checklist
+## 14. Quality Checklist
 
 Before completing any task, the agent **must**:
 
@@ -554,7 +645,7 @@ npm run test:report  # Playwright HTML report
 
 ---
 
-## 14. Git Conventions
+## 15. Git Conventions
 
 1. **Work in branches** for significant new features
 2. **Write small, descriptive commits**
@@ -581,7 +672,7 @@ refactor/prompt-builder
 
 ---
 
-## 15. Before Implementing a New Feature
+## 16. Before Implementing a New Feature
 
 The agent must follow this process:
 
@@ -598,7 +689,7 @@ The agent must follow this process:
 
 ---
 
-## 16. Code Style
+## 17. Code Style
 
 1. **Prioritize readability** over clever code
 2. **Avoid large functions** — split when logic grows complex
@@ -610,7 +701,7 @@ The agent must follow this process:
 
 ---
 
-## 17. Commands Reference
+## 18. Commands Reference
 
 | Command | Purpose |
 |---------|---------|
@@ -623,7 +714,7 @@ The agent must follow this process:
 
 ---
 
-## 18. Final Objective
+## 19. Final Objective
 
 Every decision made on this project must answer this question:
 
@@ -633,7 +724,7 @@ If the answer is no, find a better solution.
 
 ---
 
-## 19. Current State
+## 20. Current State
 
 ### Working
 - Auth (email + Google OAuth)
@@ -644,18 +735,21 @@ If the answer is no, find a better solution.
 - Laboratorio MIA (simulation lab with modes, analysis, evaluation, teach flow)
 - Playwright tests
 - Chrome DevTools MCP configured
+- Domain boundary documented (see ADR-010)
+- Evidence First protocol documented (see ADR-011)
 
 ### Known Issues
 - User must log out and re-login after certain auth changes (session refresh)
 
 ### Pending
 - More comprehensive e2e tests
-- Laboratorio billing integration (premium feature)
+- Laboratorio billing integration (premium feature) — deferred per ADR-010 (billing is out of domain)
 - Full end-to-end verification of onboarding flow
+- Sales Intelligence event system (required by ADR-010 for all external integrations)
 
 ---
 
-## 20. Architecture Decision Records
+## 21. Architecture Decision Records
 
 Important architectural decisions are documented in `docs/adr/`. Each ADR follows this format:
 
@@ -670,3 +764,253 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | ADR | Title | Status |
 |-----|-------|--------|
 | [001](docs/adr/001-agent-system.md) | Specialized Engineering Agent System | Accepted |
+| [010](docs/adr/010-sales-domain-boundary.md) | MIA Sales Domain Boundary | Accepted |
+| [011](docs/adr/011-evidence-first-protocol.md) | Evidence First Protocol | Accepted |
+| [013](docs/adr/013-whatsapp-baileys-bridge.md) | WhatsApp Baileys Bridge | Accepted |
+| [014](docs/adr/014-conditional-knowledge-media.md) | Conditional Knowledge Media | Accepted |
+
+---
+
+## 22. Evidence First Protocol
+
+The Evidence First protocol is a mandatory pre-audit procedure enforced before any Council agent's analysis. It prevents agents from emitting findings based on conversation context, memory, or stale snapshots. See [ADR-011](docs/adr/011-evidence-first-protocol.md) for the complete specification.
+
+### 22.1 Core Principle
+
+**No conclusion without evidence. No finding without re-validation.**
+
+### 22.2 Finding States
+
+Every finding must have one of these states:
+
+| State | Meaning | Auto-resolution trigger |
+|-------|---------|------------------------|
+| **OPEN** | Issue confirmed, awaiting work | — |
+| **IN_PROGRESS** | Engineer is actively resolving it | — |
+| **RESOLVED** | Fixed by a commit | Commit modifies the exact file:line reported |
+| **SUPERSEDED** | No longer applicable (file deleted/renamed/refactored) | File removed or renamed in HEAD |
+| **INVALIDATED** | Evidence was incorrect or disproven | Agent disproves their own finding |
+
+### 22.3 Evidence Log
+
+Every audit must produce an evidence log. Each finding in the log requires:
+
+| Field | Required | Example |
+|-------|----------|---------|
+| File path | Yes | `src/lib/runtime/runtime.ts:42` |
+| Code snippet | Yes | Minimum 5 lines of context |
+| HEAD commit | Yes | `a1b2c3d` |
+| Verification method | Yes | `read src/lib/runtime/runtime.ts:38-48` |
+| Finding state | Yes | OPEN, RESOLVED, SUPERSEDED |
+
+### 22.4 Pre-Audit Checklist
+
+Before forming any conclusion, each agent must execute:
+
+```
+[ ] Read HEAD (git log --oneline -10)
+[ ] Read git diff from last audit (git diff HEAD~1 --stat)
+[ ] Load previous findings from last audit
+[ ] For each previous finding: re-validate against current HEAD
+[ ] Mark RESOLVED if commit fixed the issue
+[ ] Mark SUPERSEDED if file was removed or renamed
+[ ] Mark INVALIDATED if evidence is incorrect
+[ ] For each modified file: re-read the current version
+[ ] Document evidence for each new finding
+[ ] Emit only findings that currently exist
+```
+
+### 22.5 Orchestrator Enforcement
+
+The Orchestrator **must reject** any agent output that:
+
+- Contains a finding without file:line evidence
+- References a file that doesn't exist at HEAD
+- Reports a finding already marked RESOLVED in a previous audit
+- Fails to cite the HEAD commit hash
+
+### 22.6 Release Manager Gate
+
+Before committing, the Release Manager verifies:
+
+- No OPEN findings exist for modified files
+- The evidence log is complete
+- Previous findings have been re-validated
+- All findings are in a known state
+
+---
+
+## 23. Governance Enforcement System
+
+The Governance Enforcement System is the **mandatory gate** before ANY code modification. It ensures every engineering task is properly classified, reviewed by the appropriate agents, and authorized before implementation begins.
+
+### 23.1 Core Principle
+
+**No code modification without governance approval.**
+
+The Orchestrator (via the governance CLI) MUST be the first action for every engineering task. Implementation agents may NOT modify code until governance classification and approval are complete.
+
+### 23.2 Governance CLI
+
+The governance system is implemented in `workshop/governance/` and accessed via:
+
+```bash
+npx tsx workshop/governance/cli.ts <command> [options]
+```
+
+#### Available Commands
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `classify` | Classify a new task (simple or complex) | **Start of every task** |
+| `validate` | Check if a task is approved for implementation | Before writing any code |
+| `approve` | Record an agent's approval decision | During council review |
+| `reject` | Record an agent's rejection decision | During council review |
+| `start` | Mark task as in_progress | When implementation begins |
+| `complete` | Mark task as completed | When task is finished |
+| `status` | Show task manifest details | To inspect a task |
+| `list` | List all task manifests | To see all tasks |
+
+### 23.3 Task Classification
+
+The Orchestrator classifies every task as **Simple** or **Complex**:
+
+#### Simple Task — Direct Delegation
+- 1-3 files affected, single domain
+- No schema changes, no AI behaviour changes, no security implications
+- Bug fix, minor UI change, simple refactor
+- → Implementation authorized immediately. Single lead agent executes.
+
+#### Complex Task — Council Required
+- 4+ files affected or cross-cutting (multi-domain)
+- Schema changes, AI behaviour changes, or security implications
+- New feature, new endpoint, infrastructure change
+- → Council review required. All required agents must approve before implementation.
+
+### 23.4 Mandatory Workflow
+
+```
+                                      ┌──────────────────────┐
+                                      │  Engineering Task     │
+                                      └──────────┬───────────┘
+                                                 │
+                                      ┌──────────▼───────────┐
+                                      │  GOVERNANCE GATE     │
+                                      │  npx tsx workshop/   │
+                                      │  governance/cli.ts   │
+                                      │  classify            │
+                                      └──────────┬───────────┘
+                                                 │
+                                      ┌──────────▼───────────┐
+                                      │  Orchestrator         │
+                                      │  Classification       │
+                                      └──────┬───────────────┘
+                                             │
+                            ┌────────────────┼────────────────┐
+                            │                                 │
+                 ┌──────────▼──────────┐         ┌────────────▼────────────┐
+                 │  SIMPLE              │         │  COMPLEX               │
+                 │  Direct Delegation   │         │  Council Required      │
+                 └──────────┬──────────┘         └────────────┬────────────┘
+                            │                                 │
+                 ┌──────────▼──────────┐         ┌────────────▼────────────┐
+                 │  Execute Task       │         │  Council Review         │
+                 │  (single agent)     │         │  (sequential approvals) │
+                 └──────────┬──────────┘         └────────────┬────────────┘
+                            │                                 │
+                 ┌──────────▼──────────┐         ┌────────────▼────────────┐
+                 │  Quality Gates      │         │  Approved?              │
+                 │  (lint, build)      │         │  ┌─────┴─────┐          │
+                 └──────────┬──────────┘         │  YES        NO          │
+                            │                    └────┬─────┘  └──────┐   │
+                            │              ┌──────────▼──┐   ┌────────▼──┐│
+                            │              │ Execute Task│   │ Rejected  ││
+                            │              └──────────┬──┘   └───────────┘│
+                            │                         │                   │
+                 ┌──────────▼──────────┐  ┌───────────▼────────────┐
+                 │  Complete + Log     │  │  Quality Gates          │
+                 │                     │  │  (lint, build, tests,   │
+                 │                     │  │   DevTools, security)   │
+                 └─────────────────────┘  └───────────┬────────────┘
+                                                      │
+                                            ┌─────────▼──────────┐
+                                            │  Complete + Commit  │
+                                            │  (Release Manager)  │
+                                            └────────────────────┘
+```
+
+### 23.5 Enforcement Rules
+
+1. **MANUAL ENFORCEMENT**: Before writing any code, the agent MUST run:
+   ```bash
+   npx tsx workshop/governance/cli.ts validate
+   ```
+   If no approved task manifest exists, this command BLOCKS and instructs the agent to classify first.
+
+2. **TASK MANIFEST**: Every approved task produces a manifest in `.governance/tasks/<id>.json`. This file serves as the "permit to work." It contains the task classification, required agents, quality gates, and council decisions.
+
+3. **QUALITY GATES**: Before marking a task as `completed`, all required quality gates must pass:
+   - Simple tasks must pass: `lint`, `build`
+   - Complex tasks must pass: `lint`, `build`, `unit_tests`, `e2e_tests`, `chrome_devtools`, `security_review`
+
+4. **COUNCIL SEQUENCE**: For complex tasks, agents must approve in order:
+   ```
+   CTO (if large feature) → Architect → Domain Expert → Product Manager →
+   Database (if schema) → Backend → Frontend → AI Engineer (if AI) →
+   Performance → Security → Analytics → QA → Release Manager
+   ```
+   Each agent records their decision via:
+   ```bash
+   npx tsx workshop/governance/cli.ts approve <task-id> <agent-role> "rationale"
+   ```
+
+5. **REJECTION**: If any required agent rejects the task, the manifest status becomes `rejected`. The task must be revised and re-classified.
+
+### 23.6 Agent Responsibilities Under Governance
+
+| Agent | Governance Responsibility |
+|-------|-------------------------|
+| **Orchestrator** | FIRST to classify the task. Determines complexity and required agents. |
+| **All Implementation Agents** | MUST check governance before coding. Run `validate` command first. |
+| **Council Agents** | Must approve/reject complex tasks before implementation starts. |
+| **Release Manager** | Verifies governance is complete before commit. Rejects commits without governance artifacts. |
+
+### 23.7 Quality Gate Enforcement
+
+Before a task can transition to `completed`, run each required quality gate:
+
+| Gate | Command |
+|------|---------|
+| lint | `npm run lint` |
+| build | `npm run build` |
+| unit_tests | `npm run test:unit` |
+| e2e_tests | `npm test` |
+| chrome_devtools | Run Chrome DevTools MCP checks |
+| security_review | Security Engineer approves |
+| performance_review | Performance Engineer approves |
+
+### 23.8 Governance Artifacts
+
+The governance system produces the following artifacts:
+
+| Artifact | Location | Purpose |
+|----------|----------|---------|
+| Task Manifest | `.governance/tasks/<id>.json` | Task classification, decisions, status |
+| Governance Log | `.governance/logs/governance-<date>.log` | Audit trail of all governance actions |
+| Decision Records | Embedded in manifest | Per-agent approval/rejection with rationale |
+
+### 23.9 .gitignore
+
+Ensure `.governance/` is tracked in git (it is the permanent record of engineering workflow):
+
+```
+# Do NOT add .governance/ to .gitignore — it must be committed
+```
+
+### 23.10 Violation Consequences
+
+Any agent that modifies code without governance approval is in violation of the engineering workflow. Consequences:
+
+1. The Release Manager will reject the commit.
+2. The Memory Engineer will record the violation in engineering memory.
+3. The CTO will review the violation and determine remediation.

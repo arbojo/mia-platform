@@ -45,26 +45,16 @@ function getWeekDates(): { weekStart: Date; weekEnd: Date } {
   return { weekStart, weekEnd }
 }
 
-function getPreviousWeekDates(): { weekStart: Date; weekEnd: Date } {
-  const now = new Date()
-  const weekEnd = new Date(now)
-  weekEnd.setDate(weekEnd.getDate() - 7)
-  const weekStart = new Date(now)
-  weekStart.setDate(weekStart.getDate() - 14)
-  return { weekStart, weekEnd }
-}
-
 export async function generateWeeklyReport(businessId: string): Promise<GenerateReportResult> {
   const supabase = createAdminClient()
   const { weekStart, weekEnd } = getWeekDates()
-  const prevWeek = getPreviousWeekDates()
 
   const { data: existingReport } = await supabase
     .from('weekly_reports')
     .select('id')
     .eq('business_id', businessId)
     .eq('week_start', weekStart.toISOString().split('T')[0])
-    .single()
+    .maybeSingle()
 
   if (existingReport) {
     const { data: report } = await supabase
@@ -76,7 +66,7 @@ export async function generateWeeklyReport(businessId: string): Promise<Generate
     return { report: report as WeeklyReportData, generated: false }
   }
 
-  const [conversationsResult, learningResult, productsResult, memoryResult, safetyResult, prevSafetyResult, lastReportResult, skillsSnapshot, productIntel] =
+  const [conversationsResult, learningResult, productsResult, memoryResult, skillsSnapshot, productIntel] =
     await Promise.all([
       supabase
         .from('conversations')
@@ -101,25 +91,6 @@ export async function generateWeeklyReport(businessId: string): Promise<Generate
         .eq('business_id', businessId)
         .eq('is_active', true)
         .gte('created_at', weekStart.toISOString()),
-      supabase
-        .from('safety_events')
-        .select('outcome, trigger_types', { count: 'exact' })
-        .eq('business_id', businessId)
-        .gte('created_at', weekStart.toISOString()),
-      supabase
-        .from('safety_events')
-        .select('outcome, trigger_types', { count: 'exact' })
-        .eq('business_id', businessId)
-        .gte('created_at', prevWeek.weekStart.toISOString())
-        .lt('created_at', weekStart.toISOString()),
-      supabase
-        .from('weekly_reports')
-        .select('narrative')
-        .eq('business_id', businessId)
-        .eq('status', 'published')
-        .order('week_start', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
       getSkillsSnapshot(businessId),
       getProductIntelligence(businessId),
     ])
@@ -128,15 +99,6 @@ export async function generateWeeklyReport(businessId: string): Promise<Generate
   const learningEvents = learningResult.data ?? []
   const products = productsResult.data ?? []
   const memories = memoryResult.data ?? []
-  const safetyEvents = safetyResult.data ?? []
-  const safetyBlocked = safetyEvents.filter((e: any) => e.outcome === 'blocked_with_retry').length
-  const prevSafetyEvents = prevSafetyResult.data ?? []
-  const prevSafetyBlocked = prevSafetyEvents.filter((e: any) => e.outcome === 'blocked_with_retry').length
-  const lastNarrative = lastReportResult?.data?.narrative
-
-  const safetyImproved = prevSafetyBlocked > 0 && safetyBlocked < prevSafetyBlocked
-  const safetyWorsened = safetyBlocked > prevSafetyBlocked
-  const safetyStable = safetyBlocked === prevSafetyBlocked
 
   const preparationBefore = Math.max(0, (skillsSnapshot.overall_level || 50) - 5)
   const preparationAfter = skillsSnapshot.overall_level || 50
@@ -149,38 +111,33 @@ export async function generateWeeklyReport(businessId: string): Promise<Generate
     messages: [
       {
         role: 'system',
-        content: `Eres MIA, una empleada digital que escribe una carta semanal a su jefe (el dueño del negocio).
+        content: `Eres MIA, una asistente de ventas IA escribiendo tu reporte semanal para tu jefe (el dueño del negocio).
 
-Escribe en PRIMERA PERSONA, como una empleada que le cuenta a su jefe cómo le fue en la semana.
+Escribe en PRIMERA PERSONA. Tu jefe es dueño del negocio en México.
+Tono: cálido, profesional, como una empleada dedicada que quiere demostrar su progreso.
 
-Tono: cálido, cercano, orgulloso de su progreso. Como una empleada que quiere demostrar que está aprendiendo y mejorando.
-
-NO escribas un reporte técnico. Escribe una carta.
-
-ESTRUCTURA DE LA CARTA:
-1. Saludo personal y resumen de la semana
-2. Qué aprendí nuevo esta semana
-3. En qué mejoré respecto a la semana anterior (menciona si ahora necesito menos verificaciones)
-4. Qué me gustaría mejorar la próxima semana
-5. Cierre con comentario personal
+ESTRUCTURA DEL REPORTE:
+1. Resumen de la semana (qué hice, qué aprendí)
+2. Logros destacados
+3. Áreas donde necesito ayuda
+4. Recomendaciones para el negocio
+5. Cómo me siento esta semana
 
 REGLAS:
-- NUNCA uses jerga técnica (no digas "tokens", "API", "modelo", "algoritmo", "datos")
-- NUNCA digas "verificaciones de seguridad", "bloqueos" o "validaciones"
-- Siempre en español mexicano natural y cálido
-- Si algo mejoró respecto a la semana pasada, celébralo ("La semana pasada me costaba más... ahora ya...")
-- Si algo sigue igual, menciónalo con naturalidad ("Todavía estoy aprendiendo sobre...")
-- Sé específica con números pero explícalos con naturalidad ("Atendí a 15 clientes esta semana")
-- Las recomendaciones deben sentirse como sugerencias de una empleada, no como alertas de un sistema
-- Si la semana pasada mencionaste algo en tu carta, haz referencia a ello ("La semana pasada te contaba que...")
+- NUNCA uses jerga técnica (nada de "tokens", "API", "modelo")
+- Siempre en español mexicano natural
+- Sé específica con números pero explícalos con naturalidad
+- Celebra logros genuinamente
+- Pide ayuda cuando la necesites, sin miedo
+- Las recomendaciones deben ser accionables para el dueño
 
 Responde SOLO con el JSON:
 {
-  "narrative": "tu Carta semanal completa aquí, en primera persona, como una carta a tu jefe",
+  "narrative": "tu reporte completo aquí",
   "recommendations": [
     {
       "type": "improvement|suggestion|celebration",
-      "content": "recomendación específica en lenguaje natural",
+      "content": "recomendación específica",
       "priority": "high|medium|low"
     }
   ]
@@ -188,38 +145,33 @@ Responde SOLO con el JSON:
       },
       {
         role: 'user',
-        content: `Escribe tu carta semanal para tu jefe con estos datos:
+        content: `Genera mi reporte semanal con estos datos:
 
 SEMANA: ${formatDate(weekStart)} - ${formatDate(weekEnd)}
 
-LO QUE HICE:
-- Atendí ${conversations} conversaciones con clientes
-- Aprendí ${learningEvents.length} cosas nuevas sobre el negocio
-- Conozco ${products.length} productos
-- Registré ${memories.length} recuerdos nuevos sobre cómo funciona el negocio
+CONVERSACIONES ATENDIDAS: ${conversations}
+NUEVAS COSAS APRENDIDAS: ${learningEvents.length}
+PRODUCTOS CONOCIDOS: ${products.length}
+MEMORIAS CREADAS: ${memories.length}
 
 MIS HABILIDADES:
 - Nivel general: ${skillsSnapshot.overall_level}%
-- Habilidades que ya domino: ${skillsSnapshot.mastered_count}
-- Habilidades que estoy aprendiendo: ${skillsSnapshot.learning_count}
-- Habilidades que necesito practicar: ${skillsSnapshot.needs_practice_count}
+- Dominadas: ${skillsSnapshot.mastered_count}
+- Aprendiendo: ${skillsSnapshot.learning_count}
+- Necesito práctica: ${skillsSnapshot.needs_practice_count}
+- Por comenzar: ${skillsSnapshot.not_started_count}
 
-LO QUE SÉ SOBRE LOS PRODUCTOS:
-- Productos que conozco muy bien: ${productIntel.excellent_count}
-- Productos que conozco bien: ${productIntel.good_count}
-- Productos que necesito estudiar más: ${productIntel.needs_work_count}
-- Productos críticos: ${productIntel.critical_count}
-- Mi conocimiento general de productos: ${productIntel.overall_knowledge_level}%
+INTELIGENCIA DE PRODUCTOS:
+- Productos excelentes: ${productIntel.excellent_count}
+- Productos buenos: ${productIntel.good_count}
+- Necesitan trabajo: ${productIntel.needs_work_count}
+- Críticos: ${productIntel.critical_count}
+- Nivel general: ${productIntel.overall_knowledge_level}%
 
-MIS RECUERDOS NUEVOS:
-${memories.length > 0 ? memories.map((m) => `- ${m.category}: ${m.content}`).join('\n') : 'Esta semana no registré recuerdos nuevos.'}
+MEMORIAS DETECTADAS ESTA SEMANA:
+${memories.length > 0 ? memories.map((m) => `- ${m.category}: ${m.content} (confianza: ${m.confidence}%)`).join('\n') : 'Ninguna memoria nueva esta semana.'}
 
-MI EVOLUCIÓN:
-- Semana pasada: nivel de preparación ${preparationBefore}%
-- Esta semana: nivel de preparación ${preparationAfter}%
-${lastNarrative ? `\nLa semana pasada te escribí: "${lastNarrative.slice(0, 200)}..."` : ''}
-${safetyImproved ? `\nNOTA PARA TI: La semana pasada necesité verificar información ${prevSafetyBlocked} veces. Esta semana solo ${safetyBlocked}. ¡Estoy aprendiendo!` : safetyWorsened ? `\nNOTA PARA TI: Esta semana tuve que verificar información más veces que la anterior. Son más clientes preguntando, lo que significa que hay interés.` : safetyStable && safetyBlocked > 0 ? `\nNOTA PARA TI: Sigo aprendiendo sobre la información del negocio. Cada vez la recuerdo mejor.` : ''}
-${safetyBlocked === 0 ? '\nNOTA PARA TI: Esta semana no necesité verificar ninguna información del negocio. Ya conozco bien los precios, las entregas y las políticas. 😊' : ''}`
+PREPARACIÓN: ${preparationBefore}% → ${preparationAfter}%`
       }
     ],
     response_format: { type: 'json_object' },

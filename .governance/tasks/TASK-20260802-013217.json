@@ -1,0 +1,82 @@
+{
+  "id": "TASK-20260802-013217",
+  "title": "Aplicar migraciones faltantes en MIA Lab y corregir 011_mia_signals a esquema UUID",
+  "description": "MIA Lab (hhitqgsaglddjkmaovbs) tenía 5 migraciones sin aplicar (003_knowledge_studio, 010_ai_cost_intelligence, 011_mia_signals, 013_assistant_lifecycle, 014_conversation_notes). Se aplicaron vía conexión directa a PostgreSQL. 011_mia_signals usaba BIGINT/users(id), incompatible con el esquema UUID real; se corrigió a UUID/auth.users(id). También se registraron en schema_migrations las 14 migraciones (001-014) para historial coherente.",
+  "scope": {
+    "categories": [
+      "database"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "database"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: schema changes required. Required agents (6): architect, database, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aplicar migraciones ya versionadas y alinear 011 al esquema UUID real es consistente con la arquitectura."
+    },
+    {
+      "agentRole": "domain_expert",
+      "decision": "approve",
+      "rationale": "No altera entidades de dominio; completa el esquema MIA con knowledge studio, señales y ciclo de vida."
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Las 5 migraciones se aplicaron idempotentes; 011 adaptada a UUID/auth.users(id) para coherencia con businesses.id."
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "mia_signals con RLS habilitada y policy por business owner; sin exposición de datos ajenos."
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Verificado vía REST: tablas accesibles; columnas nuevas presentes; constraints actualizados."
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Solo toca 011_mia_signals.sql; diff mínimo y compatible con historial 001-014 registrado."
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrado en gobernanza: corrección de migración 011 y aplicación de migraciones faltantes en MIA Lab."
+    }
+  ],
+  "createdAt": "2026-08-02T01:32:17.286Z",
+  "classifiedAt": "2026-08-02T01:32:17.286Z",
+  "approvedAt": "2026-08-02T01:32:17.370Z",
+  "startedAt": "2026-08-02T01:32:17.384Z",
+  "completedAt": "2026-08-02T01:32:17.395Z"
+}

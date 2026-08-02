@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
-import { receive, validateWebhook, verifySubscription } from '@/lib/channels/router'
-import {
-  processIncomingMessage,
-  resolveChannelConnection,
-  RuntimeError,
-} from '@/lib/runtime/runtime'
+import { getAdapter } from '@/lib/channels/gateway'
+import { processIncomingMessage, RuntimeError } from '@/lib/runtime/runtime'
 import type { ChannelType } from '@/lib/channels/types'
 
 const validChannels: ChannelType[] = ['web', 'whatsapp', 'messenger', 'instagram']
@@ -21,52 +17,26 @@ export async function POST(
     }
 
     const channelType = channel as ChannelType
+    const adapter = getAdapter(channelType)
 
-    const raw = await request.text()
-
-    let body: unknown
-    try {
-      body = JSON.parse(raw)
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-    }
-
-    const wireMessage = await receive(channelType, body)
-
-    if (!wireMessage) {
-      return NextResponse.json({ success: true })
-    }
-
-    let resolved
-    try {
-      resolved = await resolveChannelConnection(channelType, wireMessage)
-    } catch (error) {
-      if (error instanceof RuntimeError) {
-        return NextResponse.json(
-          { error: error.message, code: error.code },
-          { status: error.statusCode }
-        )
-      }
-      throw error
-    }
+    const body = await request.json()
 
     if (channelType !== 'web') {
       const signature = request.headers.get('x-hub-signature-256') ?? ''
-      if (!validateWebhook(channelType, resolved.connection, signature, raw)) {
+      if (!adapter.validateWebhook(signature, JSON.stringify(body))) {
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
       }
     }
 
-    const result = await processIncomingMessage(channelType, wireMessage, resolved)
+    const wireMessage = await adapter.receiveMessage(body)
+
+    const result = await processIncomingMessage(channelType, wireMessage, adapter)
 
     return NextResponse.json({
       success: true,
       response: result.response,
       customerId: result.customerId,
       conversationId: result.conversationId,
-      duplicate: result.duplicate ?? false,
-      outboundStatus: result.outboundStatus,
-      outboundExternalId: result.outboundExternalId,
     })
   } catch (error) {
     console.error('Webhook error:', error)
@@ -92,21 +62,16 @@ export async function GET(
   try {
     const { channel } = await params
 
-    const channelType = channel as ChannelType
+    if (channel === 'whatsapp') {
+      const url = new URL(request.url)
+      const mode = url.searchParams.get('hub.mode')
+      const token = url.searchParams.get('hub.verify_token')
+      const challenge = url.searchParams.get('hub.challenge')
 
-    if (!validChannels.includes(channelType)) {
-      return NextResponse.json({ error: 'Invalid channel' }, { status: 400 })
-    }
+      if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN) {
+        return new Response(challenge, { status: 200 })
+      }
 
-    const searchParams = new URL(request.url).searchParams
-
-    const subscription = await verifySubscription(channelType, searchParams)
-
-    if (subscription.valid) {
-      return new Response(subscription.challenge, { status: 200 })
-    }
-
-    if (searchParams.get('hub.mode')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

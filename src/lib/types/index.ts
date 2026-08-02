@@ -132,6 +132,8 @@ export interface Database {
           answer: string
           source: 'onboarding' | 'manual' | 'correction' | 'document' | 'audio'
           confidence: 'high' | 'medium' | 'low'
+          image_url: string | null
+          trigger_condition: string | null
           is_active: boolean
           created_at: string
           updated_at: string
@@ -144,6 +146,8 @@ export interface Database {
           answer: string
           source: 'onboarding' | 'manual' | 'correction' | 'document' | 'audio'
           confidence?: 'high' | 'medium' | 'low'
+          image_url?: string | null
+          trigger_condition?: string | null
           is_active?: boolean
           created_at?: string
           updated_at?: string
@@ -156,9 +160,37 @@ export interface Database {
           answer?: string
           source?: 'onboarding' | 'manual' | 'correction' | 'document' | 'audio'
           confidence?: 'high' | 'medium' | 'low'
+          image_url?: string | null
+          trigger_condition?: string | null
           is_active?: boolean
           created_at?: string
           updated_at?: string
+        }
+      }
+      chat_media_dispatched: {
+        Row: {
+          id: string
+          business_id: string
+          conversation_id: string
+          customer_id: string | null
+          knowledge_item_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          conversation_id: string
+          customer_id?: string | null
+          knowledge_item_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          conversation_id?: string
+          customer_id?: string | null
+          knowledge_item_id?: string
+          created_at?: string
         }
       }
       sales_rules: {

@@ -1,29 +1,12 @@
-import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getOpenAIClient, MODEL } from '@/lib/ai/client'
-import { trackAiUsage } from '@/lib/ai/cost'
 import { loadConversationContext } from '@/lib/conversation/context'
 import { resolveCustomer } from '@/lib/channels/identity'
-import { validateAIResponse, retryWithSafety, logSafetyEvent } from '@/lib/safety'
-import type { SafetyTrigger } from '@/lib/safety'
-import { send } from '@/lib/channels/router'
-import { toChannelConnection } from '@/lib/channels/connection'
-import type { ChannelConnectionRow } from '@/lib/channels/connection'
-import type { ChannelConnection, ChannelType } from '@/lib/channels/types'
-import type { ChatCompletionMessageParam } from 'openai/resources'
+import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
+export { RuntimeError } from '@/lib/conversation/resolver'
+import { executeAI } from './execute-ai'
+import { resolveConditionalMedia } from './conditional-media'
+import type { ChannelAdapter } from '@/lib/channels/types'
 import type { WireMessage } from './types'
-
-export class RuntimeError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public statusCode: number = 500
-  ) {
-    super(message)
-    this.name = 'RuntimeError'
-  }
-}
 
 export async function processStreaming(params: {
   assistantId: string
@@ -34,65 +17,70 @@ export async function processStreaming(params: {
 }) {
   const { assistantId, businessId, conversationId, messages, requestType } = params
 
-  const { systemPrompt, usedContext, safetyContext } = await loadConversationContext(businessId, assistantId)
+  const supabase = createAdminClient()
+  let customerId: string | undefined
+  if (conversationId) {
+    const { data: conv } = await supabase
+      .from('conversations')
+      .select('customer_id')
+      .eq('id', conversationId)
+      .maybeSingle()
+    if (conv?.customer_id) {
+      customerId = conv.customer_id
+    }
+  }
 
-  const result = streamText({
-    model: openai(MODEL),
-    system: systemPrompt,
-    messages,
-    onFinish: async ({ usage, text }) => {
-      const u = usage as { promptTokens?: number; completionTokens?: number }
-      const promptTokens = u.promptTokens ?? 0
-      const completionTokens = u.completionTokens ?? 0
+  const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId, customerId)
 
-      await trackAiUsage({
-        business_id: businessId,
-        assistant_id: assistantId,
-        promptTokens,
-        completionTokens,
-        request_type: requestType,
+  let chatMessages = messages
+  if (conversationId) {
+    const { data: history } = await supabase
+      .from('messages')
+      .select('role, content')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true })
+      .limit(30)
+
+    if (history && history.length > 0) {
+      const pastMessages = history.map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }))
+      chatMessages = [...pastMessages, ...messages]
+    }
+  }
+
+  const lastUserMessage = messages[messages.length - 1]
+  if (conversationId && lastUserMessage) {
+    try {
+      await supabase.from('messages').insert({
         conversation_id: conversationId,
+        role: 'user',
+        content: lastUserMessage.content,
       })
+    } catch (err) {
+      console.error('Failed to persist user message:', err)
+    }
+  }
 
-      const fullText = text ?? ''
-      const safetyResult = await validateAIResponse(fullText, safetyContext)
-
-      if (!safetyResult.passed) {
-        await logSafetyEvent({
-          businessId,
-          assistantId,
-          originalResponse: fullText,
-          correctedResponse: null,
-          triggers: safetyResult.triggers,
-          outcome: 'blocked_with_retry',
-        })
-      }
-
+  const result = await executeAI({
+    mode: 'stream',
+    businessId,
+    assistantId,
+    requestType,
+    system: systemPrompt,
+    messages: chatMessages,
+    onFinish: async ({ text }) => {
       if (conversationId) {
-        const lastUserMessage = messages[messages.length - 1]
-        const supabase = createAdminClient()
         try {
-          await supabase.from('messages').insert([
-            {
-              conversation_id: conversationId,
-              role: 'user',
-              content: lastUserMessage.content,
-            },
-            {
-              conversation_id: conversationId,
-              role: 'assistant',
-              content: fullText,
-              metadata: {
-                used_context: usedContext,
-                safety: {
-                  triggered: safetyResult.triggers.length > 0,
-                  blocked: safetyResult.blocked,
-                },
-              },
-            },
-          ])
+          await supabase.from('messages').insert({
+            conversation_id: conversationId,
+            role: 'assistant',
+            content: text ?? '',
+            metadata: { used_context: usedContext },
+          })
         } catch (err) {
-          console.error('Failed to persist messages:', err)
+          console.error('Failed to persist assistant message:', err)
         }
       }
     },
@@ -101,94 +89,21 @@ export async function processStreaming(params: {
   return result
 }
 
-export interface ResolvedChannelConnection {
-  connection: ChannelConnection | null
-  businessId: string
-  assistantId: string
-}
-
-export async function resolveChannelConnection(
-  channel: ChannelType,
-  wireMessage: WireMessage
-): Promise<ResolvedChannelConnection> {
-  const metadata = wireMessage.metadata
-  const supabase = createAdminClient()
-
-  if (channel === 'whatsapp' && metadata.phoneNumberId) {
-    const { data: row } = await supabase
-      .from('channel_connections')
-      .select('*')
-      .eq('channel', 'whatsapp')
-      .eq('status', 'connected')
-      .contains('credentials', { phone_number_id: metadata.phoneNumberId as string })
-      .limit(1)
-      .single()
-
-    if (row) {
-      return {
-        connection: toChannelConnection(row as ChannelConnectionRow),
-        businessId: row.business_id,
-        assistantId: row.assistant_id,
-      }
-    }
-  }
-
-  if (metadata.businessId) {
-    const { data: assistant } = await supabase
-      .from('assistants')
-      .select('id, business_id')
-      .eq('business_id', metadata.businessId as string)
-      .eq('is_active', true)
-      .limit(1)
-      .single()
-
-    if (assistant) {
-      return {
-        connection: null,
-        businessId: assistant.business_id,
-        assistantId: assistant.id,
-      }
-    }
-    throw new RuntimeError('No active assistant found for business', 'NO_ASSISTANT', 404)
-  }
-
-  throw new RuntimeError(
-    `Cannot resolve connection for ${channel} channel. Ensure channel_connections is configured.`,
-    'CONNECTION_NOT_FOUND',
-    400
-  )
-}
-
 export async function processIncomingMessage(
-  channel: ChannelType,
+  channel: string,
   wireMessage: WireMessage,
-  resolved: ResolvedChannelConnection
+  _adapter: ChannelAdapter
 ): Promise<{
   response: string
   customerId: string
   conversationId: string
-  duplicate?: boolean
-  outboundStatus?: string
-  outboundExternalId?: string
+  imageUrl?: string
 }> {
   const supabase = createAdminClient()
 
-  const businessId = resolved.businessId
-  const assistantId = resolved.assistantId
-
-  const { data: existingInbound } = await supabase
-    .from('channel_messages')
-    .select('id')
-    .eq('business_id', businessId)
-    .eq('channel', channel)
-    .eq('direction', 'incoming')
-    .eq('external_id', wireMessage.externalId)
-    .limit(1)
-    .single()
-
-  if (existingInbound?.id) {
-    return { response: '', customerId: '', conversationId: '', duplicate: true }
-  }
+  const connection = await resolveConnection(channel, wireMessage)
+  const businessId = connection.business_id
+  const assistantId = connection.assistant_id
 
   const customer = await resolveCustomer(businessId, wireMessage)
 
@@ -206,7 +121,7 @@ export async function processIncomingMessage(
     })
   }
 
-  const { systemPrompt, usedContext, safetyContext } = await loadConversationContext(businessId, assistantId)
+  const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId, customer.id)
 
   const chatHistory = conversationId
     ? await supabase
@@ -217,79 +132,31 @@ export async function processIncomingMessage(
         .limit(20)
     : { data: [] }
 
-  const openaiMessages: ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
-    ...(chatHistory.data ?? []).map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-  ]
+  const chatMessages = (chatHistory.data ?? []).map((m) => ({
+    role: m.role as 'user' | 'assistant',
+    content: m.content,
+  }))
 
-  const completion = await getOpenAIClient().chat.completions.create({
-    model: MODEL,
-    messages: openaiMessages,
-    max_tokens: 500,
-  })
-
-  const response = completion.choices[0]?.message?.content ?? ''
-
-  const promptTokens = completion.usage?.prompt_tokens ?? 0
-  const completionTokens = completion.usage?.completion_tokens ?? 0
-
-  await trackAiUsage({
-    business_id: businessId,
-    assistant_id: assistantId,
-    promptTokens,
-    completionTokens,
-    request_type: 'live_customer',
-  })
-
-  let finalResponse = response
-  let safetyOutcome: 'passed' | 'blocked_with_retry' | 'pending_ai' = 'passed'
-  let safetyTriggers: SafetyTrigger[] = []
-
-  try {
-    const safetyResult = await validateAIResponse(response, safetyContext)
-    safetyTriggers = safetyResult.triggers
-
-    if (!safetyResult.passed) {
-      const retryResult = await retryWithSafety(
-        response,
-        openaiMessages,
-        safetyContext,
-        businessId,
-        assistantId
-      )
-
-      finalResponse = retryResult.finalResponse
-      safetyOutcome = retryResult.passed ? 'blocked_with_retry' : 'pending_ai'
-    }
-  } catch (err) {
-    console.error('Safety layer failure, delivering original response:', err)
-  }
-
-  await logSafetyEvent({
+  const result = await executeAI({
+    mode: 'complete',
     businessId,
     assistantId,
-    originalResponse: response,
-    correctedResponse: finalResponse !== response ? finalResponse : null,
-    triggers: safetyTriggers,
-    outcome: safetyOutcome,
+    requestType: 'live_customer',
+    system: systemPrompt,
+    messages: chatMessages,
+    maxTokens: 500,
   })
+
+  const response = result.content
 
   if (conversationId) {
     await supabase.from('messages').insert({
       conversation_id: conversationId,
       role: 'assistant',
-      content: finalResponse,
+      content: response,
       metadata: {
         channel,
         used_context: usedContext,
-        safety: {
-          triggered: safetyTriggers.length > 0,
-          retries: safetyOutcome === 'blocked_with_retry' ? 1 : 0,
-          degraded: safetyOutcome === 'pending_ai',
-        },
       },
     })
   }
@@ -305,89 +172,32 @@ export async function processIncomingMessage(
     status: 'received',
   })
 
-  const { data: outgoing } = await supabase
-    .from('channel_messages')
-    .insert({
-      business_id: businessId,
-      customer_id: customer.id,
-      channel,
-      direction: 'outgoing',
-      content: finalResponse,
-      external_customer_id: wireMessage.customerExternalId,
-      status: 'processing',
-    })
-    .select()
-    .single()
-
-  let outboundStatus = 'processing'
-  let outboundExternalId: string | undefined
-
-  if (outgoing) {
-    const sendResult = await send(channel, resolved.connection, {
-      content: finalResponse,
-      contentType: 'text',
-      metadata: { to: wireMessage.customerPhone ?? wireMessage.customerExternalId },
-    })
-
-    outboundStatus = sendResult.success ? 'sent' : 'failed'
-    outboundExternalId = sendResult.externalId
-
-    await supabase
-      .from('channel_messages')
-      .update({
-        status: outboundStatus,
-        external_id: sendResult.externalId ?? null,
-        error_message: sendResult.error ?? null,
-        sent_at: sendResult.success ? new Date().toISOString() : null,
-      })
-      .eq('id', outgoing.id)
-  }
+  await supabase.from('channel_messages').insert({
+    business_id: businessId,
+    customer_id: customer.id,
+    channel,
+    direction: 'outgoing',
+    content: response,
+    status: 'sent',
+    sent_at: new Date().toISOString(),
+  })
 
   await supabase
     .from('customers')
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
 
+  const media = await resolveConditionalMedia({
+    businessId,
+    customerId: customer.id,
+    conversationId: conversationId ?? null,
+    userMessage: wireMessage.content,
+  })
+
   return {
-    response: finalResponse,
+    response,
     customerId: customer.id,
     conversationId: conversationId ?? '',
-    outboundStatus,
-    outboundExternalId,
+    imageUrl: media?.imageUrl,
   }
-}
-
-async function resolveConversation(
-  assistantId: string,
-  customerId: string
-): Promise<string | null> {
-  const supabase = createAdminClient()
-
-  const { data: existingConversation } = await supabase
-    .from('conversations')
-    .select('id')
-    .eq('assistant_id', assistantId)
-    .eq('customer_id', customerId)
-    .eq('status', 'active')
-    .eq('type', 'live')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
-
-  if (existingConversation) {
-    return existingConversation.id
-  }
-
-  const { data: newConversation } = await supabase
-    .from('conversations')
-    .insert({
-      assistant_id: assistantId,
-      customer_id: customerId,
-      type: 'live',
-      status: 'active',
-    })
-    .select()
-    .single()
-
-  return newConversation?.id ?? null
 }

@@ -1,0 +1,85 @@
+{
+  "id": "TASK-20260801-215301",
+  "title": "Auditoría de Concilio: UX/UI - Enlaces y Botones Desconectados (Alcance Global)",
+  "description": "Auditoría estática profunda de TODOS los componentes y páginas en src/app y src/components para detectar botones/links sin onClick/href/type=submit, CTAs cosméticos, estados loading/disabled hardcodeados y funcionalidades documentadas como deuda técnica (Deploy/Publish, Embed widget). Entregable: reporte Markdown por módulo. Roles requeridos: Frontend Engineer (líder), QA Engineer, Product Manager.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "documentation"
+    ],
+    "filesAffected": 128,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "ux",
+      "qa"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer",
+      "product_manager"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 128 files affected, cross-cutting (multi-domain). Required agents (5): architect, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Auditoría UI global sin cambios de schema ni AI; alcance estático de src/app y src/components. Sin impacto arquitectónico.",
+      "timestamp": "2026-08-01T21:53:23.763Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Líder de revisión: auditamos botones/Links desconectados, CTAs cosméticos, estados hardcodeados y deuda técnica UI (Deploy/Embed). Entregable: reporte por módulo.",
+      "timestamp": "2026-08-01T21:53:25.481Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "Prioridad 0 es autenticidad: CTAs muertos dañan la confianza del usuario. Aprobado con foco en recomendar ocultar/conectar/registrar deuda por módulo.",
+      "timestamp": "2026-08-01T21:53:26.802Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Verificación de flujos e interacciones: validaremos que los hallazgos de UI desconectada se confirmen en navegador (Chrome DevTools) y e2e.",
+      "timestamp": "2026-08-01T21:53:27.673Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Verificará git/artefactos antes del commit; sin cambios de código en esta fase de auditoría.",
+      "timestamp": "2026-08-01T21:53:36.282Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrará el reporte de auditoría como artefacto de memoria de ingeniería para trazabilidad.",
+      "timestamp": "2026-08-01T21:53:37.103Z"
+    }
+  ],
+  "createdAt": "2026-08-01T21:53:01.959Z",
+  "classifiedAt": "2026-08-01T21:53:01.959Z",
+  "approvedAt": "2026-08-01T21:53:37.104Z",
+  "startedAt": "2026-08-01T21:53:45.414Z",
+  "completedAt": "2026-08-01T22:18:18.453Z"
+}

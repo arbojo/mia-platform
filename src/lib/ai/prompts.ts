@@ -41,6 +41,8 @@ interface RecentLesson {
   original_response: string
   corrected_response: string | null
   correction_type: string
+  severity?: string | null
+  category?: string | null
   created_at: string
 }
 
@@ -66,10 +68,18 @@ function formatProducts(products: Product[]): string {
   if (products.length === 0) return 'Aún no hay productos registrados.'
 
   return products
-    .map(
-      (p) =>
-        `- ${p.name}: $${p.price ?? 'sin precio definido'}\n  ${p.description ?? ''}\n  Beneficios: ${p.benefits ?? 'no especificados'}`
-    )
+    .map((p) => {
+      const lines = [`- ${p.name}: $${p.price ?? 'sin precio definido'}`, `  ${p.description ?? ''}`, `  Beneficios: ${p.benefits ?? 'no especificados'}`]
+      const faq = p.faq as Array<{ q: string; a: string }> | null
+      if (faq && faq.length > 0) {
+        lines.push(`  Preguntas frecuentes:`)
+        faq.slice(0, 3).forEach((f) => lines.push(`    - ${f.q}: ${f.a}`))
+      }
+      if (p.restrictions) {
+        lines.push(`  Restricciones: ${p.restrictions}`)
+      }
+      return lines.join('\n')
+    })
     .join('\n\n')
 }
 
@@ -98,7 +108,11 @@ function formatKnowledge(knowledge: KnowledgeItem[]): string {
   return knowledge
     .map((k) => {
       const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
-      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] Pregunta: ${k.question}\nRespuesta: ${k.answer}`
+      const imageNote =
+        k.image_url && k.trigger_condition
+          ? `\n[IMAGEN_DISPONIBLE] Enviar la imagen asociada a este conocimiento cuando el cliente toque este tema: "${k.trigger_condition}". Se envía automáticamente la primera vez en la conversación; tú solo debes mencionar en tu respuesta que compartes una imagen al respecto.`
+          : ''
+      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] Pregunta: ${k.question}\nRespuesta: ${k.answer}${imageNote}`
     })
     .join('\n\n')
 }
@@ -117,10 +131,21 @@ function formatBusinessMemory(memory: BusinessMemory[]): string {
 function formatLessons(lessons: RecentLesson[]): string {
   if (lessons.length === 0) return ''
 
-  const lessonLines = lessons.map((l) => {
+  const sorted = [...lessons].sort((a, b) => {
+    const sevOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 }
+    const aSev = sevOrder[a.severity ?? 'low'] ?? 3
+    const bSev = sevOrder[b.severity ?? 'low'] ?? 3
+    if (aSev !== bSev) return aSev - bSev
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
+
+  const lessonLines = sorted.map((l) => {
     const typeLabel = l.correction_type === 'rule' ? 'regla' : 
                       l.correction_type === 'instruction' ? 'instrucción' : 'conocimiento'
-    return `- [${typeLabel}] "${l.original_response}" → "${l.corrected_response}"`
+    const severityTag = l.severity && l.severity !== 'medium' ? `[${l.severity.toUpperCase()}]` : ''
+    const categoryTag = l.category ? `[${l.category}]` : ''
+    const corrected = l.corrected_response ?? '(eliminado/desestimado)'
+    return `- ${severityTag}${categoryTag}[${typeLabel}] "${l.original_response}" → "${corrected}"`
   })
 
   return lessonLines.join('\n')
@@ -143,6 +168,10 @@ export function buildMasterPrompt(params: {
   const personality = assistant.personality as unknown as Personality
   const personalityLabel = getPersonalityLabel(personality)
 
+  const toneNote = brand?.tone_of_voice
+    ? `\n\nNota: La marca ha definido su tono como: "${brand.tone_of_voice}". Este tono es la guía general de la marca. Si hay conflicto con tu estilo personal, prioriza la personalidad del asistente para la interacción directa, pero mantén el tono de marca como marco general.`
+    : ''
+
   return `Eres ${assistant.name}, la asistente de ventas de ${brand?.business_name ?? business.name}.
 
 ## Tu Objetivo
@@ -153,7 +182,7 @@ Vender con naturalidad, sin presionar artificialmente.
 Tu estilo es: ${personalityLabel}
 
 ## Estilo de Comunicación
-Maneja un estilo ${assistant.communication_style}.
+Maneja un estilo ${assistant.communication_style}.${toneNote}
 
 ## Reglas Fundamentales
 1. NUNCA inventes información que no esté en tu conocimiento.

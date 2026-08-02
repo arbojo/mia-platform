@@ -13,9 +13,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { message_id, conversation_id, assistant_id, user_question, original_response, corrected_response, action, correction_type } = body as {
+  const { message_id, assistant_id, user_question, original_response, corrected_response, action, correction_type } = body as {
     message_id: string
-    conversation_id?: string
     assistant_id: string
     user_question?: string
     original_response: string
@@ -44,21 +43,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Asistente no encontrado' }, { status: 404 })
   }
 
-  const resolvedMessageId = await resolveMessageId(admin, {
-    clientMessageId: message_id,
-    conversationId: conversation_id,
-    assistantId: assistant_id,
-    originalResponse: original_response,
-  })
-
   const status = action === 'approve' ? 'approved' : 'modified'
   const type = correction_type ?? 'knowledge'
 
   const { data: learningEvent, error: eventError } = await admin
     .from('learning_events')
     .insert({
-      message_id: resolvedMessageId,
-      conversation_id: conversation_id ?? null,
+      message_id,
       assistant_id,
       original_response,
       corrected_response: action === 'correct' ? corrected_response : null,
@@ -135,54 +126,4 @@ export async function POST(request: Request) {
     entity_id,
     entity_type,
   })
-}
-
-async function resolveMessageId(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  params: {
-    clientMessageId: string
-    conversationId?: string
-    assistantId: string
-    originalResponse: string
-  }
-): Promise<string | null> {
-  const { clientMessageId, conversationId, assistantId, originalResponse } = params
-
-  const { data: direct } = await admin
-    .from('messages')
-    .select('id')
-    .eq('id', clientMessageId)
-    .maybeSingle()
-
-  if (direct) {
-    return direct.id
-  }
-
-  if (conversationId) {
-    const { data: byConversation } = await admin
-      .from('messages')
-      .select('id')
-      .eq('conversation_id', conversationId)
-      .eq('role', 'assistant')
-      .eq('content', originalResponse)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (byConversation) {
-      return byConversation.id
-    }
-  }
-
-  const { data: byAssistant } = await admin
-    .from('messages')
-    .select('id, conversations!inner(assistant_id)')
-    .eq('conversations.assistant_id', assistantId)
-    .eq('role', 'assistant')
-    .eq('content', originalResponse)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  return byAssistant?.id ?? null
 }

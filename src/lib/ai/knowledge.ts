@@ -35,7 +35,7 @@ export async function getBusinessContext(businessId: string) {
         .from('brand_identities')
         .select('*')
         .eq('business_id', businessId)
-        .single(),
+        .maybeSingle(),
       supabase
         .from('products')
         .select('*')
@@ -141,7 +141,7 @@ export async function getRecentLessons(assistantId: string, limit: number = 10) 
 
   const { data } = await supabase
     .from('learning_events')
-    .select('id, original_response, corrected_response, correction_type, created_at')
+    .select('id, original_response, corrected_response, correction_type, severity, category, created_at')
     .eq('assistant_id', assistantId)
     .in('status', ['approved', 'modified'])
     .order('created_at', { ascending: false })
@@ -169,7 +169,6 @@ export async function recordAiUsage(params: {
   assistant_id: string
   model: string
   request_type?: string
-  conversation_id?: string
   tokens_input: number
   tokens_output: number
   cost: number
@@ -181,7 +180,6 @@ export async function recordAiUsage(params: {
     assistant_id: params.assistant_id,
     model: params.model,
     request_type: params.request_type ?? 'live_customer',
-    conversation_id: params.conversation_id ?? null,
     tokens_input: params.tokens_input,
     tokens_output: params.tokens_output,
     cost: params.cost,

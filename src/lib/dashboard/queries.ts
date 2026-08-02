@@ -10,9 +10,6 @@ import { getSkillsSnapshot, type SkillsSnapshot } from '@/lib/ai/skills'
 import { getProductIntelligence, type ProductIntelligenceSummary } from '@/lib/ai/product-intelligence'
 import { getLatestWeeklyReport, type WeeklyReportData } from '@/lib/ai/weekly-report'
 import { getBusinessMemory, getVelocityHistory, type BusinessMemoryItem, type LearningVelocitySnapshot } from '@/lib/ai/memory'
-import { determineStage, type MaturityResult } from '@/lib/ai/maturity'
-import { getSalesFunnel, getRevenueSummary, type SalesFunnel, type RevenueSummary } from './sales-intelligence'
-import { getActiveRecommendation, type CoachingRecommendation } from '@/lib/ai/recommendation-engine'
 
 export type { ReadinessScore, ReadinessIndicatorDetail, SubcategoryScore, GuidanceItem }
 
@@ -103,12 +100,10 @@ export interface GreetingContext {
 
 export type MIAReadiness = ReadinessScore
 
-export interface MistakePreventionItem {
-  id: string
-  content: string
-  severity: 'low' | 'medium' | 'high' | 'critical'
-  category: string
-  created_at: string
+export interface ModuleCardData {
+  memoriaStatus: string
+  pensamientoStatus: string
+  laboratorioStatus: string
 }
 
 export interface DashboardData {
@@ -122,16 +117,14 @@ export interface DashboardData {
   businessHealth: BusinessHealth
   proactiveSuggestions: ProactiveSuggestion[]
   milestones: Milestone[]
+  moduleCards: ModuleCardData
+  conversationTrend: { value: number; positive: boolean }
+  readinessTrend: { value: number; positive: boolean }
   skillsSnapshot: SkillsSnapshot | null
   productIntelligence: ProductIntelligenceSummary | null
   weeklyReport: WeeklyReportData | null
   businessMemory: BusinessMemoryItem[]
   velocityHistory: LearningVelocitySnapshot[]
-  mistakePrevention: MistakePreventionItem[]
-  maturityStage: MaturityResult
-  salesFunnel: SalesFunnel
-  revenueSummary: RevenueSummary
-  ownerGuidance: CoachingRecommendation | null
 }
 
 export async function getEmployeeStatus(
@@ -170,7 +163,6 @@ export async function getEmployeeStatus(
           .from('messages')
           .select('created_at, conversations!inner(type, assistants!inner(business_id))')
           .eq('conversations.type', 'live')
-          .eq('conversations.assistants.business_id', businessId)
           .order('created_at', { ascending: false })
           .limit(1)
           .single(),
@@ -233,19 +225,23 @@ export async function getTodaysActivity(
   }
 
   try {
-    const [conversationsResult, customersResult, aiUsageResult, messagesResult] =
+    const [conversationsResult, customersTodayResult, customersBeforeTodayResult, aiUsageResult, messagesResult] =
       await Promise.all([
         supabase
           .from('conversations')
-          .select('id, assistants!inner(business_id)', { count: 'exact', head: true })
-          .eq('assistants.business_id', businessId)
+          .select('id, type', { count: 'exact', head: true })
           .eq('type', 'live')
           .gte('created_at', todayISO),
         supabase
           .from('customers')
-          .select('id, created_at')
+          .select('id')
           .eq('business_id', businessId)
           .gte('created_at', todayISO),
+        supabase
+          .from('customers')
+          .select('id')
+          .eq('business_id', businessId)
+          .lt('created_at', todayISO),
         supabase
           .from('ai_usage')
           .select('tokens_input, tokens_output, cost')
@@ -253,24 +249,22 @@ export async function getTodaysActivity(
           .gte('created_at', todayISO),
         supabase
           .from('messages')
-          .select('id, conversations!inner(type, assistants!inner(business_id))', { count: 'exact', head: true })
-          .eq('conversations.assistants.business_id', businessId)
+          .select('id, role, created_at', { count: 'exact', head: true })
           .gte('created_at', todayISO),
       ])
 
-    const customers = customersResult.data ?? []
+    const customersToday = customersTodayResult.data ?? []
+    const customersBefore = customersBeforeTodayResult.data ?? []
     const aiUsage = aiUsageResult.data ?? []
+
+    const newCustomerCount = customersToday.length
+    const existingCustomerIds = new Set(customersBefore.map((c: { id: string }) => c.id))
+    const returningCount = customersToday.filter((c: { id: string }) => existingCustomerIds.has(c.id)).length
 
     return {
       conversations: conversationsResult.count ?? 0,
-      newCustomers: customers.filter((c) => {
-        const created = new Date(c.created_at)
-        return created >= today
-      }).length,
-      returningCustomers: customers.filter((c) => {
-        const created = new Date(c.created_at)
-        return created < today
-      }).length,
+      newCustomers: newCustomerCount - returningCount,
+      returningCustomers: returningCount,
       tokensConsumed: aiUsage.reduce(
         (sum, u) => sum + (u.tokens_input ?? 0) + (u.tokens_output ?? 0),
         0
@@ -304,7 +298,6 @@ export async function getDailyReport(
         .from('messages')
         .select('id, role, conversations!inner(type, assistants!inner(business_id))')
         .eq('conversations.type', 'live')
-        .eq('conversations.assistants.business_id', businessId)
         .gte('created_at', yesterdayISO),
       supabase
         .from('learning_events')
@@ -384,12 +377,10 @@ export async function getNeedsFromYou(
         supabase
           .from('learning_events')
           .select('id')
-          .eq('business_id', businessId)
           .eq('status', 'pending'),
         supabase
           .from('knowledge_suggestions')
           .select('id, title, severity')
-          .eq('business_id', businessId)
           .eq('status', 'pending'),
       ])
 
@@ -451,7 +442,7 @@ export async function getConversationTimeline(
     const { data: conversations } = await supabase
       .from('conversations')
       .select(
-        'id, created_at, status, customers(name), assistants!inner(business_id), messages(role, content, created_at)'
+        'id, created_at, status, channel, customers(name), assistants!inner(business_id), messages(role, content, created_at)'
       )
       .eq('assistants.business_id', businessId)
       .eq('type', 'live')
@@ -480,7 +471,7 @@ export async function getConversationTimeline(
             ? (conv.customers[0] as { name: string } | undefined)?.name ?? 'Cliente'
             : (conv.customers as { name: string } | null)?.name ?? 'Cliente',
           lastMessage: lastUserMsg.content?.slice(0, 80) ?? '',
-          channel: 'web',
+          channel: conv.channel ?? 'web',
           outcome: lastAssistantMsg ? 'answered' : 'pending',
         })
       }
@@ -613,8 +604,7 @@ export async function getGreetingContext(
 
     const { count: activeConversations } = await supabase
       .from('conversations')
-      .select('id, assistants!inner(business_id)', { count: 'exact', head: true })
-      .eq('assistants.business_id', businessId)
+      .select('id', { count: 'exact', head: true })
       .eq('status', 'active')
       .eq('type', 'live')
 
@@ -665,7 +655,6 @@ export async function getProactiveSuggestions(
       supabase
         .from('learning_events')
         .select('id')
-        .eq('business_id', businessId)
         .eq('status', 'pending'),
     ])
 
@@ -711,8 +700,7 @@ export async function getMilestones(
     const [conversationsResult, knowledgeResult, connectionsResult] = await Promise.all([
       supabase
         .from('conversations')
-        .select('id, assistants!inner(business_id)', { count: 'exact', head: true })
-        .eq('assistants.business_id', businessId)
+        .select('id', { count: 'exact', head: true })
         .eq('type', 'live'),
       supabase
         .from('knowledge_items')
@@ -813,68 +801,115 @@ export async function getMIAReadiness(
   }
 }
 
-export async function getMistakePrevention(
+export async function getModuleCardData(
   supabase: SupabaseClient,
   businessId: string
-): Promise<MistakePreventionItem[]> {
-  try {
-    const { data } = await supabase
-      .from('learning_events')
-      .select('id, content, severity, category, created_at')
-      .eq('business_id', businessId)
-      .eq('correction_type', 'mistake_prevention')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(20)
-
-    return (data ?? []) as MistakePreventionItem[]
-  } catch {
-    return []
+): Promise<ModuleCardData> {
+  const defaultCards: ModuleCardData = {
+    memoriaStatus: 'Sin novedades',
+    pensamientoStatus: 'En análisis',
+    laboratorioStatus: 'Sin simulaciones',
   }
-}
 
-export async function getMaturityStage(
-  supabase: SupabaseClient,
-  businessId: string
-): Promise<MaturityResult> {
   try {
-    const snapshot = await getLastSnapshotInternal(supabase, businessId)
-    if (!snapshot) {
-      return determineStage({ overall: 0, confidence: 0, preparation: 0, performance: null, mentorSessionsCompleted: 0 })
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayISO = today.toISOString()
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    const [learningResult, knowledgeResult, suggestionsResult, memoryResult, labResult] =
+      await Promise.all([
+        supabase
+          .from('learning_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('status', 'approved')
+          .gte('created_at', todayISO),
+        supabase
+          .from('knowledge_items')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('is_active', true)
+          .gte('created_at', todayISO),
+        supabase
+          .from('knowledge_suggestions')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'pending'),
+        supabase
+          .from('business_memory')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', businessId)
+          .eq('memory_type', 'pattern'),
+        supabase
+          .from('lab_sessions')
+          .select('score')
+          .eq('business_id', businessId)
+          .eq('status', 'completed')
+          .gte('created_at', weekAgo),
+      ])
+
+    const approvedToday = learningResult.count ?? 0
+    const newKnowledgeToday = knowledgeResult.count ?? 0
+    const totalToday = approvedToday + newKnowledgeToday
+
+    if (totalToday > 0) {
+      defaultCards.memoriaStatus = `${totalToday} nuev${totalToday === 1 ? 'o' : 'os'} hoy`
     }
 
-    const { data: labSessions } = await supabase
-      .from('lab_sessions')
-      .select('id')
-      .eq('business_id', businessId)
-      .eq('mode', 'mentor')
-      .eq('status', 'completed')
+    const pendingSuggestions = suggestionsResult.count ?? 0
+    const activePatterns = memoryResult.count ?? 0
+    const totalAnalyses = pendingSuggestions + activePatterns
 
-    return determineStage({
-      overall: snapshot.overall,
-      confidence: snapshot.confidence,
-      preparation: snapshot.preparation,
-      performance: snapshot.performance,
-      mentorSessionsCompleted: labSessions?.length ?? 0,
-    })
+    if (totalAnalyses > 0) {
+      defaultCards.pensamientoStatus = `${totalAnalyses} ${totalAnalyses === 1 ? 'hipótesis' : 'hipótesis'}`
+    }
+
+    const labSessions = labResult.data ?? []
+    if (labSessions.length > 0) {
+      const avgScore = labSessions.reduce((sum, s) => sum + (s.score ?? 0), 0) / labSessions.length
+      defaultCards.laboratorioStatus = `Score ${avgScore.toFixed(1)}`
+    }
   } catch {
-    return determineStage({ overall: 0, confidence: 0, preparation: 0, performance: null, mentorSessionsCompleted: 0 })
+    // Graceful degradation — use defaults
   }
+
+  return defaultCards
 }
 
-async function getLastSnapshotInternal(
-  supabase: SupabaseClient,
-  businessId: string
-): Promise<{ overall: number; confidence: number; preparation: number; performance: number | null } | null> {
-  const { data } = await supabase
-    .from('readiness_snapshots')
-    .select('preparation, confidence, performance, overall')
-    .eq('business_id', businessId)
-    .order('calculated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+export async function getConversationTrend(
+  supabase: SupabaseClient
+): Promise<{ value: number; positive: boolean }> {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayISO = today.toISOString()
+  const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+  const yesterdayISO = yesterday.toISOString()
 
-  return data
+  try {
+    const [todayCount, yesterdayCount] = await Promise.all([
+      supabase
+        .from('conversations')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'live')
+        .eq('status', 'active')
+        .gte('created_at', todayISO),
+      supabase
+        .from('conversations')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'live')
+        .eq('status', 'active')
+        .gte('created_at', yesterdayISO)
+        .lt('created_at', todayISO),
+    ])
+
+    const tod = todayCount.count ?? 0
+    const yest = yesterdayCount.count ?? 0
+    const diff = tod - yest
+
+    return { value: Math.abs(diff), positive: diff >= 0 }
+  } catch {
+    return { value: 0, positive: true }
+  }
 }
 
 export async function getDashboardData(
@@ -893,6 +928,8 @@ export async function getDashboardData(
     businessHealth,
     proactiveSuggestions,
     milestones,
+    moduleCards,
+    conversationTrend,
   ] = await Promise.all([
     getGreetingContext(supabase, businessId, userName),
     getEmployeeStatus(supabase, businessId),
@@ -904,21 +941,23 @@ export async function getDashboardData(
     getBusinessHealth(supabase, businessId),
     getProactiveSuggestions(supabase, businessId),
     getMilestones(supabase, businessId),
+    getModuleCardData(supabase, businessId),
+    getConversationTrend(supabase),
   ])
 
-  const [skillsSnapshot, productIntelligence, weeklyReport, businessMemory, velocityHistory, mistakePrevention, maturityStage, salesFunnel, revenueSummary, activeRecommendation] =
+  const [skillsSnapshot, productIntelligence, weeklyReport, businessMemory, velocityHistory] =
     await Promise.all([
       getSkillsSnapshot(businessId).catch(() => null),
       getProductIntelligence(businessId).catch(() => null),
       getLatestWeeklyReport(businessId).catch(() => null),
       getBusinessMemory(businessId).catch(() => []),
       getVelocityHistory(businessId).catch(() => []),
-      getMistakePrevention(supabase, businessId),
-      getMaturityStage(supabase, businessId),
-      getSalesFunnel(supabase, businessId),
-      getRevenueSummary(supabase, businessId),
-      getActiveRecommendation(businessId).catch(() => null),
     ])
+
+  const readinessTrend: { value: number; positive: boolean } = {
+    value: Math.abs(miaReadiness.deltas?.overall ?? 0),
+    positive: (miaReadiness.deltas?.overall ?? 0) >= 0,
+  }
 
   return {
     greetingContext,
@@ -931,15 +970,13 @@ export async function getDashboardData(
     businessHealth,
     proactiveSuggestions,
     milestones,
+    moduleCards,
+    conversationTrend,
+    readinessTrend,
     skillsSnapshot,
     productIntelligence,
     weeklyReport,
     businessMemory,
     velocityHistory,
-    mistakePrevention,
-    maturityStage,
-    salesFunnel,
-    revenueSummary,
-    ownerGuidance: activeRecommendation,
   }
 }

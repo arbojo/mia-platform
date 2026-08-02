@@ -92,7 +92,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
     const data = await res.json()
     if (data.session) {
       setCurrentSessionId(data.session.id)
-      setCurrentConversationId(data.session.conversation_id ?? null)
+      setCurrentConversationId(data.conversationId ?? data.session.conversation_id ?? null)
       setTokenUsage({ input: 0, output: 0, cost: 0 })
       setMessageCount(0)
       setCoachingFeedback([])
@@ -191,13 +191,13 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
             conversationId={currentConversationId ?? undefined}
             mode={mode}
             simulationSystemMessage={activeScenario?.customerMessage}
-            onTokensUsed={(tokens) =>
+            onTokensUsed={(tokens) => {
               setTokenUsage((prev) => ({
                 input: prev.input + tokens.input,
                 output: prev.output + tokens.output,
                 cost: prev.cost + (tokens.input * 0.00015 + tokens.output * 0.0006) / 1000,
               }))
-            }
+            }}
             onMessageCount={(count) => setMessageCount(count)}
             onCoaching={(feedback) => {
               setCoachingFeedback(feedback.tips)
@@ -244,16 +244,18 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
       />
 
       {teachSuggestions && businessId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl max-w-lg w-full mx-4">
-            <TeachModal
-              suggestions={teachSuggestions}
-              businessId={businessId}
-              assistantId={assistantId}
-              conversationId={currentConversationId ?? undefined}
-              onClose={() => setTeachSuggestions(null)}
-              onTaught={handleTeachClose}
-            />
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4">
+          <div className="flex min-h-full items-center justify-center">
+            <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
+              <TeachModal
+                suggestions={teachSuggestions}
+                businessId={businessId}
+                assistantId={assistantId}
+                conversationId={currentConversationId ?? undefined}
+                onClose={() => setTeachSuggestions(null)}
+                onTaught={handleTeachClose}
+              />
+            </div>
           </div>
         </div>
       )}

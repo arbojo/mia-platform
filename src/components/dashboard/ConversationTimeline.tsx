@@ -57,7 +57,7 @@ export function ConversationTimeline({ data }: { data: TimelineType }) {
           {data.entries.map((entry) => (
             <Link
               key={entry.id}
-              href={`/dashboard/conversations/${entry.id}`}
+              href={`/dashboard/conversations?id=${entry.id}`}
               className="block"
             >
               <div

@@ -11,7 +11,7 @@ export class CouncilSession {
     this.contextBuilder = new CouncilContextBuilder();
   }
 
-  public audit(input: CouncilContext): CouncilAuditReport {
+  public async audit(input: CouncilContext): Promise<CouncilAuditReport> {
     const context = this.contextBuilder.build(input);
     return this.engine.run(context);
   }

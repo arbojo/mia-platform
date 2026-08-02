@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getBusinessContext, getRecentLessons } from '@/lib/ai/knowledge'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
-import type { SafetyContext } from '@/lib/safety/types'
+import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
 
 export class ContextError extends Error {
   constructor(
@@ -20,13 +20,34 @@ export interface LoadedContext {
   fullAssistant: unknown
   businessId: string
   assistantId: string
-  safetyContext: SafetyContext
+  customerId?: string
+}
+
+const CACHE_TTL = 5 * 60 * 1000
+const CUSTOMER_CACHE_TTL = 30 * 1000
+
+interface CacheEntry {
+  data: LoadedContext
+  expiresAt: number
+}
+
+const contextCache = new Map<string, CacheEntry>()
+
+function cacheKey(businessId: string, assistantId: string, customerId?: string): string {
+  return customerId ? `${businessId}:${assistantId}:${customerId}` : `${businessId}:${assistantId}`
 }
 
 export async function loadConversationContext(
   businessId: string,
-  assistantId: string
+  assistantId: string,
+  customerId?: string
 ): Promise<LoadedContext> {
+  const key = cacheKey(businessId, assistantId, customerId)
+  const cached = contextCache.get(key)
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.data
+  }
+
   const supabase = createAdminClient()
 
   const { data: fullAssistant } = await supabase
@@ -44,6 +65,18 @@ export async function loadConversationContext(
     getRecentLessons(assistantId, 10),
   ])
 
+  let customerMemory: string | undefined
+  if (customerId) {
+    try {
+      const memory = await getCustomerMemory(customerId)
+      if (memory) {
+        customerMemory = formatCustomerMemoryForPrompt(memory)
+      }
+    } catch (err) {
+      console.error('Failed to load customer memory:', err)
+    }
+  }
+
   const systemPrompt = buildMasterPrompt({
     business: fullAssistant.businesses,
     brand: context.brand,
@@ -53,6 +86,7 @@ export async function loadConversationContext(
     instructions: context.instructions,
     knowledge: context.knowledge,
     memory: context.memory,
+    customerMemory,
     recentLessons,
   })
 
@@ -60,19 +94,24 @@ export async function loadConversationContext(
   context.products.forEach((p) => usedContext.push({ type: 'product', id: p.id }))
   context.rules.forEach((r) => usedContext.push({ type: 'sales_rule', id: r.id }))
   context.instructions.forEach((i) => usedContext.push({ type: 'ai_instruction', id: i.id }))
-  context.knowledge.forEach((k) => usedContext.push({ type: 'knowledge_item', id: k }))
+  context.knowledge.forEach((k) => usedContext.push({ type: 'knowledge_item', id: k.id }))
   if (context.memory) context.memory.forEach((m) => usedContext.push({ type: 'business_memory', id: m.id }))
 
-  return {
+  const result: LoadedContext = {
     systemPrompt,
     usedContext,
     fullAssistant,
     businessId,
     assistantId,
-    safetyContext: {
-      products: context.products.map((p) => ({ id: p.id, name: p.name, price: p.price })),
-      rules: context.rules.map((r) => ({ id: r.id, category: r.category, content: r.content })),
-      memory: context.memory.map((m) => ({ id: m.id, content: m.content, is_immutable: m.is_immutable })),
-    },
+    customerId,
   }
+
+  const ttl = customerId ? CUSTOMER_CACHE_TTL : CACHE_TTL
+  contextCache.set(key, { data: result, expiresAt: Date.now() + ttl })
+
+  return result
+}
+
+export function clearContextCache(): void {
+  contextCache.clear()
 }

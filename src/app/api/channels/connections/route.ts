@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { ping } from '@/lib/channels/router'
-import { toChannelConnection } from '@/lib/channels/connection'
-import type { ChannelConnectionRow } from '@/lib/channels/connection'
 import type { ChannelType } from '@/lib/channels/types'
 
 export async function GET() {
@@ -48,7 +45,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { businessId, assistantId, channel, credentials, configuration } = await request.json()
+    const { businessId, assistantId, channel } = await request.json()
 
     if (!businessId || !assistantId || !channel) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -72,88 +69,35 @@ export async function POST(request: Request) {
 
     const admin = createAdminClient()
 
-    const storedCredentials =
-      credentials && typeof credentials === 'object' ? credentials : {}
-    const storedConfiguration =
-      configuration && typeof configuration === 'object' ? configuration : {}
-    const hasCredentials = Object.keys(storedCredentials).length > 0
-    const status = channel === 'web' || hasCredentials ? 'connected' : 'disconnected'
-
     const { data: existing } = await admin
       .from('channel_connections')
-      .select('*')
+      .select('id')
       .eq('business_id', businessId)
       .eq('assistant_id', assistantId)
       .eq('channel', channel)
       .limit(1)
-      .single()
-
-    let connection: ChannelConnectionRow | null = null
-    let updated = false
+      .maybeSingle()
 
     if (existing) {
-      const result = await admin
-        .from('channel_connections')
-        .update({
-          credentials: storedCredentials,
-          configuration: storedConfiguration,
-          status,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', existing.id)
-        .select()
-        .single()
-
-      if (result.error) {
-        return NextResponse.json({ error: result.error.message }, { status: 500 })
-      }
-
-      connection = result.data
-      updated = true
-    } else {
-      const result = await admin
-        .from('channel_connections')
-        .insert({
-          business_id: businessId,
-          assistant_id: assistantId,
-          channel,
-          credentials: storedCredentials,
-          configuration: storedConfiguration,
-          status,
-        })
-        .select()
-        .single()
-
-      if (result.error) {
-        return NextResponse.json({ error: result.error.message }, { status: 500 })
-      }
-
-      connection = result.data
+      return NextResponse.json({ error: 'Channel already connected' }, { status: 409 })
     }
 
-    let health = null
+    const { data: connection, error } = await admin
+      .from('channel_connections')
+      .insert({
+        business_id: businessId,
+        assistant_id: assistantId,
+        channel,
+        status: channel === 'web' ? 'connected' : 'disconnected',
+      })
+      .select()
+      .single()
 
-    if (channel !== 'web' && connection) {
-      health = await ping(
-        channel as ChannelType,
-        toChannelConnection(connection as ChannelConnectionRow)
-      )
-
-      await admin
-        .from('channel_connections')
-        .update({
-          status: health.status,
-          last_sync: new Date().toISOString(),
-          error_message: health.error ?? null,
-        })
-        .eq('id', connection.id)
-
-      connection.status = health.status
-      connection.error_message = health.error ?? null
-      connection.last_sync = new Date().toISOString()
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ connection, updated, health })
+    return NextResponse.json({ connection })
   } catch (error) {
     console.error('Create connection error:', error)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
