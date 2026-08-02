@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3565d39`.
+> Fuente de verdad: este repositorio en `48d47e1`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3565d39` |
+| **Commit HEAD** | `48d47e1` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T19:34:54-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-01T19:58:18-06:00 |
 
 ---
 
@@ -161,7 +161,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-32 rutas en `src/app/api/`:
+31 rutas en `src/app/api/`:
 
 ```
 assistants/[id]
@@ -297,7 +297,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-35 módulos:
+34 módulos:
 
 ```
 ai/client.ts
@@ -352,7 +352,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (9)**:
+**Tareas registradas (10)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -365,6 +365,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260801-222236 | Ejecución de Concilio: Corrección de Auditoría UX/UI | completed |
 | TASK-20260801-231453 | Refino UI/UX: Modal MIA Signals y Banner Enséñame más | completed |
 | TASK-20260802-013217 | Aplicar migraciones faltantes en MIA Lab y corregir 011_mia_signals a esquema UUID | completed |
+| TASK-20260802-014814 | Purga de datos demo y refino UX/UI del Simulador de Ventas | in_progress |
 
 ---
 
@@ -401,6 +402,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
+b25a8f9 docs: regenerate MASTER.md at 3565d39
 3565d39 fix(db): align 011_mia_signals to UUID schema and apply missing MIA Lab migrations
 414c639 docs: regenerate MASTER.md at 42dcac4
 42dcac4 fix(ui): solid MIA Signals modal and closable onboarding banner
@@ -419,8 +422,6 @@ cd9d57b feat(sprint-3): add governance artifacts, sprint proposal, audits and CI
 9758d68 fix(dashboard): replace fake values with real queries (Sprint 3 Phase 1)
 bff027b feat: Sprint 2 - Product Trust
 38b6d15 feat: Sprint 1 — Product Survival
-74e411d feat(widget): integrate web widget as MIA channel
-959d049 feat(whatsapp): complete cloud api adapter implementation
 ```
 
 ---
