@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `88b89c2`.
+> Fuente de verdad: este repositorio en `d957490`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `88b89c2` |
+| **Commit HEAD** | `d957490` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T14:02:32-06:00 |
+| **Generado** | 2026-08-02T15:34:52-06:00 |
 
 ---
 
@@ -421,6 +421,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+d957490 fix(governance): prevent task id collision with random suffix
+f60c001 docs: regenerate MASTER.md at 88b89c2
 88b89c2 chore: mark TASK-20260802-195924 as completed in governance
 0574605 feat: add Google rainbow caret animation globally for all editable fields
 b04aa51 docs: regenerate MASTER.md at c91360a
@@ -439,8 +441,6 @@ f5418bd docs: regenerate MASTER.md at 38fc33e
 86d3000 chore(governance): complete TASK-20260802-014814
 fd72f1c docs: regenerate MASTER.md at 48d47e1
 48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
-b25a8f9 docs: regenerate MASTER.md at 3565d39
-3565d39 fix(db): align 011_mia_signals to UUID schema and apply missing MIA Lab migrations
 ```
 
 ---
