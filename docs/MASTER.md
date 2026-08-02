@@ -114,17 +114,16 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 2 | 002_lab_sessions.sql |
 | 3 | 003_knowledge_studio.sql |
 | 4 | 003_training_corrections.sql |
-| 5 | 004_demo_business.sql |
-| 6 | 005_channel_connections.sql |
-| 7 | 006_readiness_index.sql |
-| 8 | 007_file_learning.sql |
-| 9 | 008_business_memory.sql |
-| 10 | 009_stage_based_learning.sql |
-| 11 | 010_ai_cost_intelligence.sql |
-| 12 | 011_mia_signals.sql |
-| 13 | 012_customer_memory.sql |
-| 14 | 013_assistant_lifecycle.sql |
-| 15 | 014_conversation_notes.sql |
+| 5 | 005_channel_connections.sql |
+| 6 | 006_readiness_index.sql |
+| 7 | 007_file_learning.sql |
+| 8 | 008_business_memory.sql |
+| 9 | 009_stage_based_learning.sql |
+| 10 | 010_ai_cost_intelligence.sql |
+| 11 | 011_mia_signals.sql |
+| 12 | 012_customer_memory.sql |
+| 13 | 013_assistant_lifecycle.sql |
+| 14 | 014_conversation_notes.sql |
 
 ---
 
@@ -193,7 +192,6 @@ laboratorio/evaluate
 laboratorio/sessions
 laboratorio/teach
 onboarding/chat
-seed
 training/corrections
 training/lessons
 widget/chat
@@ -329,7 +327,6 @@ dashboard/queries.ts
 runtime/execute-ai.ts
 runtime/runtime.ts
 runtime/types.ts
-seed/eskin-boots-data.ts
 supabase/admin.ts
 supabase/client.ts
 supabase/route-handler.ts

@@ -242,14 +242,16 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
       />
 
       {teachSuggestions && businessId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl max-w-lg w-full mx-4">
-            <TeachModal
-              suggestions={teachSuggestions}
-              businessId={businessId}
-              onClose={() => setTeachSuggestions(null)}
-              onTaught={handleTeachClose}
-            />
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4">
+          <div className="flex min-h-full items-center justify-center">
+            <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
+              <TeachModal
+                suggestions={teachSuggestions}
+                businessId={businessId}
+                onClose={() => setTeachSuggestions(null)}
+                onTaught={handleTeachClose}
+              />
+            </div>
           </div>
         </div>
       )}
