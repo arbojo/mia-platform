@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c91360a`.
+> Fuente de verdad: este repositorio en `88b89c2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c91360a` |
+| **Commit HEAD** | `88b89c2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T13:55:41-06:00 |
+| **Generado** | 2026-08-02T14:02:32-06:00 |
 
 ---
 
@@ -365,7 +365,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (13)**:
+**Tareas registradas (14)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -382,6 +382,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-021850 | Integracion WhatsApp con Baileys (QR + puente de mensajeria) | completed |
 | TASK-20260802-032051 | Imagenes condicionales en Knowledge Studio (media por gatillo + envio unico) | in_progress |
 | TASK-20260802-194636 | Auditoria critica UX Lab: foco chat, logout sesion Baileys, revision Google Auth | completed |
+| TASK-20260802-195924 | Cursor arcoiris global en todos los inputs del sistema | completed |
 
 ---
 
@@ -420,6 +421,9 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+88b89c2 chore: mark TASK-20260802-195924 as completed in governance
+0574605 feat: add Google rainbow caret animation globally for all editable fields
+b04aa51 docs: regenerate MASTER.md at c91360a
 c91360a chore: mark TASK-20260802-194636 as completed in governance
 a742be6 fix: restore chat input focus, resilient WhatsApp logout, hide unconfigured Google Auth
 a67bcf2 chore: add git-crypt encryption for env files and sync .env.local across machines
@@ -437,9 +441,6 @@ fd72f1c docs: regenerate MASTER.md at 48d47e1
 48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
 b25a8f9 docs: regenerate MASTER.md at 3565d39
 3565d39 fix(db): align 011_mia_signals to UUID schema and apply missing MIA Lab migrations
-414c639 docs: regenerate MASTER.md at 42dcac4
-42dcac4 fix(ui): solid MIA Signals modal and closable onboarding banner
-91526d5 chore: ignore .env files for Vercel CLI integration
 ```
 
 ---
