@@ -1,4 +1,5 @@
 import { ConnectionsManager } from '@/components/connections/ConnectionsManager'
+import { canUseWhatsApp } from '@/lib/system/edition'
 
 export default function ConnectionsPage() {
   return (
@@ -9,7 +10,7 @@ export default function ConnectionsPage() {
           Administra los canales por donde MIA se comunica con tus clientes.
         </p>
       </div>
-      <ConnectionsManager />
+      <ConnectionsManager whatsAppEnabled={canUseWhatsApp()} />
     </div>
   )
 }
