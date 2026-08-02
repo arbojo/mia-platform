@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `38fc33e`.
+> Fuente de verdad: este repositorio en `f5418bd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `38fc33e` |
+| **Commit HEAD** | `f5418bd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-01T20:45:56-06:00 |
+| **Generado** | 2026-08-01T20:47:18-06:00 |
 
 ---
 
@@ -412,7 +412,9 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
-38fc33e feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
+f5418bd docs: regenerate MASTER.md at 38fc33e
+6accd4c feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
+3ecf63e docs: regenerate MASTER.md at 86d3000
 86d3000 chore(governance): complete TASK-20260802-014814
 fd72f1c docs: regenerate MASTER.md at 48d47e1
 48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
@@ -430,8 +432,6 @@ b25a8f9 docs: regenerate MASTER.md at 3565d39
 fe8d78e docs: regenerate MASTER.md at 873bf92
 873bf92 governance: complete TASK-20260801-211951 (master doc)
 7e53303 docs: add MASTER.md generated at fdaee30 + governance artifacts
-fdaee30 feat(docs): add auto-generated master architecture document (MASTER.md)
-cd9d57b feat(sprint-3): add governance artifacts, sprint proposal, audits and CI workflows
 ```
 
 ---
