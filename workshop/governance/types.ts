@@ -162,5 +162,6 @@ export function createTaskId(): string {
   const now = new Date()
   const datePart = now.toISOString().slice(0, 10).replace(/-/g, '')
   const timePart = now.toISOString().slice(11, 19).replace(/:/g, '')
-  return `TASK-${datePart}-${timePart}`
+  const suffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+  return `TASK-${datePart}-${timePart}${suffix}`
 }
