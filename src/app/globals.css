@@ -331,3 +331,19 @@
 .animate-appear-up-stagger > *:nth-child(4) { animation-delay: 240ms; }
 .animate-appear-up-stagger > *:nth-child(5) { animation-delay: 320ms; }
 .animate-appear-up-stagger > *:nth-child(6) { animation-delay: 400ms; }
+
+/* Google Rainbow Caret — global animation for all editable fields */
+@keyframes caret-rainbow {
+  0%, 16%   { caret-color: #4285F4; }
+  17%, 33%  { caret-color: #EA4335; }
+  34%, 50%  { caret-color: #FBBC05; }
+  51%, 66%  { caret-color: #4285F4; }
+  67%, 83%  { caret-color: #34A853; }
+  84%, 100% { caret-color: #EA4335; }
+}
+
+input,
+textarea,
+[contenteditable] {
+  animation: caret-rainbow 1.2s steps(1) infinite;
+}

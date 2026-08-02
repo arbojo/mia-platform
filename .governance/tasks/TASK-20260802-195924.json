@@ -1,0 +1,82 @@
+{
+  "id": "TASK-20260802-195924",
+  "title": "Cursor arcoiris global en todos los inputs del sistema",
+  "description": "Inyectar animacion global de caret-color con steps(1) y los 6 colores de Google en input, textarea y [contenteditable]",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "CSS global, 1 archivo, sin dependencias de terceros. Animacion steps(1) en caret-color. Aprobado.",
+      "timestamp": "2026-08-02T19:59:35.914Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin cambios backend. Aprobado.",
+      "timestamp": "2026-08-02T19:59:38.473Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Keyframes + selector global para input/textarea/[contenteditable]. Aprobado.",
+      "timestamp": "2026-08-02T19:59:41.651Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se verifica lint, build y rendering. Aprobado.",
+      "timestamp": "2026-08-02T19:59:44.569Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico + push. Aprobado.",
+      "timestamp": "2026-08-02T19:59:47.028Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registra decision. Aprobado.",
+      "timestamp": "2026-08-02T19:59:49.498Z"
+    }
+  ],
+  "createdAt": "2026-08-02T19:59:24.860Z",
+  "classifiedAt": "2026-08-02T19:59:24.860Z",
+  "approvedAt": "2026-08-02T19:59:49.500Z",
+  "startedAt": "2026-08-02T19:59:58.951Z"
+}
