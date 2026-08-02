@@ -54,7 +54,7 @@ MIA uses a **specialized engineering agent system** with 18 distinct roles. The 
 | Frontline Architect | `.agents/frontline-architect.md` | Technology intelligence department (control tower): observes the tech ecosystem, evaluates risks and recommends actions. Guardian of the generic dependency registry and the Router/Intelligence separation (read-only) |
 | Analytics Engineer | `.agents/analytics-engineer.md` | Feature measurability, metrics |
 | QA Engineer | `.agents/qa.md` | Quality verification, testing |
-| Release Manager | `.agents/release.md` | Git operations, repository integrity |
+| Release Manager | `.agents/release.md` | Git operations, repository integrity, Vercel deployment |
 | **Memory Engineer** | `.agents/memory-engineer.md` | Engineering memory: decisions, incidents, patterns, lessons |
 
 ### 2.2 Mandatory Workflow
@@ -94,7 +94,7 @@ G. Governance Gate (MANDATORY — see Section 23)
    ↓
 14. QA Engineer (lint, build, Playwright, DevTools)
    ↓
-15. Release Manager (git verification, commit, push, final report)
+15. Release Manager (git verification, commit, push, Vercel deploy + verification, final report)
 ```
 
 **No agent may skip this workflow.** The Governance Gate (G) MUST be the first action before ANY code modification. See Section 23 for complete governance enforcement rules.
@@ -251,6 +251,8 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Follows commit format conventions
 - Maintains atomic commits
 - **Mandatory repository synchronization** — a sprint is NOT complete until code is committed AND pushed to remote
+- **Vercel deployment** — deploys to production (`vercel --prod`) only after push succeeds and all quality gates pass
+- **Deploy verification via MCP** — verifies the deployment is live by checking the URL (HTTP 200) and console with Chrome DevTools MCP before reporting "Sprint Complete"
 
 ##### Release Manager Mandatory Checklist
 
@@ -280,7 +282,16 @@ Confirm:
 - No pending commits behind remote
 - Remote contains latest implementation
 
-**4. Final Sprint Report**
+**4. Vercel Deployment**
+```bash
+vercel --prod
+```
+Confirm:
+- Deployment triggered successfully (Live deployment URL obtained)
+- Deployment URL responds HTTP 200 (verified via Chrome DevTools MCP)
+- No console errors or failed requests on the deployment URL (Chrome DevTools MCP)
+
+**5. Final Sprint Report**
 
 The final report MUST include repository state:
 ```
@@ -288,6 +299,8 @@ Commit: <hash>
 Branch: main
 Remote: origin/main synchronized
 Working tree: clean
+Deploy: <vercel-url>
+Status: Live
 ```
 
 **Rule: A feature that exists only locally is not delivered. Passing lint, build, and tests is NOT sufficient — the code must be committed and pushed.**
