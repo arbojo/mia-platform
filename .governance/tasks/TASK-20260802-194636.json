@@ -1,0 +1,95 @@
+{
+  "id": "TASK-20260802-194636",
+  "title": "Auditoria critica UX Lab: foco chat, logout sesion Baileys, revision Google Auth",
+  "description": "Implementar foco automatico post-envio en chat, boton logout para destruir sesion Baileys/Supabase, y resolver estado de Google Auth",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "feature",
+      "security",
+      "ui_change",
+      "api_change"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, security implications, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: uso de useRef + efecto para restaurar foco; logout resiliente (limpiar DB aunque el bridge caiga); ocultar Google Auth hasta configurar credenciales",
+      "timestamp": "2026-08-02T19:48:32.493Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: DELETE /api/channels/baileys/session debe capturar error de bridge y aun asi limpiar channel_connections y whatsapp_sessions vía admin",
+      "timestamp": "2026-08-02T19:48:44.061Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: restaurar foco post-envio en ChatWindow y LabChatWindow; boton logout siempre visible cuando hay sesion persistida",
+      "timestamp": "2026-08-02T19:48:46.662Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: ocultar Google Auth no configurado evita error confuso; logout debe purgar credenciales WhatsApp completamente",
+      "timestamp": "2026-08-02T19:48:49.082Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: se verificara lint/build/vitest; focus restaurado verificado via unit test del componente",
+      "timestamp": "2026-08-02T19:48:51.813Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: cambio atomico, se commiteara y pusheara con mensaje descriptivo",
+      "timestamp": "2026-08-02T19:48:54.294Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: se registrara decision en memoria de ingenieria",
+      "timestamp": "2026-08-02T19:48:56.772Z"
+    }
+  ],
+  "createdAt": "2026-08-02T19:46:36.468Z",
+  "classifiedAt": "2026-08-02T19:46:36.468Z",
+  "approvedAt": "2026-08-02T19:48:56.774Z",
+  "startedAt": "2026-08-02T19:49:06.588Z"
+}

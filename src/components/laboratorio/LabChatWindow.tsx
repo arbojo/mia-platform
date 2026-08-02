@@ -39,6 +39,7 @@ export function LabChatWindow({
   const [isLoading, setIsLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -47,6 +48,16 @@ export function LabChatWindow({
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus()
+    }
+  }, [isLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -250,6 +261,7 @@ export function LabChatWindow({
       <form onSubmit={handleSubmit} className="p-4 border-t">
         <div className="flex gap-2">
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Escribe como cliente..."

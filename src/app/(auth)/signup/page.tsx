@@ -98,13 +98,15 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleLogin}
-          >
-            Continuar con Google
-          </Button>
+          {process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === 'true' && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleLogin}
+            >
+              Continuar con Google
+            </Button>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

@@ -176,17 +176,37 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    let bridgeError: string | null = null
     if (isWhatsAppBridgeEnabled()) {
-      await logoutBridgeSession(body.businessId)
+      try {
+        await logoutBridgeSession(body.businessId)
+      } catch (error) {
+        bridgeError = error instanceof Error ? error.message : 'Bridge unreachable'
+      }
     }
 
-    await supabase
+    const admin = createAdminClient()
+    const { error: deleteError } = await admin
+      .from('whatsapp_sessions')
+      .delete()
+      .eq('business_id', body.businessId)
+
+    const { error: updateError } = await admin
       .from('channel_connections')
       .update({ status: 'disconnected', updated_at: new Date().toISOString() })
       .eq('business_id', body.businessId)
       .eq('channel', 'whatsapp')
 
-    return NextResponse.json({ success: true, status: 'disconnected' })
+    if (deleteError || updateError) {
+      console.error('Baileys session cleanup error:', { deleteError, updateError })
+      return NextResponse.json({ error: 'Failed to clean up session' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      status: 'disconnected',
+      ...(bridgeError ? { bridgeError } : {}),
+    })
   } catch (error) {
     if (error instanceof BridgeClientError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode })

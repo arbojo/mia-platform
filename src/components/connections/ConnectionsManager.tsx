@@ -241,15 +241,24 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     setWaStatus('idle')
     setWaQr(null)
     setWaPhone(null)
+    setWaError(null)
     closeWs()
 
-    await fetch('/api/channels/baileys/session', {
+    const res = await fetch('/api/channels/baileys/session', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ businessId }),
     })
+
+    if (!res.ok) {
+      const err = (await res.json().catch(() => null)) as { error?: string } | null
+      setWaError(err?.error ?? 'No se pudo desconectar WhatsApp')
+      setWaStatus('error')
+    }
     refreshConnections()
   }
+
+  const waSessionPersisted = connections.some((c) => c.channel === 'whatsapp')
 
   if (loading) {
     return <div className="text-muted-foreground py-8 text-center">Cargando conexiones...</div>
@@ -336,6 +345,11 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
               ) : (
                 <Button variant="destructive" onClick={handleWhatsAppLogout}>
                   Desconectar
+                </Button>
+              )}
+              {(waStatus === 'error' || (waStatus === 'idle' && waSessionPersisted)) && (
+                <Button variant="outline" onClick={handleWhatsAppLogout}>
+                  Limpiar sesion
                 </Button>
               )}
             </div>

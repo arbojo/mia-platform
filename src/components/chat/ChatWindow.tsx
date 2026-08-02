@@ -55,6 +55,7 @@ export function ChatWindow({
   const [correctionText, setCorrectionText] = useState('')
   const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -63,6 +64,16 @@ export function ChatWindow({
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus()
+    }
+  }, [isLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -322,6 +333,7 @@ export function ChatWindow({
       <form onSubmit={handleSubmit} className="p-4 border-t">
         <div className="flex gap-2">
           <Input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Escribe tu mensaje..."
