@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d957490`.
+> Fuente de verdad: este repositorio en `e5581e5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d957490` |
+| **Commit HEAD** | `e5581e5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T15:34:52-06:00 |
+| **Generado** | 2026-08-02T15:37:25-06:00 |
 
 ---
 
@@ -421,6 +421,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+e5581e5 docs: add UBSE sales model design and research notes
+b9b1fd6 docs: regenerate MASTER.md at d957490
 d957490 fix(governance): prevent task id collision with random suffix
 f60c001 docs: regenerate MASTER.md at 88b89c2
 88b89c2 chore: mark TASK-20260802-195924 as completed in governance
@@ -439,8 +441,6 @@ f5418bd docs: regenerate MASTER.md at 38fc33e
 6accd4c feat(whatsapp): add Baileys bridge service, session persistence, and QR connection flow
 3ecf63e docs: regenerate MASTER.md at 86d3000
 86d3000 chore(governance): complete TASK-20260802-014814
-fd72f1c docs: regenerate MASTER.md at 48d47e1
-48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
 ```
 
 ---
