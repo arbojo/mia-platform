@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getUserLandingPath } from '@/lib/system/routing'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -21,9 +22,9 @@ export default function SignupPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        router.replace('/dashboard')
+      const destination = await getUserLandingPath()
+      if (destination !== '/login') {
+        router.replace(destination)
         return
       }
       setCheckingAuth(false)

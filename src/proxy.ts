@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const publicPaths = ['/login', '/signup', '/auth', '/']
+const publicPaths = ['/login', '/signup', '/auth', '/demo', '/']
 
 async function getBusinessForUser(
   supabase: ReturnType<typeof createServerClient>,
@@ -55,14 +55,14 @@ export default async function proxy(request: NextRequest) {
   if (user && (pathname === '/login' || pathname === '/signup')) {
     const business = await getBusinessForUser(supabase, user.id)
     const url = request.nextUrl.clone()
-    url.pathname = business ? '/dashboard' : '/dashboard/onboarding'
+    url.pathname = business ? '/dashboard' : '/demo'
     return NextResponse.redirect(url)
   }
 
   if (user && pathname === '/') {
     const business = await getBusinessForUser(supabase, user.id)
     const url = request.nextUrl.clone()
-    url.pathname = business ? '/dashboard' : '/dashboard/onboarding'
+    url.pathname = business ? '/dashboard' : '/demo'
     return NextResponse.redirect(url)
   }
 

@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import DemoPaywall from '@/components/demo/DemoPaywall'
+import type { User } from '@supabase/supabase-js'
 
 interface Message {
   id: string
@@ -21,8 +24,11 @@ export default function DemoPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [limitExceeded, setLimitExceeded] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
   const [sessionId] = useState(generateSessionId)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const supabase = createClient()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -31,6 +37,10 @@ export default function DemoPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+  }, [supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,7 +68,20 @@ export default function DemoPage() {
         body: JSON.stringify({ messages: chatMessages, sessionId }),
       })
 
-      if (!res.ok) throw new Error('Failed')
+      if (!res.ok) {
+        let limitExceeded = false
+        try {
+          const body = await res.json()
+          limitExceeded = body.limitExceeded === true
+        } catch {
+          // fall through to generic error
+        }
+        if (limitExceeded) {
+          setLimitExceeded(true)
+          return
+        }
+        throw new Error('Failed')
+      }
 
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
@@ -107,12 +130,20 @@ export default function DemoPage() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="text-xl font-bold text-violet-900">MIA Demo</h1>
           <div className="flex gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Iniciar sesión</Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="bg-violet-600 hover:bg-violet-700">Crear cuenta</Button>
-            </Link>
+            {user ? (
+              <Link href="/dashboard">
+                <Button variant="ghost">Ir a mi cuenta</Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost">Iniciar sesión</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className="bg-violet-600 hover:bg-violet-700">Crear cuenta</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -182,32 +213,36 @@ export default function DemoPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          <form onSubmit={handleSubmit} className="p-4 border-t">
-            <div className="flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Escribe tu mensaje..."
-                disabled={isLoading}
-              />
-              <Button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                className="bg-violet-600 hover:bg-violet-700"
-              >
-                {isLoading ? '...' : 'Enviar'}
-              </Button>
-            </div>
-          </form>
+          <div className="p-4 border-t">
+            {limitExceeded ? (
+              <DemoPaywall isAuthenticated={!!user} />
+            ) : (
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Escribe tu mensaje..."
+                  disabled={isLoading}
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  {isLoading ? '...' : 'Enviar'}
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
 
         <div className="text-center mt-4">
           <p className="text-sm text-gray-500 mb-2">
             ¿Te gusta lo que ves? Crea tu propia asistente.
           </p>
-          <Link href="/signup">
+          <Link href={user ? '/dashboard/onboarding' : '/signup'}>
             <Button className="bg-violet-600 hover:bg-violet-700">
-              Crear mi asistente
+              {user ? 'Comenzar mi asistente' : 'Crear mi asistente'}
             </Button>
           </Link>
         </div>

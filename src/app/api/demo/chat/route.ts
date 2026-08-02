@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/route-handler'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { recordAiUsage } from '@/lib/ai/knowledge'
 import { getOpenAIClient, MODEL } from '@/lib/ai/client'
 import { canDemoChat } from '@/lib/system/edition'
+import {
+  getDemoFreeMessageLimit,
+  getOrCreateProfile,
+  incrementDemoInteractions,
+} from '@/lib/system/demo'
 
-const DEMO_BUSINESS_ID = 'demo-business-00000000-0000-0000-0000-000000000000'
-const MAX_MESSAGES = 20
+const DEMO_BUSINESS_ID = '11111111-1111-4111-8111-111111111111'
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
 
-function checkRateLimit(sessionId: string): boolean {
+function checkRateLimit(sessionId: string, limit: number): boolean {
   const now = Date.now()
   const entry = rateLimitMap.get(sessionId)
 
@@ -19,7 +24,7 @@ function checkRateLimit(sessionId: string): boolean {
     return true
   }
 
-  if (entry.count >= MAX_MESSAGES) return false
+  if (entry.count >= limit) return false
 
   entry.count++
   return true
@@ -37,8 +42,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
     }
 
-    if (!checkRateLimit(sessionId)) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    const limit = getDemoFreeMessageLimit()
+
+    const supabaseResponse = NextResponse.next()
+    const authSupabase = await createClient(supabaseResponse)
+    const {
+      data: { user },
+    } = await authSupabase.auth.getUser()
+
+    if (user) {
+      await getOrCreateProfile(user.id)
+      const interactions = await incrementDemoInteractions(user.id)
+      if (interactions > limit) {
+        return NextResponse.json(
+          { error: 'Demo limit exceeded', limitExceeded: true, limit },
+          { status: 429 }
+        )
+      }
+    } else if (!checkRateLimit(sessionId, limit)) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded', limitExceeded: true, limit },
+        { status: 429 }
+      )
     }
 
     const supabase = createAdminClient()

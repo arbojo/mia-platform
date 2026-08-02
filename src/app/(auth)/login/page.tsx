@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getUserLandingPath } from '@/lib/system/routing'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -20,9 +21,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        router.replace('/dashboard')
+      const destination = await getUserLandingPath()
+      if (destination !== '/login') {
+        router.replace(destination)
         return
       }
       setCheckingAuth(false)
@@ -46,7 +47,8 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    const destination = await getUserLandingPath()
+    router.push(destination)
     router.refresh()
   }
 
