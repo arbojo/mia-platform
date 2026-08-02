@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `80bc27a`.
+> Fuente de verdad: este repositorio en `f17960d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `80bc27a` |
+| **Commit HEAD** | `f17960d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-01T21:56:41-06:00 |
+| **Generado** | 2026-08-02T13:05:39-06:00 |
 
 ---
 
@@ -419,6 +419,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+f17960d merge: integrate origin/main taking remote as base
+dc3bf90 docs: regenerate MASTER.md at 80bc27a
 80bc27a feat: implement conditional images in Knowledge Studio and media dispatch tracking
 a330ac9 docs: regenerate MASTER.md at e1503c1
 e1503c1 docs: regenerate MASTER.md at f5418bd
@@ -437,8 +439,6 @@ b25a8f9 docs: regenerate MASTER.md at 3565d39
 40a1b07 fix(ux): apply UX/UI audit corrections P0-P2
 395a068 docs: regenerate MASTER.md at 024ab3a
 024ab3a docs(audit): UX/UI disconnected buttons and links global audit
-681b67a docs: regenerate MASTER.md at 1756034
-1756034 fix(tests): align mocks with resolveCustomer and processStreaming
 ```
 
 ---
