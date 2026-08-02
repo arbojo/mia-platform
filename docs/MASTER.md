@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `48d47e1`.
+> Fuente de verdad: este repositorio en `86d3000`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `48d47e1` |
+| **Commit HEAD** | `86d3000` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-01T19:58:18-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-01T19:59:10-06:00 |
 
 ---
 
@@ -365,7 +365,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260801-222236 | Ejecución de Concilio: Corrección de Auditoría UX/UI | completed |
 | TASK-20260801-231453 | Refino UI/UX: Modal MIA Signals y Banner Enséñame más | completed |
 | TASK-20260802-013217 | Aplicar migraciones faltantes en MIA Lab y corregir 011_mia_signals a esquema UUID | completed |
-| TASK-20260802-014814 | Purga de datos demo y refino UX/UI del Simulador de Ventas | in_progress |
+| TASK-20260802-014814 | Purga de datos demo y refino UX/UI del Simulador de Ventas | completed |
 
 ---
 
@@ -402,6 +402,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+86d3000 chore(governance): complete TASK-20260802-014814
+fd72f1c docs: regenerate MASTER.md at 48d47e1
 48d47e1 refactor: purge demo data seeds and fix TeachModal overlay in sales simulator
 b25a8f9 docs: regenerate MASTER.md at 3565d39
 3565d39 fix(db): align 011_mia_signals to UUID schema and apply missing MIA Lab migrations
@@ -420,8 +422,6 @@ fe8d78e docs: regenerate MASTER.md at 873bf92
 fdaee30 feat(docs): add auto-generated master architecture document (MASTER.md)
 cd9d57b feat(sprint-3): add governance artifacts, sprint proposal, audits and CI workflows
 9758d68 fix(dashboard): replace fake values with real queries (Sprint 3 Phase 1)
-bff027b feat: Sprint 2 - Product Trust
-38b6d15 feat: Sprint 1 — Product Survival
 ```
 
 ---
