@@ -24,7 +24,7 @@ export async function GET(request: Request) {
           .eq('owner_id', user.id)
           .maybeSingle()
 
-        const destination = business ? '/dashboard' : '/demo'
+        const destination = business ? '/dashboard' : '/dashboard/onboarding'
         return NextResponse.redirect(`${origin}${destination}`)
       }
 

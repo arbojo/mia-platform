@@ -1,0 +1,53 @@
+{
+  "id": "TASK-20260803-001127666",
+  "title": "Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente)",
+  "description": "Integrar servicio de salud persistente: health-check automatizado (Supabase conectividad/latencia, tokens Google Auth, persistencia de memoria de chat, indexación Vitanova) que bloquea commit/build si falla y genera log legible en el dashboard admin con origen de la falla y ruta de solución.",
+  "scope": {
+    "categories": [
+      "feature",
+      "infrastructure",
+      "security",
+      "schema_change"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend",
+      "database",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 10 files affected, schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "awaiting_council",
+  "decisions": [],
+  "createdAt": "2026-08-03T00:11:27.650Z",
+  "classifiedAt": "2026-08-03T00:11:27.650Z"
+}

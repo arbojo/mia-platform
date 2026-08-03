@@ -13,5 +13,5 @@ export async function getUserLandingPath(): Promise<string> {
     .eq('owner_id', user.id)
     .maybeSingle()
 
-  return business ? '/dashboard' : '/demo'
+  return business ? '/dashboard' : '/dashboard/onboarding'
 }

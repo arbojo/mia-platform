@@ -56,6 +56,7 @@ export function ChatWindow({
   const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const restoredCountRef = useRef(0)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -75,6 +76,35 @@ export function ChatWindow({
     }
   }, [isLoading])
 
+  useEffect(() => {
+    if (!conversationId) return
+
+    let cancelled = false
+    fetch(`/api/conversations/${conversationId}/messages`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load history: ${res.status}`)
+        return res.json()
+      })
+      .then((data: { messages?: Array<{ id: string; role: string; content: string }> }) => {
+        if (cancelled || !Array.isArray(data.messages)) return
+        const restored: Message[] = data.messages.map((m) => ({
+          id: m.id,
+          role: m.role === 'user' ? 'user' : 'assistant',
+          content: m.content,
+        }))
+        if (restored.length === 0) return
+        restoredCountRef.current = restored.length
+        setMessages((prev) => (prev.length === 0 ? restored : prev))
+      })
+      .catch((err) => {
+        console.warn('No se pudo restaurar el historial:', err)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [conversationId])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
@@ -91,7 +121,8 @@ export function ChatWindow({
     setIsTyping(true)
 
     try {
-      const chatMessages = [...messages, userMessage].map((m) => ({
+      const newMessages = messages.slice(restoredCountRef.current)
+      const chatMessages = [...newMessages, userMessage].map((m) => ({
         role: m.role,
         content: m.content,
       }))

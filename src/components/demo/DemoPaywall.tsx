@@ -37,7 +37,7 @@ export default function DemoPaywall({ isAuthenticated }: DemoPaywallProps) {
           </Link>
         ) : (
           <div className="space-y-2">
-            <Link href="/signup" className="block">
+            <Link href="/signup?source=demo" className="block">
               <Button className="w-full bg-violet-600 hover:bg-violet-700">
                 Crear mi asistente
               </Button>

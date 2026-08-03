@@ -1,0 +1,134 @@
+{
+  "id": "TASK-20260803-000141367",
+  "title": "Corrección crítica: OAuth/business auto-provisión, persistencia de chat y contexto Vitanova",
+  "description": "Concilio ordena: (1) corregir URIs de redirect OAuth y crear business por defecto vía trigger al registrarse por Google; (2) persistir historial de chat en Supabase (conversations/messages) y restaurarlo al recargar; (3) inyectar contexto de Vitanova por defecto en la sesión activa sin configuración manual",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "api_change",
+      "infrastructure"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "database",
+      "ai",
+      "frontend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 10 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (12): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.130Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.134Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.136Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.137Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.139Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.141Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.143Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.145Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.147Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.149Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.150Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Fase A aprobada por el Concilio: correcciones críticas prerequisito del motor de salud.",
+      "timestamp": "2026-08-03T00:11:50.152Z"
+    }
+  ],
+  "createdAt": "2026-08-03T00:01:41.304Z",
+  "classifiedAt": "2026-08-03T00:01:41.304Z",
+  "approvedAt": "2026-08-03T00:11:50.152Z",
+  "startedAt": "2026-08-03T00:12:02.757Z"
+}

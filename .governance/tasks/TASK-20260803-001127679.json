@@ -1,0 +1,49 @@
+{
+  "id": "TASK-20260803-001127679",
+  "title": "Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada)",
+  "description": "Vista \"Preferencias de Accesibilidad y Ergonomía\" persistida en tabla de perfil Supabase: modo espejo (sidebar derecha/izquierda), modo óptico antifatiga (paleta sin negro puro/blanco brillante, selector font-weight, anti-aliasing), y selector de temperatura de color (filtro CSS cálido/frío).",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ui_change"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "database",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, schema changes required, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "awaiting_council",
+  "decisions": [],
+  "createdAt": "2026-08-03T00:11:27.654Z",
+  "classifiedAt": "2026-08-03T00:11:27.654Z"
+}

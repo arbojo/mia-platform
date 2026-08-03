@@ -1,0 +1,44 @@
+{
+  "id": "TASK-20260803-001127354",
+  "title": "Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos)",
+  "description": "Componentes de drag-and-drop masivo con validación visual de formatos (PDF, imágenes, CSV) y barras de progreso, reemplazando botones de exploración nativos; encabezado dinámico y breadcrumbs obligatorios en cada vista del dashboard; layouts flexibles Flexbox/Grid sin saturación visual.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change",
+      "frontend"
+    ],
+    "filesAffected": 15,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 15 files affected, category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "awaiting_council",
+  "decisions": [],
+  "createdAt": "2026-08-03T00:11:27.652Z",
+  "classifiedAt": "2026-08-03T00:11:27.652Z"
+}

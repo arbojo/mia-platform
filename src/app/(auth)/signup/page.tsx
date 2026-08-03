@@ -37,11 +37,15 @@ export default function SignupPage() {
     setLoading(true)
     setError(null)
 
+    const signupSource =
+      new URLSearchParams(window.location.search).get('source') ?? undefined
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        ...(signupSource ? { data: { signup_source: signupSource } } : {}),
       },
     })
 
