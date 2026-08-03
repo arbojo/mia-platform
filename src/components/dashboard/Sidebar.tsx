@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Cable,
   HeartPulse,
+  Accessibility,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -51,7 +52,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex h-screen w-64 flex-col border-r"
+      className="sidebar-panel flex h-screen w-64 flex-col border-r"
       style={{
         backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 98%, transparent)',
         borderColor: 'var(--atmosphere-border)',
@@ -195,6 +196,21 @@ export function Sidebar() {
                     >
                       <HeartPulse className="h-4 w-4" />
                       <span>Salud</span>
+                    </div>
+                  </Link>
+                </div>
+                <div className="pt-2">
+                  <Link href="/dashboard/accessibility" title="accesibilidad, ergonomía y confort visual">
+                    <div
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                      )}
+                      style={{
+                        color: isActive('/dashboard/accessibility') ? 'var(--atmosphere-accent)' : 'var(--atmosphere-text-secondary)',
+                      }}
+                    >
+                      <Accessibility className="h-4 w-4" />
+                      <span>Accesibilidad</span>
                     </div>
                   </Link>
                 </div>

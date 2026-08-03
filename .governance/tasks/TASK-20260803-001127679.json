@@ -42,8 +42,60 @@
     ],
     "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, schema changes required, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
   },
-  "status": "awaiting_council",
-  "decisions": [],
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.237Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.242Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.244Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.246Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.248Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.250Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.252Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Módulo de accesibilidad aprobado por el Concilio: modo espejo, modo óptico antifatiga y temperatura de color persistidos en profiles (JSONB), sin impacto en dominio de ventas ni RLS.",
+      "timestamp": "2026-08-03T01:06:51.254Z"
+    }
+  ],
   "createdAt": "2026-08-03T00:11:27.654Z",
-  "classifiedAt": "2026-08-03T00:11:27.654Z"
+  "classifiedAt": "2026-08-03T00:11:27.654Z",
+  "approvedAt": "2026-08-03T01:06:51.254Z",
+  "startedAt": "2026-08-03T01:08:25.650Z",
+  "completedAt": "2026-08-03T01:28:59.563Z"
 }

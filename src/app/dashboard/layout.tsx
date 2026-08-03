@@ -4,6 +4,7 @@ import { OnboardingBanner } from '@/components/dashboard/OnboardingBanner'
 import { AtmosphereProvider } from '@/components/dashboard/AtmosphereProvider'
 import { MIAIndicator } from '@/components/dashboard/MIAIndicator'
 import { ThemeProvider } from '@/components/dashboard/ThemeProvider'
+import { AccessibilityProvider } from '@/components/dashboard/AccessibilityProvider'
 import { TopBar } from '@/components/dashboard/TopBar'
 
 export default async function DashboardLayout({
@@ -22,27 +23,30 @@ export default async function DashboardLayout({
   return (
     <ThemeProvider>
       <AtmosphereProvider>
-        <div
-          className="flex min-h-screen"
-          style={{
-            backgroundColor: 'var(--atmosphere-bg)',
-            backgroundImage: 'var(--atmosphere-gradient)',
-            color: 'var(--atmosphere-text)',
-            transition: 'background-color 0.6s ease, background-image 0.6s ease',
-          }}
-        >
-          <Sidebar />
-          <div className="flex flex-1 flex-col overflow-auto">
-            <TopBar />
-            <main className="relative flex-1">
-              <div className="p-8">
-                <OnboardingBanner onboardingStatus={business?.onboarding_status} />
-                {children}
-              </div>
-            </main>
+        <AccessibilityProvider>
+          <div
+            data-layout-root
+            className="flex min-h-screen"
+            style={{
+              backgroundColor: 'var(--atmosphere-bg)',
+              backgroundImage: 'var(--atmosphere-gradient)',
+              color: 'var(--atmosphere-text)',
+              transition: 'background-color 0.6s ease, background-image 0.6s ease',
+            }}
+          >
+            <Sidebar />
+            <div className="flex flex-1 flex-col overflow-auto">
+              <TopBar />
+              <main className="relative flex-1">
+                <div className="p-8">
+                  <OnboardingBanner onboardingStatus={business?.onboarding_status} />
+                  {children}
+                </div>
+              </main>
+            </div>
+            <MIAIndicator status="active" />
           </div>
-          <MIAIndicator status="active" />
-        </div>
+        </AccessibilityProvider>
       </AtmosphereProvider>
     </ThemeProvider>
   )
