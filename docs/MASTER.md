@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e20feed`.
+> Fuente de verdad: este repositorio en `0a76e4a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e20feed` |
+| **Commit HEAD** | `0a76e4a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T18:32:58-06:00 |
+| **Generado** | 2026-08-02T18:57:11-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-30 tablas definidas en `supabase/migrations/`:
+31 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -106,6 +106,7 @@ Patrón de cliente Supabase:
 | whatsapp_sessions | 015_whatsapp_sessions.sql |
 | IF | 016_knowledge_media.sql |
 | IF | 017_profiles_demo.sql |
+| IF | 019_health_checks.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -131,6 +132,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 16 | 016_knowledge_media.sql |
 | 17 | 017_profiles_demo.sql |
 | 18 | 018_auto_provision.sql |
+| 19 | 019_health_checks.sql |
 
 ---
 
@@ -168,7 +170,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-36 rutas en `src/app/api/`:
+37 rutas en `src/app/api/`:
 
 ```
 assistants/[id]
@@ -204,6 +206,7 @@ laboratorio/evaluate
 laboratorio/sessions
 laboratorio/teach
 onboarding/chat
+system/health
 training/corrections
 training/lessons
 widget/chat
@@ -213,7 +216,7 @@ widget/chat
 
 ## 8. Páginas
 
-17 páginas en `src/app/`:
+18 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -225,6 +228,7 @@ dashboard/assistants/[id]/training
 dashboard/assistants
 dashboard/connections
 dashboard/conversations
+dashboard/health
 dashboard/knowledge-studio
 dashboard/knowledge
 dashboard/laboratorio
@@ -239,7 +243,7 @@ widget
 
 ## 9. Componentes
 
-62 componentes en `src/components/`:
+63 componentes en `src/components/`:
 
 ```
 chat/ChatWindow.tsx
@@ -278,6 +282,7 @@ dashboard/TopBar.tsx
 dashboard/VitalPresence.tsx
 dashboard/WeeklyReportCard.tsx
 demo/DemoPaywall.tsx
+health/HealthDashboard.tsx
 knowledge/FileUpload.tsx
 knowledge/InstructionsManager.tsx
 knowledge/KnowledgeCenter.tsx
@@ -310,7 +315,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-41 módulos:
+42 módulos:
 
 ```
 ai/client.ts
@@ -351,6 +356,7 @@ supabase/route-handler.ts
 supabase/server.ts
 system/demo.ts
 system/edition.ts
+system/health.ts
 system/routing.ts
 types/index.ts
 utils.ts
@@ -393,7 +399,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-213951436 | Demo publica y captura de leads: auto-registro hibrido con Google Auth | completed |
 | TASK-20260803-000141367 | Corrección crítica: OAuth/business auto-provisión, persistencia de chat y contexto Vitanova | completed |
 | TASK-20260803-001127354 | Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos) | awaiting_council |
-| TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | awaiting_council |
+| TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | in_progress |
 | TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | awaiting_council |
 | TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | awaiting_council |
 
@@ -434,6 +440,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+0a76e4a feat: persistent health engine (No Pass No Commit)
+c41a97f docs: regenerate MASTER.md at e20feed
 e20feed chore(governance): record task A completion (auto-provision, chat persistence, Vitanova seed)
 2ed51d8 docs: regenerate MASTER.md at 9150593
 9150593 fix: auto-provision business, chat persistence and Vitanova context
@@ -452,8 +460,6 @@ f60c001 docs: regenerate MASTER.md at 88b89c2
 88b89c2 chore: mark TASK-20260802-195924 as completed in governance
 0574605 feat: add Google rainbow caret animation globally for all editable fields
 b04aa51 docs: regenerate MASTER.md at c91360a
-c91360a chore: mark TASK-20260802-194636 as completed in governance
-a742be6 fix: restore chat input focus, resilient WhatsApp logout, hide unconfigured Google Auth
 ```
 
 ---
