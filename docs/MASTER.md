@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3dc75c6`.
+> Fuente de verdad: este repositorio en `45d1fff`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3dc75c6` |
+| **Commit HEAD** | `45d1fff` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T16:36:44-06:00 |
+| **Generado** | 2026-08-03T16:57:05-06:00 |
 
 ---
 
@@ -396,7 +396,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (22)**:
+**Tareas registradas (23)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -422,6 +422,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | completed |
 | TASK-20260803-214859374 | Upgrade Baileys to v7.0.0-rc14 in whatsapp-bridge | completed |
 | TASK-20260803-220815401 | Baileys Agent: session health watcher in whatsapp-bridge | completed |
+| TASK-20260803-225207190 | Integrar política de cierre comercial condicionada al prompt del asistente | completed |
 
 ---
 
@@ -460,6 +461,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+45d1fff feat: add sales closing policy to assistant prompt conditioned on sales_aggressiveness
+7394957 docs: regenerate MASTER.md at 3dc75c6
 3dc75c6 fix: upgrade Baileys to v7 and add session health watcher to whatsapp-bridge
 cef504e docs: regenerate MASTER.md at 887091d
 887091d chore: enable professional edition for WhatsApp and complete i18n task
@@ -478,8 +481,6 @@ e20feed chore(governance): record task A completion (auto-provision, chat persis
 46afb2f docs: add Vercel deployment + MCP verification to Release Manager
 7a6f82e chore(env): enable Google auth flag for lead capture flow
 954f5ef docs: regenerate MASTER.md at 5ec73fc
-5ec73fc chore(governance): record demo lead capture task completion
-fd24b12 chore(demo): add idempotent demo seed script
 ```
 
 ---
