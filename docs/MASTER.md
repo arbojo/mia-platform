@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `887091d`.
+> Fuente de verdad: este repositorio en `3dc75c6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `887091d` |
+| **Commit HEAD** | `3dc75c6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T15:00:22-06:00 |
+| **Generado** | 2026-08-03T16:36:44-06:00 |
 
 ---
 
@@ -396,7 +396,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (20)**:
+**Tareas registradas (22)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -420,6 +420,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | completed |
 | TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | completed |
 | TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | completed |
+| TASK-20260803-214859374 | Upgrade Baileys to v7.0.0-rc14 in whatsapp-bridge | completed |
+| TASK-20260803-220815401 | Baileys Agent: session health watcher in whatsapp-bridge | completed |
 
 ---
 
@@ -458,6 +460,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+3dc75c6 fix: upgrade Baileys to v7 and add session health watcher to whatsapp-bridge
+cef504e docs: regenerate MASTER.md at 887091d
 887091d chore: enable professional edition for WhatsApp and complete i18n task
 9ae579e docs: regenerate MASTER.md at 04b66a4
 04b66a4 feat: i18n multilingue completo y ajustes de UI
@@ -476,8 +480,6 @@ e20feed chore(governance): record task A completion (auto-provision, chat persis
 954f5ef docs: regenerate MASTER.md at 5ec73fc
 5ec73fc chore(governance): record demo lead capture task completion
 fd24b12 chore(demo): add idempotent demo seed script
-fcb5ee3 feat(demo): add public demo lead capture flow with paywall
-85f00be feat(demo): add profiles table and widen ai_usage request_type check
 ```
 
 ---
