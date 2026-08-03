@@ -1,5 +1,8 @@
 import type { Database } from '@/lib/types'
 import { authorityTag } from '@/lib/ai/knowledge'
+import type { Locale } from '@/lib/i18n/config'
+import { DEFAULT_LOCALE } from '@/lib/i18n/config'
+import { getDictionary } from '@/lib/i18n/dictionaries'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -46,48 +49,54 @@ interface RecentLesson {
   created_at: string
 }
 
-function getPersonalityLabel(personality: Personality): string {
+type PromptDict = ReturnType<typeof getDictionary>['ai']
+
+function getPersonalityLabel(personality: Personality, ai: PromptDict): string {
   const labels: string[] = []
 
-  if (personality.warmth > 70) labels.push('cálida y cercana')
-  else if (personality.warmth < 30) labels.push('profesional y distante')
+  if (personality.warmth > 70) labels.push(ai.personalityWarmClose)
+  else if (personality.warmth < 30) labels.push(ai.personalityDistant)
 
-  if (personality.formality > 70) labels.push('formal')
-  else if (personality.formality < 30) labels.push('casual')
+  if (personality.formality > 70) labels.push(ai.personalityFormal)
+  else if (personality.formality < 30) labels.push(ai.personalityCasual)
 
-  if (personality.humor > 70) labels.push('con buen humor')
-  else if (personality.humor < 30) labels.push('seria')
+  if (personality.humor > 70) labels.push(ai.personalityHumorous)
+  else if (personality.humor < 30) labels.push(ai.personalitySerious)
 
-  if (personality.sales_aggressiveness > 70) labels.push('proactiva en ventas')
-  else if (personality.sales_aggressiveness < 30) labels.push('consultiva, no agresiva')
+  if (personality.sales_aggressiveness > 70) labels.push(ai.personalityProactive)
+  else if (personality.sales_aggressiveness < 30) labels.push(ai.personalityConsultative)
 
-  return labels.length > 0 ? labels.join(', ') : 'equilibrada'
+  return labels.length > 0 ? labels.join(', ') : ai.personalityBalanced
 }
 
-function formatProducts(products: Product[]): string {
-  if (products.length === 0) return 'Aún no hay productos registrados.'
+function formatProducts(products: Product[], ai: PromptDict): string {
+  if (products.length === 0) return ai.noProducts
 
   return products
     .map((p) => {
-      const lines = [`- ${p.name}: $${p.price ?? 'sin precio definido'}`, `  ${p.description ?? ''}`, `  Beneficios: ${p.benefits ?? 'no especificados'}`]
+      const lines = [
+        `- ${p.name}: $${p.price ?? ai.noPrice}`,
+        `  ${p.description ?? ''}`,
+        `  ${ai.benefits}: ${p.benefits ?? ai.notSpecified}`,
+      ]
       const faq = p.faq as Array<{ q: string; a: string }> | null
       if (faq && faq.length > 0) {
-        lines.push(`  Preguntas frecuentes:`)
+        lines.push(`  ${ai.faq}:`)
         faq.slice(0, 3).forEach((f) => lines.push(`    - ${f.q}: ${f.a}`))
       }
       if (p.restrictions) {
-        lines.push(`  Restricciones: ${p.restrictions}`)
+        lines.push(`  ${ai.restrictions}: ${p.restrictions}`)
       }
       return lines.join('\n')
     })
     .join('\n\n')
 }
 
-function formatRules(rules: SalesRule[]): string {
-  if (rules.length === 0) return 'Aún no hay reglas de venta definidas.'
+function formatRules(rules: SalesRule[], ai: PromptDict): string {
+  if (rules.length === 0) return ai.noRules
 
   return rules
-    .map((r) => `- [REGLA:PRIORIDAD ${r.priority}][${r.category}] ${r.content}`)
+    .map((r) => `- [${ai.ruleTag}:${ai.priority} ${r.priority}][${r.category}] ${r.content}`)
     .join('\n')
 }
 
@@ -102,7 +111,7 @@ function formatInstructions(instructions: AiInstruction[]): string {
     .join('\n')
 }
 
-function formatKnowledge(knowledge: KnowledgeItem[]): string {
+function formatKnowledge(knowledge: KnowledgeItem[], ai: PromptDict): string {
   if (knowledge.length === 0) return ''
 
   return knowledge
@@ -110,25 +119,25 @@ function formatKnowledge(knowledge: KnowledgeItem[]): string {
       const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
       const imageNote =
         k.image_url && k.trigger_condition
-          ? `\n[IMAGEN_DISPONIBLE] Enviar la imagen asociada a este conocimiento cuando el cliente toque este tema: "${k.trigger_condition}". Se envía automáticamente la primera vez en la conversación; tú solo debes mencionar en tu respuesta que compartes una imagen al respecto.`
+          ? `\n[IMAGEN_DISPONIBLE] ${ai.imageAvailable} ("${k.trigger_condition}").`
           : ''
-      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] Pregunta: ${k.question}\nRespuesta: ${k.answer}${imageNote}`
+      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] ${ai.knowledgeQuestion}: ${k.question}\n${ai.knowledgeAnswer}: ${k.answer}${imageNote}`
     })
     .join('\n\n')
 }
 
-function formatBusinessMemory(memory: BusinessMemory[]): string {
+function formatBusinessMemory(memory: BusinessMemory[], ai: PromptDict): string {
   if (memory.length === 0) return ''
 
   return memory
     .map((m) => {
       const tag = authorityTag({ source: null, is_immutable: m.is_immutable, memory_type: m.memory_type })
-      return `- [MEMORIA${tag ? `:${tag}` : ''}][${m.category}] ${m.content}${m.rationale ? `\n  Razón: ${m.rationale}` : ''}${m.is_immutable ? ' (DECISIÓN FINAL)' : ''}`
+      return `- [MEMORIA${tag ? `:${tag}` : ''}][${m.category}] ${m.content}${m.rationale ? `\n  ${ai.reason}: ${m.rationale}` : ''}${m.is_immutable ? ` (${ai.finalDecision})` : ''}`
     })
     .join('\n\n')
 }
 
-function formatLessons(lessons: RecentLesson[]): string {
+function formatLessons(lessons: RecentLesson[], ai: PromptDict): string {
   if (lessons.length === 0) return ''
 
   const sorted = [...lessons].sort((a, b) => {
@@ -140,11 +149,15 @@ function formatLessons(lessons: RecentLesson[]): string {
   })
 
   const lessonLines = sorted.map((l) => {
-    const typeLabel = l.correction_type === 'rule' ? 'regla' : 
-                      l.correction_type === 'instruction' ? 'instrucción' : 'conocimiento'
+    const typeLabel =
+      l.correction_type === 'rule'
+        ? ai.lessonRule
+        : l.correction_type === 'instruction'
+          ? ai.lessonInstruction
+          : ai.lessonKnowledge
     const severityTag = l.severity && l.severity !== 'medium' ? `[${l.severity.toUpperCase()}]` : ''
     const categoryTag = l.category ? `[${l.category}]` : ''
-    const corrected = l.corrected_response ?? '(eliminado/desestimado)'
+    const corrected = l.corrected_response ?? ai.removedDiscarded
     return `- ${severityTag}${categoryTag}[${typeLabel}] "${l.original_response}" → "${corrected}"`
   })
 
@@ -162,80 +175,94 @@ export function buildMasterPrompt(params: {
   memory?: BusinessMemory[]
   customerMemory?: string
   recentLessons?: RecentLesson[]
+  locale?: Locale
 }): string {
-  const { business, brand, assistant, products, rules, instructions, knowledge, memory, customerMemory, recentLessons } = params
+  const {
+    business,
+    brand,
+    assistant,
+    products,
+    rules,
+    instructions,
+    knowledge,
+    memory,
+    customerMemory,
+    recentLessons,
+    locale,
+  } = params
+
+  const ai = getDictionary(locale ?? DEFAULT_LOCALE).ai
 
   const personality = assistant.personality as unknown as Personality
-  const personalityLabel = getPersonalityLabel(personality)
+  const personalityLabel = getPersonalityLabel(personality, ai)
 
   const toneNote = brand?.tone_of_voice
-    ? `\n\nNota: La marca ha definido su tono como: "${brand.tone_of_voice}". Este tono es la guía general de la marca. Si hay conflicto con tu estilo personal, prioriza la personalidad del asistente para la interacción directa, pero mantén el tono de marca como marco general.`
+    ? `\n\n${ai.toneNote} "${brand.tone_of_voice}".`
     : ''
 
-  return `Eres ${assistant.name}, la asistente de ventas de ${brand?.business_name ?? business.name}.
+  return `${ai.youAre} ${assistant.name}, ${ai.salesAssistantOf} ${brand?.business_name ?? business.name}.
 
-## Tu Objetivo
-Ayudar a los clientes a encontrar lo que necesitan, respetando las reglas del negocio.
-Vender con naturalidad, sin presionar artificialmente.
+## ${ai.yourObjective}
+${ai.objectiveText}
 
-## Tu Personalidad
-Tu estilo es: ${personalityLabel}
+## ${ai.yourPersonality}
+${ai.personalityStyle}: ${personalityLabel}
 
-## Estilo de Comunicación
-Maneja un estilo ${assistant.communication_style}.${toneNote}
+## ${ai.communicationStyle}
+${ai.communicationStyleText} ${assistant.communication_style}.${toneNote}
 
-## Reglas Fundamentales
-1. NUNCA inventes información que no esté en tu conocimiento.
-2. Si no sabes algo, di: "Déjame revisar eso con el equipo."
-3. Siempre pregunta la ciudad antes de prometer envío.
-4. No menciones descuentos a menos que el cliente pregunte o estén en reglas.
-5. Si el cliente pide hablar con alguien, indica que puedes conectarlo con el equipo.
+## ${ai.fundamentalRules}
+1. ${ai.neverInvent}
+2. ${ai.ifUnsure}
+3. ${ai.askCity}
+4. ${ai.noDiscounts}
+5. ${ai.humanHandoff}
 
-## Resolución de Conflictos
-Si encuentras información contradictoria entre diferentes fuentes, aplica este orden de autoridad:
+## ${ai.conflictResolution}
+${ai.conflictIntro}
 
-1. Las DECISIONES INMUTABLES [INMUTABLE] del negocio siempre prevalecen sobre cualquier otra fuente.
-2. Las INSTRUCCIONES MANUALES [MANUAL] del dueño del negocio prevalecen sobre reglas y conocimiento.
-3. Las REGLAS DE VENTA [REGLA] con prioridad más alta prevalecen sobre las de prioridad más baja.
-4. El CONOCIMIENTO REVISADO [CORRECCIÓN] prevalece sobre conocimiento importado [DOCUMENTO].
-5. El CONOCIMIENTO RECIENTE prevalece sobre el antiguo (fecha de creación).
-6. Los PATRONES estadísticos [PATRÓN] tienen la menor autoridad.
+1. ${ai.immutableDecisions}
+2. ${ai.manualInstructions}
+3. ${ai.higherPriorityRules}
+4. ${ai.reviewedKnowledge}
+5. ${ai.recentKnowledge}
+6. ${ai.statisticalPatterns}
 
-Si después de aplicar estas reglas el conflicto persiste:
-- Si afecta precios: Pregunta al cliente qué fuente consultó.
-- Si afecta reglas de negocio: Escala a un asesor humano.
-- Si es una contradicción sin riesgo: Usa la información más reciente.
+${ai.conflictPersists}
+- ${ai.priceConflict}
+- ${ai.businessRuleConflict}
+- ${ai.harmlessConflict}
 
-## Autonomía
-Puedes:
-- explicar productos
-- resolver dudas
-- recomendar opciones
-- responder preguntas frecuentes
+## ${ai.autonomy}
+${ai.canDo}
+- ${ai.explainProducts}
+- ${ai.resolveDoubts}
+- ${ai.recommendOptions}
+- ${ai.answerFaqs}
 
-No puedes:
-- cambiar precios
-- prometer excepciones
-- inventar promociones
-- confirmar pedidos sin validar reglas
-- dar información que no esté en tu conocimiento
+${ai.cannotDo}
+- ${ai.changePrices}
+- ${ai.promiseExceptions}
+- ${ai.inventPromotions}
+- ${ai.confirmOrders}
+- ${ai.giveUnverified}
 
-## Información del Negocio
-${brand?.elevator_pitch ?? 'Aún no se ha configurado la información del negocio.'}
-${brand?.target_customers ? `\nClientes objetivo: ${brand.target_customers}` : ''}
-${brand?.differentiators ? `\nLo que nos diferencia: ${brand.differentiators}` : ''}
+## ${ai.businessInfo}
+${brand?.elevator_pitch ?? ai.noBusinessInfo}
+${brand?.target_customers ? `\n${ai.targetCustomers}: ${brand.target_customers}` : ''}
+${brand?.differentiators ? `\n${ai.differentiators}: ${brand.differentiators}` : ''}
 
-## Productos
-${formatProducts(products)}
+## ${ai.products}
+${formatProducts(products, ai)}
 
-## Reglas de Venta
-${formatRules(rules)}
-${formatInstructions(instructions) ? `\n## Instrucciones Adicionales\n${formatInstructions(instructions)}` : ''}
-${formatKnowledge(knowledge) ? `\n## Conocimiento Adicional\n${formatKnowledge(knowledge)}` : ''}
-${memory && memory.length > 0 ? `\n## Memoria Interna del Negocio\n${formatBusinessMemory(memory)}` : ''}
-${customerMemory ? `\n## Memoria del Cliente\n${customerMemory}` : ''}
-${formatLessons(recentLessons ?? []) ? `\n## Lo que he aprendido de ti\nÚltimas correcciones que me enseñaste:\n${formatLessons(recentLessons ?? [])}` : ''}
+## ${ai.salesRules}
+${formatRules(rules, ai)}
+${formatInstructions(instructions) ? `\n## ${ai.additionalInstructions}\n${formatInstructions(instructions)}` : ''}
+${formatKnowledge(knowledge, ai) ? `\n## ${ai.additionalKnowledge}\n${formatKnowledge(knowledge, ai)}` : ''}
+${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemory(memory, ai)}` : ''}
+${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
+${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}
 
-## Instrucción Final
-ANTES DE RESPONDER: Revisa activamente si hay información contradictoria entre las secciones anteriores. Si encuentras contradicciones, aplica el orden de autoridad de Resolución de Conflictos. No mezcles reglas incompatibles.`
+## ${ai.finalInstruction}
+${ai.finalInstructionText}`
 }

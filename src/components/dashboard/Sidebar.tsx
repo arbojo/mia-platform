@@ -17,33 +17,35 @@ import {
   Accessibility,
 } from 'lucide-react'
 import { useState } from 'react'
-
-const mainGroups: { name: string; items: { href: string; label: string; question: string; icon: React.ElementType; atmosphere: string }[] }[] = [
-  {
-    name: 'Hoy',
-    items: [
-      { href: '/dashboard', label: 'Centro de Mando', question: '¿cómo está mi negocio?', icon: LayoutDashboard, atmosphere: 'home' },
-      { href: '/dashboard/conversations', label: 'Relaciones', question: '¿qué pasa con mis clientes?', icon: HeartHandshake, atmosphere: 'conversations' },
-    ],
-  },
-  {
-    name: 'Aprende',
-    items: [
-      { href: '/dashboard/knowledge', label: 'Memoria', question: '¿qué descubrió MIA?', icon: BookOpen, atmosphere: 'memory' },
-      { href: '/dashboard/knowledge-studio', label: 'Pensamiento', question: '¿qué está analizando?', icon: Brain, atmosphere: 'heuristic' },
-    ],
-  },
-  {
-    name: 'Crece',
-    items: [
-      { href: '/dashboard/laboratorio', label: 'Laboratorio', question: '¿cómo puede mejorar?', icon: FlaskConical, atmosphere: 'lab' },
-    ],
-  },
-]
+import { useI18n } from '@/components/dashboard/I18nProvider'
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { t } = useI18n()
   const [configOpen, setConfigOpen] = useState(false)
+
+  const mainGroups = [
+    {
+      name: t.nav.today,
+      items: [
+        { href: '/dashboard', label: t.nav.commandCenter, question: t.nav.commandCenterQuestion, icon: LayoutDashboard, atmosphere: 'home' },
+        { href: '/dashboard/conversations', label: t.nav.relations, question: t.nav.relationsQuestion, icon: HeartHandshake, atmosphere: 'conversations' },
+      ],
+    },
+    {
+      name: t.nav.learn,
+      items: [
+        { href: '/dashboard/knowledge', label: t.nav.memory, question: t.nav.memoryQuestion, icon: BookOpen, atmosphere: 'memory' },
+        { href: '/dashboard/knowledge-studio', label: t.nav.thinking, question: t.nav.thinkingQuestion, icon: Brain, atmosphere: 'heuristic' },
+      ],
+    },
+    {
+      name: t.nav.grow,
+      items: [
+        { href: '/dashboard/laboratorio', label: t.nav.lab, question: t.nav.labQuestion, icon: FlaskConical, atmosphere: 'lab' },
+      ],
+    },
+  ]
 
   function isActive(href: string) {
     if (href === '/dashboard') return pathname === '/dashboard'
@@ -122,13 +124,12 @@ export function Sidebar() {
           </div>
         ))}
 
-        {/* Configuración */}
         <div>
           <p
             className="mb-2 px-2 text-xs font-medium tracking-[0.1em]"
             style={{ color: 'var(--atmosphere-text)', opacity: 0.4 }}
           >
-            Configuración
+            {t.nav.settings}
           </p>
           <div className="space-y-0.5">
             <button
@@ -139,7 +140,7 @@ export function Sidebar() {
               }}
             >
               <Settings className="h-4 w-4" />
-              <span>Ajustes</span>
+              <span>{t.nav.adjustments}</span>
               <ChevronDown
                 className="ml-auto h-3.5 w-3.5 transition-transform duration-200"
                 style={{
@@ -150,7 +151,7 @@ export function Sidebar() {
             {configOpen && (
               <div className="ml-7 space-y-0.5 border-l pl-2"
                 style={{ borderColor: 'var(--atmosphere-border)' }}>
-                <Link href="/dashboard/connections" title="canales e integraciones">
+                <Link href="/dashboard/connections" title={t.nav.connectionsTitle}>
                   <div
                     className={cn(
                       'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
@@ -160,7 +161,7 @@ export function Sidebar() {
                     }}
                   >
                     <Cable className="h-4 w-4" />
-                    <span>Conexiones</span>
+                    <span>{t.nav.connections}</span>
                   </div>
                 </Link>
                 <div className="pt-2">
@@ -168,9 +169,9 @@ export function Sidebar() {
                     className="mb-1 px-2 text-[10px] font-medium uppercase tracking-[0.12em]"
                     style={{ color: 'var(--atmosphere-text)', opacity: 0.3 }}
                   >
-                    Avanzado
+                    {t.nav.advanced}
                   </p>
-                  <Link href="/dashboard/assistants" title="agentes, permisos e integraciones">
+                  <Link href="/dashboard/assistants" title={t.nav.councilTitle}>
                     <div
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
@@ -180,12 +181,12 @@ export function Sidebar() {
                       }}
                     >
                       <Users className="h-4 w-4" />
-                      <span>Concilio</span>
+                      <span>{t.nav.council}</span>
                     </div>
                   </Link>
                 </div>
                 <div className="pt-2">
-                  <Link href="/dashboard/health" title="estado del sistema y checks automáticos">
+                  <Link href="/dashboard/health" title={t.nav.healthTitle}>
                     <div
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
@@ -195,12 +196,12 @@ export function Sidebar() {
                       }}
                     >
                       <HeartPulse className="h-4 w-4" />
-                      <span>Salud</span>
+                      <span>{t.nav.health}</span>
                     </div>
                   </Link>
                 </div>
                 <div className="pt-2">
-                  <Link href="/dashboard/accessibility" title="accesibilidad, ergonomía y confort visual">
+                  <Link href="/dashboard/accessibility" title={t.nav.accessibilityTitle}>
                     <div
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
@@ -210,7 +211,7 @@ export function Sidebar() {
                       }}
                     >
                       <Accessibility className="h-4 w-4" />
-                      <span>Accesibilidad</span>
+                      <span>{t.nav.accessibility}</span>
                     </div>
                   </Link>
                 </div>

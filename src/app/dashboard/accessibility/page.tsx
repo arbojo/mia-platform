@@ -1,5 +1,7 @@
 import { requireAuth } from '@/lib/auth'
 import { AccessibilitySettings } from '@/components/accessibility/AccessibilitySettings'
+import { getUserLocale } from '@/lib/i18n/server'
+import { getDictionary } from '@/lib/i18n/dictionaries'
 
 export const metadata = {
   title: 'Accesibilidad · MIA',
@@ -7,16 +9,15 @@ export const metadata = {
 }
 
 export default async function AccessibilityPage() {
-  await requireAuth()
+  const { user } = await requireAuth()
+  const locale = await getUserLocale(user.id)
+  const t = getDictionary(locale)
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Accesibilidad y Ergonomía</h1>
-        <p className="text-muted-foreground">
-          Ajusta cómo se ve y se siente MIA para reducir la fatiga visual. Tus preferencias se
-          guardan en tu perfil y se aplican en todos los dispositivos.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.accessibility.title}</h1>
+        <p className="text-muted-foreground">{t.accessibility.subtitle}</p>
       </div>
       <AccessibilitySettings />
     </div>

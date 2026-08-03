@@ -1,6 +1,7 @@
 'use client'
 
 import { useAccessibility } from '@/components/dashboard/AccessibilityProvider'
+import { useI18n } from '@/components/dashboard/I18nProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -81,28 +82,29 @@ function SegmentedOption<T extends string>({
   )
 }
 
-const FONT_WEIGHT_OPTIONS: { value: FontWeightPreference; label: string }[] = [
-  { value: 'normal', label: 'Normal' },
-  { value: 'medium', label: 'Media' },
-  { value: 'bold', label: 'Negrita' },
-]
-
-const TEMPERATURE_OPTIONS: { value: ColorTemperature; label: string }[] = [
-  { value: 'neutral', label: 'Neutra' },
-  { value: 'warm', label: 'Cálida' },
-  { value: 'cool', label: 'Fría' },
-]
-
 export function AccessibilitySettings() {
   const { preferences, loaded, update } = useAccessibility()
+  const { t } = useI18n()
 
   const set = (patch: Partial<AccessibilityPreferences>) => update(patch)
+
+  const FONT_WEIGHT_OPTIONS: { value: FontWeightPreference; label: string }[] = [
+    { value: 'normal', label: t.accessibility.fontWeightNormal },
+    { value: 'medium', label: t.accessibility.fontWeightMedium },
+    { value: 'bold', label: t.accessibility.fontWeightBold },
+  ]
+
+  const TEMPERATURE_OPTIONS: { value: ColorTemperature; label: string }[] = [
+    { value: 'neutral', label: t.accessibility.colorNeutral },
+    { value: 'warm', label: t.accessibility.colorWarm },
+    { value: 'cool', label: t.accessibility.colorCool },
+  ]
 
   if (!loaded) {
     return (
       <Card>
         <CardContent className="pt-6 text-sm text-muted-foreground">
-          Cargando preferencias…
+          {t.common.loading}
         </CardContent>
       </Card>
     )
@@ -112,21 +114,21 @@ export function AccessibilitySettings() {
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Disposición</CardTitle>
+          <CardTitle className="text-base">{t.accessibility.layout}</CardTitle>
           <CardDescription>
-            Cambia la posición de la barra lateral para adaptar el espacio de trabajo.
+            {t.accessibility.layoutDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium">Modo espejo</p>
-              <p className="text-xs text-muted-foreground">Barra lateral a la derecha</p>
+              <p className="text-sm font-medium">{t.accessibility.mirrorMode}</p>
+              <p className="text-xs text-muted-foreground">{t.accessibility.mirrorModeLabel}</p>
             </div>
             <Toggle
               checked={preferences.mirror_layout}
               onChange={(value) => set({ mirror_layout: value })}
-              label="Modo espejo"
+              label={t.accessibility.mirrorMode}
             />
           </div>
         </CardContent>
@@ -134,21 +136,21 @@ export function AccessibilitySettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Confort óptico</CardTitle>
+          <CardTitle className="text-base">{t.accessibility.opticalComfort}</CardTitle>
           <CardDescription>
-            Reduce el contraste y la fatiga visual al eliminar blancos y negros puros.
+            {t.accessibility.opticalComfortDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium">Modo óptico antifatiga</p>
-              <p className="text-xs text-muted-foreground">Paleta suave y anti-aliasing</p>
+              <p className="text-sm font-medium">{t.accessibility.opticalMode}</p>
+              <p className="text-xs text-muted-foreground">{t.accessibility.opticalModeLabel}</p>
             </div>
             <Toggle
               checked={preferences.optical_mode}
               onChange={(value) => set({ optical_mode: value })}
-              label="Modo óptico antifatiga"
+              label={t.accessibility.opticalMode}
             />
           </div>
         </CardContent>
@@ -156,14 +158,14 @@ export function AccessibilitySettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tipografía</CardTitle>
+          <CardTitle className="text-base">{t.accessibility.typography}</CardTitle>
           <CardDescription>
-            Selecciona el grosor de la fuente para facilitar la lectura.
+            {t.accessibility.typographyDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
-            <p className="text-sm font-medium">Peso de fuente</p>
+            <p className="text-sm font-medium">{t.accessibility.fontWeight}</p>
             <SegmentedOption
               options={FONT_WEIGHT_OPTIONS}
               value={preferences.font_weight}
@@ -175,14 +177,14 @@ export function AccessibilitySettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Temperatura de color</CardTitle>
+          <CardTitle className="text-base">{t.accessibility.colorTemperature}</CardTitle>
           <CardDescription>
-            Aplica un filtro cálido o frío a toda la interfaz.
+            {t.accessibility.colorTemperatureDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
-            <p className="text-sm font-medium">Color</p>
+            <p className="text-sm font-medium">{t.accessibility.color}</p>
             <SegmentedOption
               options={TEMPERATURE_OPTIONS}
               value={preferences.color_temperature}
@@ -195,16 +197,16 @@ export function AccessibilitySettings() {
       <Card className="md:col-span-2">
         <CardContent className="flex items-center justify-between pt-6">
           <div>
-            <p className="text-sm font-medium">Restablecer preferencias</p>
+            <p className="text-sm font-medium">{t.accessibility.resetTitle}</p>
             <p className="text-xs text-muted-foreground">
-              Vuelve a la disposición y paleta por defecto.
+              {t.accessibility.resetDescription}
             </p>
           </div>
           <Button
             variant="outline"
             onClick={() => set(DEFAULT_ACCESSIBILITY_PREFERENCES)}
           >
-            Restablecer
+            {t.common.reset}
           </Button>
         </CardContent>
       </Card>

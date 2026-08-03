@@ -47,8 +47,71 @@
     ],
     "rationale": "Classified as COMPLEX complexity. Complexity drivers: 25 files affected, schema changes required, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
   },
-  "status": "awaiting_council",
-  "decisions": [],
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.855Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.858Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.860Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.862Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.864Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.866Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.867Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.869Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.870Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: i18n nativo sin romper multi-tenant, RLS ni dominio de ventas",
+      "timestamp": "2026-08-03T01:43:16.872Z"
+    }
+  ],
   "createdAt": "2026-08-03T00:11:27.657Z",
-  "classifiedAt": "2026-08-03T00:11:27.657Z"
+  "classifiedAt": "2026-08-03T00:11:27.657Z",
+  "approvedAt": "2026-08-03T01:43:16.872Z",
+  "startedAt": "2026-08-03T01:43:19.784Z"
 }

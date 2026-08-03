@@ -2,6 +2,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getBusinessContext, getRecentLessons } from '@/lib/ai/knowledge'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
+import { getProfileLanguage } from '@/lib/system/language'
+import type { Locale } from '@/lib/i18n/config'
 
 export class ContextError extends Error {
   constructor(
@@ -32,6 +34,15 @@ interface CacheEntry {
 }
 
 const contextCache = new Map<string, CacheEntry>()
+
+async function getOwnerLocale(ownerId: string): Promise<Locale> {
+  try {
+    return await getProfileLanguage(ownerId)
+  } catch (err) {
+    console.error('Failed to load owner locale, falling back to default:', err)
+    return 'es'
+  }
+}
 
 function cacheKey(businessId: string, assistantId: string, customerId?: string): string {
   return customerId ? `${businessId}:${assistantId}:${customerId}` : `${businessId}:${assistantId}`
@@ -88,6 +99,7 @@ export async function loadConversationContext(
     memory: context.memory,
     customerMemory,
     recentLessons,
+    locale: await getOwnerLocale(fullAssistant.businesses.owner_id),
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

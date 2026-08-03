@@ -5,7 +5,9 @@ import { AtmosphereProvider } from '@/components/dashboard/AtmosphereProvider'
 import { MIAIndicator } from '@/components/dashboard/MIAIndicator'
 import { ThemeProvider } from '@/components/dashboard/ThemeProvider'
 import { AccessibilityProvider } from '@/components/dashboard/AccessibilityProvider'
+import { I18nProvider } from '@/components/dashboard/I18nProvider'
 import { TopBar } from '@/components/dashboard/TopBar'
+import { getUserLocale } from '@/lib/i18n/server'
 
 export default async function DashboardLayout({
   children,
@@ -13,6 +15,7 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const { supabase, user } = await requireAuth()
+  const locale = await getUserLocale(user.id)
 
   const { data: business } = await supabase
     .from('businesses')
@@ -21,9 +24,10 @@ export default async function DashboardLayout({
     .maybeSingle()
 
   return (
-    <ThemeProvider>
-      <AtmosphereProvider>
-        <AccessibilityProvider>
+    <I18nProvider key={locale} locale={locale}>
+      <ThemeProvider>
+        <AtmosphereProvider>
+          <AccessibilityProvider>
           <div
             data-layout-root
             className="flex min-h-screen"
@@ -49,5 +53,6 @@ export default async function DashboardLayout({
         </AccessibilityProvider>
       </AtmosphereProvider>
     </ThemeProvider>
+    </I18nProvider>
   )
 }

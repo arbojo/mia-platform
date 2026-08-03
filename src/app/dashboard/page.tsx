@@ -10,9 +10,13 @@ import {
   Brain,
   FlaskConical,
 } from 'lucide-react'
+import { getUserLocale } from '@/lib/i18n/server'
+import { getDictionary } from '@/lib/i18n/dictionaries'
 
 export default async function DashboardPage() {
   const { supabase, user } = await requireAuth()
+  const locale = await getUserLocale(user.id)
+  const t = getDictionary(locale)
 
   const { data: business } = await supabase
     .from('businesses')
@@ -27,17 +31,17 @@ export default async function DashboardPage() {
       <div className="animate-appear-up space-y-8">
         <MorningGreeting
           context={{
-            greeting: `Bienvenido, ${userName}`,
-            subtitle: 'Cuéntame sobre tu negocio para que pueda empezar a acompañarte.',
+            greeting: `${t.dashboard.welcome}, ${userName}`,
+            subtitle: t.dashboard.greetingSubtitleEmpty,
           }}
         />
         <div className="rounded-2xl border-2 border-dashed p-12 text-center"
           style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--elevation-1)' }}>
           <h2 className="mb-2 text-xl font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
-            ¡Empecemos!
+            {t.dashboard.letsStart}
           </h2>
           <p className="mb-6" style={{ color: 'var(--atmosphere-text-secondary)' }}>
-          Cuéntame sobre tu negocio para que pueda empezar a trabajar contigo.
+            {t.dashboard.tellAboutBusiness}
           </p>
           <Link
             href="/dashboard/onboarding"
@@ -47,7 +51,7 @@ export default async function DashboardPage() {
               color: 'white',
             }}
           >
-            Contarle a MIA sobre mi negocio
+            {t.dashboard.tellMia}
           </Link>
         </div>
       </div>
@@ -59,17 +63,17 @@ export default async function DashboardPage() {
       <div className="animate-appear-up space-y-8">
         <MorningGreeting
           context={{
-            greeting: `Hola, ${userName}`,
-            subtitle: 'Estoy lista. Solo créame y empezaré a trabajar contigo.',
+            greeting: `${t.dashboard.hi}, ${userName}`,
+            subtitle: t.dashboard.greetingSubtitleEmpty,
           }}
         />
         <div className="rounded-2xl border-2 border-dashed p-12 text-center"
           style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--elevation-1)' }}>
           <h2 className="mb-2 text-xl font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
-            Crea tu primera asistente
+            {t.dashboard.createAssistantTitle}
           </h2>
           <p className="mb-6" style={{ color: 'var(--atmosphere-text-secondary)' }}>
-          Configuremos a MIA para que empiece a conocer a tus clientes.
+            {t.dashboard.createAssistantSubtitle}
           </p>
           <Link
             href="/dashboard/onboarding"
@@ -79,7 +83,7 @@ export default async function DashboardPage() {
               color: 'white',
             }}
           >
-            Crear a MIA
+            {t.dashboard.createMia}
           </Link>
         </div>
       </div>
@@ -95,35 +99,35 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <VitalPresence
           value={data.todaysActivity.conversations}
-          action="Conversaciones activas"
-          meaning="El corazón de MIA latiendo por tu negocio"
-          context="En las últimas 24 horas"
+          action={t.dashboard.activeConversations}
+          meaning={t.dashboard.heartOfMia}
+          context={t.dashboard.last24h}
           icon="MessageSquare"
           trend={data.conversationTrend}
           href="/dashboard/conversations"
         />
         <VitalPresence
           value={data.todaysActivity.newCustomers}
-          action="Nuevos clientes"
-          meaning="Personas que MIA está conociendo"
-          context="Llegaron hoy"
+          action={t.dashboard.newCustomers}
+          meaning={t.dashboard.peopleMiaMeets}
+          context={t.dashboard.arrivedToday}
           color="var(--mia-green)"
           icon="UserPlus"
         />
         <VitalPresence
           value={data.todaysActivity.messagesHandled}
-          action="Mensajes gestionados"
-          meaning="Conversaciones que MIA ha cuidado por ti"
-          context="Hoy"
+          action={t.dashboard.messagesHandled}
+          meaning={t.dashboard.conversationsCared}
+          context={t.dashboard.today}
           color="var(--mia-cyan)"
           icon="BellRing"
           href="/dashboard/conversations"
         />
         <VitalPresence
           value={Math.round(data.miaReadiness.overall)}
-          action="Preparación"
-          meaning="Qué tan lista está MIA para atender"
-          context="Score general de acompañamiento"
+          action={t.dashboard.readiness}
+          meaning={t.dashboard.howReadyMia}
+          context={t.dashboard.overallScore}
           color="var(--mia-violet)"
           icon="Sparkles"
           trend={data.readinessTrend}
@@ -144,12 +148,12 @@ export default async function DashboardPage() {
           className="mb-4 text-sm font-medium tracking-wide uppercase"
           style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
         >
-          Explora lo que MIA está haciendo por ti
+          {t.dashboard.explore}
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ModuleCard
-            title="Memoria"
-            description="Todo lo que MIA ha aprendido de tu negocio y tus clientes"
+            title={t.dashboard.memoryTitle}
+            description={t.dashboard.memoryDescription}
             href="/dashboard/knowledge"
             status={data.moduleCards.memoriaStatus}
             statusColor="var(--mia-green)"
@@ -157,8 +161,8 @@ export default async function DashboardPage() {
             icon={BookOpen}
           />
           <ModuleCard
-            title="Pensamiento"
-            description="Señales, ideas y estrategias que MIA está analizando para ti"
+            title={t.dashboard.thinkingTitle}
+            description={t.dashboard.thinkingDescription}
             href="/dashboard/knowledge-studio"
             status={data.moduleCards.pensamientoStatus}
             statusColor="var(--mia-violet)"
@@ -166,8 +170,8 @@ export default async function DashboardPage() {
             icon={Brain}
           />
           <ModuleCard
-            title="Laboratorio"
-            description="Entrena a MIA con simulaciones para que mejore cada día"
+            title={t.dashboard.labTitle}
+            description={t.dashboard.labDescription}
             href="/dashboard/laboratorio"
             status={data.moduleCards.laboratorioStatus}
             statusColor="var(--mia-gold)"

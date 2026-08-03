@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ThemeToggle } from './ThemeToggle'
+import { LanguageSelector } from './LanguageSelector'
 import { SignalIndicator } from '@/components/signals/SignalIndicator'
 import { MIAInbox } from '@/components/signals/MIAInbox'
 
@@ -23,6 +24,7 @@ export function TopBar() {
         />
         <MIAInbox open={inboxOpen} onClose={() => setInboxOpen(false)} />
       </div>
+      <LanguageSelector />
       <ThemeToggle />
     </div>
   )
