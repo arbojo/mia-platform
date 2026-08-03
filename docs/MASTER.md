@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `135265d`.
+> Fuente de verdad: este repositorio en `120355f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `135265d` |
+| **Commit HEAD** | `120355f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T19:01:07-06:00 |
+| **Generado** | 2026-08-02T19:29:35-06:00 |
 
 ---
 
@@ -133,6 +133,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 17 | 017_profiles_demo.sql |
 | 18 | 018_auto_provision.sql |
 | 19 | 019_health_checks.sql |
+| 20 | 020_accessibility_preferences.sql |
 
 ---
 
@@ -170,9 +171,10 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-37 rutas en `src/app/api/`:
+38 rutas en `src/app/api/`:
 
 ```
+accessibility
 assistants/[id]
 business/memory/analyze
 business/memory
@@ -216,11 +218,12 @@ widget/chat
 
 ## 8. Páginas
 
-18 páginas en `src/app/`:
+19 páginas en `src/app/`:
 
 ```
 (auth)/login
 (auth)/signup
+dashboard/accessibility
 dashboard/assistants/[id]
 dashboard/assistants/[id]/products
 dashboard/assistants/[id]/rules
@@ -243,9 +246,10 @@ widget
 
 ## 9. Componentes
 
-63 componentes en `src/components/`:
+65 componentes en `src/components/`:
 
 ```
+accessibility/AccessibilitySettings.tsx
 chat/ChatWindow.tsx
 chat/TrainingChat.tsx
 connections/ConnectionsManager.tsx
@@ -253,6 +257,7 @@ conversations/ConversationFilters.tsx
 conversations/ConversationList.tsx
 customers/MemoryPanel.tsx
 dashboard/AIOperationsCard.tsx
+dashboard/AccessibilityProvider.tsx
 dashboard/AtmosphereProvider.tsx
 dashboard/BusinessHealth.tsx
 dashboard/CelebrateProgress.tsx
@@ -315,7 +320,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-42 módulos:
+43 módulos:
 
 ```
 ai/client.ts
@@ -354,6 +359,7 @@ supabase/admin.ts
 supabase/client.ts
 supabase/route-handler.ts
 supabase/server.ts
+system/accessibility.ts
 system/demo.ts
 system/edition.ts
 system/health.ts
@@ -400,7 +406,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-000141367 | Corrección crítica: OAuth/business auto-provisión, persistencia de chat y contexto Vitanova | completed |
 | TASK-20260803-001127354 | Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos) | awaiting_council |
 | TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | completed |
-| TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | awaiting_council |
+| TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | completed |
 | TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | awaiting_council |
 
 ---
@@ -440,6 +446,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+120355f feat: persistent accessibility preferences (Fase D)
+ce63073 docs: regenerate MASTER.md at 135265d
 135265d chore(governance): record task B completion (health engine)
 c864106 docs: regenerate MASTER.md at 0a76e4a
 0a76e4a feat: persistent health engine (No Pass No Commit)
@@ -458,8 +466,6 @@ fcb5ee3 feat(demo): add public demo lead capture flow with paywall
 e5581e5 docs: add UBSE sales model design and research notes
 b9b1fd6 docs: regenerate MASTER.md at d957490
 d957490 fix(governance): prevent task id collision with random suffix
-f60c001 docs: regenerate MASTER.md at 88b89c2
-88b89c2 chore: mark TASK-20260802-195924 as completed in governance
 ```
 
 ---
