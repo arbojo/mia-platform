@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `45d1fff`.
+> Fuente de verdad: este repositorio en `5b8e75f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `45d1fff` |
+| **Commit HEAD** | `5b8e75f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T16:57:05-06:00 |
+| **Generado** | 2026-08-03T17:17:50-06:00 |
 
 ---
 
@@ -135,6 +135,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 19 | 019_health_checks.sql |
 | 20 | 020_accessibility_preferences.sql |
 | 21 | 021_profile_language.sql |
+| 22 | 022_channel_modes.sql |
 
 ---
 
@@ -396,7 +397,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (23)**:
+**Tareas registradas (25)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -423,6 +424,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-214859374 | Upgrade Baileys to v7.0.0-rc14 in whatsapp-bridge | completed |
 | TASK-20260803-220815401 | Baileys Agent: session health watcher in whatsapp-bridge | completed |
 | TASK-20260803-225207190 | Integrar política de cierre comercial condicionada al prompt del asistente | completed |
+| TASK-20260803-230254309 | Seguimiento automático por inactividad del canal | approved |
+| TASK-20260803-230254397 | Modos de operación del canal (active/shadow/paused) | completed |
 
 ---
 
@@ -461,6 +464,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+5b8e75f feat: add per-channel operation modes (active/shadow/paused)
+39dc168 docs: regenerate MASTER.md at 45d1fff
 45d1fff feat: add sales closing policy to assistant prompt conditioned on sales_aggressiveness
 7394957 docs: regenerate MASTER.md at 3dc75c6
 3dc75c6 fix: upgrade Baileys to v7 and add session health watcher to whatsapp-bridge
@@ -479,8 +484,6 @@ e20feed chore(governance): record task A completion (auto-provision, chat persis
 2ed51d8 docs: regenerate MASTER.md at 9150593
 9150593 fix: auto-provision business, chat persistence and Vitanova context
 46afb2f docs: add Vercel deployment + MCP verification to Release Manager
-7a6f82e chore(env): enable Google auth flag for lead capture flow
-954f5ef docs: regenerate MASTER.md at 5ec73fc
 ```
 
 ---
