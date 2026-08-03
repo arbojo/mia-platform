@@ -51,6 +51,12 @@ interface RecentLesson {
 
 type PromptDict = ReturnType<typeof getDictionary>['ai']
 
+function buildClosingPolicy(aggressiveness: number, ai: PromptDict): string {
+  if (aggressiveness > 70) return ai.closingProactive
+  if (aggressiveness < 30) return ai.closingConsultative
+  return ai.closingBalanced
+}
+
 function getPersonalityLabel(personality: Personality, ai: PromptDict): string {
   const labels: string[] = []
 
@@ -246,6 +252,9 @@ ${ai.cannotDo}
 - ${ai.inventPromotions}
 - ${ai.confirmOrders}
 - ${ai.giveUnverified}
+
+## ${ai.closingPolicy}
+${buildClosingPolicy(personality.sales_aggressiveness, ai)}
 
 ## ${ai.businessInfo}
 ${brand?.elevator_pitch ?? ai.noBusinessInfo}

@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260803-225207190",
+  "title": "Integrar política de cierre comercial condicionada al prompt del asistente",
+  "description": "Extender buildMasterPrompt() con una sección de Política de Cierre Comercial (CTA/cierre) condicionada a sales_aggressiveness (proactiva/consultiva/equilibrada) y coherente con la directriz \"sin presionar artificialmente\". Añadir las claves i18n en los 4 diccionarios (es/en/pt/ja). No reemplaza el prompt actual: conserva resolución de conflictos, autonomía cannotDo, memoria y lecciones.",
+  "scope": {
+    "categories": [
+      "ai_behaviour",
+      "feature"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (8): architect, backend, frontend, ai_engineer, performance, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Se extiende buildMasterPrompt con política de cierre condicionada a sales_aggressiveness; no altera orden de autoridad ni autonomía. 5 archivos i18n. Aprobado.",
+      "timestamp": "2026-08-03T22:52:17.103Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Cambio confinado a prompts.ts y diccionarios i18n; sin cambios de API ni DB. Aprobado.",
+      "timestamp": "2026-08-03T22:52:25.508Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Incluye claves i18n en 4 diccionarios. Sin UI nueva. Aprobado.",
+      "timestamp": "2026-08-03T22:52:27.823Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Política de cierre respeta la config de personalidad y la directriz sin presionar artificialmente. Aprobado.",
+      "timestamp": "2026-08-03T22:52:30.158Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin impacto medible en tokens; texto condicional minimo. Aprobado.",
+      "timestamp": "2026-08-03T22:52:39.091Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se verifica con lint, build y prueba de conversacion. Aprobado.",
+      "timestamp": "2026-08-03T22:52:41.759Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin secrets ni schema. Aprobado para implementacion.",
+      "timestamp": "2026-08-03T22:52:44.318Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara la integracion en memoria de ingenieria. Aprobado.",
+      "timestamp": "2026-08-03T22:52:46.588Z"
+    }
+  ],
+  "createdAt": "2026-08-03T22:52:07.760Z",
+  "classifiedAt": "2026-08-03T22:52:07.760Z",
+  "approvedAt": "2026-08-03T22:52:46.590Z",
+  "startedAt": "2026-08-03T22:52:57.960Z",
+  "completedAt": "2026-08-03T22:56:07.744Z"
+}
