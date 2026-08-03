@@ -15,6 +15,7 @@ export interface MiaReply {
   customerId: string
   conversationId: string
   imageUrl?: string
+  deliver?: boolean
 }
 
 /**
@@ -59,6 +60,7 @@ export async function sendToMia(
     customerId: string
     conversationId: string
     imageUrl?: string
+    deliver?: boolean
   }
   if (!data.success) return null
 
@@ -67,5 +69,6 @@ export async function sendToMia(
     customerId: data.customerId,
     conversationId: data.conversationId,
     imageUrl: data.imageUrl ?? undefined,
+    deliver: data.deliver ?? true,
   }
 }

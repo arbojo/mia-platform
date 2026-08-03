@@ -15,7 +15,7 @@ export class RuntimeError extends Error {
 export async function resolveConnection(
   channel: string,
   wireMessage: WireMessage
-): Promise<{ business_id: string; assistant_id: string }> {
+): Promise<{ business_id: string; assistant_id: string; mode: 'active' | 'shadow' | 'paused' }> {
   const metadata = wireMessage.metadata
 
   if (metadata.businessId) {
@@ -29,7 +29,8 @@ export async function resolveConnection(
       .single()
 
     if (assistant) {
-      return { business_id: assistant.business_id, assistant_id: assistant.id }
+      const mode = await resolveConnectionMode(supabase, assistant.business_id, channel)
+      return { business_id: assistant.business_id, assistant_id: assistant.id, mode }
     }
     throw new RuntimeError('No active assistant found for business', 'NO_ASSISTANT', 404)
   }
@@ -38,7 +39,7 @@ export async function resolveConnection(
     const supabase = createAdminClient()
     const { data: connection } = await supabase
       .from('channel_connections')
-      .select('business_id, assistant_id')
+      .select('business_id, assistant_id, mode')
       .eq('channel', 'whatsapp')
       .eq('status', 'connected')
       .contains('credentials', { phone_number_id: metadata.phoneNumberId as string })
@@ -46,7 +47,11 @@ export async function resolveConnection(
       .single()
 
     if (connection) {
-      return { business_id: connection.business_id, assistant_id: connection.assistant_id }
+      return {
+        business_id: connection.business_id,
+        assistant_id: connection.assistant_id,
+        mode: connection.mode ?? 'active',
+      }
     }
   }
 
@@ -55,6 +60,22 @@ export async function resolveConnection(
     'CONNECTION_NOT_FOUND',
     400
   )
+}
+
+async function resolveConnectionMode(
+  supabase: ReturnType<typeof createAdminClient>,
+  businessId: string,
+  channel: string
+): Promise<'active' | 'shadow' | 'paused'> {
+  const { data: connection } = await supabase
+    .from('channel_connections')
+    .select('mode')
+    .eq('business_id', businessId)
+    .eq('channel', channel)
+    .limit(1)
+    .maybeSingle()
+
+  return connection?.mode ?? 'active'
 }
 
 export async function resolveConversation(

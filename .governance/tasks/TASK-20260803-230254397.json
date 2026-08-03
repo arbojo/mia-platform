@@ -1,0 +1,119 @@
+{
+  "id": "TASK-20260803-230254397",
+  "title": "Modos de operación del canal (active/shadow/paused)",
+  "description": "Añadir estado de operación por conexión en channel_connections: mode active|shadow|paused. Active opera normal; shadow procesa y aprende pero NO entrega respuesta al cliente (bridge no envía); paused ni ejecuta AI ni responde. Integración: migración (columna mode + CHECK), resolver lee el mode, runtime ramifica por mode, webhook baileys devuelve deliver, bridge respeta deliver, API PATCH mode, UI ConnectionsManager con selector de modo.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "api_change"
+    ],
+    "filesAffected": 9,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend",
+      "database",
+      "ai",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 9 files affected, schema changes required, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:03.864Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:06.171Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:08.398Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:10.683Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:12.944Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:15.108Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:17.372Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:19.586Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:21.834Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: modos de operacion por conexion con shadow sin entrega y paused sin tokens. Schema mode + CHECK, runtime ramifica, bridge respeta deliver.",
+      "timestamp": "2026-08-03T23:03:24.092Z"
+    }
+  ],
+  "createdAt": "2026-08-03T23:02:54.244Z",
+  "classifiedAt": "2026-08-03T23:02:54.244Z",
+  "approvedAt": "2026-08-03T23:03:24.093Z",
+  "startedAt": "2026-08-03T23:04:07.826Z",
+  "completedAt": "2026-08-03T23:10:11.609Z"
+}

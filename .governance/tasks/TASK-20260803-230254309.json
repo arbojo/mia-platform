@@ -1,0 +1,130 @@
+{
+  "id": "TASK-20260803-230254309",
+  "title": "Seguimiento automático por inactividad del canal",
+  "description": "Worker en el bridge (patrón HealthMonitor setInterval) que detecta customers con last_interaction vencida (follow_up_delay_minutes) en conexiones con follow_up_enabled, evita spam verificando último follow-up posterior, genera mensaje de reenganche (endpoint MIA /api/channels/baileys/followup con AI o plantilla de la conexión), lo envía por el socket Baileys y persiste channel_messages + mia_signal. Config por conexión: follow_up_enabled, follow_up_delay_minutes, follow_up_template.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "infrastructure"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "database",
+      "ai",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected, schema changes required, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (12): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:32.888Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:35.482Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:37.947Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:40.336Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:42.728Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:44.988Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:47.264Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:49.568Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:51.907Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:54.209Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:56.496Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: worker de seguimiento por inactividad en bridge con config por conexion (enabled/delay/template) y reenganche sin spam.",
+      "timestamp": "2026-08-03T23:03:58.788Z"
+    }
+  ],
+  "createdAt": "2026-08-03T23:02:54.247Z",
+  "classifiedAt": "2026-08-03T23:02:54.247Z",
+  "approvedAt": "2026-08-03T23:03:58.790Z"
+}

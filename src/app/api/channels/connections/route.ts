@@ -104,6 +104,67 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { connectionId, mode } = await request.json()
+
+    if (!connectionId || !mode) {
+      return NextResponse.json({ error: 'Missing connectionId or mode' }, { status: 400 })
+    }
+
+    const validModes = ['active', 'shadow', 'paused']
+    if (!validModes.includes(mode)) {
+      return NextResponse.json({ error: 'Invalid mode' }, { status: 400 })
+    }
+
+    const admin = createAdminClient()
+
+    const { data: connection } = await admin
+      .from('channel_connections')
+      .select('id, business_id')
+      .eq('id', connectionId)
+      .single()
+
+    if (!connection) {
+      return NextResponse.json({ error: 'Connection not found' }, { status: 404 })
+    }
+
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('id')
+      .eq('id', connection.business_id)
+      .eq('owner_id', user.id)
+      .single()
+
+    if (!business) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { data: updated, error } = await admin
+      .from('channel_connections')
+      .update({ mode, updated_at: new Date().toISOString() })
+      .eq('id', connectionId)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ connection: updated })
+  } catch (error) {
+    console.error('Update connection mode error:', error)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const supabase = await createClient()

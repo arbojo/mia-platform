@@ -30,6 +30,7 @@ interface Connection {
   assistant_id: string
   channel: string
   status: string
+  mode?: 'active' | 'shadow' | 'paused'
   last_sync: string | null
   created_at: string
 }
@@ -156,6 +157,20 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
       setConnections((prev) => prev.filter((c) => c.id !== deleteId))
     }
     setDeleteId(null)
+  }
+
+  async function handleModeChange(connectionId: string, mode: 'active' | 'shadow' | 'paused') {
+    const res = await fetch('/api/channels/connections', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connectionId, mode }),
+    })
+
+    if (res.ok) {
+      setConnections((prev) =>
+        prev.map((c) => (c.id === connectionId ? { ...c, mode } : c)),
+      )
+    }
   }
 
   async function handleWhatsAppConnect() {
@@ -405,6 +420,21 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
+                  <Select
+                    value={conn.mode ?? 'active'}
+                    onValueChange={(v) =>
+                      handleModeChange(conn.id, v as 'active' | 'shadow' | 'paused')
+                    }
+                  >
+                    <SelectTrigger className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Activo</SelectItem>
+                      <SelectItem value="shadow">Sombra</SelectItem>
+                      <SelectItem value="paused">Pausado</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Badge variant={conn.status === 'connected' ? 'default' : 'secondary'}>
                     {conn.status}
                   </Badge>

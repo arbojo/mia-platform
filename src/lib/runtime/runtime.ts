@@ -98,12 +98,14 @@ export async function processIncomingMessage(
   customerId: string
   conversationId: string
   imageUrl?: string
+  deliver: boolean
 }> {
   const supabase = createAdminClient()
 
   const connection = await resolveConnection(channel, wireMessage)
   const businessId = connection.business_id
   const assistantId = connection.assistant_id
+  const mode = connection.mode
 
   const customer = await resolveCustomer(businessId, wireMessage)
 
@@ -119,6 +121,33 @@ export async function processIncomingMessage(
         external_id: wireMessage.externalId,
       },
     })
+  }
+
+  await supabase.from('channel_messages').insert({
+    business_id: businessId,
+    customer_id: customer.id,
+    channel,
+    direction: 'incoming',
+    content: wireMessage.content,
+    external_id: wireMessage.externalId,
+    external_customer_id: wireMessage.customerExternalId,
+    status: 'received',
+  })
+
+  // PAUSED: the channel is inactive. The message is stored but MIA does not
+  // process it (no AI call, no response, no outgoing record).
+  if (mode === 'paused') {
+    await supabase
+      .from('customers')
+      .update({ last_interaction: new Date().toISOString() })
+      .eq('id', customer.id)
+
+    return {
+      response: '',
+      customerId: customer.id,
+      conversationId: conversationId ?? '',
+      deliver: false,
+    }
   }
 
   const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId, customer.id)
@@ -157,6 +186,7 @@ export async function processIncomingMessage(
       metadata: {
         channel,
         used_context: usedContext,
+        ...(mode === 'shadow' ? { shadow: true, delivered: false } : {}),
       },
     })
   }
@@ -165,21 +195,11 @@ export async function processIncomingMessage(
     business_id: businessId,
     customer_id: customer.id,
     channel,
-    direction: 'incoming',
-    content: wireMessage.content,
-    external_id: wireMessage.externalId,
-    external_customer_id: wireMessage.customerExternalId,
-    status: 'received',
-  })
-
-  await supabase.from('channel_messages').insert({
-    business_id: businessId,
-    customer_id: customer.id,
-    channel,
     direction: 'outgoing',
     content: response,
-    status: 'sent',
-    sent_at: new Date().toISOString(),
+    status: mode === 'shadow' ? 'processing' : 'sent',
+    sent_at: mode === 'shadow' ? null : new Date().toISOString(),
+    metadata: mode === 'shadow' ? { shadow: true, delivered: false } : {},
   })
 
   await supabase
@@ -187,17 +207,21 @@ export async function processIncomingMessage(
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
 
-  const media = await resolveConditionalMedia({
+  const media = mode === 'shadow' ? undefined : await resolveConditionalMedia({
     businessId,
     customerId: customer.id,
     conversationId: conversationId ?? null,
     userMessage: wireMessage.content,
   })
 
+  // SHADOW: the reply is generated and stored for learning but never sent.
+  const deliver = mode !== 'shadow'
+
   return {
     response,
     customerId: customer.id,
     conversationId: conversationId ?? '',
     imageUrl: media?.imageUrl,
+    deliver,
   }
 }

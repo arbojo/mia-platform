@@ -404,6 +404,10 @@ export class SessionManager {
           receivedAt: timestamp,
         })
 
+        // Shadow mode (deliver: false): MIA processed and stored the reply
+        // for learning but must NOT send it to the customer.
+        if (miaReply?.deliver === false) continue
+
         if (miaReply?.response && session.socket.user?.id) {
           if (miaReply.imageUrl) {
             await session.socket.sendMessage(remoteJid, {

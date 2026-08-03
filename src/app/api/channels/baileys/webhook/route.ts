@@ -30,6 +30,7 @@ export async function POST(request: Request) {
       customerId: result.customerId,
       conversationId: result.conversationId,
       imageUrl: result.imageUrl,
+      deliver: result.deliver,
     })
   } catch (error) {
     console.error('Baileys webhook error:', error)

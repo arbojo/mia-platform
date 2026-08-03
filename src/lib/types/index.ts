@@ -706,6 +706,7 @@ export interface Database {
           assistant_id: string
           channel: 'web' | 'whatsapp' | 'messenger' | 'instagram'
           status: 'disconnected' | 'connecting' | 'connected' | 'error'
+          mode: 'active' | 'shadow' | 'paused'
           credentials: Json
           configuration: Json
           last_sync: string | null
@@ -719,6 +720,7 @@ export interface Database {
           assistant_id: string
           channel: 'web' | 'whatsapp' | 'messenger' | 'instagram'
           status?: 'disconnected' | 'connecting' | 'connected' | 'error'
+          mode?: 'active' | 'shadow' | 'paused'
           credentials?: Json
           configuration?: Json
           last_sync?: string | null
@@ -732,6 +734,7 @@ export interface Database {
           assistant_id?: string
           channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram'
           status?: 'disconnected' | 'connecting' | 'connected' | 'error'
+          mode?: 'active' | 'shadow' | 'paused'
           credentials?: Json
           configuration?: Json
           last_sync?: string | null
