@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `120355f`.
+> Fuente de verdad: este repositorio en `04b66a4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `120355f` |
+| **Commit HEAD** | `04b66a4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T19:29:35-06:00 |
+| **Generado** | 2026-08-03T14:35:06-06:00 |
 
 ---
 
@@ -134,6 +134,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 18 | 018_auto_provision.sql |
 | 19 | 019_health_checks.sql |
 | 20 | 020_accessibility_preferences.sql |
+| 21 | 021_profile_language.sql |
 
 ---
 
@@ -171,7 +172,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-38 rutas en `src/app/api/`:
+39 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -208,6 +209,7 @@ laboratorio/evaluate
 laboratorio/sessions
 laboratorio/teach
 onboarding/chat
+profile/language
 system/health
 training/corrections
 training/lessons
@@ -246,7 +248,7 @@ widget
 
 ## 9. Componentes
 
-65 componentes en `src/components/`:
+67 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -264,6 +266,8 @@ dashboard/CelebrateProgress.tsx
 dashboard/ConversationTimeline.tsx
 dashboard/DailyReport.tsx
 dashboard/EmployeeStatusCard.tsx
+dashboard/I18nProvider.tsx
+dashboard/LanguageSelector.tsx
 dashboard/LearningTimeline.tsx
 dashboard/MIAIndicator.tsx
 dashboard/MIAReadiness.tsx
@@ -320,7 +324,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-43 módulos:
+51 módulos:
 
 ```
 ai/client.ts
@@ -350,6 +354,13 @@ channels/types.ts
 conversation/context.ts
 conversation/resolver.ts
 dashboard/queries.ts
+i18n/config.ts
+i18n/dictionaries/en.ts
+i18n/dictionaries/es.ts
+i18n/dictionaries/index.ts
+i18n/dictionaries/ja.ts
+i18n/dictionaries/pt.ts
+i18n/server.ts
 runtime/conditional-media.ts
 runtime/execute-ai.ts
 runtime/media.ts
@@ -363,6 +374,7 @@ system/accessibility.ts
 system/demo.ts
 system/edition.ts
 system/health.ts
+system/language.ts
 system/routing.ts
 types/index.ts
 utils.ts
@@ -407,7 +419,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-001127354 | Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos) | awaiting_council |
 | TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | completed |
 | TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | completed |
-| TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | awaiting_council |
+| TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | in_progress |
 
 ---
 
@@ -446,6 +458,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+04b66a4 feat: i18n multilingue completo y ajustes de UI
+e2e6582 docs: regenerate MASTER.md at 120355f
 120355f feat: persistent accessibility preferences (Fase D)
 ce63073 docs: regenerate MASTER.md at 135265d
 135265d chore(governance): record task B completion (health engine)
@@ -464,8 +478,6 @@ fcb5ee3 feat(demo): add public demo lead capture flow with paywall
 85f00be feat(demo): add profiles table and widen ai_usage request_type check
 1858063 docs: regenerate MASTER.md at e5581e5
 e5581e5 docs: add UBSE sales model design and research notes
-b9b1fd6 docs: regenerate MASTER.md at d957490
-d957490 fix(governance): prevent task id collision with random suffix
 ```
 
 ---
