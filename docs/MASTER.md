@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `5b8e75f`.
+> Fuente de verdad: este repositorio en `dbd7134`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `5b8e75f` |
+| **Commit HEAD** | `dbd7134` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T17:17:50-06:00 |
+| **Generado** | 2026-08-03T17:26:55-06:00 |
 
 ---
 
@@ -136,6 +136,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 20 | 020_accessibility_preferences.sql |
 | 21 | 021_profile_language.sql |
 | 22 | 022_channel_modes.sql |
+| 23 | 023_follow_up.sql |
 
 ---
 
@@ -173,7 +174,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-39 rutas en `src/app/api/`:
+40 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -183,6 +184,7 @@ business/memory
 business/product-intelligence
 business/skills
 business/weekly-report
+channels/baileys/followup
 channels/baileys/session
 channels/baileys/webhook
 channels/baileys/ws-token
@@ -249,12 +251,13 @@ widget
 
 ## 9. Componentes
 
-67 componentes en `src/components/`:
+68 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
 chat/ChatWindow.tsx
 chat/TrainingChat.tsx
+connections/ConnectionFollowUpConfig.tsx
 connections/ConnectionsManager.tsx
 conversations/ConversationFilters.tsx
 conversations/ConversationList.tsx
@@ -424,7 +427,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-214859374 | Upgrade Baileys to v7.0.0-rc14 in whatsapp-bridge | completed |
 | TASK-20260803-220815401 | Baileys Agent: session health watcher in whatsapp-bridge | completed |
 | TASK-20260803-225207190 | Integrar política de cierre comercial condicionada al prompt del asistente | completed |
-| TASK-20260803-230254309 | Seguimiento automático por inactividad del canal | approved |
+| TASK-20260803-230254309 | Seguimiento automático por inactividad del canal | completed |
 | TASK-20260803-230254397 | Modos de operación del canal (active/shadow/paused) | completed |
 
 ---
@@ -464,6 +467,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+dbd7134 feat: add automated inactivity follow-up worker to whatsapp bridge
+db5fdba docs: regenerate MASTER.md at 5b8e75f
 5b8e75f feat: add per-channel operation modes (active/shadow/paused)
 39dc168 docs: regenerate MASTER.md at 45d1fff
 45d1fff feat: add sales closing policy to assistant prompt conditioned on sales_aggressiveness
@@ -482,8 +487,6 @@ c864106 docs: regenerate MASTER.md at 0a76e4a
 c41a97f docs: regenerate MASTER.md at e20feed
 e20feed chore(governance): record task A completion (auto-provision, chat persistence, Vitanova seed)
 2ed51d8 docs: regenerate MASTER.md at 9150593
-9150593 fix: auto-provision business, chat persistence and Vitanova context
-46afb2f docs: add Vercel deployment + MCP verification to Release Manager
 ```
 
 ---
