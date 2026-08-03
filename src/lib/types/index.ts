@@ -327,6 +327,7 @@ export interface Database {
           status: 'new' | 'contacted' | 'interested' | 'converted' | 'lost'
           notes: string | null
           last_interaction: string | null
+          last_follow_up_at: string | null
           created_at: string
           updated_at: string
         }
@@ -341,6 +342,7 @@ export interface Database {
           status?: 'new' | 'contacted' | 'interested' | 'converted' | 'lost'
           notes?: string | null
           last_interaction?: string | null
+          last_follow_up_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -355,6 +357,7 @@ export interface Database {
           status?: 'new' | 'contacted' | 'interested' | 'converted' | 'lost'
           notes?: string | null
           last_interaction?: string | null
+          last_follow_up_at?: string | null
           created_at?: string
           updated_at?: string
         }

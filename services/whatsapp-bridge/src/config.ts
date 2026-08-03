@@ -1,5 +1,7 @@
 import type { HealthConfig } from './health-monitor.js'
 import { loadHealthConfig } from './health-monitor.js'
+import type { FollowUpConfig } from './follow-up-monitor.js'
+import { loadFollowUpConfig } from './follow-up-monitor.js'
 
 export interface BridgeConfig {
   supabaseUrl: string
@@ -8,6 +10,7 @@ export interface BridgeConfig {
   bridgeSecret: string
   port: number
   health: HealthConfig
+  followUp: FollowUpConfig
 }
 
 function requireEnv(name: string): string {
@@ -26,5 +29,6 @@ export function loadConfig(): BridgeConfig {
     bridgeSecret: requireEnv('WHATSAPP_BRIDGE_SECRET'),
     port: Number(process.env.BRIDGE_PORT ?? 8787),
     health: loadHealthConfig(),
+    followUp: loadFollowUpConfig(),
   }
 }

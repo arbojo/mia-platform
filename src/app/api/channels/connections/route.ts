@@ -113,15 +113,36 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { connectionId, mode } = await request.json()
+    const { connectionId, mode, configuration } = await request.json()
 
-    if (!connectionId || !mode) {
-      return NextResponse.json({ error: 'Missing connectionId or mode' }, { status: 400 })
+    if (!connectionId) {
+      return NextResponse.json({ error: 'Missing connectionId' }, { status: 400 })
     }
 
-    const validModes = ['active', 'shadow', 'paused']
-    if (!validModes.includes(mode)) {
-      return NextResponse.json({ error: 'Invalid mode' }, { status: 400 })
+    const updates: Record<string, unknown> = {}
+
+    if (mode !== undefined) {
+      const validModes = ['active', 'shadow', 'paused']
+      if (!validModes.includes(mode)) {
+        return NextResponse.json({ error: 'Invalid mode' }, { status: 400 })
+      }
+      updates.mode = mode
+    }
+
+    if (configuration !== undefined) {
+      const allowedKeys = ['follow_up_enabled', 'follow_up_delay_minutes', 'follow_up_template']
+      const unknownKeys = Object.keys(configuration).filter((k) => !allowedKeys.includes(k))
+      if (unknownKeys.length > 0) {
+        return NextResponse.json(
+          { error: `Unsupported configuration keys: ${unknownKeys.join(', ')}` },
+          { status: 400 }
+        )
+      }
+      updates.configuration = configuration
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
     }
 
     const admin = createAdminClient()
@@ -149,7 +170,7 @@ export async function PATCH(request: Request) {
 
     const { data: updated, error } = await admin
       .from('channel_connections')
-      .update({ mode, updated_at: new Date().toISOString() })
+      .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', connectionId)
       .select()
       .single()

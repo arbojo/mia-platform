@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { ChannelType } from '@/lib/channels/types'
+import { ConnectionFollowUpConfig } from '@/components/connections/ConnectionFollowUpConfig'
 
 interface Connection {
   id: string
@@ -31,6 +32,7 @@ interface Connection {
   channel: string
   status: string
   mode?: 'active' | 'shadow' | 'paused'
+  configuration?: Record<string, unknown>
   last_sync: string | null
   created_at: string
 }
@@ -405,43 +407,50 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         <div className="space-y-3">
           {connections.map((conn) => (
             <Card key={conn.id}>
-              <CardContent className="flex items-center justify-between py-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">
-                    {channelMap[conn.channel as ChannelType]?.emoji ?? '\u{1F4E8}'}
-                  </span>
-                  <div>
-                    <div className="font-medium">
-                      {channelMap[conn.channel as ChannelType]?.label ?? conn.channel}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {conn.status === 'connected' ? 'Conectado' : 'Desconectado'}
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">
+                      {channelMap[conn.channel as ChannelType]?.emoji ?? '\u{1F4E8}'}
+                    </span>
+                    <div>
+                      <div className="font-medium">
+                        {channelMap[conn.channel as ChannelType]?.label ?? conn.channel}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {conn.status === 'connected' ? 'Conectado' : 'Desconectado'}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <Select
+                      value={conn.mode ?? 'active'}
+                      onValueChange={(v) =>
+                        handleModeChange(conn.id, v as 'active' | 'shadow' | 'paused')
+                      }
+                    >
+                      <SelectTrigger className="w-36">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Activo</SelectItem>
+                        <SelectItem value="shadow">Sombra</SelectItem>
+                        <SelectItem value="paused">Pausado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Badge variant={conn.status === 'connected' ? 'default' : 'secondary'}>
+                      {conn.status}
+                    </Badge>
+                    <Button variant="ghost" size="sm" onClick={() => setDeleteId(conn.id)}>
+                      Eliminar
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Select
-                    value={conn.mode ?? 'active'}
-                    onValueChange={(v) =>
-                      handleModeChange(conn.id, v as 'active' | 'shadow' | 'paused')
-                    }
-                  >
-                    <SelectTrigger className="w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Activo</SelectItem>
-                      <SelectItem value="shadow">Sombra</SelectItem>
-                      <SelectItem value="paused">Pausado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Badge variant={conn.status === 'connected' ? 'default' : 'secondary'}>
-                    {conn.status}
-                  </Badge>
-                  <Button variant="ghost" size="sm" onClick={() => setDeleteId(conn.id)}>
-                    Eliminar
-                  </Button>
-                </div>
+                <ConnectionFollowUpConfig
+                  connectionId={conn.id}
+                  configuration={conn.configuration}
+                  onUpdated={refreshConnections}
+                />
               </CardContent>
             </Card>
           ))}
