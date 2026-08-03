@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260803-220815401",
+  "title": "Baileys Agent: session health watcher in whatsapp-bridge",
+  "description": "Dedicar un componente de salud dentro del bridge al 100% al estado de la sesion Baileys: (1) detectar sockets zombie (connected pero init queries/handshake fallan con timeouts 408) y ordenar reinicio preventivo; (2) sincronizar atomicamente el flag registered/estado real de autenticacion con Supabase para no reportar registrado cuando Meta revoco el dispositivo; (3) gestion limpia de reconexiones con backoff exponencial sin romper sesion local ni perder eventos.",
+  "scope": {
+    "categories": [
+      "feature",
+      "infrastructure",
+      "bugfix"
+    ],
+    "filesAffected": 4,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, cross-cutting (multi-domain), category requires council. Required agents (8): architect, backend, frontend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.305Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.308Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.319Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.332Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.360Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.371Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.382Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Baileys Agent: watcher de salud de sesion. Detecta sockets zombie (connected sin init queries OK), sincroniza registered real con Supabase, y gestiona reconexiones con backoff exponencial. Responde al incidente actual (ghost session 408). Sin cambios de schema. 2>&1",
+      "timestamp": "2026-08-03T22:08:27.393Z"
+    }
+  ],
+  "createdAt": "2026-08-03T22:08:15.957Z",
+  "classifiedAt": "2026-08-03T22:08:15.957Z",
+  "approvedAt": "2026-08-03T22:08:27.402Z",
+  "startedAt": "2026-08-03T22:08:30.102Z",
+  "completedAt": "2026-08-03T22:32:11.245Z"
+}

@@ -78,6 +78,16 @@ export function startBridgeServer(
         return
       }
 
+      if (req.method === 'GET' && match && match[2] === 'health') {
+        if (!businessId) {
+          json(res, 400, { error: 'Missing businessId' })
+          return
+        }
+        const health = manager.getHealth(businessId)
+        json(res, 200, { success: true, health })
+        return
+      }
+
       if (req.method === 'DELETE' && match && match[2] === 'logout') {
         if (!businessId) {
           json(res, 400, { error: 'Missing businessId' })

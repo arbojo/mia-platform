@@ -1,9 +1,13 @@
+import type { HealthConfig } from './health-monitor.js'
+import { loadHealthConfig } from './health-monitor.js'
+
 export interface BridgeConfig {
   supabaseUrl: string
   supabaseServiceRoleKey: string
   miaAppUrl: string
   bridgeSecret: string
   port: number
+  health: HealthConfig
 }
 
 function requireEnv(name: string): string {
@@ -21,5 +25,6 @@ export function loadConfig(): BridgeConfig {
     miaAppUrl: process.env.MIA_APP_URL ?? 'http://localhost:3000',
     bridgeSecret: requireEnv('WHATSAPP_BRIDGE_SECRET'),
     port: Number(process.env.BRIDGE_PORT ?? 8787),
+    health: loadHealthConfig(),
   }
 }

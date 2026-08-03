@@ -1,0 +1,97 @@
+{
+  "id": "TASK-20260803-214859374",
+  "title": "Upgrade Baileys to v7.0.0-rc14 in whatsapp-bridge",
+  "description": "Baileys 6.7.22 (Nov 2025) es incompatible con el protocolo actual de WhatsApp: socket connected pero ghost session (init queries timeout 408, envios responden success pero no entregan, no recibe mensajes entrantes). Upgrade a 7.0.0-rc14 que incluye fix de ghost sessions y LID/PN mappings.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "infrastructure"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (8): architect, backend, frontend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.272Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.275Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.288Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.298Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.316Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.334Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.345Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Upgrade Baileys v6.7.22->v7.0.0-rc14 para resolver ghost session (init queries timeout, sin delivery). Fix incluido en release notes v7: ghost sessions + LID/PN mappings. Sin cambios de schema ni AI behaviour. 2>&1",
+      "timestamp": "2026-08-03T21:49:31.357Z"
+    }
+  ],
+  "createdAt": "2026-08-03T21:48:59.327Z",
+  "classifiedAt": "2026-08-03T21:48:59.327Z",
+  "approvedAt": "2026-08-03T21:49:31.367Z",
+  "startedAt": "2026-08-03T21:49:45.905Z",
+  "completedAt": "2026-08-03T22:32:13.757Z"
+}

@@ -27,15 +27,25 @@ export async function sendToMia(
 ): Promise<MiaReply | null> {
   const url = new URL('/api/channels/baileys/webhook', config.miaAppUrl).toString()
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-mia-webhook-secret': config.bridgeSecret,
-    },
-    body: JSON.stringify({ message }),
-    signal: AbortSignal.timeout(30_000),
-  })
+  let res: Response
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-mia-webhook-secret': config.bridgeSecret,
+      },
+      body: JSON.stringify({ message }),
+      signal: AbortSignal.timeout(30_000),
+    })
+  } catch (error) {
+    // MIA app unreachable (ECONNREFUSED, timeout, DNS...). Never throw: the
+    // bridge must stay alive even if the engine is down.
+    console.error(
+      `MIA webhook unreachable: ${error instanceof Error ? error.message : error}`
+    )
+    return null
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
