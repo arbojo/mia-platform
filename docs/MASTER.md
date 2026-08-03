@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `9150593`.
+> Fuente de verdad: este repositorio en `e20feed`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `9150593` |
+| **Commit HEAD** | `e20feed` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T18:29:20-06:00 |
+| **Generado** | 2026-08-02T18:32:58-06:00 |
 
 ---
 
@@ -391,7 +391,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-194636 | Auditoria critica UX Lab: foco chat, logout sesion Baileys, revision Google Auth | completed |
 | TASK-20260802-195924 | Cursor arcoiris global en todos los inputs del sistema | completed |
 | TASK-20260802-213951436 | Demo publica y captura de leads: auto-registro hibrido con Google Auth | completed |
-| TASK-20260803-000141367 | Corrección crítica: OAuth/business auto-provisión, persistencia de chat y contexto Vitanova | in_progress |
+| TASK-20260803-000141367 | Corrección crítica: OAuth/business auto-provisión, persistencia de chat y contexto Vitanova | completed |
 | TASK-20260803-001127354 | Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos) | awaiting_council |
 | TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | awaiting_council |
 | TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | awaiting_council |
@@ -434,6 +434,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+e20feed chore(governance): record task A completion (auto-provision, chat persistence, Vitanova seed)
+2ed51d8 docs: regenerate MASTER.md at 9150593
 9150593 fix: auto-provision business, chat persistence and Vitanova context
 46afb2f docs: add Vercel deployment + MCP verification to Release Manager
 7a6f82e chore(env): enable Google auth flag for lead capture flow
@@ -452,8 +454,6 @@ f60c001 docs: regenerate MASTER.md at 88b89c2
 b04aa51 docs: regenerate MASTER.md at c91360a
 c91360a chore: mark TASK-20260802-194636 as completed in governance
 a742be6 fix: restore chat input focus, resilient WhatsApp logout, hide unconfigured Google Auth
-a67bcf2 chore: add git-crypt encryption for env files and sync .env.local across machines
-8de8a52 docs: regenerate MASTER.md at f17960d
 ```
 
 ---
