@@ -13,6 +13,7 @@ import {
   Users,
   ChevronDown,
   Cable,
+  HeartPulse,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -179,6 +180,21 @@ export function Sidebar() {
                     >
                       <Users className="h-4 w-4" />
                       <span>Concilio</span>
+                    </div>
+                  </Link>
+                </div>
+                <div className="pt-2">
+                  <Link href="/dashboard/health" title="estado del sistema y checks automáticos">
+                    <div
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                      )}
+                      style={{
+                        color: isActive('/dashboard/health') ? 'var(--atmosphere-accent)' : 'var(--atmosphere-text-secondary)',
+                      }}
+                    >
+                      <HeartPulse className="h-4 w-4" />
+                      <span>Salud</span>
                     </div>
                   </Link>
                 </div>

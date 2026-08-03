@@ -46,8 +46,71 @@
     ],
     "rationale": "Classified as COMPLEX complexity. Complexity drivers: 10 files affected, schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
   },
-  "status": "awaiting_council",
-  "decisions": [],
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.202Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.205Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.208Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.209Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.211Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.213Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.214Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.216Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.218Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Motor de salud aprobado por el Concilio: health-check que bloquea commit/build, origen de falla y ruta de solucion en dashboard admin.",
+      "timestamp": "2026-08-03T00:37:29.220Z"
+    }
+  ],
   "createdAt": "2026-08-03T00:11:27.650Z",
-  "classifiedAt": "2026-08-03T00:11:27.650Z"
+  "classifiedAt": "2026-08-03T00:11:27.650Z",
+  "approvedAt": "2026-08-03T00:37:29.220Z",
+  "startedAt": "2026-08-03T00:37:39.641Z"
 }

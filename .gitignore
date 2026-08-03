@@ -44,6 +44,9 @@ dev.log
 # vercel
 .vercel
 
+# infra doctor report (generated artifact)
+docs/doctor-report.md
+
 # IDE
 .vscode/
 .idea/
