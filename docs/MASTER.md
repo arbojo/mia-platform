@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `04b66a4`.
+> Fuente de verdad: este repositorio en `887091d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `04b66a4` |
+| **Commit HEAD** | `887091d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T14:35:06-06:00 |
+| **Generado** | 2026-08-03T15:00:22-06:00 |
 
 ---
 
@@ -419,7 +419,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-001127354 | Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos) | awaiting_council |
 | TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | completed |
 | TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | completed |
-| TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | in_progress |
+| TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | completed |
 
 ---
 
@@ -458,6 +458,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+887091d chore: enable professional edition for WhatsApp and complete i18n task
+9ae579e docs: regenerate MASTER.md at 04b66a4
 04b66a4 feat: i18n multilingue completo y ajustes de UI
 e2e6582 docs: regenerate MASTER.md at 120355f
 120355f feat: persistent accessibility preferences (Fase D)
@@ -476,8 +478,6 @@ e20feed chore(governance): record task A completion (auto-provision, chat persis
 fd24b12 chore(demo): add idempotent demo seed script
 fcb5ee3 feat(demo): add public demo lead capture flow with paywall
 85f00be feat(demo): add profiles table and widen ai_usage request_type check
-1858063 docs: regenerate MASTER.md at e5581e5
-e5581e5 docs: add UBSE sales model design and research notes
 ```
 
 ---
