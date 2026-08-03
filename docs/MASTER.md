@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0a76e4a`.
+> Fuente de verdad: este repositorio en `135265d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0a76e4a` |
+| **Commit HEAD** | `135265d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-02T18:57:11-06:00 |
+| **Generado** | 2026-08-02T19:01:07-06:00 |
 
 ---
 
@@ -399,7 +399,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260802-213951436 | Demo publica y captura de leads: auto-registro hibrido con Google Auth | completed |
 | TASK-20260803-000141367 | Corrección crítica: OAuth/business auto-provisión, persistencia de chat y contexto Vitanova | completed |
 | TASK-20260803-001127354 | Ingeniería de UX proactivo y wayfinding (dropzones, breadcrumbs, layouts dinámicos) | awaiting_council |
-| TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | in_progress |
+| TASK-20260803-001127666 | Motor de diagnóstico y protocolo No Pass No Commit (health-check persistente) | completed |
 | TASK-20260803-001127679 | Módulo de accesibilidad, ergonomía y salud óptica (pestaña dedicada) | awaiting_council |
 | TASK-20260803-001127713 | Arquitectura multilingüe nativa i18n (es/en/pt/ja) | awaiting_council |
 
@@ -440,6 +440,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+135265d chore(governance): record task B completion (health engine)
+c864106 docs: regenerate MASTER.md at 0a76e4a
 0a76e4a feat: persistent health engine (No Pass No Commit)
 c41a97f docs: regenerate MASTER.md at e20feed
 e20feed chore(governance): record task A completion (auto-provision, chat persistence, Vitanova seed)
@@ -458,8 +460,6 @@ b9b1fd6 docs: regenerate MASTER.md at d957490
 d957490 fix(governance): prevent task id collision with random suffix
 f60c001 docs: regenerate MASTER.md at 88b89c2
 88b89c2 chore: mark TASK-20260802-195924 as completed in governance
-0574605 feat: add Google rainbow caret animation globally for all editable fields
-b04aa51 docs: regenerate MASTER.md at c91360a
 ```
 
 ---
