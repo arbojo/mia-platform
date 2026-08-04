@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `48e22b7`.
+> Fuente de verdad: este repositorio en `4bc195c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `48e22b7` |
-| **Rama** | `` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-04T00:18:31Z |
+| **Commit HEAD** | `4bc195c` |
+| **Rama** | `main` |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-03T19:25:23-06:00 |
 
 ---
 
@@ -471,6 +471,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+4bc195c fix: crear conversacion lazy y analisis resiliente en el Laboratorio
 48e22b7 docs: regenerate MASTER.md at f52104c
 f52104c docs: regenerate MASTER.md at 7efcedf
 7efcedf feat: add media library and media_type for conditional knowledge media
@@ -490,7 +491,6 @@ e2e6582 docs: regenerate MASTER.md at 120355f
 120355f feat: persistent accessibility preferences (Fase D)
 ce63073 docs: regenerate MASTER.md at 135265d
 135265d chore(governance): record task B completion (health engine)
-c864106 docs: regenerate MASTER.md at 0a76e4a
 ```
 
 ---
