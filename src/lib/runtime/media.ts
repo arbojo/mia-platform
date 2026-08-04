@@ -21,3 +21,13 @@ export function triggerMatches(message: string, triggerCondition: string): boole
     return pattern.test(normalizedMessage)
   })
 }
+
+export function intentMatchesTrigger(intentTag: string, triggerCondition: string): boolean {
+  const normalizedTag = normalizeText(intentTag)
+  const parts = triggerCondition
+    .split(',')
+    .map((part) => normalizeText(part))
+    .filter((part) => part.length > 0)
+
+  return parts.some((part) => part === `intent ${normalizedTag}`)
+}

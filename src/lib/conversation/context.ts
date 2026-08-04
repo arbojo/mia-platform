@@ -51,9 +51,11 @@ function cacheKey(businessId: string, assistantId: string, customerId?: string):
 export async function loadConversationContext(
   businessId: string,
   assistantId: string,
-  customerId?: string
+  customerId?: string,
+  channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget',
+  intentTag?: string | null
 ): Promise<LoadedContext> {
-  const key = cacheKey(businessId, assistantId, customerId)
+  const key = `${cacheKey(businessId, assistantId, customerId)}:${channel ?? 'default'}:${intentTag ?? ''}`
   const cached = contextCache.get(key)
   if (cached && Date.now() < cached.expiresAt) {
     return cached.data
@@ -100,6 +102,8 @@ export async function loadConversationContext(
     customerMemory,
     recentLessons,
     locale: await getOwnerLocale(fullAssistant.businesses.owner_id),
+    channel,
+    intentTag,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

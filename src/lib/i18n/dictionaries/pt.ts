@@ -214,6 +214,16 @@ export const pt: Dict = {
       'ANTES DE RESPONDER: Revise ativamente se há informações contraditórias entre as seções anteriores. Se encontrar contradições, aplique a ordem de autoridade da Resolução de Conflitos. Não misture regras incompatíveis.',
     toneNote:
       'A marca definiu seu tom como. Este tom é o guia geral da marca. Se houver conflito com seu estilo pessoal, priorize a personalidade do assistente para a interação direta, mas mantenha o tom da marca como estrutura geral.',
+    whatsappTone:
+      'CANAL WHATSAPP:\n' +
+      '- Responda em no máximo 2-3 linhas, com tom caloroso e empático.\n' +
+      '- Use o nome do cliente quando o conhecer.\n' +
+      '- Valide a dúvida ou o ceticismo do cliente antes de responder (ex.: "Entendo que você queira ter certeza").\n' +
+      '- Não use negrito, listas longas ou muitos emojis; a formatação aparece como texto simples.',
+    intentTagDirective:
+      'ETIQUETA DE INTENÇÃO (INTENT_TAG):\n' +
+      '- Se o sistema indicar uma etiqueta de intenção, use-a para responder de forma concisa e focada.\n' +
+      '- Se um menu interativo com botões ou lista for exibido, NÃO o repita na sua resposta: o cliente o vê na tela. Apenas responda o conteúdo de forma breve e natural.',
     youAre: 'Você é',
     salesAssistantOf: 'a assistente de vendas de',
     closingPolicy: 'Política de Fechamento Comercial',

@@ -182,6 +182,8 @@ export function buildMasterPrompt(params: {
   customerMemory?: string
   recentLessons?: RecentLesson[]
   locale?: Locale
+  channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget'
+  intentTag?: string | null
 }): string {
   const {
     business,
@@ -195,6 +197,8 @@ export function buildMasterPrompt(params: {
     customerMemory,
     recentLessons,
     locale,
+    channel,
+    intentTag,
   } = params
 
   const ai = getDictionary(locale ?? DEFAULT_LOCALE).ai
@@ -206,6 +210,13 @@ export function buildMasterPrompt(params: {
     ? `\n\n${ai.toneNote} "${brand.tone_of_voice}".`
     : ''
 
+  const channelNote =
+    channel === 'whatsapp'
+      ? `\n\n${ai.whatsappTone}${intentTag ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}` : ''}`
+      : intentTag
+        ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}`
+        : ''
+
   return `${ai.youAre} ${assistant.name}, ${ai.salesAssistantOf} ${brand?.business_name ?? business.name}.
 
 ## ${ai.yourObjective}
@@ -215,7 +226,7 @@ ${ai.objectiveText}
 ${ai.personalityStyle}: ${personalityLabel}
 
 ## ${ai.communicationStyle}
-${ai.communicationStyleText} ${assistant.communication_style}.${toneNote}
+${ai.communicationStyleText} ${assistant.communication_style}.${toneNote}${channelNote}
 
 ## ${ai.fundamentalRules}
 1. ${ai.neverInvent}

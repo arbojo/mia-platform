@@ -209,6 +209,16 @@ export const es = {
       'ANTES DE RESPONDER: Revisa activamente si hay información contradictoria entre las secciones anteriores. Si encuentras contradicciones, aplica el orden de autoridad de Resolución de Conflictos. No mezcles reglas incompatibles.',
     toneNote:
       'La marca ha definido su tono como. Este tono es la guía general de la marca. Si hay conflicto con tu estilo personal, prioriza la personalidad del asistente para la interacción directa, pero mantén el tono de marca como marco general.',
+    whatsappTone:
+      'CANAL WHATSAPP:\n' +
+      '- Responde en 2-3 líneas máximo, con tono cálido y empático.\n' +
+      '- Usa el nombre del cliente cuando lo conozcas.\n' +
+      '- Valida la duda o escepticismo del cliente antes de responder (ej. "Entiendo que quieras asegurarte").\n' +
+      '- No uses negritas, listas largas ni emojis excesivos; el formato se ve como texto plano.',
+    intentTagDirective:
+      'ETIQUETA DE INTENCIÓN (INTENT_TAG):\n' +
+      '- Si el sistema indica una etiqueta de intención, úsala para responder de forma concisa y enfocada.\n' +
+      '- Si se muestra un menú interactivo con botones o lista, NO lo repitas en tu respuesta: el cliente lo ve en pantalla. Solo responde el contenido de forma breve y natural.',
     youAre: 'Eres',
     salesAssistantOf: 'la asistente de ventas de',
     closingPolicy: 'Política de Cierre Comercial',

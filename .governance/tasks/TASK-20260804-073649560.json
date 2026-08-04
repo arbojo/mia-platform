@@ -1,0 +1,125 @@
+{
+  "id": "TASK-20260804-073649560",
+  "title": "Arquitectura de Interaccion Inteligente para WhatsApp (Baileys + Knowledge Studio)",
+  "description": "Implementar los 4 pilares del Prompt Maestro: (1) tono conciso/empatico en prompt (2-3 lineas, nombre del cliente, validar escepticismo antes de soluciones), (2) Quick Reply Buttons max 3 y List Messages via Baileys con payload capture (buttonsResponseMessage/listResponseMessage), (3) extraccion dinamica de media real de Knowledge Studio (imagenes indexadas cuando el cliente pide pruebas/casos/proceso), (4) optimizacion de tokens con intent tags emitidos por la IA y menus dinamicos construidos desde productos/configuracion de Supabase. Mecanismo hibrido: la IA emite tag compacto [INTENT] + texto, el runtime lo mapea a payloads interactivos de WhatsApp.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ai_behaviour",
+      "api_change",
+      "infrastructure",
+      "security"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "ai",
+      "infrastructure",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 10 files affected, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (11): architect, backend, frontend, ai_engineer, performance, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Entorno listo: Next.js 16 + bridge Node ESM. No requiere instalaciones nuevas.",
+      "timestamp": "2026-08-04T07:39:29.872Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Se validan ambos toolchains (app y services/whatsapp-bridge). Cambios en bridge pasan tsc; app pasa lint/build/unit/e2e.",
+      "timestamp": "2026-08-04T07:39:32.221Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Diseno hibrido: IA emite [INTENT] tag + texto; runtime lo mapea a payloads interactivos construidos desde Supabase. Se extiende ChannelAdapter y bridge (server.ts, session-manager.ts, mia-client.ts) sin romper el seam ADR-013.",
+      "timestamp": "2026-08-04T07:39:34.571Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "API /send acepta interactive; webhook propaga payload e interactive; runtime parsea intents y construye payloads; media condicional ampliada a intentTag.",
+      "timestamp": "2026-08-04T07:39:36.905Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin UI nueva: el ChatWindow web no cambia (la seccion WhatsApp se anade solo para channel=whatsapp). El laboratorio no se afecta.",
+      "timestamp": "2026-08-04T07:39:39.254Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Prompt anade seccion de comunicacion WhatsApp (2-3 lineas, nombre, validar escepticismo) e instruccion de emitir intent tags. Todo desde i18n, nada hardcodeado.",
+      "timestamp": "2026-08-04T07:39:41.587Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Optimizacion de tokens: payloads capturan taps (id/title compactos) y reemplazan texto libre. Media condicional conserva dedup chat_media_dispatched.",
+      "timestamp": "2026-08-04T07:39:44.003Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Bridge conserva auth x-mia-bridge-secret y webhook x-mia-webhook-secret; payload validado y tipado; sin exposicion de credenciales.",
+      "timestamp": "2026-08-04T07:39:46.437Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit tests (intents+payloads), e2e, DevTools. Bridge verificado con tsc typecheck.",
+      "timestamp": "2026-08-04T07:39:49.935Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico + push origin/main + deploy vercel --prod + verificacion HTTP 200/consola via DevTools.",
+      "timestamp": "2026-08-04T07:39:52.853Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documenta el diseno de interaccion inteligente WhatsApp en memoria/ADR si aplica.",
+      "timestamp": "2026-08-04T07:39:55.391Z"
+    }
+  ],
+  "createdAt": "2026-08-04T07:36:49.993Z",
+  "classifiedAt": "2026-08-04T07:36:49.993Z",
+  "approvedAt": "2026-08-04T07:39:55.394Z",
+  "startedAt": "2026-08-04T07:40:03.987Z",
+  "completedAt": "2026-08-04T08:06:08.836Z"
+}

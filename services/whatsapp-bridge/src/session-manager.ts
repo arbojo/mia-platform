@@ -5,6 +5,8 @@ import makeWASocket, {
   jidNormalizedUser,
   isJidStatusBroadcast,
   isJidGroup,
+  generateWAMessageFromContent,
+  proto,
 } from '@whiskeysockets/baileys'
 import type { WASocket, ConnectionState, WAMessage } from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
@@ -20,6 +22,34 @@ export type SessionEvent =
   | { type: 'pairing_code'; pairingCode: string }
   | { type: 'status'; status: SessionStatus; phone?: string }
   | { type: 'error'; message: string }
+
+export type InteractiveType = 'quick_reply' | 'list'
+
+export interface MessagePayload {
+  type: InteractiveType
+  id: string
+  title: string
+}
+
+export interface InteractiveButton {
+  id: string
+  title: string
+}
+
+export interface ListRow {
+  id: string
+  title: string
+  description?: string
+}
+
+export interface ListSection {
+  title: string
+  rows: ListRow[]
+}
+
+export type InteractiveComponent =
+  | { type: 'quick_reply'; text: string; buttons: InteractiveButton[] }
+  | { type: 'list'; text: string; buttonText: string; sections: ListSection[] }
 
 type SessionListener = (event: SessionEvent) => void
 
@@ -384,8 +414,8 @@ export class SessionManager {
       const remoteJid = msg.key.remoteJid
       if (!remoteJid) continue
 
-      const text = extractText(msg.message as Record<string, unknown>)
-      if (!text) continue
+      const extracted = extractMessage(msg.message as Record<string, unknown>)
+      if (!extracted.content) continue
 
       const externalId = msg.key.id ?? ''
       const timestamp = toTimestamp(msg.messageTimestamp ?? undefined)
@@ -400,7 +430,8 @@ export class SessionManager {
           customerExternalId: waId,
           customerName: msg.pushName ?? null,
           customerPhone: waId,
-          content: text,
+          content: extracted.content,
+          payload: extracted.payload,
           receivedAt: timestamp,
         })
 
@@ -409,7 +440,14 @@ export class SessionManager {
         if (miaReply?.deliver === false) continue
 
         if (miaReply?.response && session.socket.user?.id) {
-          if (miaReply.imageUrl) {
+          if (miaReply.interactive) {
+            await sendInteractive(
+              session.socket,
+              remoteJid,
+              miaReply.response,
+              miaReply.interactive
+            )
+          } else if (miaReply.imageUrl) {
             await session.socket.sendMessage(remoteJid, {
               image: { url: miaReply.imageUrl },
               caption: miaReply.response,
@@ -431,7 +469,8 @@ export class SessionManager {
     businessId: string,
     to: string,
     content: string,
-    imageUrl?: string
+    imageUrl?: string,
+    interactive?: InteractiveComponent
   ): Promise<{ success: boolean; error?: string }> {
     const session = this.sessions.get(businessId)
     if (!session || session.status !== 'connected') {
@@ -439,7 +478,9 @@ export class SessionManager {
     }
     try {
       const jid = jidNormalizedUser(to)
-      if (imageUrl) {
+      if (interactive) {
+        await sendInteractive(session.socket, jid, content, interactive)
+      } else if (imageUrl) {
         await session.socket.sendMessage(jid, { image: { url: imageUrl }, caption: content })
       } else {
         await session.socket.sendMessage(jid, { text: content })
@@ -467,22 +508,111 @@ export class SessionManager {
   }
 }
 
-function extractText(message: Record<string, unknown>): string | null {
+interface ExtractedMessage {
+  content: string | null
+  payload?: MessagePayload
+}
+
+function extractMessage(message: Record<string, unknown>): ExtractedMessage {
   const conversation = message.conversation as string | undefined
-  if (conversation) return conversation
+  if (conversation) return { content: conversation }
 
   const extended = message.extendedTextMessage as { text?: string } | undefined
-  if (extended?.text) return extended.text
+  if (extended?.text) return { content: extended.text }
+
+  const buttons = message.buttonsResponseMessage as
+    | { selectedButtonId?: string; selectedDisplayText?: string }
+    | undefined
+  if (buttons?.selectedDisplayText) {
+    return {
+      content: buttons.selectedDisplayText,
+      payload: {
+        type: 'quick_reply',
+        id: buttons.selectedButtonId ?? '',
+        title: buttons.selectedDisplayText,
+      },
+    }
+  }
+
+  const list = message.listResponseMessage as
+    | {
+        title?: string
+        singleSelectReply?: { selectedRowId?: string; selectedDisplayText?: string }
+      }
+    | undefined
+  if (list?.singleSelectReply?.selectedDisplayText) {
+    return {
+      content: list.singleSelectReply.selectedDisplayText,
+      payload: {
+        type: 'list',
+        id: list.singleSelectReply.selectedRowId ?? '',
+        title: list.singleSelectReply.selectedDisplayText,
+      },
+    }
+  }
+  if (list?.title) return { content: list.title }
 
   const image = message.imageMessage as { caption?: string } | undefined
-  if (image?.caption) return image.caption
+  if (image?.caption) return { content: image.caption }
 
   const audio = message.audioMessage
   const video = message.videoMessage as { caption?: string } | undefined
-  if (audio) return '[Audio recibido]'
-  if (video?.caption) return video.caption
+  if (audio) return { content: '[Audio recibido]' }
+  if (video?.caption) return { content: video.caption }
 
-  return null
+  return { content: null }
+}
+
+function sendInteractive(
+  socket: WASocket,
+  jid: string,
+  text: string,
+  interactive: InteractiveComponent
+): Promise<unknown> {
+  const userJid = socket.user?.id
+  if (!userJid) throw new Error('Cannot send interactive message: socket user not ready')
+  const messageContent: proto.IMessage = interactive.type === 'quick_reply'
+    ? {
+        interactiveMessage: {
+          body: { text },
+          footer: { text: interactive.text },
+          nativeFlowMessage: {
+            messageVersion: 3,
+            buttons: interactive.buttons.map((button) => ({
+              name: 'quick_reply',
+              buttonParamsJson: JSON.stringify({
+                display_text: button.title,
+                id: button.id,
+              }),
+            })),
+          },
+        },
+      }
+    : {
+        listMessage: {
+          title: text,
+          description: interactive.text,
+          buttonText: interactive.buttonText,
+          listType: proto.Message.ListMessage.ListType.SINGLE_SELECT,
+          sections: interactive.sections.map((section) => ({
+            title: section.title,
+            rows: section.rows.map((row) => ({
+              title: row.title,
+              description: row.description,
+              rowId: row.id,
+            })),
+          })),
+        },
+      }
+
+  const waMessage = generateWAMessageFromContent(jid, messageContent, {
+    userJid,
+  })
+  const messageId = waMessage.key?.id
+  if (!waMessage.message || !messageId) throw new Error('Cannot send interactive message: no message content')
+  return socket.relayMessage(jid, waMessage.message, {
+    messageId,
+  })
 }
 
 function toTimestamp(value: number | Long | Date | undefined): string {

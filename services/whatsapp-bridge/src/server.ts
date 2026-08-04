@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { WebSocketServer, WebSocket } from 'ws'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { SessionManager } from './session-manager.js'
-import type { SessionEvent } from './session-manager.js'
+import type { SessionEvent, InteractiveComponent } from './session-manager.js'
 import type { BridgeConfig } from './config.js'
 
 function readBody(req: IncomingMessage): Promise<string> {
@@ -107,12 +107,19 @@ export function startBridgeServer(
           to?: string
           content?: string
           imageUrl?: string
+          interactive?: InteractiveComponent
         }
         if (!body.to || !body.content) {
           json(res, 400, { error: 'Missing to or content' })
           return
         }
-        const result = await manager.sendMessage(businessId, body.to, body.content, body.imageUrl)
+        const result = await manager.sendMessage(
+          businessId,
+          body.to,
+          body.content,
+          body.imageUrl,
+          body.interactive
+        )
         json(res, result.success ? 200 : 400, result)
         return
       }

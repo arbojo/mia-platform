@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeText, triggerMatches } from '@/lib/runtime/media'
+import { normalizeText, triggerMatches, intentMatchesTrigger } from '@/lib/runtime/media'
 
 describe('normalizeText', () => {
   it('lowercases and trims', () => {
@@ -54,5 +54,23 @@ describe('triggerMatches', () => {
 
   it('does not match a multi-word trigger split across words', () => {
     expect(triggerMatches('antes de irte y despues de volver', 'antes y despues')).toBe(false)
+  })
+})
+
+describe('intentMatchesTrigger', () => {
+  it('matches an intent trigger', () => {
+    expect(intentMatchesTrigger('catalog', 'intent:catalog')).toBe(true)
+  })
+
+  it('matches among comma-separated triggers', () => {
+    expect(intentMatchesTrigger('shipping', 'precio, intent:shipping, pago')).toBe(true)
+  })
+
+  it('does not match a different intent', () => {
+    expect(intentMatchesTrigger('price', 'intent:catalog')).toBe(false)
+  })
+
+  it('ignores non-intent triggers', () => {
+    expect(intentMatchesTrigger('catalog', 'producto')).toBe(false)
   })
 })

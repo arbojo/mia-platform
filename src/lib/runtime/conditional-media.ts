@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { triggerMatches } from './media'
+import { triggerMatches, intentMatchesTrigger } from './media'
 import type { Database } from '@/lib/types'
 
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
@@ -15,8 +15,9 @@ export async function resolveConditionalMedia(params: {
   customerId: string
   conversationId: string | null
   userMessage: string
+  intentTag?: string | null
 }): Promise<MediaAttachment | null> {
-  const { businessId, customerId, conversationId, userMessage } = params
+  const { businessId, customerId, conversationId, userMessage, intentTag } = params
   if (!conversationId) return null
 
   const supabase = createAdminClient()
@@ -29,10 +30,12 @@ export async function resolveConditionalMedia(params: {
     .not('image_url', 'is', null)
     .not('trigger_condition', 'is', null)
 
-  const matching = (candidates ?? []).filter(
-    (item: KnowledgeItem) =>
-      item.trigger_condition && triggerMatches(userMessage, item.trigger_condition)
-  )
+  const matching = (candidates ?? []).filter((item: KnowledgeItem) => {
+    if (!item.trigger_condition) return false
+    if (triggerMatches(userMessage, item.trigger_condition)) return true
+    if (intentTag && intentMatchesTrigger(intentTag, item.trigger_condition)) return true
+    return false
+  })
 
   if (matching.length === 0) return null
 

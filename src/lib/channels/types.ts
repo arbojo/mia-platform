@@ -8,6 +8,34 @@ export type MessageContentType = 'text' | 'image' | 'audio' | 'document'
 
 export type MessageStatus = 'received' | 'processing' | 'sent' | 'delivered' | 'read' | 'failed'
 
+export type InteractiveType = 'quick_reply' | 'list'
+
+export interface MessagePayload {
+  type: InteractiveType
+  id: string
+  title: string
+}
+
+export interface QuickReplyButton {
+  id: string
+  title: string
+}
+
+export interface ListRow {
+  id: string
+  title: string
+  description?: string
+}
+
+export interface ListSection {
+  title: string
+  rows: ListRow[]
+}
+
+export type InteractiveComponent =
+  | { type: 'quick_reply'; text: string; buttons: QuickReplyButton[] }
+  | { type: 'list'; text: string; buttonText: string; sections: ListSection[] }
+
 export interface NormalizedMessage {
   channel: ChannelType
   externalId: string
@@ -17,6 +45,7 @@ export interface NormalizedMessage {
   customerEmail?: string
   content: string
   contentType: MessageContentType
+  payload?: MessagePayload
   metadata: Record<string, unknown>
   receivedAt: Date
 }
@@ -24,6 +53,7 @@ export interface NormalizedMessage {
 export interface OutgoingMessage {
   content: string
   contentType: MessageContentType
+  interactive?: InteractiveComponent
   metadata?: Record<string, unknown>
 }
 

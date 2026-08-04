@@ -32,6 +32,7 @@ export class BaileysAdapter implements ChannelAdapter {
         customerPhone?: string | null
         content?: string
         contentType?: 'text' | 'image' | 'audio' | 'document'
+        payload?: { type: 'quick_reply' | 'list'; id: string; title: string }
         receivedAt?: string
       }
     }
@@ -49,6 +50,7 @@ export class BaileysAdapter implements ChannelAdapter {
       customerPhone: message.customerPhone ?? undefined,
       content: message.content,
       contentType: message.contentType ?? 'text',
+      payload: message.payload,
       metadata: {
         businessId: message.businessId,
       },
@@ -72,6 +74,7 @@ export class BaileysAdapter implements ChannelAdapter {
 
     try {
       const imageUrl = message.metadata?.imageUrl as string | undefined
+      const interactive = message.interactive
 
       const res = await fetch(
         `${getBridgeUrl()}/v1/sessions/${encodeURIComponent(businessId)}/send`,
@@ -85,6 +88,7 @@ export class BaileysAdapter implements ChannelAdapter {
             to,
             content: message.content,
             ...(imageUrl ? { imageUrl } : {}),
+            ...(interactive ? { interactive } : {}),
           }),
         }
       )

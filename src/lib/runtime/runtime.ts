@@ -5,8 +5,9 @@ import { resolveConnection, resolveConversation } from '@/lib/conversation/resol
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
 import { resolveConditionalMedia } from './conditional-media'
+import { detectIntent, buildInteractiveForIntent } from './intents'
 import { processSaleClosing } from '@/lib/sales/process'
-import type { ChannelAdapter } from '@/lib/channels/types'
+import type { ChannelAdapter, InteractiveComponent } from '@/lib/channels/types'
 import type { WireMessage } from './types'
 
 export async function processStreaming(params: {
@@ -100,6 +101,7 @@ export async function processIncomingMessage(
   conversationId: string
   imageUrl?: string
   mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+  interactive?: InteractiveComponent
   deliver: boolean
 }> {
   const supabase = createAdminClient()
@@ -112,6 +114,8 @@ export async function processIncomingMessage(
   const customer = await resolveCustomer(businessId, wireMessage)
 
   const conversationId = await resolveConversation(assistantId, customer.id)
+
+  const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
   if (conversationId) {
     await supabase.from('messages').insert({
@@ -152,7 +156,15 @@ export async function processIncomingMessage(
     }
   }
 
-  const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId, customer.id)
+  const { systemPrompt, usedContext } = await loadConversationContext(
+    businessId,
+    assistantId,
+    customer.id,
+    channel === 'whatsapp' || channel === 'web' || channel === 'widget' || channel === 'messenger' || channel === 'instagram'
+      ? channel
+      : undefined,
+    intentTag
+  )
 
   const chatHistory = conversationId
     ? await supabase
@@ -228,10 +240,24 @@ export async function processIncomingMessage(
     customerId: customer.id,
     conversationId: conversationId ?? null,
     userMessage: wireMessage.content,
+    intentTag: intentTag ?? null,
   })
 
   // SHADOW: the reply is generated and stored for learning but never sent.
   const deliver = mode !== 'shadow'
+
+  let interactive: InteractiveComponent | undefined
+  if (channel === 'whatsapp' && mode !== 'shadow' && intentTag) {
+    const { data: products } = await supabase
+      .from('products')
+      .select('*')
+      .eq('business_id', businessId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: true })
+
+    interactive =
+      buildInteractiveForIntent(intentTag, products ?? [], response) ?? undefined
+  }
 
   return {
     response,
@@ -239,6 +265,7 @@ export async function processIncomingMessage(
     conversationId: conversationId ?? '',
     imageUrl: media?.imageUrl,
     mediaType: media?.mediaType,
+    interactive,
     deliver,
   }
 }

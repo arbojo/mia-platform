@@ -1,3 +1,5 @@
+import type { MessagePayload } from '@/lib/channels/types'
+
 export interface WireMessage {
   channel: string
   externalId: string
@@ -7,6 +9,7 @@ export interface WireMessage {
   customerEmail?: string
   content: string
   contentType: 'text' | 'image' | 'audio' | 'document'
+  payload?: MessagePayload
   metadata: Record<string, unknown>
   receivedAt: Date
 }

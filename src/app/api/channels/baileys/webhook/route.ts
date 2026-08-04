@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       conversationId: result.conversationId,
       imageUrl: result.imageUrl,
       mediaType: result.mediaType,
+      interactive: result.interactive ?? null,
       deliver: result.deliver,
     })
   } catch (error) {

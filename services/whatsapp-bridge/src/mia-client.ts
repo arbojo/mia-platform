@@ -1,4 +1,5 @@
 import type { BridgeConfig } from './config.js'
+import type { InteractiveComponent, MessagePayload } from './session-manager.js'
 
 export interface MiaIncomingMessage {
   businessId: string
@@ -7,6 +8,7 @@ export interface MiaIncomingMessage {
   customerName: string | null
   customerPhone: string | null
   content: string
+  payload?: MessagePayload
   receivedAt: string
 }
 
@@ -16,6 +18,7 @@ export interface MiaReply {
   conversationId: string
   imageUrl?: string
   mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+  interactive?: InteractiveComponent
   deliver?: boolean
 }
 
@@ -62,6 +65,7 @@ export async function sendToMia(
     conversationId: string
     imageUrl?: string
     mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+    interactive?: InteractiveComponent
     deliver?: boolean
   }
   if (!data.success) return null
@@ -72,6 +76,7 @@ export async function sendToMia(
     conversationId: data.conversationId,
     imageUrl: data.imageUrl ?? undefined,
     mediaType: data.mediaType ?? undefined,
+    interactive: data.interactive ?? undefined,
     deliver: data.deliver ?? true,
   }
 }
