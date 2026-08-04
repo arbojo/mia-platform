@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2b88051`.
+> Fuente de verdad: este repositorio en `5bea287`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2b88051` |
+| **Commit HEAD** | `5bea287` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T21:46:38-06:00 |
+| **Generado** | 2026-08-03T22:30:59-06:00 |
 
 ---
 
@@ -260,7 +260,7 @@ widget
 
 ## 9. Componentes
 
-70 componentes en `src/components/`:
+71 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -309,6 +309,7 @@ health/HealthDashboard.tsx
 knowledge/FileUpload.tsx
 knowledge/InstructionsManager.tsx
 knowledge/KnowledgeCenter.tsx
+knowledge/KnowledgeItemDialog.tsx
 knowledge/KnowledgeManager.tsx
 knowledge/LearningReport.tsx
 knowledge/MediaLibrary.tsx
@@ -339,7 +340,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-54 módulos:
+55 módulos:
 
 ```
 ai/client.ts
@@ -376,6 +377,7 @@ i18n/dictionaries/index.ts
 i18n/dictionaries/ja.ts
 i18n/dictionaries/pt.ts
 i18n/server.ts
+knowledge/suggestions.ts
 runtime/conditional-media.ts
 runtime/execute-ai.ts
 runtime/media.ts
@@ -414,7 +416,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (31)**:
+**Tareas registradas (32)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -449,6 +451,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-031425894 | Fix a11y: campos de filtro sin id/name en ConversationFilters | completed |
 | TASK-20260804-032853879 | Remediar RLS: drop de 3 tablas legacy expuestas (analytics_sessions, analytics_events, order_requests) | completed |
 | TASK-20260804-034548893 | Documentar deuda tecnica: hallazgos Security Advisor de Supabase | completed |
+| TASK-20260804-035152257 | Knowledge Studio: Editar antes de Aprobar en sugerencias | approved |
 
 ---
 
@@ -487,6 +490,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+5bea287 feat: edit-before-approve flow for Knowledge Studio suggestions
+9edd342 docs: regenerate MASTER.md at 2b88051
 2b88051 docs: track remaining Supabase security advisor findings as technical debt
 c5acf00 docs: regenerate MASTER.md at f6e7ba6
 f6e7ba6 chore: close governance task for legacy tables cleanup
@@ -505,8 +510,6 @@ dbd7134 feat: add automated inactivity follow-up worker to whatsapp bridge
 db5fdba docs: regenerate MASTER.md at 5b8e75f
 5b8e75f feat: add per-channel operation modes (active/shadow/paused)
 39dc168 docs: regenerate MASTER.md at 45d1fff
-45d1fff feat: add sales closing policy to assistant prompt conditioned on sales_aggressiveness
-7394957 docs: regenerate MASTER.md at 3dc75c6
 ```
 
 ---
