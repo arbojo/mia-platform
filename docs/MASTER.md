@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `dbd7134`.
+> Fuente de verdad: este repositorio en `7efcedf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `dbd7134` |
+| **Commit HEAD** | `7efcedf` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T17:26:55-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-03T18:16:59-06:00 |
 
 ---
 
@@ -137,6 +137,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 21 | 021_profile_language.sql |
 | 22 | 022_channel_modes.sql |
 | 23 | 023_follow_up.sql |
+| 24 | 024_media_assets.sql |
 
 ---
 
@@ -251,7 +252,7 @@ widget
 
 ## 9. Componentes
 
-68 componentes en `src/components/`:
+69 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -301,6 +302,7 @@ knowledge/InstructionsManager.tsx
 knowledge/KnowledgeCenter.tsx
 knowledge/KnowledgeManager.tsx
 knowledge/LearningReport.tsx
+knowledge/MediaLibrary.tsx
 knowledge/ProductCard.tsx
 laboratorio/CoachingFeedback.tsx
 laboratorio/ContextPanel.tsx
@@ -400,7 +402,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (25)**:
+**Tareas registradas (26)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -429,6 +431,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-225207190 | Integrar política de cierre comercial condicionada al prompt del asistente | completed |
 | TASK-20260803-230254309 | Seguimiento automático por inactividad del canal | completed |
 | TASK-20260803-230254397 | Modos de operación del canal (active/shadow/paused) | completed |
+| TASK-20260804-000226556 | Multimedia Inteligente: media library y media_type sobre ADR-014 | completed |
 
 ---
 
@@ -467,6 +470,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+7efcedf feat: add media library and media_type for conditional knowledge media
+53eb1cf docs: regenerate MASTER.md at dbd7134
 dbd7134 feat: add automated inactivity follow-up worker to whatsapp bridge
 db5fdba docs: regenerate MASTER.md at 5b8e75f
 5b8e75f feat: add per-channel operation modes (active/shadow/paused)
@@ -485,8 +490,6 @@ ce63073 docs: regenerate MASTER.md at 135265d
 c864106 docs: regenerate MASTER.md at 0a76e4a
 0a76e4a feat: persistent health engine (No Pass No Commit)
 c41a97f docs: regenerate MASTER.md at e20feed
-e20feed chore(governance): record task A completion (auto-provision, chat persistence, Vitanova seed)
-2ed51d8 docs: regenerate MASTER.md at 9150593
 ```
 
 ---
