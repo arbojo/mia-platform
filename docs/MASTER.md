@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `65d9618`.
+> Fuente de verdad: este repositorio en `7190129`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `65d9618` |
+| **Commit HEAD** | `7190129` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-04T00:29:33-06:00 |
+| **Generado** | 2026-08-04T00:37:33-06:00 |
 
 ---
 
@@ -491,6 +491,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+7190129 fix(ui): apply card shadows and hover-lift to dashboard cards
+46af236 docs: regenerate MASTER.md at 65d9618
 65d9618 fix(ui): apply Lora serif font to headings via --font-lora variable
 30a25ce docs: regenerate MASTER.md at a11e4d3
 a11e4d3 feat(ui): warm editorial design system migration — violet→olive palette
@@ -509,8 +511,6 @@ d0cf18c fix: add id/name attributes to conversation filter form fields
 4bc195c fix: crear conversacion lazy y analisis resiliente en el Laboratorio
 48e22b7 docs: regenerate MASTER.md at f52104c
 f52104c docs: regenerate MASTER.md at 7efcedf
-7efcedf feat: add media library and media_type for conditional knowledge media
-53eb1cf docs: regenerate MASTER.md at dbd7134
 ```
 
 ---
