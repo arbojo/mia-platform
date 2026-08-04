@@ -1,7 +1,27 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { X, Sparkles } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { X, Sparkles, Bell, Check } from 'lucide-react'
+
+interface Signal {
+  id: string
+  type: string
+  priority: 'info' | 'observacion' | 'atencion' | 'decision'
+  title: string
+  message: string
+  source: string | null
+  status: 'pending' | 'active' | 'resolved' | 'dismissed'
+  action_available: string | null
+  action_payload: Record<string, unknown> | null
+  created_at: string
+}
+
+const priorityStyles: Record<Signal['priority'], { color: string; bg: string }> = {
+  info: { color: '#475569', bg: 'rgba(100, 116, 139, 0.1)' },
+  observacion: { color: 'var(--mia-cyan)', bg: 'rgba(6, 182, 212, 0.12)' },
+  atencion: { color: 'var(--mia-gold)', bg: 'rgba(201, 168, 76, 0.12)' },
+  decision: { color: 'var(--mia-orange)', bg: 'rgba(212, 116, 58, 0.12)' },
+}
 
 export function MIAInbox({
   open,
@@ -11,6 +31,39 @@ export function MIAInbox({
   onClose: () => void
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const [signals, setSignals] = useState<Signal[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadSignals = useCallback(async (): Promise<Signal[]> => {
+    const res = await fetch('/api/signals?status=pending&limit=20')
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error ?? 'Error al cargar señales')
+    return data.signals ?? []
+  }, [])
+
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    const load = async () => {
+      await Promise.resolve()
+      if (cancelled) return
+      setLoading(true)
+      setError(null)
+      try {
+        const signals = await loadSignals()
+        if (!cancelled) setSignals(signals)
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Error al cargar señales')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [open, loadSignals])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -23,6 +76,13 @@ export function MIAInbox({
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [open, onClose])
+
+  const dismissSignal = async (id: string) => {
+    const res = await fetch(`/api/signals/${id}`, { method: 'PATCH' })
+    if (res.ok) {
+      setSignals((prev) => prev.filter((s) => s.id !== id))
+    }
+  }
 
   if (!open) return null
 
@@ -45,7 +105,7 @@ export function MIAInbox({
             MIA Signals
           </h3>
           <p className="text-xs" style={{ color: '#64748b' }}>
-            Conversaciones iniciadas por MIA
+            Alertas y señales del sistema
           </p>
         </div>
         <button
@@ -58,27 +118,81 @@ export function MIAInbox({
         </button>
       </div>
 
-      <div className="max-h-96 overflow-y-auto p-6">
-        <div className="flex min-h-48 flex-col items-center justify-center text-center">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full"
-            style={{
-              backgroundColor: 'rgba(6, 182, 212, 0.12)',
-              color: 'var(--mia-cyan)',
-            }}
-          >
-            <Sparkles className="h-4 w-4" />
+      <div className="max-h-96 overflow-y-auto p-4">
+        {loading ? (
+          <div className="py-8 text-center text-xs" style={{ color: '#64748b' }}>
+            Cargando señales...
           </div>
-          <p className="mt-3 text-sm font-medium" style={{ color: '#1e293b' }}>
-            No hay señales todavía
-          </p>
-          <p
-            className="mt-1 max-w-[240px] text-xs leading-relaxed"
-            style={{ color: '#64748b' }}
-          >
-            MIA te avisará cuando detecte algo importante en tus conversaciones.
-          </p>
-        </div>
+        ) : error ? (
+          <div className="py-8 text-center text-xs" style={{ color: '#b45309' }}>
+            {error}
+          </div>
+        ) : signals.length === 0 ? (
+          <div className="flex min-h-48 flex-col items-center justify-center text-center">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{
+                backgroundColor: 'rgba(6, 182, 212, 0.12)',
+                color: 'var(--mia-cyan)',
+              }}
+            >
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <p className="mt-3 text-sm font-medium" style={{ color: '#1e293b' }}>
+              No hay señales pendientes
+            </p>
+            <p
+              className="mt-1 max-w-[240px] text-xs leading-relaxed"
+              style={{ color: '#64748b' }}
+            >
+              MIA te avisará cuando detecte algo importante en tus conversaciones.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {signals.map((signal) => {
+              const style = priorityStyles[signal.priority] ?? priorityStyles.info
+              return (
+                <div
+                  key={signal.id}
+                  className="rounded-xl border p-3"
+                  style={{ borderColor: '#e2e8f0', backgroundColor: '#f8fafc' }}
+                >
+                  <div className="flex items-start gap-2">
+                    <div
+                      className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                      style={{ backgroundColor: style.bg, color: style.color }}
+                    >
+                      <Bell className="h-3 w-3" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold" style={{ color: '#1e293b' }}>
+                        {signal.title}
+                      </p>
+                      <p
+                        className="mt-0.5 text-xs leading-relaxed"
+                        style={{ color: '#64748b' }}
+                      >
+                        {signal.message}
+                      </p>
+                      <p className="mt-1 text-[10px]" style={{ color: '#94a3b8' }}>
+                        {new Date(signal.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => dismissSignal(signal.id)}
+                      aria-label="Marcar como resuelta"
+                      className="rounded-md p-1 transition-colors hover:bg-black/5"
+                      style={{ color: '#94a3b8' }}
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       <div

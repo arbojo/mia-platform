@@ -125,6 +125,7 @@ export interface DashboardData {
   weeklyReport: WeeklyReportData | null
   businessMemory: BusinessMemoryItem[]
   velocityHistory: LearningVelocitySnapshot[]
+  salesMetrics: SalesMetrics
 }
 
 export async function getEmployeeStatus(
@@ -912,6 +913,85 @@ export async function getConversationTrend(
   }
 }
 
+export interface SalesMetrics {
+  todaySales: number
+  todayRevenue: number
+  weekSales: number
+  weekRevenue: number
+  conversionRate: number
+  topProducts: Array<{ name: string; count: number }>
+}
+
+export async function getSalesMetrics(
+  supabase: SupabaseClient,
+  businessId: string
+): Promise<SalesMetrics> {
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  const startOfWeek = new Date(startOfToday)
+  startOfWeek.setDate(startOfToday.getDate() - startOfToday.getDay())
+
+  const [{ data: today }, { data: week }, { data: topProducts }, { data: conversations }] =
+    await Promise.all([
+      supabase
+        .from('sales_events')
+        .select('event_type, amount')
+        .eq('business_id', businessId)
+        .gte('created_at', startOfToday.toISOString()),
+      supabase
+        .from('sales_events')
+        .select('event_type, amount')
+        .eq('business_id', businessId)
+        .gte('created_at', startOfWeek.toISOString()),
+      supabase
+        .from('sales_events')
+        .select('metadata')
+        .eq('business_id', businessId)
+        .eq('event_type', 'SALE_WON')
+        .order('created_at', { ascending: false })
+        .limit(200),
+      supabase
+        .from('conversations')
+        .select('outcome')
+        .eq('type', 'live')
+        .eq('business_id', businessId),
+    ])
+
+  const summarize = (rows: Array<{ event_type: string; amount: number | null }> | null) => {
+    const sales = (rows ?? []).filter((r) => r.event_type === 'SALE_WON')
+    const revenue = sales.reduce((sum, r) => sum + (r.amount ?? 0), 0)
+    return { sales: sales.length, revenue }
+  }
+
+  const todaySum = summarize(today)
+  const weekSum = summarize(week)
+
+  const productCounts = new Map<string, number>()
+  for (const row of topProducts ?? []) {
+    const name = (row.metadata as Record<string, unknown> | null)?.product_name
+    if (typeof name === 'string' && name) {
+      productCounts.set(name, (productCounts.get(name) ?? 0) + 1)
+    }
+  }
+  const topProductList = [...productCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }))
+
+  const total = conversations?.length ?? 0
+  const sold = (conversations ?? []).filter((c) => c.outcome === 'sold').length
+  const conversionRate = total > 0 ? Number(((sold / total) * 100).toFixed(1)) : 0
+
+  return {
+    todaySales: todaySum.sales,
+    todayRevenue: todaySum.revenue,
+    weekSales: weekSum.sales,
+    weekRevenue: weekSum.revenue,
+    conversionRate,
+    topProducts: topProductList,
+  }
+}
+
 export async function getDashboardData(
   supabase: SupabaseClient,
   businessId: string,
@@ -954,6 +1034,15 @@ export async function getDashboardData(
       getVelocityHistory(businessId).catch(() => []),
     ])
 
+  const salesMetrics = await getSalesMetrics(supabase, businessId).catch(() => ({
+    todaySales: 0,
+    todayRevenue: 0,
+    weekSales: 0,
+    weekRevenue: 0,
+    conversionRate: 0,
+    topProducts: [],
+  }))
+
   const readinessTrend: { value: number; positive: boolean } = {
     value: Math.abs(miaReadiness.deltas?.overall ?? 0),
     positive: (miaReadiness.deltas?.overall ?? 0) >= 0,
@@ -978,5 +1067,6 @@ export async function getDashboardData(
     weeklyReport,
     businessMemory,
     velocityHistory,
+    salesMetrics,
   }
 }

@@ -326,6 +326,7 @@ export interface Database {
           phone: string | null
           email: string | null
           city: string | null
+          address: string | null
           tags: string[]
           status: 'new' | 'contacted' | 'interested' | 'converted' | 'lost'
           notes: string | null
@@ -341,6 +342,7 @@ export interface Database {
           phone?: string | null
           email?: string | null
           city?: string | null
+          address?: string | null
           tags?: string[]
           status?: 'new' | 'contacted' | 'interested' | 'converted' | 'lost'
           notes?: string | null
@@ -356,6 +358,7 @@ export interface Database {
           phone?: string | null
           email?: string | null
           city?: string | null
+          address?: string | null
           tags?: string[]
           status?: 'new' | 'contacted' | 'interested' | 'converted' | 'lost'
           notes?: string | null
@@ -400,7 +403,7 @@ export interface Database {
           assistant_id: string
           customer_id: string | null
           type: 'training' | 'live' | 'simulation'
-          status: 'active' | 'archived'
+          status: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
           outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
           deal_value: number | null
           potential_value: number | null
@@ -415,7 +418,7 @@ export interface Database {
           assistant_id: string
           customer_id?: string | null
           type: 'training' | 'live' | 'simulation'
-          status?: 'active' | 'archived'
+          status?: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
           outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
           deal_value?: number | null
           potential_value?: number | null
@@ -430,7 +433,7 @@ export interface Database {
           assistant_id?: string
           customer_id?: string | null
           type?: 'training' | 'live' | 'simulation'
-          status?: 'active' | 'archived'
+          status?: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
           outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
           deal_value?: number | null
           potential_value?: number | null
@@ -747,6 +750,80 @@ export interface Database {
           error_message?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      sales_events: {
+        Row: {
+          id: string
+          business_id: string
+          assistant_id: string | null
+          conversation_id: string | null
+          customer_id: string | null
+          event_type:
+            | 'SALE_STARTED'
+            | 'PRODUCT_SELECTED'
+            | 'OBJECTION_DETECTED'
+            | 'OBJECTION_RESOLVED'
+            | 'UPSELL_ACCEPTED'
+            | 'CROSSSELL_ACCEPTED'
+            | 'FOLLOWUP_REQUIRED'
+            | 'SALE_WON'
+            | 'SALE_LOST'
+            | 'CUSTOMER_HESITATION'
+            | 'PRICE_ACCEPTED'
+            | 'PRICE_REJECTED'
+          product_id: string | null
+          amount: number | null
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          assistant_id?: string | null
+          conversation_id?: string | null
+          customer_id?: string | null
+          event_type:
+            | 'SALE_STARTED'
+            | 'PRODUCT_SELECTED'
+            | 'OBJECTION_DETECTED'
+            | 'OBJECTION_RESOLVED'
+            | 'UPSELL_ACCEPTED'
+            | 'CROSSSELL_ACCEPTED'
+            | 'FOLLOWUP_REQUIRED'
+            | 'SALE_WON'
+            | 'SALE_LOST'
+            | 'CUSTOMER_HESITATION'
+            | 'PRICE_ACCEPTED'
+            | 'PRICE_REJECTED'
+          product_id?: string | null
+          amount?: number | null
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          assistant_id?: string | null
+          conversation_id?: string | null
+          customer_id?: string | null
+          event_type?:
+            | 'SALE_STARTED'
+            | 'PRODUCT_SELECTED'
+            | 'OBJECTION_DETECTED'
+            | 'OBJECTION_RESOLVED'
+            | 'UPSELL_ACCEPTED'
+            | 'CROSSSELL_ACCEPTED'
+            | 'FOLLOWUP_REQUIRED'
+            | 'SALE_WON'
+            | 'SALE_LOST'
+            | 'CUSTOMER_HESITATION'
+            | 'PRICE_ACCEPTED'
+            | 'PRICE_REJECTED'
+          product_id?: string | null
+          amount?: number | null
+          metadata?: Json
+          created_at?: string
         }
       }
       channel_messages: {

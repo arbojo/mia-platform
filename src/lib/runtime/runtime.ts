@@ -5,6 +5,7 @@ import { resolveConnection, resolveConversation } from '@/lib/conversation/resol
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
 import { resolveConditionalMedia } from './conditional-media'
+import { processSaleClosing } from '@/lib/sales/process'
 import type { ChannelAdapter } from '@/lib/channels/types'
 import type { WireMessage } from './types'
 
@@ -207,6 +208,20 @@ export async function processIncomingMessage(
     .from('customers')
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
+
+  if (mode === 'active' && conversationId) {
+    try {
+      await processSaleClosing({
+        businessId,
+        assistantId,
+        conversationId,
+        customerId: customer.id,
+        messages: [...chatMessages, { role: 'user', content: wireMessage.content }, { role: 'assistant', content: response }],
+      })
+    } catch (err) {
+      console.error('Failed to process sale closing:', err)
+    }
+  }
 
   const media = mode === 'shadow' ? undefined : await resolveConditionalMedia({
     businessId,

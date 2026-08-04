@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4bc195c`.
+> Fuente de verdad: este repositorio en `51cee3f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4bc195c` |
-| **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T19:25:23-06:00 |
+| **Commit HEAD** | `51cee3f` |
+| **Rama** | `` |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-04T01:26:11Z |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-31 tablas definidas en `supabase/migrations/`:
+32 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -107,6 +107,7 @@ Patrón de cliente Supabase:
 | IF | 016_knowledge_media.sql |
 | IF | 017_profiles_demo.sql |
 | IF | 019_health_checks.sql |
+| sales_events | 025_sales_events.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -138,6 +139,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 22 | 022_channel_modes.sql |
 | 23 | 023_follow_up.sql |
 | 24 | 024_media_assets.sql |
+| 25 | 025_sales_events.sql |
 
 ---
 
@@ -175,7 +177,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-40 rutas en `src/app/api/`:
+45 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -194,6 +196,7 @@ channels/webhook/[channel]
 chat
 conversations/[id]/messages
 conversations/[id]/notes
+conversations/[id]/outcome
 conversations/[id]/status
 customers/memory
 demo/chat
@@ -214,6 +217,10 @@ laboratorio/sessions
 laboratorio/teach
 onboarding/chat
 profile/language
+sales/events
+sales/metrics
+signals/[id]
+signals
 system/health
 training/corrections
 training/lessons
@@ -252,7 +259,7 @@ widget
 
 ## 9. Componentes
 
-69 componentes en `src/components/`:
+70 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -287,6 +294,7 @@ dashboard/ProductIntelligenceCard.tsx
 dashboard/ProductsManager.tsx
 dashboard/QuickActions.tsx
 dashboard/RulesManager.tsx
+dashboard/SalesMetricsCard.tsx
 dashboard/Sidebar.tsx
 dashboard/SkillsDisplay.tsx
 dashboard/ThemeProvider.tsx
@@ -330,7 +338,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-51 módulos:
+54 módulos:
 
 ```
 ai/client.ts
@@ -372,6 +380,9 @@ runtime/execute-ai.ts
 runtime/media.ts
 runtime/runtime.ts
 runtime/types.ts
+sales/detect.ts
+sales/events.ts
+sales/process.ts
 supabase/admin.ts
 supabase/client.ts
 supabase/route-handler.ts
@@ -402,7 +413,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (27)**:
+**Tareas registradas (28)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -433,6 +444,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-230254397 | Modos de operación del canal (active/shadow/paused) | completed |
 | TASK-20260804-000226556 | Multimedia Inteligente: media library y media_type sobre ADR-014 | completed |
 | TASK-20260804-011725729 | Fix: ¿Por qué respondió esto? devuelve 404 en el Laboratorio | completed |
+| TASK-20260804-023630282 | Flujo de cierre de pedido completo: deteccion IA, sales_events, notificacion y metricas | completed |
 
 ---
 
@@ -471,6 +483,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+51cee3f docs: regenerate MASTER.md at 4bc195c
 4bc195c fix: crear conversacion lazy y analisis resiliente en el Laboratorio
 48e22b7 docs: regenerate MASTER.md at f52104c
 f52104c docs: regenerate MASTER.md at 7efcedf
@@ -490,7 +503,6 @@ cef504e docs: regenerate MASTER.md at 887091d
 e2e6582 docs: regenerate MASTER.md at 120355f
 120355f feat: persistent accessibility preferences (Fase D)
 ce63073 docs: regenerate MASTER.md at 135265d
-135265d chore(governance): record task B completion (health engine)
 ```
 
 ---

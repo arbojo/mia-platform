@@ -1,0 +1,119 @@
+{
+  "id": "TASK-20260804-023630282",
+  "title": "Flujo de cierre de pedido completo: deteccion IA, sales_events, notificacion y metricas",
+  "description": "Implementar el flujo de cierre de pedido end-to-end: (1) deteccion de cierre/outcome por IA al procesar mensajes entrantes (gpt-4o-mini, clasificacion compacta), (2) tabla sales_events con el enum ADR-010 (SALE_WON, SALE_LOST, PRODUCT_SELECTED, etc.) + RLS, (3) actualizacion de conversations.outcome/deal_value y customers.status/address al cerrar, (4) emision de datos de pago/envio por MIA via prompt y regla payment/askCity, (5) notificacion al humano via mia_signals (tipo SALES, priority atencion) y MIAInbox conectado a datos reales, (6) metricas de venta (conversion, revenue, ventas hoy) via GET /api/sales/metrics y tarjeta en dashboard, (7) endpoint PATCH /api/conversations/[id]/outcome para override manual. Incluye migracion 025_sales_events.sql, tipos TS alineados, y rutas API nuevas.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "api_change"
+    ],
+    "filesAffected": 15,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "ai",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 15 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.351Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.354Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.367Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.384Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.403Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.417Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.430Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.441Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.453Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: flujo completo de cierre de pedido. Schema sales_events + outcome/address, deteccion IA en runtime, notificacion mia_signals, metricas de venta, override manual. Sin violaciones al boundary ADR-010 (solo emite eventos, no opera). RLS por business, admin client para writes.",
+      "timestamp": "2026-08-04T02:36:41.465Z"
+    }
+  ],
+  "createdAt": "2026-08-04T02:36:30.970Z",
+  "classifiedAt": "2026-08-04T02:36:30.970Z",
+  "approvedAt": "2026-08-04T02:36:41.474Z",
+  "startedAt": "2026-08-04T02:36:50.775Z",
+  "completedAt": "2026-08-04T02:52:52.474Z"
+}

@@ -4,6 +4,7 @@ import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
 import { VitalPresence } from '@/components/dashboard/VitalPresence'
 import { ModuleCard } from '@/components/dashboard/ModuleCard'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
+import { SalesMetricsCard } from '@/components/dashboard/SalesMetricsCard'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -142,6 +143,8 @@ export default async function DashboardPage() {
           </div>
         </div>
       )}
+
+      <SalesMetricsCard metrics={data.salesMetrics} />
 
       <div>
         <h2
