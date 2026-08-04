@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f6e7ba6`.
+> Fuente de verdad: este repositorio en `2b88051`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f6e7ba6` |
+| **Commit HEAD** | `2b88051` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T21:33:04-06:00 |
+| **Generado** | 2026-08-03T21:46:38-06:00 |
 
 ---
 
@@ -414,7 +414,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (30)**:
+**Tareas registradas (31)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -448,6 +448,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-023630282 | Flujo de cierre de pedido completo: deteccion IA, sales_events, notificacion y metricas | completed |
 | TASK-20260804-031425894 | Fix a11y: campos de filtro sin id/name en ConversationFilters | completed |
 | TASK-20260804-032853879 | Remediar RLS: drop de 3 tablas legacy expuestas (analytics_sessions, analytics_events, order_requests) | completed |
+| TASK-20260804-034548893 | Documentar deuda tecnica: hallazgos Security Advisor de Supabase | completed |
 
 ---
 
@@ -486,6 +487,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+2b88051 docs: track remaining Supabase security advisor findings as technical debt
+c5acf00 docs: regenerate MASTER.md at f6e7ba6
 f6e7ba6 chore: close governance task for legacy tables cleanup
 9f6e3c6 security: drop orphaned legacy tables exposed without RLS
 3eaf193 docs: regenerate MASTER.md at d0cf18c
@@ -504,8 +507,6 @@ db5fdba docs: regenerate MASTER.md at 5b8e75f
 39dc168 docs: regenerate MASTER.md at 45d1fff
 45d1fff feat: add sales closing policy to assistant prompt conditioned on sales_aggressiveness
 7394957 docs: regenerate MASTER.md at 3dc75c6
-3dc75c6 fix: upgrade Baileys to v7 and add session health watcher to whatsapp-bridge
-cef504e docs: regenerate MASTER.md at 887091d
 ```
 
 ---
