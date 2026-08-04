@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3ca5306`.
+> Fuente de verdad: este repositorio en `d0cf18c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3ca5306` |
+| **Commit HEAD** | `d0cf18c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T21:01:00-06:00 |
+| **Generado** | 2026-08-03T21:16:46-06:00 |
 
 ---
 
@@ -413,7 +413,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (28)**:
+**Tareas registradas (29)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -445,6 +445,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-000226556 | Multimedia Inteligente: media library y media_type sobre ADR-014 | completed |
 | TASK-20260804-011725729 | Fix: ¿Por qué respondió esto? devuelve 404 en el Laboratorio | completed |
 | TASK-20260804-023630282 | Flujo de cierre de pedido completo: deteccion IA, sales_events, notificacion y metricas | completed |
+| TASK-20260804-031425894 | Fix a11y: campos de filtro sin id/name en ConversationFilters | completed |
 
 ---
 
@@ -483,6 +484,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+d0cf18c fix: add id/name attributes to conversation filter form fields
+8032aa5 docs: regenerate MASTER.md at 3ca5306
 3ca5306 feat: add sales closing flow with event detection, outcome tracking and owner signals
 51cee3f docs: regenerate MASTER.md at 4bc195c
 4bc195c fix: crear conversacion lazy y analisis resiliente en el Laboratorio
@@ -501,8 +504,6 @@ cef504e docs: regenerate MASTER.md at 887091d
 887091d chore: enable professional edition for WhatsApp and complete i18n task
 9ae579e docs: regenerate MASTER.md at 04b66a4
 04b66a4 feat: i18n multilingue completo y ajustes de UI
-e2e6582 docs: regenerate MASTER.md at 120355f
-120355f feat: persistent accessibility preferences (Fase D)
 ```
 
 ---
