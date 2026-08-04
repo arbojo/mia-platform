@@ -1,0 +1,91 @@
+{
+  "id": "TASK-20260804-032853879",
+  "title": "Remediar RLS: drop de 3 tablas legacy expuestas (analytics_sessions, analytics_events, order_requests)",
+  "description": "Las tablas huérfanas del proyecto legacy (analytics_sessions, analytics_events, order_requests) tienen RLS deshabilitado y grants completos a anon en el DB de Mia Lab (hhitqgsaglddjkmaovbs). No estan en ninguna migracion, tienen 0 filas, sin columna tenant y sin referencias de codigo. Advisor las marca ERROR (rls_disabled_in_public + sensitive_columns_exposed). Decision del usuario: DROP de las 3 tablas. Se registra como migracion 026_legacy_tables_cleanup.sql.",
+  "scope": {
+    "categories": [
+      "security",
+      "schema_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (7): architect, database, backend, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: drop de 3 tablas legacy huerfanas. Sin dependencias de codigo ni migraciones, 0 filas, sin columna tenant. Elimina exposicion anon con RLS off.",
+      "timestamp": "2026-08-04T03:29:11.087Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: migracion 026 idempotente (DROP TABLE IF EXISTS). No rompe esquema actual ni RLS del resto. FK solo entre ellas.",
+      "timestamp": "2026-08-04T03:29:13.815Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: sin referencias en src/ ni services/, no afecta API ni queries.",
+      "timestamp": "2026-08-04T03:29:16.449Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: cierra exposicion critica. anon pierde acceso a session_token/order data. Advisor pasara a limpio.",
+      "timestamp": "2026-08-04T03:29:27.301Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: cambios solo DB, sin impacto en UI. Gates lint/build/unit/e2e se ejecutaran.",
+      "timestamp": "2026-08-04T03:29:29.660Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: se commiteara migracion + manifest, push y verificar deploy.",
+      "timestamp": "2026-08-04T03:29:34.055Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: se registrara en memoria de ingenieria la remediacion de tablas legacy.",
+      "timestamp": "2026-08-04T03:29:36.436Z"
+    }
+  ],
+  "createdAt": "2026-08-04T03:28:53.200Z",
+  "classifiedAt": "2026-08-04T03:28:53.200Z",
+  "approvedAt": "2026-08-04T03:29:36.438Z",
+  "startedAt": "2026-08-04T03:29:57.631Z"
+}
