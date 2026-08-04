@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `61dbe15`.
+> Fuente de verdad: este repositorio en `d249500`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `61dbe15` |
+| **Commit HEAD** | `d249500` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-04T00:55:26-06:00 |
+| **Generado** | 2026-08-04T02:07:29-06:00 |
 
 ---
 
@@ -340,7 +340,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-55 módulos:
+56 módulos:
 
 ```
 ai/client.ts
@@ -380,6 +380,7 @@ i18n/server.ts
 knowledge/suggestions.ts
 runtime/conditional-media.ts
 runtime/execute-ai.ts
+runtime/intents.ts
 runtime/media.ts
 runtime/runtime.ts
 runtime/types.ts
@@ -416,7 +417,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (33)**:
+**Tareas registradas (34)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -453,6 +454,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-034548893 | Documentar deuda tecnica: hallazgos Security Advisor de Supabase | completed |
 | TASK-20260804-035152257 | Knowledge Studio: Editar antes de Aprobar en sugerencias | completed |
 | TASK-20260804-060647470 | Migracion a esteta Warm Editorial / Hibrido Familiar + micro-transiciones | approved |
+| TASK-20260804-073649560 | Arquitectura de Interaccion Inteligente para WhatsApp (Baileys + Knowledge Studio) | completed |
 
 ---
 
@@ -491,6 +493,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and intent tags
+90d6807 docs: regenerate MASTER.md at 61dbe15
 61dbe15 fix(ui): align html[data-optical] tokens with exact warm editorial palette
 a9889ab docs: regenerate MASTER.md at 7190129
 7190129 fix(ui): apply card shadows and hover-lift to dashboard cards
@@ -509,8 +513,6 @@ f6e7ba6 chore: close governance task for legacy tables cleanup
 d0cf18c fix: add id/name attributes to conversation filter form fields
 8032aa5 docs: regenerate MASTER.md at 3ca5306
 3ca5306 feat: add sales closing flow with event detection, outcome tracking and owner signals
-51cee3f docs: regenerate MASTER.md at 4bc195c
-4bc195c fix: crear conversacion lazy y analisis resiliente en el Laboratorio
 ```
 
 ---
