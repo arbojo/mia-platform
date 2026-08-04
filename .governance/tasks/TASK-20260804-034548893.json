@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260804-034548893",
+  "title": "Documentar deuda tecnica: hallazgos Security Advisor de Supabase",
+  "description": "Crear docs/technical-debt/supabase-security-advisors.md con los hallazgos WARN/INFO restantes del advisor de seguridad tras la migracion 026: bucket knowledge-media listing, funciones SECURITY DEFINER, whatsapp_sessions sin policies y proteccion de passwords filtradas.",
+  "scope": {
+    "categories": [
+      "documentation",
+      "security"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (6): architect, backend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: solo documentacion de deuda tecnica, sin cambios de codigo ni esquema.",
+      "timestamp": "2026-08-04T03:46:00.645Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: documenta hallazgos ya revisados, sin impacto en APIs.",
+      "timestamp": "2026-08-04T03:46:03.346Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: registra deuda de hardening post-remediacion, accionable en backlog.",
+      "timestamp": "2026-08-04T03:46:05.840Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: solo docs, sin gates de codigo afectados.",
+      "timestamp": "2026-08-04T03:46:08.213Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: commit de documentacion y push.",
+      "timestamp": "2026-08-04T03:46:10.605Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: deuda de seguridad registrada en docs/technical-debt.",
+      "timestamp": "2026-08-04T03:46:12.938Z"
+    }
+  ],
+  "createdAt": "2026-08-04T03:45:48.301Z",
+  "classifiedAt": "2026-08-04T03:45:48.301Z",
+  "approvedAt": "2026-08-04T03:46:12.939Z",
+  "startedAt": "2026-08-04T03:46:21.248Z",
+  "completedAt": "2026-08-04T03:46:23.718Z"
+}
