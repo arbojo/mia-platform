@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d0cf18c`.
+> Fuente de verdad: este repositorio en `f6e7ba6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d0cf18c` |
+| **Commit HEAD** | `f6e7ba6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T21:16:46-06:00 |
+| **Generado** | 2026-08-03T21:33:04-06:00 |
 
 ---
 
@@ -140,6 +140,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 23 | 023_follow_up.sql |
 | 24 | 024_media_assets.sql |
 | 25 | 025_sales_events.sql |
+| 26 | 026_legacy_tables_cleanup.sql |
 
 ---
 
@@ -413,7 +414,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (29)**:
+**Tareas registradas (30)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -446,6 +447,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-011725729 | Fix: ¿Por qué respondió esto? devuelve 404 en el Laboratorio | completed |
 | TASK-20260804-023630282 | Flujo de cierre de pedido completo: deteccion IA, sales_events, notificacion y metricas | completed |
 | TASK-20260804-031425894 | Fix a11y: campos de filtro sin id/name en ConversationFilters | completed |
+| TASK-20260804-032853879 | Remediar RLS: drop de 3 tablas legacy expuestas (analytics_sessions, analytics_events, order_requests) | completed |
 
 ---
 
@@ -484,6 +486,9 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+f6e7ba6 chore: close governance task for legacy tables cleanup
+9f6e3c6 security: drop orphaned legacy tables exposed without RLS
+3eaf193 docs: regenerate MASTER.md at d0cf18c
 d0cf18c fix: add id/name attributes to conversation filter form fields
 8032aa5 docs: regenerate MASTER.md at 3ca5306
 3ca5306 feat: add sales closing flow with event detection, outcome tracking and owner signals
@@ -501,9 +506,6 @@ db5fdba docs: regenerate MASTER.md at 5b8e75f
 7394957 docs: regenerate MASTER.md at 3dc75c6
 3dc75c6 fix: upgrade Baileys to v7 and add session health watcher to whatsapp-bridge
 cef504e docs: regenerate MASTER.md at 887091d
-887091d chore: enable professional edition for WhatsApp and complete i18n task
-9ae579e docs: regenerate MASTER.md at 04b66a4
-04b66a4 feat: i18n multilingue completo y ajustes de UI
 ```
 
 ---
