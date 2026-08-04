@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
 interface ContextSource {
@@ -117,10 +118,11 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { messageId, conversationId } = body
 
+  const admin = createAdminClient()
   let message: { metadata?: unknown } | null = null
 
   if (conversationId) {
-    const { data } = await supabase
+    const { data } = await admin
       .from('messages')
       .select('*')
       .eq('conversation_id', conversationId)
@@ -130,7 +132,7 @@ export async function POST(request: Request) {
       .maybeSingle()
     message = data
   } else if (messageId) {
-    const { data } = await supabase
+    const { data } = await admin
       .from('messages')
       .select('*')
       .eq('id', messageId)
@@ -139,7 +141,13 @@ export async function POST(request: Request) {
   }
 
   if (!message) {
-    return NextResponse.json({ error: 'Message not found' }, { status: 404 })
+    return NextResponse.json({
+      reasoning: [],
+      confidence: 0,
+      sources: [],
+      tips: ['No se encontró un mensaje del asistente para analizar.'],
+      score: null,
+    })
   }
 
   const metadata = message.metadata as Record<string, unknown>

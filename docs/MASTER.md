@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f52104c`.
+> Fuente de verdad: este repositorio en `48e22b7`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f52104c` |
-| **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T18:17:48-06:00 |
+| **Commit HEAD** | `48e22b7` |
+| **Rama** | `` |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-04T00:18:31Z |
 
 ---
 
@@ -402,7 +402,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (26)**:
+**Tareas registradas (27)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -432,6 +432,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260803-230254309 | Seguimiento automático por inactividad del canal | completed |
 | TASK-20260803-230254397 | Modos de operación del canal (active/shadow/paused) | completed |
 | TASK-20260804-000226556 | Multimedia Inteligente: media library y media_type sobre ADR-014 | completed |
+| TASK-20260804-011725729 | Fix: ¿Por qué respondió esto? devuelve 404 en el Laboratorio | completed |
 
 ---
 
@@ -470,6 +471,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+48e22b7 docs: regenerate MASTER.md at f52104c
 f52104c docs: regenerate MASTER.md at 7efcedf
 7efcedf feat: add media library and media_type for conditional knowledge media
 53eb1cf docs: regenerate MASTER.md at dbd7134
@@ -489,7 +491,6 @@ e2e6582 docs: regenerate MASTER.md at 120355f
 ce63073 docs: regenerate MASTER.md at 135265d
 135265d chore(governance): record task B completion (health engine)
 c864106 docs: regenerate MASTER.md at 0a76e4a
-0a76e4a feat: persistent health engine (No Pass No Commit)
 ```
 
 ---

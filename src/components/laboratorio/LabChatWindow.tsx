@@ -16,30 +16,43 @@ interface Message {
 interface LabChatWindowProps {
   assistantName: string
   assistantId: string
+  businessId: string
   conversationId?: string
   mode?: string
   simulationSystemMessage?: string
   onTokensUsed?: (tokens: { input: number; output: number }) => void
   onMessageCount?: (count: number) => void
   onCoaching?: (feedback: { tips: string[]; score: number | null }) => void
+  onConversationCreated?: (conversationId: string) => void
 }
 
 export function LabChatWindow({
   assistantName,
   assistantId,
+  businessId,
   conversationId,
   mode,
   simulationSystemMessage,
   onTokensUsed,
   onMessageCount,
   onCoaching,
+  onConversationCreated,
 }: LabChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [activeConversationId, setActiveConversationId] = useState<string | undefined>(conversationId)
+  const [prevConversationId, setPrevConversationId] = useState<string | undefined>(conversationId)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  if (conversationId !== prevConversationId) {
+    setPrevConversationId(conversationId)
+    if (conversationId) {
+      setActiveConversationId(conversationId)
+    }
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -75,6 +88,27 @@ export function LabChatWindow({
     setIsTyping(true)
 
     try {
+      let conversation = activeConversationId
+      if (!conversation) {
+        const sessionRes = await fetch('/api/laboratorio/sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            business_id: businessId,
+            assistant_id: assistantId,
+            mode: mode ?? 'normal',
+            title: 'chat directo',
+          }),
+        })
+        const sessionData = await sessionRes.json()
+        conversation = sessionData.conversationId ?? sessionData.session?.conversation_id
+        if (!conversation) {
+          throw new Error('No se pudo iniciar una sesión de laboratorio')
+        }
+        setActiveConversationId(conversation)
+        onConversationCreated?.(conversation)
+      }
+
       const chatMessages = [...messages, userMessage].map((m) => ({
         role: m.role,
         content: m.content,
@@ -104,7 +138,7 @@ export function LabChatWindow({
         body: JSON.stringify({
           messages: chatMessages,
           assistantId,
-          conversationId,
+          conversationId: conversation,
           requestType: 'simulation',
         }),
       })
@@ -155,7 +189,7 @@ export function LabChatWindow({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               assistantId,
-              conversationId,
+              conversationId: activeConversationId,
               mode,
             }),
           })
@@ -236,7 +270,7 @@ export function LabChatWindow({
                 <ResponseAnalysis
                   messageId={message.id}
                   assistantId={assistantId}
-                  conversationId={conversationId}
+                  conversationId={activeConversationId}
                 />
               )}
             </div>

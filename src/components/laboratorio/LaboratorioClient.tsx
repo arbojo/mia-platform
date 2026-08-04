@@ -188,9 +188,11 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
           <LabChatWindow
             assistantName={context?.assistant?.name ?? 'MIA'}
             assistantId={assistantId}
+            businessId={businessId}
             conversationId={currentConversationId ?? undefined}
             mode={mode}
             simulationSystemMessage={activeScenario?.customerMessage}
+            onConversationCreated={(conversationId) => setCurrentConversationId(conversationId)}
             onTokensUsed={(tokens) => {
               setTokenUsage((prev) => ({
                 input: prev.input + tokens.input,
