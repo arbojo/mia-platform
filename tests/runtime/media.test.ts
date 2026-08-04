@@ -35,4 +35,24 @@ describe('triggerMatches', () => {
   it('requires a full keyword, not a partial match', () => {
     expect(triggerMatches('presupuesto', 'precio')).toBe(false)
   })
+
+  it('does not match a keyword inside another word', () => {
+    expect(triggerMatches('¿cómo son los clientes?', 'es')).toBe(false)
+  })
+
+  it('matches a keyword when followed by punctuation as a whole word', () => {
+    expect(triggerMatches('¿cuánto vale?', 'vale')).toBe(true)
+  })
+
+  it('matches at the start of the message', () => {
+    expect(triggerMatches('precio por favor', 'precio')).toBe(true)
+  })
+
+  it('matches multi-word trigger as an exact phrase', () => {
+    expect(triggerMatches('me interesa el antes y después', 'antes y despues')).toBe(true)
+  })
+
+  it('does not match a multi-word trigger split across words', () => {
+    expect(triggerMatches('antes de irte y despues de volver', 'antes y despues')).toBe(false)
+  })
 })

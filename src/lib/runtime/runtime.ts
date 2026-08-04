@@ -98,6 +98,7 @@ export async function processIncomingMessage(
   customerId: string
   conversationId: string
   imageUrl?: string
+  mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
   deliver: boolean
 }> {
   const supabase = createAdminClient()
@@ -222,6 +223,7 @@ export async function processIncomingMessage(
     customerId: customer.id,
     conversationId: conversationId ?? '',
     imageUrl: media?.imageUrl,
+    mediaType: media?.mediaType,
     deliver,
   }
 }

@@ -73,13 +73,19 @@ export async function PATCH(
   }
 
   const body = await request.json()
-  const { category, question, answer, confidence, image_url, trigger_condition } = body as {
+  const { category, question, answer, confidence, image_url, trigger_condition, media_type } = body as {
     category?: string
     question?: string
     answer?: string
     confidence?: string
     image_url?: string | null
     trigger_condition?: string | null
+    media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+  }
+
+  const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
+  if (media_type !== undefined && !validMediaTypes.includes(media_type)) {
+    return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }
 
   const admin = createAdminClient()
@@ -91,6 +97,7 @@ export async function PATCH(
   if (confidence !== undefined) updates.confidence = confidence
   if (image_url !== undefined) updates.image_url = image_url
   if (trigger_condition !== undefined) updates.trigger_condition = trigger_condition
+  if (media_type !== undefined) updates.media_type = media_type
 
   const { data, error } = await admin
     .from('knowledge_items')

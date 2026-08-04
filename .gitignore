@@ -36,6 +36,9 @@ yarn-error.log*
 .pnpm-debug.log*
 dev.log
 
+# whatsapp bridge local logs (never committed)
+services/whatsapp-bridge/*.log
+
 # env files (secrets are git-crypt encrypted; see .gitattributes)
 .env
 .env.*.local

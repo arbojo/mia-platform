@@ -5,6 +5,7 @@ import { KnowledgeManager } from '@/components/knowledge/KnowledgeManager'
 import { InstructionsManager } from '@/components/knowledge/InstructionsManager'
 import { FileUpload } from '@/components/knowledge/FileUpload'
 import { LearningReport } from '@/components/knowledge/LearningReport'
+import { MediaLibrary } from '@/components/knowledge/MediaLibrary'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/lib/types'
 
@@ -57,6 +58,7 @@ interface KnowledgeCenterProps {
 
 const tabs = [
   { id: 'knowledge', label: 'Base de Conocimiento', description: 'Hechos y información del negocio que MIA debe conocer' },
+  { id: 'media', label: 'Biblioteca Multimedia', description: 'Imágenes, testimonios y flyers que MIA envía según el contexto' },
   { id: 'instructions', label: 'Instrucciones IA', description: 'Reglas de comportamiento y personalidad de MIA' },
   { id: 'files', label: 'Archivos', description: 'Enseña a MIA con tus archivos' },
 ]
@@ -111,6 +113,10 @@ export function KnowledgeCenter({ businessId, initialKnowledge, initialInstructi
 
       {activeTab === 'knowledge' && (
         <KnowledgeManager businessId={businessId} initialItems={initialKnowledge} />
+      )}
+
+      {activeTab === 'media' && (
+        <MediaLibrary businessId={businessId} />
       )}
 
       {activeTab === 'instructions' && (

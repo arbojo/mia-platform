@@ -7,6 +7,7 @@ type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
 export interface MediaAttachment {
   knowledgeItemId: string
   imageUrl: string
+  mediaType: 'image' | 'testimonial' | 'flyer' | 'other'
 }
 
 export async function resolveConditionalMedia(params: {
@@ -56,5 +57,9 @@ export async function resolveConditionalMedia(params: {
     console.error('Failed to record dispatched media:', err)
   }
 
-  return { knowledgeItemId: pending.id, imageUrl: pending.image_url }
+  return {
+    knowledgeItemId: pending.id,
+    imageUrl: pending.image_url,
+    mediaType: pending.media_type ?? 'other',
+  }
 }

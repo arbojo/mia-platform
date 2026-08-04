@@ -14,6 +14,8 @@ export async function GET(request: Request) {
   const businessId = searchParams.get('business_id')
   const category = searchParams.get('category')
   const search = searchParams.get('search')
+  const mediaType = searchParams.get('media_type')
+  const hasMedia = searchParams.get('has_media')
 
   if (!businessId) {
     return NextResponse.json({ error: 'business_id required' }, { status: 400 })
@@ -41,6 +43,17 @@ export async function GET(request: Request) {
     query = query.eq('category', category)
   }
 
+  if (mediaType) {
+    const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
+    if (validMediaTypes.includes(mediaType)) {
+      query = query.eq('media_type', mediaType)
+    }
+  }
+
+  if (hasMedia === 'true') {
+    query = query.not('image_url', 'is', null)
+  }
+
   if (search) {
     query = query.or(`question.ilike.%${search}%,answer.ilike.%${search}%`)
   }
@@ -63,17 +76,23 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { business_id, category, question, answer, image_url, trigger_condition } = body as {
+  const { business_id, category, question, answer, image_url, trigger_condition, media_type } = body as {
     business_id: string
     category: string
     question: string
     answer: string
     image_url?: string | null
     trigger_condition?: string | null
+    media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
   }
 
   if (!business_id || !category || !question || !answer) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
+  if (media_type !== undefined && !validMediaTypes.includes(media_type)) {
+    return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }
 
   if (image_url && !trigger_condition) {
@@ -105,6 +124,7 @@ export async function POST(request: Request) {
       answer,
       image_url: image_url ?? null,
       trigger_condition: trigger_condition ?? null,
+      media_type: media_type ?? 'other',
       source: 'manual',
       confidence: 'medium',
     })

@@ -134,6 +134,7 @@ export interface Database {
           confidence: 'high' | 'medium' | 'low'
           image_url: string | null
           trigger_condition: string | null
+          media_type: 'image' | 'testimonial' | 'flyer' | 'other'
           is_active: boolean
           created_at: string
           updated_at: string
@@ -148,6 +149,7 @@ export interface Database {
           confidence?: 'high' | 'medium' | 'low'
           image_url?: string | null
           trigger_condition?: string | null
+          media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
           is_active?: boolean
           created_at?: string
           updated_at?: string
@@ -162,6 +164,7 @@ export interface Database {
           confidence?: 'high' | 'medium' | 'low'
           image_url?: string | null
           trigger_condition?: string | null
+          media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
           is_active?: boolean
           created_at?: string
           updated_at?: string

@@ -1,0 +1,118 @@
+{
+  "id": "TASK-20260804-000226556",
+  "title": "Multimedia Inteligente: media library y media_type sobre ADR-014",
+  "description": "Extender el sistema de Conditional Knowledge Media (ADR-014) sin crear tablas paralelas. Añadir columna media_type (image/testimonial/flyer/other) a knowledge_items, persistirlo en el API de items (POST/PATCH), retornarlo en resolveConditionalMedia, y crear dashboard de Media Library en el panel: listar assets con imagen, filtrar por tipo, subir imágenes (reusa /api/knowledge/media/upload), editar descripción/trigger/tipo y eliminar. Mejorar el matcher de triggers para soportar varios términos.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "ui_change"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, schema changes required, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.326Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.332Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.352Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.371Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.394Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.420Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.445Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.463Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.476Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Extensión de ADR-014 sin tablas paralelas: reutiliza knowledge_items + chat_media_dispatched + bucket knowledge-media. Columna media_type con CHECK, matcher multi-término, media library UI reusando APIs existentes. Respeta multi-tenant, RLS y dominio de ventas.",
+      "timestamp": "2026-08-04T00:02:40.495Z"
+    }
+  ],
+  "createdAt": "2026-08-04T00:02:26.148Z",
+  "classifiedAt": "2026-08-04T00:02:26.148Z",
+  "approvedAt": "2026-08-04T00:02:40.513Z",
+  "startedAt": "2026-08-04T00:02:54.231Z",
+  "completedAt": "2026-08-04T00:16:05.612Z"
+}
