@@ -70,8 +70,8 @@ export function SuggestionCard({ suggestion, onAction, onEdit }: SuggestionCardP
           <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
 
           {suggestion.suggested_question && suggestion.suggested_answer && (
-            <div className="mt-3 p-3 bg-violet-50 rounded-lg">
-              <p className="text-xs font-medium text-violet-700 mb-1">Conocimiento sugerido:</p>
+            <div className="mt-3 p-3 bg-olive-50 rounded-lg">
+              <p className="text-xs font-medium text-olive-700 mb-1">Conocimiento sugerido:</p>
               <p className="text-sm"><span className="font-medium">P:</span> {suggestion.suggested_question}</p>
               <p className="text-sm"><span className="font-medium">R:</span> {suggestion.suggested_answer}</p>
               {suggestion.suggested_category && (

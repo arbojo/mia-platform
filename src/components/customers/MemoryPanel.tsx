@@ -80,7 +80,7 @@ export function MemoryPanel({ customerId, assistantId }: MemoryPanelProps) {
       <div className="py-2">
         <button
           onClick={handleExtract}
-          className="inline-flex items-center gap-2 rounded-lg bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100"
+          className="inline-flex items-center gap-2 rounded-lg bg-olive-50 px-3 py-1.5 text-xs font-medium text-olive-700 transition-colors hover:bg-olive-100"
         >
           <Brain className="h-3.5 w-3.5" />
           Extraer memoria del cliente
@@ -90,15 +90,15 @@ export function MemoryPanel({ customerId, assistantId }: MemoryPanelProps) {
   }
 
   return (
-    <div className="rounded-xl border border-violet-100 bg-violet-50/50 p-3">
+    <div className="rounded-xl border border-olive-100 bg-olive-50/50 p-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-violet-700">
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-olive-700">
           <Brain className="h-3.5 w-3.5" />
           Memoria del Cliente
         </span>
         <button
           onClick={handleExtract}
-          className="text-[10px] font-medium text-violet-500 hover:text-violet-700"
+          className="text-[10px] font-medium text-olive-500 hover:text-olive-700"
         >
           Actualizar
         </button>

@@ -49,7 +49,7 @@ export async function AIOperationsCard({ businessId }: { businessId: string }) {
                   <span className="w-28 truncate text-sm text-zinc-600">{item.source}</span>
                   <div className="flex-1 h-2 rounded-full bg-zinc-100 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-violet-500"
+                      className="h-full rounded-full bg-olive-500"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

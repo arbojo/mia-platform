@@ -57,7 +57,7 @@ export function SkillsDisplay({ skills, overallLevel, growthSummary }: SkillsDis
   const notStarted = skills.filter((s) => s.status === 'not_started').length
 
   return (
-    <div className="rounded-2xl border border-violet-100 bg-white p-6">
+    <div className="rounded-2xl border border-olive-100 bg-white p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-zinc-900">Mis habilidades</h3>
         <div className="flex items-center gap-2">

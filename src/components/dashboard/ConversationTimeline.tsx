@@ -5,7 +5,7 @@ function OutcomeBadge({ outcome }: { outcome: 'interested' | 'answered' | 'sold'
   const config = {
     interested: { color: 'var(--mia-blue)', label: 'Interesado' },
     answered: { color: 'var(--mia-green)', label: 'Respondido' },
-    sold: { color: 'var(--mia-violet)', label: 'Vendido' },
+    sold: { color: 'var(--mia-olive)', label: 'Vendido' },
     pending: { color: 'var(--mia-platinum)', label: 'Pendiente' },
   }
 

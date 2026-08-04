@@ -6,13 +6,13 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-violet-900">MIA</h1>
+          <h1 className="text-xl font-bold text-olive-900">MIA</h1>
           <div className="flex gap-4">
             <Link href="/login">
               <Button variant="ghost">Iniciar sesión</Button>
             </Link>
             <Link href="/signup">
-              <Button className="bg-violet-600 hover:bg-violet-700">
+              <Button className="bg-olive-600 hover:bg-olive-700">
                 Comenzar
               </Button>
             </Link>
@@ -24,7 +24,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 text-center space-y-8">
           <h2 className="text-5xl font-bold text-gray-900">
             Tu asistente de ventas{' '}
-            <span className="text-violet-600">con inteligencia artificial</span>
+            <span className="text-olive-600">con inteligencia artificial</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Enseña a MIA sobre tu negocio, productos y reglas. Ella se encargará
@@ -37,7 +37,7 @@ export default function HomePage() {
               </Button>
             </Link>
             <Link href="/signup">
-              <Button size="lg" className="bg-violet-600 hover:bg-violet-700">
+              <Button size="lg" className="bg-olive-600 hover:bg-olive-700">
                 Crear mi asistente
               </Button>
             </Link>

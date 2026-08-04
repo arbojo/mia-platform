@@ -42,7 +42,7 @@ function ChannelBadge({ channel }: { channel: string }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700">
+    <span className="inline-flex items-center gap-1 rounded-full bg-olive-50 px-2.5 py-1 text-xs font-medium text-olive-700">
       {icons[channel] ?? '🔗'} {channel}
     </span>
   )
@@ -71,7 +71,7 @@ function ConfidenceMessage({ value }: { value: number }) {
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
         <div
-          className="h-full rounded-full bg-violet-500 transition-all"
+          className="h-full rounded-full bg-olive-500 transition-all"
           style={{ width: `${value}%` }}
         />
       </div>
@@ -90,7 +90,7 @@ export function EmployeeStatusCard({ status, skills }: EmployeeStatusCardProps) 
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 text-lg font-bold text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-olive-500 to-olive-400 text-lg font-bold text-white">
             M
           </div>
           <div>
@@ -98,7 +98,7 @@ export function EmployeeStatusCard({ status, skills }: EmployeeStatusCardProps) 
             <StatusDot status={status.status} />
           </div>
         </div>
-        <div className="rounded-lg bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700">
+        <div className="rounded-lg bg-olive-50 px-3 py-1.5 text-xs font-medium text-olive-700">
           {status.readyToSell ? 'Lista para vender' : 'Preparándome...'}
         </div>
       </div>

@@ -1,0 +1,87 @@
+{
+  "id": "TASK-20260804-060647470",
+  "title": "Migracion a esteta Warm Editorial / Hibrido Familiar + micro-transiciones",
+  "description": "Migracion completa de violet a olivo en 35+ archivos. Tokens de color (olive palette, background marfil #F9F8F6, bordes topo #DEDCD5). Tipografia hibrida Lora+Inter. Eliminacion rainbow caret. Sombras difusas papel flotante. Micro-transiciones buttery (fade&lift, scale hover, atmosphere transitions 500ms). Refactor SuggestionCard, KnowledgeItemDialog, KnowledgeStudio, ReadinessScore. Actualizacion atmosphere system a tonos warm.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "refactor"
+    ],
+    "filesAffected": 38,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 38 files affected. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: migracion transversal de UI con tokens centralizados en globals.css, sin cambios de arquitectura de componentes.",
+      "timestamp": "2026-08-04T06:07:15.039Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: sin cambios de API ni esquema.",
+      "timestamp": "2026-08-04T06:07:17.354Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: reemplazo sistematico violet->olive, Lora serif, micro-transiciones, sombras elevate. 35+ archivos.",
+      "timestamp": "2026-08-04T06:07:20.091Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: sin impacto de seguridad, solo clases CSS y tokens visuales.",
+      "timestamp": "2026-08-04T06:07:22.489Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: gates lint/build/unit/e2e/chrome_devtools.",
+      "timestamp": "2026-08-04T06:07:25.823Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: commit unico, push, verificacion visual.",
+      "timestamp": "2026-08-04T06:07:28.362Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado.",
+      "timestamp": "2026-08-04T06:07:30.707Z"
+    }
+  ],
+  "createdAt": "2026-08-04T06:06:47.352Z",
+  "classifiedAt": "2026-08-04T06:06:47.352Z",
+  "approvedAt": "2026-08-04T06:07:30.708Z"
+}

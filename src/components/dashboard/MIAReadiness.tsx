@@ -110,7 +110,7 @@ function IndicatorSection({
       {detail.guidance && (
         <Link
           href={detail.guidance.actionHref}
-          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-violet-600 hover:text-violet-700"
+          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-olive-600 hover:text-olive-700"
         >
           {detail.guidance.actionLabel} →
         </Link>
@@ -174,7 +174,7 @@ function TrendSparkline({
           Preparación
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-violet-500" />
+          <span className="inline-block h-2 w-2 rounded-full bg-olive-500" />
           Confianza
         </span>
       </div>

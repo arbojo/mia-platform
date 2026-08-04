@@ -48,7 +48,7 @@ export function SimulationModes({ selected, onSelect }: SimulationModesProps) {
             variant={selected === mode.id ? 'default' : 'outline'}
             className={cn(
               'justify-start h-auto py-2 px-3 text-left',
-              selected === mode.id && 'bg-violet-600 hover:bg-violet-700'
+              selected === mode.id && 'bg-olive-600 hover:bg-olive-700'
             )}
             onClick={() => onSelect(mode.id)}
           >

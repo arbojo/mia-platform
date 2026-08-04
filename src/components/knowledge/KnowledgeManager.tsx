@@ -232,7 +232,7 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
             uploading ||
             (!!imageUrl && !triggerCondition.trim())
           }
-          className="bg-violet-600 hover:bg-violet-700"
+          className="bg-olive-600 hover:bg-olive-700"
         >
           {loading ? 'Agregando...' : 'Agregar conocimiento'}
         </Button>

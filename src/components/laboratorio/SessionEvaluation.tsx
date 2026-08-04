@@ -75,7 +75,7 @@ export function SessionEvaluation({
   return (
     <div className="p-4 border rounded-xl bg-gray-50 space-y-4">
       <div className="text-center">
-        <p className="text-3xl font-bold text-violet-600">{evaluation.score}/10</p>
+        <p className="text-3xl font-bold text-olive-600">{evaluation.score}/10</p>
         <p className="text-sm text-gray-500">Evaluación general</p>
       </div>
 
@@ -124,7 +124,7 @@ export function SessionEvaluation({
           <p className="text-xs font-medium text-gray-700 mb-1">Sugerencias</p>
           <ul className="space-y-1">
             {evaluation.suggestions.map((s, i) => (
-              <li key={i} className="text-xs text-violet-600 flex items-start gap-1">
+              <li key={i} className="text-xs text-olive-600 flex items-start gap-1">
                 <span>→</span> {s}
               </li>
             ))}
@@ -134,7 +134,7 @@ export function SessionEvaluation({
 
       <Button
         onClick={() => onTeach(evaluation.suggestions)}
-        className="w-full bg-violet-600 hover:bg-violet-700"
+        className="w-full bg-olive-600 hover:bg-olive-700"
       >
         ✨ Enseñarle esto a {assistantId ? 'MIA' : 'la asistente'}
       </Button>

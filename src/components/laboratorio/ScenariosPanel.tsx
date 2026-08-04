@@ -69,7 +69,7 @@ interface ScenariosPanelProps {
 
 export function ScenariosPanel({ onSelect, activeScenarioId }: ScenariosPanelProps) {
   return (
-    <Card className="border-violet-100">
+    <Card className="border-olive-100">
       <CardContent className="pt-4">
         <h3 className="font-semibold text-gray-900 mb-3">Escenarios de prueba</h3>
         <p className="text-xs text-gray-500 mb-3">
@@ -83,7 +83,7 @@ export function ScenariosPanel({ onSelect, activeScenarioId }: ScenariosPanelPro
               onClick={() => onSelect(scenario)}
               className={`w-full text-left p-3 rounded-lg border transition-all ${
                 activeScenarioId === scenario.id
-                  ? 'border-violet-600 bg-violet-50'
+                  ? 'border-olive-600 bg-olive-50'
                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }`}
             >

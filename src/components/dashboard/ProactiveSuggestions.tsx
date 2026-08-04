@@ -24,7 +24,7 @@ export function ProactiveSuggestions({
               <p className="text-sm text-zinc-700">{s.message}</p>
               <Link
                 href={s.actionHref}
-                className="mt-2 inline-block rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700"
+                className="mt-2 inline-block rounded-lg bg-olive-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-olive-700"
               >
                 {s.actionLabel}
               </Link>

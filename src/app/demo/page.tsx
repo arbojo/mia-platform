@@ -125,10 +125,10 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-50 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-olive-50 to-white">
       <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-violet-900">MIA Demo</h1>
+          <h1 className="text-xl font-bold text-olive-900">MIA Demo</h1>
           <div className="flex gap-4">
             {user ? (
               <Link href="/dashboard">
@@ -140,7 +140,7 @@ export default function DemoPage() {
                   <Button variant="ghost">Iniciar sesión</Button>
                 </Link>
                 <Link href="/signup">
-                  <Button className="bg-violet-600 hover:bg-violet-700">Crear cuenta</Button>
+                  <Button className="bg-olive-600 hover:bg-olive-700">Crear cuenta</Button>
                 </Link>
               </>
             )}
@@ -156,10 +156,10 @@ export default function DemoPage() {
         </div>
 
         <div className="flex-1 flex flex-col border rounded-xl overflow-hidden bg-white shadow-sm min-h-0">
-          <div className="p-4 border-b bg-violet-50">
+          <div className="p-4 border-b bg-olive-50">
             <div className="flex items-center gap-3">
               <Avatar>
-                <AvatarFallback className="bg-violet-200 text-violet-700">L</AvatarFallback>
+                <AvatarFallback className="bg-olive-200 text-olive-700">L</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="font-semibold text-gray-900">Luna</h3>
@@ -189,7 +189,7 @@ export default function DemoPage() {
                   className={cn(
                     'max-w-[80%] rounded-2xl px-4 py-2',
                     message.role === 'user'
-                      ? 'bg-violet-600 text-white'
+                      ? 'bg-olive-600 text-white'
                       : 'bg-gray-100 text-gray-900'
                   )}
                 >
@@ -227,7 +227,7 @@ export default function DemoPage() {
                 <Button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="bg-violet-600 hover:bg-violet-700"
+                  className="bg-olive-600 hover:bg-olive-700"
                 >
                   {isLoading ? '...' : 'Enviar'}
                 </Button>
@@ -241,7 +241,7 @@ export default function DemoPage() {
             ¿Te gusta lo que ves? Crea tu propia asistente.
           </p>
           <Link href={user ? '/dashboard/onboarding' : '/signup'}>
-            <Button className="bg-violet-600 hover:bg-violet-700">
+            <Button className="bg-olive-600 hover:bg-olive-700">
               {user ? 'Comenzar mi asistente' : 'Crear mi asistente'}
             </Button>
           </Link>

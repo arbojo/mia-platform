@@ -48,9 +48,9 @@ function formatDate(dateStr: string): string {
 export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCardProps) {
   if (loading) {
     return (
-      <div className="rounded-2xl border border-violet-100 bg-white p-6">
+      <div className="rounded-2xl border border-olive-100 bg-white p-6">
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-600 border-t-transparent" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-olive-600 border-t-transparent" />
           <p className="text-sm text-zinc-500">Generando mi reporte semanal...</p>
         </div>
       </div>
@@ -59,7 +59,7 @@ export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCa
 
   if (!report) {
     return (
-      <div className="rounded-2xl border border-violet-100 bg-white p-6 text-center">
+      <div className="rounded-2xl border border-olive-100 bg-white p-6 text-center">
         <p className="text-lg text-zinc-600">Aún no tengo un reporte semanal.</p>
         <p className="mt-1 text-sm text-zinc-400">
           Los reportes se generan automáticamente cada lunes.
@@ -67,7 +67,7 @@ export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCa
         {onGenerate && (
           <button
             onClick={onGenerate}
-            className="mt-4 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+            className="mt-4 rounded-lg bg-olive-600 px-4 py-2 text-sm font-medium text-white hover:bg-olive-700"
           >
             Generar mi primer reporte
           </button>
@@ -77,7 +77,7 @@ export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCa
   }
 
   return (
-    <div className="rounded-2xl border border-violet-100 bg-white p-6">
+    <div className="rounded-2xl border border-olive-100 bg-white p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-zinc-900">Mi reporte semanal</h3>
         <span className="text-xs text-zinc-400">
@@ -86,8 +86,8 @@ export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCa
       </div>
 
       {report.narrative && (
-        <div className="mt-4 rounded-xl bg-violet-50 p-5">
-          <p className="whitespace-pre-line text-sm leading-relaxed text-violet-900">
+        <div className="mt-4 rounded-xl bg-olive-50 p-5">
+          <p className="whitespace-pre-line text-sm leading-relaxed text-olive-900">
             {report.narrative}
           </p>
         </div>

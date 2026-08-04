@@ -257,10 +257,10 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
       </div>
 
       <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
-        <div className="p-4 border-b bg-gradient-to-r from-violet-50 to-fuchsia-50">
+        <div className="p-4 border-b bg-gradient-to-r from-olive-50 to-olive-50">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">M</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-olive-500 to-olive-400 text-white">M</AvatarFallback>
             </Avatar>
             <div>
               <h3 className="font-semibold text-gray-900">MIA</h3>
@@ -282,7 +282,7 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
                 className={cn(
                   'max-w-[80%] rounded-2xl px-4 py-2',
                   message.role === 'user'
-                    ? 'bg-violet-600 text-white'
+                    ? 'bg-olive-600 text-white'
                     : 'bg-zinc-100 text-zinc-900'
                 )}
               >
@@ -318,7 +318,7 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
             <Button
               type="submit"
               disabled={isLoading || !input.trim() || isCreating}
-              className="bg-violet-600 hover:bg-violet-700"
+              className="bg-olive-600 hover:bg-olive-700"
             >
               {isCreating ? 'Creando...' : isLoading ? '...' : 'Enviar'}
             </Button>

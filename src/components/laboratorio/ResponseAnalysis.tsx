@@ -64,8 +64,8 @@ export function ResponseAnalysis({ messageId, assistantId, conversationId }: Res
       </Button>
 
       {isOpen && analysis && (
-        <div className="mt-2 p-3 bg-violet-50 border border-violet-200 rounded-lg text-xs space-y-2">
-          <p className="font-medium text-violet-800">Análisis de respuesta</p>
+        <div className="mt-2 p-3 bg-olive-50 border border-olive-200 rounded-lg text-xs space-y-2">
+          <p className="font-medium text-olive-800">Análisis de respuesta</p>
 
           {analysis.reasoning.length > 0 ? (
             <>

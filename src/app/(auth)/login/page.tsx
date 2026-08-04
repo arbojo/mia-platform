@@ -62,16 +62,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-olive-50 to-white p-4">
       {checkingAuth ? (
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-olive-600 mx-auto" />
           <p className="text-sm text-muted-foreground mt-2">Verificando sesión...</p>
         </div>
       ) : (
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-violet-900">
+          <CardTitle className="text-2xl font-bold text-olive-900">
             Bienvenido a MIA
           </CardTitle>
           <CardDescription>
@@ -126,14 +126,14 @@ export default function LoginPage() {
             {error && (
               <p className="text-sm text-red-500">{error}</p>
             )}
-            <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-700" disabled={loading}>
+            <Button type="submit" className="w-full bg-olive-600 hover:bg-olive-700" disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
             ¿No tienes cuenta?{' '}
-            <Link href="/signup" className="text-violet-600 hover:underline">
+            <Link href="/signup" className="text-olive-600 hover:underline">
               Crear cuenta
             </Link>
           </p>

@@ -154,7 +154,7 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
         <Button
           onClick={handleSave}
           disabled={loading || !name.trim()}
-          className="bg-violet-600 hover:bg-violet-700"
+          className="bg-olive-600 hover:bg-olive-700"
         >
           {loading ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Agregar producto'}
         </Button>
@@ -169,7 +169,7 @@ export function ProductsManager({ businessId, initialProducts }: ProductsManager
             <div className="flex-1">
               <h3 className="font-medium text-gray-900">{product.name}</h3>
               {product.price && (
-                <p className="text-sm text-violet-600 font-semibold">
+                <p className="text-sm text-olive-600 font-semibold">
                   ${product.price}
                 </p>
               )}

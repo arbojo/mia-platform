@@ -73,7 +73,7 @@ export function SalesMetricsCard({ metrics }: { metrics: SalesMetrics }) {
           icon={<Percent className="h-3.5 w-3.5" />}
           label="Conversión"
           value={`${metrics.conversionRate}%`}
-          color="var(--mia-violet)"
+          color="var(--mia-olive)"
         />
       </div>
 

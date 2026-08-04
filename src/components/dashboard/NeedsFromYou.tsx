@@ -27,7 +27,7 @@ export function NeedsFromYou({ data }: { data: NeedsFromYouType }) {
                 <p className="flex-1 text-sm text-zinc-700">{item.description}</p>
                 <Link
                   href="/dashboard/knowledge"
-                  className="shrink-0 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700"
+                  className="shrink-0 rounded-lg bg-olive-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-olive-700"
                 >
                   Enseñame
                 </Link>

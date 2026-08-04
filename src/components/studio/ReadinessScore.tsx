@@ -32,7 +32,7 @@ function getScoreLabel(score: number): string {
 
 export function ReadinessScore({ overall, completeness, consistency, readiness }: ReadinessScoreProps) {
   return (
-    <Card className="border-violet-100">
+    <Card className="border-olive-100">
       <CardContent className="pt-6">
         <div className="text-center mb-6">
           <p className="text-sm text-muted-foreground mb-1">Puntuación de Preparación</p>

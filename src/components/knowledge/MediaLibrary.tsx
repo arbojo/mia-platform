@@ -227,7 +227,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
           <Button
             onClick={() => uploadingName && handleCreateItem(uploadingName)}
             disabled={!canCreate}
-            className="bg-violet-600 hover:bg-violet-700 w-full"
+            className="bg-olive-600 hover:bg-olive-700 w-full"
           >
             Guardar medio
           </Button>
@@ -299,7 +299,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
                     <p className="text-sm text-gray-700 line-clamp-2">{item.answer}</p>
                     {item.trigger_condition && (
                       <p className="text-xs text-gray-500">
-                        Se envía cuando: <span className="text-violet-600">{item.trigger_condition}</span>
+                        Se envía cuando: <span className="text-olive-600">{item.trigger_condition}</span>
                       </p>
                     )}
                   </div>

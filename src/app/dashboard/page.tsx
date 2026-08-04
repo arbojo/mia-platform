@@ -129,7 +129,7 @@ export default async function DashboardPage() {
           action={t.dashboard.readiness}
           meaning={t.dashboard.howReadyMia}
           context={t.dashboard.overallScore}
-          color="var(--mia-violet)"
+          color="var(--mia-olive)"
           icon="Sparkles"
           trend={data.readinessTrend}
           href="/dashboard/knowledge-studio"
@@ -168,8 +168,8 @@ export default async function DashboardPage() {
             description={t.dashboard.thinkingDescription}
             href="/dashboard/knowledge-studio"
             status={data.moduleCards.pensamientoStatus}
-            statusColor="var(--mia-violet)"
-            accentColor="var(--mia-violet)"
+            statusColor="var(--mia-olive)"
+            accentColor="var(--mia-olive)"
             icon={Brain}
           />
           <ModuleCard

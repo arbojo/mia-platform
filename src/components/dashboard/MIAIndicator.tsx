@@ -27,7 +27,7 @@ const presenceConfig: Record<MIAStatus, {
   learning: {
     says: 'Estoy aprendiendo',
     feels: 'Descubriendo algo nuevo',
-    color: 'var(--mia-violet)',
+    color: 'var(--mia-olive)',
     glow: 'rgba(107, 63, 160, 0.4)',
     pulseClass: 'animate-pulse-learning',
     breathDuration: '3s',
