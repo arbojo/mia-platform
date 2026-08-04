@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `51cee3f`.
+> Fuente de verdad: este repositorio en `3ca5306`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `51cee3f` |
-| **Rama** | `` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-04T01:26:11Z |
+| **Commit HEAD** | `3ca5306` |
+| **Rama** | `main` |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-03T21:01:00-06:00 |
 
 ---
 
@@ -483,6 +483,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+3ca5306 feat: add sales closing flow with event detection, outcome tracking and owner signals
 51cee3f docs: regenerate MASTER.md at 4bc195c
 4bc195c fix: crear conversacion lazy y analisis resiliente en el Laboratorio
 48e22b7 docs: regenerate MASTER.md at f52104c
@@ -502,7 +503,6 @@ cef504e docs: regenerate MASTER.md at 887091d
 04b66a4 feat: i18n multilingue completo y ajustes de UI
 e2e6582 docs: regenerate MASTER.md at 120355f
 120355f feat: persistent accessibility preferences (Fase D)
-ce63073 docs: regenerate MASTER.md at 135265d
 ```
 
 ---
