@@ -1,0 +1,90 @@
+{
+  "id": "TASK-20260804-035152257",
+  "title": "Knowledge Studio: Editar antes de Aprobar en sugerencias",
+  "description": "Conectar la tarjeta de sugerencias del Knowledge Studio con un dialogo reutilizable de creacion/edicion de conocimiento. Boton Editar (solo pending con contenido estructurado) abre KnowledgeItemDialog precargado (kind knowledge o rule); Guardar y Aprobar crea knowledge_item/sales_rule con datos editados (source: correction) y aprueba la sugerencia en un solo PATCH. El PATCH existente acepta edits opcionales con validacion espejo de items POST. Refactor de KnowledgeManager para consumir el mismo dialogo. Extraer logica pura de aprobacion en src/lib/knowledge/suggestions.ts con tests.",
+  "scope": {
+    "categories": [
+      "feature",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: dialogo reutilizable desacoplado, logica pura en lib, endpoint combinado con validacion espejo. Sin cambio de esquema.",
+      "timestamp": "2026-08-04T03:52:02.295Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: PATCH extendido con edits opcionales, sin romper comportamiento actual, ownership check existente.",
+      "timestamp": "2026-08-04T03:52:04.952Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: dialogo compartido por Studio y Manager, boton Editar solo en pending con contenido.",
+      "timestamp": "2026-08-04T03:52:07.441Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: validacion de inputs en edits, sin superficie nueva de riesgo; media_type y image_url validados.",
+      "timestamp": "2026-08-04T03:52:16.736Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: gates lint/build/unit/e2e + tests de logica pura de aprobacion.",
+      "timestamp": "2026-08-04T03:52:19.079Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: commit atomico unico, push y verificacion de deploy.",
+      "timestamp": "2026-08-04T03:52:21.636Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: registro en memoria de ingenieria.",
+      "timestamp": "2026-08-04T03:52:23.947Z"
+    }
+  ],
+  "createdAt": "2026-08-04T03:51:52.851Z",
+  "classifiedAt": "2026-08-04T03:51:52.851Z",
+  "approvedAt": "2026-08-04T03:52:23.948Z"
+}

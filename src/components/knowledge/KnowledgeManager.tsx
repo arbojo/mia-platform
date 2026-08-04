@@ -16,6 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { KnowledgeItemDialog } from '@/components/knowledge/KnowledgeItemDialog'
+import type { KnowledgeItemFormValues } from '@/components/knowledge/KnowledgeItemDialog'
 import type { Database } from '@/lib/types'
 
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
@@ -46,11 +48,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
   const [filterCategory, setFilterCategory] = useState<string>('')
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeItem | null>(null)
   const [editTarget, setEditTarget] = useState<KnowledgeItem | null>(null)
-  const [editQuestion, setEditQuestion] = useState('')
-  const [editAnswer, setEditAnswer] = useState('')
-  const [editCategory, setEditCategory] = useState<string>('faq')
-  const [editImageUrl, setEditImageUrl] = useState<string | null>(null)
-  const [editTriggerCondition, setEditTriggerCondition] = useState('')
 
   const filteredItems = items.filter((item) => {
     const matchesCategory = !filterCategory || item.category === filterCategory
@@ -114,19 +111,19 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     setLoading(false)
   }
 
-  const handleEdit = async () => {
-    if (!editTarget || !editQuestion.trim() || !editAnswer.trim()) return
+  const handleEditValues = async (values: KnowledgeItemFormValues) => {
+    if (!editTarget) return
     setLoading(true)
 
     const res = await fetch(`/api/knowledge/items/${editTarget.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        category: editCategory,
-        question: editQuestion,
-        answer: editAnswer,
-        image_url: editImageUrl,
-        trigger_condition: editTriggerCondition.trim() || null,
+        category: values.category,
+        question: values.question,
+        answer: values.answer,
+        image_url: values.imageUrl,
+        trigger_condition: values.triggerCondition.trim() || null,
       }),
     })
 
@@ -150,15 +147,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
       setItems((prev) => prev.filter((i) => i.id !== deleteTarget.id))
       setDeleteTarget(null)
     }
-  }
-
-  const startEdit = (item: KnowledgeItem) => {
-    setEditTarget(item)
-    setEditQuestion(item.question)
-    setEditAnswer(item.answer)
-    setEditCategory(item.category)
-    setEditImageUrl(item.image_url)
-    setEditTriggerCondition(item.trigger_condition ?? '')
   }
 
   const getCategoryLabel = (id: string) =>
@@ -297,7 +285,7 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
                 )}
               </div>
               <div className="flex gap-1">
-                <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
+                <Button variant="ghost" size="sm" onClick={() => setEditTarget(item)}>
                   Editar
                 </Button>
                 <Button
@@ -352,85 +340,24 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={!!editTarget} onOpenChange={(open) => !open && setEditTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Editar conocimiento</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>Categoría</Label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <Button
-                    key={cat.id}
-                    variant={editCategory === cat.id ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setEditCategory(cat.id)}
-                  >
-                    {cat.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Pregunta / Tema</Label>
-              <Input
-                value={editQuestion}
-                onChange={(e) => setEditQuestion(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Respuesta / Información</Label>
-              <Textarea
-                value={editAnswer}
-                onChange={(e) => setEditAnswer(e.target.value)}
-                rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Imagen condicional</Label>
-              {editImageUrl ? (
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={editImageUrl}
-                    alt="Vista previa"
-                    className="h-16 w-16 rounded-lg object-cover"
-                  />
-                  <Button variant="outline" size="sm" onClick={() => setEditImageUrl(null)}>
-                    Quitar imagen
-                  </Button>
-                </div>
-              ) : (
-                <Input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  disabled={uploading}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) void handleUpload(file).then((url) => url && setEditImageUrl(url))
-                  }}
-                />
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label>Condición de envío</Label>
-              <Input
-                value={editTriggerCondition}
-                onChange={(e) => setEditTriggerCondition(e.target.value)}
-                placeholder="Ej: precio, aspecto físico, testimonio, resultados"
-              />
-            </div>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleEdit} disabled={loading}>
-              Guardar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <KnowledgeItemDialog
+        key={editTarget?.id ?? 'none'}
+        open={!!editTarget}
+        onOpenChange={(o) => { if (!o) setEditTarget(null) }}
+        kind="knowledge"
+        businessId={businessId}
+        initial={editTarget ? {
+          category: editTarget.category,
+          question: editTarget.question,
+          answer: editTarget.answer,
+          imageUrl: editTarget.image_url,
+          triggerCondition: editTarget.trigger_condition ?? '',
+        } : undefined}
+        title="Editar conocimiento"
+        submitLabel="Guardar"
+        submitting={loading}
+        onSubmit={handleEditValues}
+      />
     </div>
   )
 }

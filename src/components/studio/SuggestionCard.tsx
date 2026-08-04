@@ -20,6 +20,7 @@ interface Suggestion {
 interface SuggestionCardProps {
   suggestion: Suggestion
   onAction: (id: string, status: 'approved' | 'rejected') => void
+  onEdit?: (suggestion: Suggestion) => void
 }
 
 function getSeverityBadge(severity: string) {
@@ -43,7 +44,7 @@ function getTypeLabel(type: string) {
   return labels[type] ?? type
 }
 
-export function SuggestionCard({ suggestion, onAction }: SuggestionCardProps) {
+export function SuggestionCard({ suggestion, onAction, onEdit }: SuggestionCardProps) {
   const [loading, setLoading] = useState(false)
 
   const handleAction = async (status: 'approved' | 'rejected') => {
@@ -89,6 +90,16 @@ export function SuggestionCard({ suggestion, onAction }: SuggestionCardProps) {
 
         {suggestion.status === 'pending' && (
           <div className="flex gap-2">
+            {onEdit && (suggestion.suggested_question || suggestion.suggested_rule_content) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onEdit(suggestion)}
+                disabled={loading}
+              >
+                Editar
+              </Button>
+            )}
             <Button
               size="sm"
               onClick={() => handleAction('approved')}

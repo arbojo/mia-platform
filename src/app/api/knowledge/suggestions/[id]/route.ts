@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import {
+  buildApprovalPayload,
+  type SuggestionEdits,
+} from '@/lib/knowledge/suggestions'
 
 export async function PATCH(
   request: Request,
@@ -36,18 +40,55 @@ export async function PATCH(
   }
 
   const body = await request.json()
-  const { status } = body as { status: 'approved' | 'rejected' }
+  const { status, edits } = body as {
+    status: 'approved' | 'rejected'
+    edits?: SuggestionEdits
+  }
 
   if (!status || !['approved', 'rejected'].includes(status)) {
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
 
   const admin = createAdminClient()
-
   let knowledge_item_id = null
 
   if (status === 'approved') {
-    if (existing.suggested_question && existing.suggested_answer) {
+    if (edits !== undefined) {
+      const resolution = buildApprovalPayload(existing, edits)
+      if (!resolution.ok) {
+        return NextResponse.json({ error: resolution.error }, { status: 400 })
+      }
+
+      if (resolution.payload.kind === 'knowledge') {
+        const { data: knowledgeItem } = await admin
+          .from('knowledge_items')
+          .insert({
+            business_id: existing.business_id,
+            category: resolution.payload.category,
+            question: resolution.payload.question,
+            answer: resolution.payload.answer,
+            image_url: resolution.payload.image_url,
+            trigger_condition: resolution.payload.trigger_condition,
+            media_type: resolution.payload.media_type,
+            source: 'correction',
+            confidence: 'medium',
+          })
+          .select('id')
+          .single()
+        knowledge_item_id = knowledgeItem?.id
+      } else {
+        const { data: ruleItem } = await admin
+          .from('sales_rules')
+          .insert({
+            business_id: existing.business_id,
+            category: resolution.payload.category,
+            content: resolution.payload.content,
+          })
+          .select('id')
+          .single()
+        knowledge_item_id = ruleItem?.id
+      }
+    } else if (existing.suggested_question && existing.suggested_answer) {
       const { data: knowledgeItem } = await admin
         .from('knowledge_items')
         .insert({

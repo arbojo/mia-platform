@@ -6,6 +6,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ReadinessScore } from '@/components/studio/ReadinessScore'
 import { AnalysisReport } from '@/components/studio/AnalysisReport'
 import { SuggestionCard } from '@/components/studio/SuggestionCard'
+import { KnowledgeItemDialog } from '@/components/knowledge/KnowledgeItemDialog'
+import type { KnowledgeItemFormValues } from '@/components/knowledge/KnowledgeItemDialog'
 
 interface Report {
   id: string
@@ -45,6 +47,8 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initialSuggestions)
   const [analyzing, setAnalyzing] = useState(false)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [editingSuggestion, setEditingSuggestion] = useState<Suggestion | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const handleAnalyze = async () => {
     setAnalyzing(true)
@@ -82,6 +86,37 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
         prev.map((s) => (s.id === suggestionId ? { ...s, status } : s))
       )
     }
+  }
+
+  const handleSuggestionEdit = async (values: KnowledgeItemFormValues) => {
+    if (!editingSuggestion) return
+    setSubmitting(true)
+
+    const edits: Record<string, unknown> = { category: values.category }
+    if (editingSuggestion.suggested_rule_content) {
+      edits.rule_content = values.ruleContent
+    } else {
+      edits.question = values.question
+      edits.answer = values.answer
+      if (values.imageUrl) edits.image_url = values.imageUrl
+      if (values.triggerCondition) edits.trigger_condition = values.triggerCondition
+      if (values.mediaType) edits.media_type = values.mediaType
+    }
+
+    const res = await fetch(`/api/knowledge/suggestions/${editingSuggestion.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'approved', edits }),
+    })
+
+    if (res.ok) {
+      setSuggestions((prev) =>
+        prev.map((s) => (s.id === editingSuggestion.id ? { ...s, status: 'approved' } : s))
+      )
+      setEditingSuggestion(null)
+    }
+
+    setSubmitting(false)
   }
 
   const filteredSuggestions = suggestions.filter((s) =>
@@ -171,6 +206,7 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
                   key={suggestion.id}
                   suggestion={suggestion}
                   onAction={handleSuggestionAction}
+                  onEdit={setEditingSuggestion}
                 />
               ))}
               {filteredSuggestions.length === 0 && (
@@ -205,6 +241,24 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
           </Button>
         </div>
       )}
+
+      <KnowledgeItemDialog
+        key={editingSuggestion?.id ?? 'none'}
+        open={!!editingSuggestion}
+        onOpenChange={(o) => { if (!o) setEditingSuggestion(null) }}
+        kind={editingSuggestion?.suggested_rule_content ? 'rule' : 'knowledge'}
+        businessId={businessId}
+        initial={editingSuggestion ? {
+          category: editingSuggestion.suggested_category ?? (editingSuggestion.suggested_rule_content ? 'restrictions' : 'faq'),
+          question: editingSuggestion.suggested_question ?? '',
+          answer: editingSuggestion.suggested_answer ?? '',
+          ruleContent: editingSuggestion.suggested_rule_content ?? '',
+        } : undefined}
+        title="Editar sugerencia"
+        submitLabel="Guardar y Aprobar"
+        submitting={submitting}
+        onSubmit={handleSuggestionEdit}
+      />
     </div>
   )
 }
