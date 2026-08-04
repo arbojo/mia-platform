@@ -51,6 +51,8 @@ export function ConversationFilters({
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--atmosphere-text-secondary)' }} />
         <input
           type="text"
+          id="conversation-search"
+          name="search"
           placeholder="Buscar por cliente..."
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -72,6 +74,8 @@ export function ConversationFilters({
       </div>
 
       <select
+        id="conversation-status"
+        name="status"
         value={status}
         onChange={(e) => setParam('status', e.target.value)}
         className="rounded-xl border bg-transparent px-3 py-2 text-sm outline-none transition-all duration-200"
@@ -89,6 +93,8 @@ export function ConversationFilters({
       </select>
 
       <select
+        id="conversation-assistant"
+        name="assistant_id"
         value={assistantId}
         onChange={(e) => setParam('assistant_id', e.target.value)}
         className="rounded-xl border bg-transparent px-3 py-2 text-sm outline-none transition-all duration-200"

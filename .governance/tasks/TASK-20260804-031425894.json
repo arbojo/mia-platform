@@ -1,0 +1,40 @@
+{
+  "id": "TASK-20260804-031425894",
+  "title": "Fix a11y: campos de filtro sin id/name en ConversationFilters",
+  "description": "Agregar atributos id/name a los 3 form fields (input de busqueda y 2 selects) en ConversationFilters.tsx para resolver el hallazgo de consola Chrome DevTools (form field sin id/name, count 3) en el deploy mia-platform-psi.vercel.app",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "ui_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): backend, frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-04T03:14:25.170Z",
+  "classifiedAt": "2026-08-04T03:14:25.170Z",
+  "approvedAt": "2026-08-04T03:14:25.170Z",
+  "startedAt": "2026-08-04T03:14:34.575Z",
+  "completedAt": "2026-08-04T03:16:17.887Z"
+}
