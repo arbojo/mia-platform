@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `5bea287`.
+> Fuente de verdad: este repositorio en `a11e4d3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `5bea287` |
+| **Commit HEAD** | `a11e4d3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-03T22:30:59-06:00 |
+| **Generado** | 2026-08-04T00:23:29-06:00 |
 
 ---
 
@@ -416,7 +416,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (32)**:
+**Tareas registradas (33)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -451,7 +451,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-031425894 | Fix a11y: campos de filtro sin id/name en ConversationFilters | completed |
 | TASK-20260804-032853879 | Remediar RLS: drop de 3 tablas legacy expuestas (analytics_sessions, analytics_events, order_requests) | completed |
 | TASK-20260804-034548893 | Documentar deuda tecnica: hallazgos Security Advisor de Supabase | completed |
-| TASK-20260804-035152257 | Knowledge Studio: Editar antes de Aprobar en sugerencias | approved |
+| TASK-20260804-035152257 | Knowledge Studio: Editar antes de Aprobar en sugerencias | completed |
+| TASK-20260804-060647470 | Migracion a esteta Warm Editorial / Hibrido Familiar + micro-transiciones | approved |
 
 ---
 
@@ -490,6 +491,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+a11e4d3 feat(ui): warm editorial design system migration — violet→olive palette
+ad45c82 docs: regenerate MASTER.md at 5bea287
 5bea287 feat: edit-before-approve flow for Knowledge Studio suggestions
 9edd342 docs: regenerate MASTER.md at 2b88051
 2b88051 docs: track remaining Supabase security advisor findings as technical debt
@@ -508,8 +511,6 @@ f52104c docs: regenerate MASTER.md at 7efcedf
 53eb1cf docs: regenerate MASTER.md at dbd7134
 dbd7134 feat: add automated inactivity follow-up worker to whatsapp bridge
 db5fdba docs: regenerate MASTER.md at 5b8e75f
-5b8e75f feat: add per-channel operation modes (active/shadow/paused)
-39dc168 docs: regenerate MASTER.md at 45d1fff
 ```
 
 ---
