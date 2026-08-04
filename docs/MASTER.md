@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7efcedf`.
+> Fuente de verdad: este repositorio en `f52104c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7efcedf` |
+| **Commit HEAD** | `f52104c` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-03T18:16:59-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-03T18:17:48-06:00 |
 
 ---
 
@@ -470,6 +470,7 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+f52104c docs: regenerate MASTER.md at 7efcedf
 7efcedf feat: add media library and media_type for conditional knowledge media
 53eb1cf docs: regenerate MASTER.md at dbd7134
 dbd7134 feat: add automated inactivity follow-up worker to whatsapp bridge
@@ -489,7 +490,6 @@ ce63073 docs: regenerate MASTER.md at 135265d
 135265d chore(governance): record task B completion (health engine)
 c864106 docs: regenerate MASTER.md at 0a76e4a
 0a76e4a feat: persistent health engine (No Pass No Commit)
-c41a97f docs: regenerate MASTER.md at e20feed
 ```
 
 ---
