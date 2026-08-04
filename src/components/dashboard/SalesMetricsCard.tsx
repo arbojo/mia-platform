@@ -40,8 +40,8 @@ function MetricItem({
 export function SalesMetricsCard({ metrics }: { metrics: SalesMetrics }) {
   return (
     <section
-      className="rounded-2xl border p-6"
-      style={{ backgroundColor: 'var(--elevation-1)', borderColor: 'var(--atmosphere-border)' }}
+      className="rounded-2xl border p-6 transition-all duration-500"
+      style={{ backgroundColor: 'var(--elevation-1)', borderColor: 'var(--atmosphere-border)', boxShadow: 'var(--shadow-card)' }}
     >
       <div className="mb-4 flex items-center gap-2">
         <TrendingUp className="h-4 w-4" style={{ color: 'var(--mia-green)' }} />

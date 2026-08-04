@@ -45,10 +45,11 @@ export function VitalPresence({
   return (
     <div
       ref={ref}
-      className="group relative overflow-hidden rounded-2xl border p-6 transition-all duration-700"
+      className="group relative overflow-hidden rounded-2xl border p-6 transition-all duration-700 hover:lift"
       style={{
         backgroundColor: 'var(--elevation-1)',
         borderColor: 'var(--atmosphere-border)',
+        boxShadow: 'var(--shadow-card)',
         cursor: href ? 'pointer' : 'default',
       }}
     >

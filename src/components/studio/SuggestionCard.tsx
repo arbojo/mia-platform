@@ -54,7 +54,7 @@ export function SuggestionCard({ suggestion, onAction, onEdit }: SuggestionCardP
   }
 
   return (
-    <div className={`p-4 border rounded-xl ${suggestion.status === 'approved' ? 'bg-green-50 border-green-200' : suggestion.status === 'rejected' ? 'bg-gray-50 border-gray-200 opacity-60' : ''}`}>
+    <div className={`p-4 border rounded-xl transition-all duration-500 hover:lift ${suggestion.status === 'approved' ? 'bg-olive-50 border-olive-200' : suggestion.status === 'rejected' ? 'bg-stone-50 border-stone-200 opacity-60' : ''}`} style={{ boxShadow: 'var(--shadow-card)' }}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
@@ -66,7 +66,7 @@ export function SuggestionCard({ suggestion, onAction, onEdit }: SuggestionCardP
               </Badge>
             )}
           </div>
-          <h3 className="font-medium text-gray-900">{suggestion.title}</h3>
+          <h3 className="font-medium text-[var(--foreground)]">{suggestion.title}</h3>
           <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
 
           {suggestion.suggested_question && suggestion.suggested_answer && (

@@ -14,10 +14,11 @@ export function ModuleCard({ title, description, href, status, statusColor, acce
   return (
     <Link href={href} className="group block">
       <div
-        className="relative overflow-hidden rounded-2xl border p-5 transition-all duration-500"
+        className="relative overflow-hidden rounded-2xl border p-5 transition-all duration-500 hover:lift"
         style={{
           backgroundColor: 'var(--elevation-1)',
           borderColor: 'var(--atmosphere-border)',
+          boxShadow: 'var(--shadow-card)',
         }}
       >
         <div
