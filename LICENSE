@@ -1,0 +1,68 @@
+# MIA Platform — Proprietary License
+
+**Copyright (c) 2026 MIA Platform. All rights reserved.**
+
+## NOTICE OF PROPRIETARY RIGHTS
+
+This software and its source code (the "Software") are the exclusive property
+of MIA Platform. The Software is **NOT open source** and is **NOT free to use**.
+It is protected by applicable copyright laws and international treaty provisions.
+
+## 1. License Grant
+
+Subject to the terms of this Agreement, MIA Platform grants you a limited,
+non-exclusive, non-transferable, non-sublicensable, revocable license to:
+
+- Use the Software **for personal evaluation purposes only**, without any right
+  to use it for commercial purposes, production use, or operation of a business.
+
+## 2. Restrictions
+
+Unless expressly authorized in writing by MIA Platform, you may NOT:
+
+- **Use** the Software in any commercial, production, or business environment,
+  including as part of a SaaS, multi-tenant, or hosted offering.
+- **Copy, reproduce, or duplicate** the Software, in whole or in part.
+- **Modify, adapt, translate, or create derivative works** from the Software.
+- **Distribute, publish, sell, lease, rent, or sublicense** the Software to any
+  third party, whether for free or for a fee.
+- **Decompile, reverse engineer, disassemble, or otherwise attempt to derive**
+  the source code of the Software.
+- **Remove, obscure, or alter** any copyright, trademark, or proprietary notice
+  contained in the Software.
+- **Use the Software to train, fine-tune, or build any artificial intelligence
+  model**, including models intended for resale or distribution.
+
+## 3. Intellectual Property
+
+The Software, including all its source code, documentation, architecture,
+prompts, domain knowledge, and related materials, is the sole and exclusive
+intellectual property of MIA Platform. Nothing in this Agreement grants you any
+right, title, or interest in or to any intellectual property of MIA Platform.
+
+## 4. Termination
+
+This license is effective until terminated. Your rights under this license will
+terminate automatically and without notice if you fail to comply with any term
+of this Agreement. Upon termination, you must cease all use of the Software and
+destroy all copies in your possession.
+
+## 5. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. THE ENTIRE RISK ARISING OUT OF
+THE USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.
+
+## 6. Limitation of Liability
+
+IN NO EVENT SHALL MIA PLATFORM BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+LOSS OF PROFITS, LOSS OF DATA, OR BUSINESS INTERRUPTION) ARISING OUT OF OR IN
+CONNECTION WITH THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF MIA PLATFORM
+HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+## 7. Contact
+
+For commercial licensing, partnership, or any authorized use of the Software,
+contact MIA Platform.

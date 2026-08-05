@@ -7,7 +7,7 @@ const alias = {
 
 const coverage = {
   provider: 'v8' as const,
-  reporter: ['text', 'json', 'html', 'lcov'],
+  reporter: ['text', 'json', 'json-summary', 'html', 'lcov'],
   reportsDirectory: './coverage',
   thresholds: {
     lines: 65,

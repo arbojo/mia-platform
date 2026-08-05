@@ -2,6 +2,21 @@
 
 Plataforma de asistentes de ventas con inteligencia artificial.
 
+## License
+
+Este proyecto es **software propietario**. No es open source ni de uso libre.
+Todos los derechos reservados. Ver [LICENSE](LICENSE) para los términos completos.
+
+## Quality Gates
+
+![Lines](badges/coverage-lines.svg)
+![Branches](badges/coverage-branches.svg)
+![Functions](badges/coverage-functions.svg)
+![Statements](badges/coverage-statements.svg)
+![E2E](badges/e2e.svg)
+
+> Los badges se regeneran automáticamente tras cada ejecución de tests (local con `npm run test:coverage` / `npm run test:e2e`, y en CI con el job `badges`). Para actualizarlos localmente: `npm run test:badges`.
+
 ## Features
 
 - Arquitectura multi-business preparada para SaaS

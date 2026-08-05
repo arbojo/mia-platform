@@ -1,0 +1,35 @@
+{
+  "id": "TASK-20260805-042439273",
+  "title": "Licencia propietaria del repositorio (no open source, no uso libre)",
+  "description": "Agregar archivo LICENSE que declare derechos reservados y prohiba el uso, copia y distribucion no autorizados",
+  "scope": {
+    "categories": [
+      "documentation"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "documentation"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (1): memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-05T04:24:39.943Z",
+  "classifiedAt": "2026-08-05T04:24:39.943Z",
+  "approvedAt": "2026-08-05T04:24:39.943Z",
+  "completedAt": "2026-08-05T04:27:10.049Z"
+}

@@ -1,0 +1,100 @@
+{
+  "id": "TASK-20260805-042040441",
+  "title": "Sistema de badges de tests en README con actualizacion automatica via CI",
+  "description": "Generar badges SVG de coverage/tests locales y job de CI que los commitea automaticamente tras cada corrida",
+  "scope": {
+    "categories": [
+      "documentation",
+      "infrastructure",
+      "ui_change"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "infrastructure",
+      "documentation"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected, cross-cutting (multi-domain), category requires council. Required agents (8): architect, backend, frontend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Badges SVG locales autogenerados sin dependencias extra; job CI dedicado commit-back. Diseno simple y desacoplado",
+      "timestamp": "2026-08-05T04:20:50.328Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "No toca logica de negocio ni APIs; solo tooling de CI y scripts de generacion",
+      "timestamp": "2026-08-05T04:20:52.646Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Solo README y scripts; sin cambios de UI",
+      "timestamp": "2026-08-05T04:20:54.809Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Badges reflejan coverage y tests reales; script validado contra coverage-summary.json",
+      "timestamp": "2026-08-05T04:20:57.068Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "El job de badges usara github-actions bot con mensaje skip-ci; commit-back seguro y verificable",
+      "timestamp": "2026-08-05T04:20:59.617Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Sin instalaciones nuevas; solo archivos de config y scripts",
+      "timestamp": "2026-08-05T04:21:01.803Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Sin cambios de entorno ni toolchain; badge job aislado en CI",
+      "timestamp": "2026-08-05T04:21:04.154Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentara el sistema de badges en docs y AGENTS",
+      "timestamp": "2026-08-05T04:21:06.403Z"
+    }
+  ],
+  "createdAt": "2026-08-05T04:20:40.097Z",
+  "classifiedAt": "2026-08-05T04:20:40.097Z",
+  "approvedAt": "2026-08-05T04:21:06.405Z",
+  "startedAt": "2026-08-05T04:21:14.270Z",
+  "completedAt": "2026-08-05T04:27:46.885Z"
+}
