@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `fd450f7`.
+> Fuente de verdad: este repositorio en `c3407be`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `fd450f7` |
+| **Commit HEAD** | `c3407be` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-04T22:12:46-06:00 |
+| **Generado** | 2026-08-04T22:28:10-06:00 |
 
 ---
 
@@ -417,7 +417,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (36)**:
+**Tareas registradas (38)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -457,6 +457,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-073649560 | Arquitectura de Interaccion Inteligente para WhatsApp (Baileys + Knowledge Studio) | completed |
 | TASK-20260805-020235754 | Fix reporte de analisis atascado en 'analyzing' | completed |
 | TASK-20260805-035136984 | Entorno de pruebas completo y profesional para produccion | completed |
+| TASK-20260805-042040441 | Sistema de badges de tests en README con actualizacion automatica via CI | completed |
+| TASK-20260805-042439273 | Licencia propietaria del repositorio (no open source, no uso libre) | completed |
 
 ---
 
@@ -495,6 +497,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+c3407be feat: add proprietary license and auto-updating test badges (CI auto-commit)
+d26c3d9 docs: regenerate MASTER.md at fd450f7
 fd450f7 feat: complete professional testing infrastructure (unit, component, api, e2e multi-browser, coverage, CI)
 d63c71d docs: regenerate MASTER.md at af9157c
 af9157c fix: unstick knowledge analysis stuck in 'analyzing' status
@@ -513,8 +517,6 @@ ad45c82 docs: regenerate MASTER.md at 5bea287
 9edd342 docs: regenerate MASTER.md at 2b88051
 2b88051 docs: track remaining Supabase security advisor findings as technical debt
 c5acf00 docs: regenerate MASTER.md at f6e7ba6
-f6e7ba6 chore: close governance task for legacy tables cleanup
-9f6e3c6 security: drop orphaned legacy tables exposed without RLS
 ```
 
 ---
