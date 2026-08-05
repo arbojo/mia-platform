@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `af9157c`.
+> Fuente de verdad: este repositorio en `fd450f7`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `af9157c` |
+| **Commit HEAD** | `fd450f7` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-04T20:09:25-06:00 |
+| **Generado** | 2026-08-04T22:12:46-06:00 |
 
 ---
 
@@ -45,7 +45,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 
 **Dependencias de producción** (19): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, ai, class-variance-authority, clsx, date-fns, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, shadcn, tailwind-merge, tw-animate-css, zod
 
-**DevDependencies** (10): @playwright/test, @tailwindcss/postcss, @types/node, @types/react, @types/react-dom, eslint, eslint-config-next, tailwindcss, typescript, vitest
+**DevDependencies** (15): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest
 
 ---
 
@@ -417,7 +417,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (35)**:
+**Tareas registradas (36)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -456,6 +456,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-060647470 | Migracion a esteta Warm Editorial / Hibrido Familiar + micro-transiciones | approved |
 | TASK-20260804-073649560 | Arquitectura de Interaccion Inteligente para WhatsApp (Baileys + Knowledge Studio) | completed |
 | TASK-20260805-020235754 | Fix reporte de analisis atascado en 'analyzing' | completed |
+| TASK-20260805-035136984 | Entorno de pruebas completo y profesional para produccion | completed |
 
 ---
 
@@ -486,7 +487,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 13. Tests
 
 ```
-public.spec.ts
+
 ```
 
 ---
@@ -494,6 +495,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+fd450f7 feat: complete professional testing infrastructure (unit, component, api, e2e multi-browser, coverage, CI)
+d63c71d docs: regenerate MASTER.md at af9157c
 af9157c fix: unstick knowledge analysis stuck in 'analyzing' status
 485f33d docs: regenerate MASTER.md at d249500
 d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and intent tags
@@ -512,8 +515,6 @@ ad45c82 docs: regenerate MASTER.md at 5bea287
 c5acf00 docs: regenerate MASTER.md at f6e7ba6
 f6e7ba6 chore: close governance task for legacy tables cleanup
 9f6e3c6 security: drop orphaned legacy tables exposed without RLS
-3eaf193 docs: regenerate MASTER.md at d0cf18c
-d0cf18c fix: add id/name attributes to conversation filter form fields
 ```
 
 ---
