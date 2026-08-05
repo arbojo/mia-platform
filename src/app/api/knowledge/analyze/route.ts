@@ -67,13 +67,27 @@ export async function POST(request: Request) {
 
   const { data: existingReport } = await admin
     .from('knowledge_analysis_reports')
-    .select('id, status')
+    .select('id, status, created_at')
     .eq('business_id', business_id)
     .eq('status', 'analyzing')
     .maybeSingle()
 
+  const STALE_ANALYZING_MINUTES = 10
   if (existingReport) {
-    return NextResponse.json({ error: 'Analysis already in progress' }, { status: 409 })
+    const createdAt = existingReport.created_at
+      ? new Date(existingReport.created_at).getTime()
+      : Date.now()
+    const isStale =
+      Date.now() - createdAt > STALE_ANALYZING_MINUTES * 60 * 1000
+
+    if (!isStale) {
+      return NextResponse.json({ error: 'Analysis already in progress' }, { status: 409 })
+    }
+
+    await admin
+      .from('knowledge_analysis_reports')
+      .update({ status: 'failed', completed_at: new Date().toISOString() })
+      .eq('id', existingReport.id)
   }
 
   const { data: report, error: reportError } = await admin
@@ -163,7 +177,7 @@ Sé específico y práctico. Cada sugerencia debe ser accionable.`,
 
     const analysisResult = result.object
 
-    await admin
+    const { error: completeError } = await admin
       .from('knowledge_analysis_reports')
       .update({
         status: 'completed',
@@ -180,6 +194,10 @@ Sé específico y práctico. Cada sugerencia debe ser accionable.`,
         completed_at: new Date().toISOString(),
       })
       .eq('id', report.id)
+
+    if (completeError) {
+      throw new Error(`Failed to complete report: ${completeError.message}`)
+    }
 
     if (analysisResult.suggestions.length > 0) {
       const suggestions = analysisResult.suggestions.map((s) => ({
@@ -214,10 +232,11 @@ Sé específico y práctico. Cada sugerencia debe ser accionable.`,
       },
       suggestions_count: analysisResult.suggestions.length,
     })
-  } catch {
+  } catch (error) {
+    console.error('[knowledge/analyze] Analysis failed:', error)
     await admin
       .from('knowledge_analysis_reports')
-      .update({ status: 'failed' })
+      .update({ status: 'failed', completed_at: new Date().toISOString() })
       .eq('id', report.id)
 
     return NextResponse.json({ error: 'Analysis failed' }, { status: 500 })

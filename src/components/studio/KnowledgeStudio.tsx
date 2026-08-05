@@ -46,12 +46,14 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
   const [report, setReport] = useState<Report | null>(initialReport)
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initialSuggestions)
   const [analyzing, setAnalyzing] = useState(false)
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
   const [editingSuggestion, setEditingSuggestion] = useState<Suggestion | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const handleAnalyze = async () => {
     setAnalyzing(true)
+    setAnalyzeError(null)
     try {
       const res = await fetch('/api/knowledge/analyze', {
         method: 'POST',
@@ -59,16 +61,28 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
         body: JSON.stringify({ business_id: businessId }),
       })
 
-      if (res.ok) {
-        const data = await res.json()
-
-        const reportRes = await fetch(`/api/knowledge/analyze/${data.report_id}`)
-        if (reportRes.ok) {
-          const { report: newReport, suggestions: newSuggestions } = await reportRes.json()
-          setReport(newReport)
-          setSuggestions(newSuggestions)
+      if (!res.ok) {
+        let message = 'No se pudo ejecutar el análisis.'
+        try {
+          const { error } = await res.json()
+          if (error) message = error
+        } catch {
+          // body vacío o no JSON
         }
+        setAnalyzeError(message)
+        return
       }
+
+      const data = await res.json()
+
+      const reportRes = await fetch(`/api/knowledge/analyze/${data.report_id}`)
+      if (reportRes.ok) {
+        const { report: newReport, suggestions: newSuggestions } = await reportRes.json()
+        setReport(newReport)
+        setSuggestions(newSuggestions)
+      }
+    } catch (err) {
+      setAnalyzeError(err instanceof Error ? err.message : 'Error inesperado al analizar.')
     } finally {
       setAnalyzing(false)
     }
@@ -143,6 +157,12 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
           {analyzing ? 'Analizando...' : 'Ejecutar Análisis'}
         </Button>
       </div>
+
+      {analyzeError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {analyzeError}
+        </div>
+      )}
 
       {report && report.status === 'completed' && report.overall_score !== null ? (
         <>
@@ -219,6 +239,22 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
             </div>
           </div>
         </>
+      ) : report && report.status === 'failed' ? (
+        <div className="text-center py-12 border-2 border-dashed border-red-200 rounded-xl">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            El análisis anterior falló
+          </h2>
+          <p className="text-gray-600 mb-6">
+            No se pudo completar el análisis de conocimiento. Puedes intentarlo de nuevo.
+          </p>
+          <Button
+            onClick={handleAnalyze}
+            disabled={analyzing}
+            className="bg-olive-600 hover:bg-olive-700"
+          >
+            {analyzing ? 'Analizando...' : 'Reintentar Análisis'}
+          </Button>
+        </div>
       ) : report && report.status === 'analyzing' ? (
         <div className="text-center py-12">
           <div className="animate-pulse text-olive-600 text-lg">Analizando conocimiento...</div>

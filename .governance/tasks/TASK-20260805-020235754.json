@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260805-020235754",
+  "title": "Fix reporte de analisis atascado en 'analyzing'",
+  "description": "Verificar error del update a completed, marcar failed en catch, y recuperar reportes analyzing huerfanos en lugar de bloquear con 409. Bug en Knowledge Studio: el reporte de analisis queda en 'analyzing' para siempre porque el error del update no se revisa, congelando la UI y bloqueando nuevos analisis.",
+  "scope": {
+    "files": [
+      "src/app/api/knowledge/analyze/route.ts",
+      "src/components/studio/KnowledgeStudio.tsx"
+    ],
+    "domains": [
+      "backend",
+      "frontend"
+    ],
+    "categories": [
+      "bugfix"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ]
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-05T02:02:35.890Z",
+  "classifiedAt": "2026-08-05T02:02:35.890Z",
+  "approvedAt": "2026-08-05T02:02:35.890Z",
+  "startedAt": "2026-08-05T02:02:48.962Z",
+  "completedAt": "2026-08-05T02:08:46.516Z"
+}
