@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d249500`.
+> Fuente de verdad: este repositorio en `af9157c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d249500` |
+| **Commit HEAD** | `af9157c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-04T02:07:29-06:00 |
+| **Generado** | 2026-08-04T20:09:25-06:00 |
 
 ---
 
@@ -417,7 +417,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (34)**:
+**Tareas registradas (35)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -455,6 +455,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260804-035152257 | Knowledge Studio: Editar antes de Aprobar en sugerencias | completed |
 | TASK-20260804-060647470 | Migracion a esteta Warm Editorial / Hibrido Familiar + micro-transiciones | approved |
 | TASK-20260804-073649560 | Arquitectura de Interaccion Inteligente para WhatsApp (Baileys + Knowledge Studio) | completed |
+| TASK-20260805-020235754 | Fix reporte de analisis atascado en 'analyzing' | completed |
 
 ---
 
@@ -493,6 +494,8 @@ public.spec.ts
 ## 14. Commits Recientes
 
 ```
+af9157c fix: unstick knowledge analysis stuck in 'analyzing' status
+485f33d docs: regenerate MASTER.md at d249500
 d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and intent tags
 90d6807 docs: regenerate MASTER.md at 61dbe15
 61dbe15 fix(ui): align html[data-optical] tokens with exact warm editorial palette
@@ -511,8 +514,6 @@ f6e7ba6 chore: close governance task for legacy tables cleanup
 9f6e3c6 security: drop orphaned legacy tables exposed without RLS
 3eaf193 docs: regenerate MASTER.md at d0cf18c
 d0cf18c fix: add id/name attributes to conversation filter form fields
-8032aa5 docs: regenerate MASTER.md at 3ca5306
-3ca5306 feat: add sales closing flow with event detection, outcome tracking and owner signals
 ```
 
 ---
