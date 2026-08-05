@@ -1,0 +1,94 @@
+{
+  "id": "TASK-20260805-035136984",
+  "title": "Entorno de pruebas completo y profesional para produccion",
+  "description": "Construir infraestructura de testing de maxima calidad: (1) cobertura de codigo con @vitest/coverage-v8 y thresholds; (2) tests unitarios, de integracion, de componentes (jsdom + Testing Library), e2e (Playwright multi-browser), a11y, API routes; (3) scripts npm completos, configs estrictas de vitest/playwright; (4) pipeline CI opcional; (5) documentacion QA profesional",
+  "scope": {
+    "categories": [
+      "infrastructure",
+      "documentation",
+      "other"
+    ],
+    "filesAffected": 15,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "frontend",
+      "backend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 15 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Infraestructura de testing estandar y profesional: vitest + coverage, playwright multi-proyecto, jsdom. Sin cambios de esquema ni riesgo de produccion.",
+      "timestamp": "2026-08-05T03:51:45.793Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Tests de integracion sobre runtime, sales, knowledge, channels con mocks existentes; no altera API de produccion.",
+      "timestamp": "2026-08-05T03:51:54.291Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "QA lidera la construccion: define gates, configs, thresholds de cobertura, scripts npm y documentacion profesional.",
+      "timestamp": "2026-08-05T03:52:02.190Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin cambios de produccion; testing infraestructura solo. Commit unico atomico al final.",
+      "timestamp": "2026-08-05T03:52:10.476Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Requiere instalar devDependencies: @vitest/coverage-v8, jsdom, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event.",
+      "timestamp": "2026-08-05T03:52:18.416Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Validara entorno post-instalacion: node_modules consistente, tsconfig, configs vitest/playwright resolubles.",
+      "timestamp": "2026-08-05T03:52:27.290Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentara la infraestructura de testing en memoria de ingenieria: configs, comandos, decisiones.",
+      "timestamp": "2026-08-05T03:52:35.224Z"
+    }
+  ],
+  "createdAt": "2026-08-05T03:51:36.152Z",
+  "classifiedAt": "2026-08-05T03:51:36.152Z",
+  "approvedAt": "2026-08-05T03:52:35.226Z",
+  "startedAt": "2026-08-05T03:52:43.150Z",
+  "completedAt": "2026-08-05T04:12:05.980Z"
+}

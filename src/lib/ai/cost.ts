@@ -7,6 +7,9 @@ export function calculateCost(promptTokens: number, completionTokens: number): n
 }
 
 export function extractTokenUsage(usage: unknown): { promptTokens: number; completionTokens: number } {
+  if (!usage || typeof usage !== 'object') {
+    return { promptTokens: 0, completionTokens: 0 }
+  }
   const u = usage as Record<string, unknown>
   return {
     promptTokens: (u.promptTokens as number) ?? (u.inputTokens as number) ?? 0,
