@@ -1,9 +1,9 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { KnowledgeStudio } from '@/components/studio/KnowledgeStudio'
 
 export default async function KnowledgeStudioPage() {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: business } = await supabase
     .from('businesses')

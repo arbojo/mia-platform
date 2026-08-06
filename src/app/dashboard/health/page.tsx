@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { HealthDashboard } from '@/components/health/HealthDashboard'
 
 export const metadata = {
@@ -7,7 +7,7 @@ export const metadata = {
 }
 
 export default async function HealthPage() {
-  await requireAuth()
+  await requirePageAuth()
 
   return (
     <div className="space-y-6">

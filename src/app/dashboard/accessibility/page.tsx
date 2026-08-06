@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { AccessibilitySettings } from '@/components/accessibility/AccessibilitySettings'
 import { getUserLocale } from '@/lib/i18n/server'
 import { getDictionary } from '@/lib/i18n/dictionaries'
@@ -9,7 +9,7 @@ export const metadata = {
 }
 
 export default async function AccessibilityPage() {
-  const { user } = await requireAuth()
+  const { user } = await requirePageAuth()
   const locale = await getUserLocale(user.id)
   const t = getDictionary(locale)
 

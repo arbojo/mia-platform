@@ -1,0 +1,90 @@
+{
+  "id": "TASK-20260806-030906040",
+  "title": "Start WhatsApp bridge and restore channel connectivity",
+  "description": "Bridge at WHATSAPP_BRIDGE_URL (localhost:3001) refuses connections; BRIDGE_PORT=3001 is configured in services/whatsapp-bridge/.env but no process is listening. Restore the bridge runtime so WhatsApp connections and live signals work.",
+  "scope": {
+    "categories": [
+      "infrastructure"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Restore bridge runtime; port already aligned (3001), config valid",
+      "timestamp": "2026-08-06T03:16:54.946Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Bridge config verified (BRIDGE_PORT=3001, URL matches); runtime restore only",
+      "timestamp": "2026-08-06T03:16:58.464Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Will verify health endpoint and channel status after restart",
+      "timestamp": "2026-08-06T03:17:02.462Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Operational restore; will verify bridge health before reporting",
+      "timestamp": "2026-08-06T03:17:06.910Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Ensure bridge deps installed and service starts cleanly",
+      "timestamp": "2026-08-06T03:17:10.197Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Validate bridge health after restart",
+      "timestamp": "2026-08-06T03:17:13.760Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Will record incident and restore steps in engineering memory",
+      "timestamp": "2026-08-06T03:17:17.125Z"
+    }
+  ],
+  "createdAt": "2026-08-06T03:09:06.772Z",
+  "classifiedAt": "2026-08-06T03:09:06.772Z",
+  "approvedAt": "2026-08-06T03:17:17.126Z",
+  "startedAt": "2026-08-06T03:22:03.814Z",
+  "completedAt": "2026-08-06T03:53:26.251Z"
+}

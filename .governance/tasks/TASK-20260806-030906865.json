@@ -1,0 +1,74 @@
+{
+  "id": "TASK-20260806-030906865",
+  "title": "Internationalize hardcoded dashboard texts",
+  "description": "SalesMetricsCard (hardcoded ES labels + ARS), SignalIndicator labels and legacy --mia-* tokens, and the EXPLORA card on the dashboard use hardcoded Spanish instead of the i18n dictionaries (en/es/ja/pt) and atmosphere variables used elsewhere.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected. Required agents (5): architect, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Fix hardcoded dashboard texts to use i18n dictionaries and atmosphere tokens; low risk, frontend-only",
+      "timestamp": "2026-08-06T03:16:27.961Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Replace hardcoded ES labels and legacy --mia-* tokens with i18n + atmosphere vars",
+      "timestamp": "2026-08-06T03:16:31.596Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Will verify visual coherence and i18n across locales",
+      "timestamp": "2026-08-06T03:16:35.094Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Scope clear, frontend-only, no schema/AI changes",
+      "timestamp": "2026-08-06T03:16:38.653Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Will record outcome in engineering memory",
+      "timestamp": "2026-08-06T03:16:42.233Z"
+    }
+  ],
+  "createdAt": "2026-08-06T03:09:06.765Z",
+  "classifiedAt": "2026-08-06T03:09:06.765Z",
+  "approvedAt": "2026-08-06T03:16:42.235Z",
+  "completedAt": "2026-08-06T04:35:42.497Z"
+}

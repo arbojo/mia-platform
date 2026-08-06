@@ -248,7 +248,8 @@
   --atmosphere-glow: rgba(201, 168, 76, 0.04);
 }
 
-.dark {
+.dark,
+[data-theme="dark"] {
   --background: #1C1B18;
   --foreground: #E8E6E1;
   --card: #252420;
@@ -280,6 +281,70 @@
   --sidebar-accent-foreground: #E8E6E1;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #a3af78;
+
+  /* Dark atmosphere defaults */
+  --elevation-1: rgba(163, 175, 120, 0.05);
+  --elevation-2: rgba(163, 175, 120, 0.09);
+  --elevation-3: rgba(163, 175, 120, 0.14);
+  --atmosphere-bg: #1C1B18;
+  --atmosphere-gradient: linear-gradient(135deg, #1C1B18, #141310);
+  --atmosphere-accent: #a3af78;
+  --atmosphere-text: #E8E6E1;
+  --atmosphere-text-secondary: #9B9A95;
+  --atmosphere-glow: rgba(163, 175, 120, 0.12);
+  --atmosphere-surface: rgba(37, 36, 32, 0.6);
+  --atmosphere-border: rgba(255, 255, 255, 0.08);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Dark mode atmospheres — warm deep palette */
+.dark [data-atmosphere="home"],
+[data-theme="dark"] [data-atmosphere="home"] {
+  --atmosphere-bg: #1C1B18;
+  --atmosphere-gradient: linear-gradient(135deg, #1C1B18, #141310);
+  --atmosphere-accent: #a3af78;
+  --atmosphere-glow: rgba(163, 175, 120, 0.12);
+}
+
+.dark [data-atmosphere="conversations"],
+[data-theme="dark"] [data-atmosphere="conversations"] {
+  --atmosphere-bg: #141B1F;
+  --atmosphere-gradient: linear-gradient(135deg, #141B1F, #0F1518);
+  --atmosphere-accent: #3BC4E0;
+  --atmosphere-glow: rgba(59, 196, 224, 0.12);
+}
+
+.dark [data-atmosphere="memory"],
+[data-theme="dark"] [data-atmosphere="memory"] {
+  --atmosphere-bg: #131B16;
+  --atmosphere-gradient: linear-gradient(180deg, #131B16, #0E1511);
+  --atmosphere-accent: #2D8A5E;
+  --atmosphere-glow: rgba(45, 138, 94, 0.12);
+}
+
+.dark [data-atmosphere="heuristic"],
+[data-theme="dark"] [data-atmosphere="heuristic"] {
+  --atmosphere-bg: #191A15;
+  --atmosphere-gradient: linear-gradient(180deg, #191A15, #12130F);
+  --atmosphere-accent: #a3af78;
+  --atmosphere-glow: rgba(163, 175, 120, 0.12);
+}
+
+.dark [data-atmosphere="lab"],
+[data-theme="dark"] [data-atmosphere="lab"] {
+  --atmosphere-bg: #1B1A16;
+  --atmosphere-gradient: linear-gradient(135deg, #1B1A16, #14130F);
+  --atmosphere-accent: #C9A84C;
+  --atmosphere-glow: rgba(201, 168, 76, 0.12);
+}
+
+.dark [data-atmosphere="council"],
+[data-theme="dark"] [data-atmosphere="council"] {
+  --atmosphere-bg: #17181C;
+  --atmosphere-gradient: linear-gradient(135deg, #17181C, #101114);
+  --atmosphere-accent: #C9A84C;
+  --atmosphere-glow: rgba(201, 168, 76, 0.1);
 }
 
 @layer base {
@@ -377,7 +442,7 @@ html[data-mirror-layout="true"] .sidebar-panel {
 }
 
 /* Modo óptico antifatiga: hereda la paleta exacta del plan */
-html[data-optical] {
+html[data-optical="true"] {
   --background: #1C1B18;
   --foreground: #E8E6E1;
   --card: #252420;
@@ -394,7 +459,7 @@ html[data-optical] {
   --atmosphere-text-secondary: #9B9A95;
 }
 
-html[data-optical].light {
+html[data-optical="true"].light {
   --background: #F9F8F6;
   --foreground: #1A1A1A;
   --card: #FFFFFF;
@@ -411,16 +476,16 @@ html[data-optical].light {
   --atmosphere-text-secondary: #6B6B6B;
 }
 
-html[data-optical] body {
+html[data-optical="true"] body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-html[data-optical] .bg-white {
+html[data-optical="true"] .bg-white {
   background-color: var(--card);
 }
 
-html[data-optical] .bg-black {
+html[data-optical="true"] .bg-black {
   background-color: var(--background);
 }
 

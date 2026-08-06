@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAuth } from '@/lib/auth'
+import { handleApiError } from '@/lib/api-error'
 import { applyConversationOutcome } from '@/lib/sales/events'
 
 const validOutcomes = ['pending', 'interested', 'not_interested', 'sold', 'needs_follow_up'] as const
@@ -48,9 +49,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }

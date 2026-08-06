@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAuth } from '@/lib/auth'
+import { handleApiError } from '@/lib/api-error'
 
 export async function PATCH(
   request: NextRequest,
@@ -39,9 +40,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { handleApiError } from '@/lib/api-error'
 import { runHealthChecks, getLatestHealthReport } from '@/lib/system/health'
 
 export const runtime = 'nodejs'
@@ -35,9 +36,6 @@ export async function GET(request: Request) {
     const latest = await getLatestHealthReport(supabase, businessId)
     return NextResponse.json({ report: latest })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }

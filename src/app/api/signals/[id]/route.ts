@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
+import { handleApiError } from '@/lib/api-error'
 
 export async function PATCH(
   _request: Request,
@@ -30,9 +31,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }

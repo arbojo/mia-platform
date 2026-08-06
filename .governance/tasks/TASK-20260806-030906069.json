@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260806-030906069",
+  "title": "Fix accessibility toggles that apply no styles",
+  "description": "data-optical=\"false\" does not match the html[data-optical] selector so high-contrast rules never activate; only very high data-atmosphere values apply. 2 of the 4 accessibility controls in 3D have no visible effect.",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): backend, frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-06T03:09:06.762Z",
+  "classifiedAt": "2026-08-06T03:09:06.762Z",
+  "approvedAt": "2026-08-06T03:09:06.762Z",
+  "completedAt": "2026-08-06T04:03:03.381Z"
+}

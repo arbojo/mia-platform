@@ -24,6 +24,7 @@ vi.mock('@/lib/system/language', () => ({
 
 import { GET, PATCH } from '@/app/api/profile/language/route'
 import { requireAuth } from '@/lib/auth'
+import { ApiAuthError } from '@/lib/api-error'
 import {
   getProfileLanguage,
   saveProfileLanguage,
@@ -49,12 +50,18 @@ describe('GET /api/profile/language', () => {
     expect(await res.json()).toEqual({ language: 'en' })
   })
 
-  it('devuelve 500 cuando requireAuth falla', async () => {
+  it('devuelve 500 ante error inesperado', async () => {
     mockedRequireAuth.mockRejectedValue(new Error('Not authenticated'))
     const res = await GET()
     expect(res.status).toBe(500)
     const body = await res.json()
     expect(body.error).toContain('Not authenticated')
+  })
+
+  it('devuelve 401 cuando no hay sesión', async () => {
+    mockedRequireAuth.mockRejectedValue(new ApiAuthError())
+    const res = await GET()
+    expect(res.status).toBe(401)
   })
 })
 

@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { OnboardingBanner } from '@/components/dashboard/OnboardingBanner'
 import { AtmosphereProvider } from '@/components/dashboard/AtmosphereProvider'
@@ -14,7 +14,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
   const locale = await getUserLocale(user.id)
 
   const { data: business } = await supabase

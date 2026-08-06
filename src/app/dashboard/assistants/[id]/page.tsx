@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { AssistantConfig } from './AssistantConfig'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -9,7 +9,7 @@ export default async function AssistantDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: business } = await supabase
     .from('businesses')

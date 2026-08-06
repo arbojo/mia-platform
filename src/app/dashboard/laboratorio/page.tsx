@@ -1,8 +1,8 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { LaboratorioClient } from '@/components/laboratorio/LaboratorioClient'
 
 export default async function LaboratorioPage() {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: businesses } = await supabase
     .from('businesses')

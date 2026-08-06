@@ -1,10 +1,12 @@
-import { requireAuth } from '@/lib/auth'
-import { getDashboardData } from '@/lib/dashboard/queries'
+import { requirePageAuth } from '@/lib/auth'
+import { getDashboardData, type ModuleCardStatus } from '@/lib/dashboard/queries'
+import type { Dict } from '@/lib/i18n/dictionaries'
 import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
 import { VitalPresence } from '@/components/dashboard/VitalPresence'
 import { ModuleCard } from '@/components/dashboard/ModuleCard'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
 import { SalesMetricsCard } from '@/components/dashboard/SalesMetricsCard'
+import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -14,8 +16,25 @@ import {
 import { getUserLocale } from '@/lib/i18n/server'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 
+function moduleStatusText(status: ModuleCardStatus, t: Dict): string {
+  switch (status.kind) {
+    case 'no_news':
+      return t.moduleStatus.noNews
+    case 'new_today':
+      return t.moduleStatus.newToday(status.count)
+    case 'analyzing':
+      return t.moduleStatus.analyzing
+    case 'hypotheses':
+      return t.moduleStatus.hypotheses(status.count)
+    case 'no_simulations':
+      return t.moduleStatus.noSimulations
+    case 'score':
+      return t.moduleStatus.score(status.score.toFixed(1))
+  }
+}
+
 export default async function DashboardPage() {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
   const locale = await getUserLocale(user.id)
   const t = getDictionary(locale)
 
@@ -146,6 +165,8 @@ export default async function DashboardPage() {
 
       <SalesMetricsCard metrics={data.salesMetrics} />
 
+      <WeeklyReportCard report={data.weeklyReport} />
+
       <div>
         <h2
           className="mb-4 text-sm font-medium tracking-wide uppercase"
@@ -158,7 +179,7 @@ export default async function DashboardPage() {
             title={t.dashboard.memoryTitle}
             description={t.dashboard.memoryDescription}
             href="/dashboard/knowledge"
-            status={data.moduleCards.memoriaStatus}
+            status={moduleStatusText(data.moduleCards.memoriaStatus, t)}
             statusColor="var(--mia-green)"
             accentColor="var(--mia-green)"
             icon={BookOpen}
@@ -167,7 +188,7 @@ export default async function DashboardPage() {
             title={t.dashboard.thinkingTitle}
             description={t.dashboard.thinkingDescription}
             href="/dashboard/knowledge-studio"
-            status={data.moduleCards.pensamientoStatus}
+            status={moduleStatusText(data.moduleCards.pensamientoStatus, t)}
             statusColor="var(--mia-olive)"
             accentColor="var(--mia-olive)"
             icon={Brain}
@@ -176,7 +197,7 @@ export default async function DashboardPage() {
             title={t.dashboard.labTitle}
             description={t.dashboard.labDescription}
             href="/dashboard/laboratorio"
-            status={data.moduleCards.laboratorioStatus}
+            status={moduleStatusText(data.moduleCards.laboratorioStatus, t)}
             statusColor="var(--mia-gold)"
             accentColor="var(--mia-gold)"
             icon={FlaskConical}

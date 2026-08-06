@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, AlertTriangle, Power, PowerOff, XCircle } from 'lucide-react'
@@ -12,7 +12,7 @@ const STATUS_MAP: Record<string, { label: string; className: string; icon: React
 }
 
 export default async function AssistantsPage() {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: business } = await supabase
     .from('businesses')

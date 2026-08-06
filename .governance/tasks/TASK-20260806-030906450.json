@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260806-030906450",
+  "title": "Mount or remove orphaned WeeklyReportCard",
+  "description": "WeeklyReportCard.tsx is never imported or mounted anywhere in the app. Either wire it into the dashboard or remove the dead component.",
+  "scope": {
+    "categories": [
+      "refactor"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): architect, backend, frontend, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-06T03:09:06.768Z",
+  "classifiedAt": "2026-08-06T03:09:06.768Z",
+  "approvedAt": "2026-08-06T03:09:06.768Z",
+  "completedAt": "2026-08-06T04:09:21.659Z"
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
+import { handleApiError } from '@/lib/api-error'
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,9 +27,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ signals: data ?? [] })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }

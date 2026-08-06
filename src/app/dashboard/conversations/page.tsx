@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { MessageSquare } from 'lucide-react'
@@ -41,7 +41,7 @@ export default async function ConversationsPage({
   searchParams: Promise<{ search?: string; status?: string; assistant_id?: string }>
 }) {
   const params = await searchParams
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: business } = await supabase
     .from('businesses')

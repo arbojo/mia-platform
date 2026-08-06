@@ -1,9 +1,9 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { KnowledgeCenter } from '@/components/knowledge/KnowledgeCenter'
 
 export default async function KnowledgePage() {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: business } = await supabase
     .from('businesses')

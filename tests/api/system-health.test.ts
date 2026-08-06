@@ -28,6 +28,7 @@ vi.mock('@/lib/system/health', () => ({
 
 import { GET } from '@/app/api/system/health/route'
 import { requireAuth } from '@/lib/auth'
+import { ApiAuthError } from '@/lib/api-error'
 import { runHealthChecks, getLatestHealthReport } from '@/lib/system/health'
 
 const mockedRequireAuth = vi.mocked(requireAuth)
@@ -66,11 +67,17 @@ describe('GET /api/system/health', () => {
     expect(await res.json()).toEqual({ report: mockReport })
   })
 
-  it('devuelve 500 ante error de auth', async () => {
+  it('devuelve 500 ante error inesperado', async () => {
     mockedRequireAuth.mockRejectedValue(new Error('Unauthorized'))
     const res = await GET(new Request('http://localhost/api/system/health'))
     expect(res.status).toBe(500)
     const body = await res.json()
     expect(body.error).toContain('Unauthorized')
+  })
+
+  it('devuelve 401 cuando no hay sesión', async () => {
+    mockedRequireAuth.mockRejectedValue(new ApiAuthError())
+    const res = await GET(new Request('http://localhost/api/system/health'))
+    expect(res.status).toBe(401)
   })
 })

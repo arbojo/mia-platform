@@ -100,10 +100,18 @@ export interface GreetingContext {
 
 export type MIAReadiness = ReadinessScore
 
+export type ModuleCardStatus =
+  | { kind: 'no_news' }
+  | { kind: 'new_today'; count: number }
+  | { kind: 'analyzing' }
+  | { kind: 'hypotheses'; count: number }
+  | { kind: 'no_simulations' }
+  | { kind: 'score'; score: number }
+
 export interface ModuleCardData {
-  memoriaStatus: string
-  pensamientoStatus: string
-  laboratorioStatus: string
+  memoriaStatus: ModuleCardStatus
+  pensamientoStatus: ModuleCardStatus
+  laboratorioStatus: ModuleCardStatus
 }
 
 export interface DashboardData {
@@ -807,9 +815,9 @@ export async function getModuleCardData(
   businessId: string
 ): Promise<ModuleCardData> {
   const defaultCards: ModuleCardData = {
-    memoriaStatus: 'Sin novedades',
-    pensamientoStatus: 'En análisis',
-    laboratorioStatus: 'Sin simulaciones',
+    memoriaStatus: { kind: 'no_news' },
+    pensamientoStatus: { kind: 'analyzing' },
+    laboratorioStatus: { kind: 'no_simulations' },
   }
 
   try {
@@ -854,7 +862,7 @@ export async function getModuleCardData(
     const totalToday = approvedToday + newKnowledgeToday
 
     if (totalToday > 0) {
-      defaultCards.memoriaStatus = `${totalToday} nuev${totalToday === 1 ? 'o' : 'os'} hoy`
+      defaultCards.memoriaStatus = { kind: 'new_today', count: totalToday }
     }
 
     const pendingSuggestions = suggestionsResult.count ?? 0
@@ -862,13 +870,13 @@ export async function getModuleCardData(
     const totalAnalyses = pendingSuggestions + activePatterns
 
     if (totalAnalyses > 0) {
-      defaultCards.pensamientoStatus = `${totalAnalyses} ${totalAnalyses === 1 ? 'hipótesis' : 'hipótesis'}`
+      defaultCards.pensamientoStatus = { kind: 'hypotheses', count: totalAnalyses }
     }
 
     const labSessions = labResult.data ?? []
     if (labSessions.length > 0) {
       const avgScore = labSessions.reduce((sum, s) => sum + (s.score ?? 0), 0) / labSessions.length
-      defaultCards.laboratorioStatus = `Score ${avgScore.toFixed(1)}`
+      defaultCards.laboratorioStatus = { kind: 'score', score: avgScore }
     }
   } catch {
     // Graceful degradation — use defaults

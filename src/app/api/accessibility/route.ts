@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
+import { handleApiError } from '@/lib/api-error'
 import {
   getAccessibilityPreferences,
   normalizeAccessibilityPreferences,
@@ -15,10 +16,7 @@ export async function GET() {
     const preferences = await getAccessibilityPreferences(user.id)
     return NextResponse.json({ preferences })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }
 
@@ -49,9 +47,6 @@ export async function PATCH(request: Request) {
     const preferences = await saveAccessibilityPreferences(user.id, next)
     return NextResponse.json({ preferences })
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Error interno' },
-      { status: 500 },
-    )
+    return handleApiError(err)
   }
 }

@@ -1,57 +1,51 @@
-interface WeeklyReport {
-  id: string
-  week_start: string
-  week_end: string
-  conversations_attended: number
-  new_facts_learned: number
-  missing_rules_found: number
-  products_reviewed: number
-  preparation_before: number
-  preparation_after: number
-  narrative: string | null
-  recommendations: Array<{
-    type: 'improvement' | 'suggestion' | 'celebration'
-    content: string
-    priority: 'high' | 'medium' | 'low'
-  }>
-}
+'use client'
 
-interface WeeklyReportCardProps {
-  report: WeeklyReport | null
-  onGenerate?: () => void
-  loading?: boolean
-}
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import type { WeeklyReportData } from '@/lib/ai/weekly-report'
+import { useI18n } from '@/components/dashboard/I18nProvider'
 
-function getRecommendationIcon(type: WeeklyReport['recommendations'][0]['type']) {
-  switch (type) {
-    case 'celebration': return '🎉'
-    case 'improvement': return '🔧'
-    case 'suggestion': return '💡'
-  }
-}
-
-function getRecommendationColor(type: WeeklyReport['recommendations'][0]['type']) {
-  switch (type) {
-    case 'celebration': return 'border-emerald-200 bg-emerald-50'
-    case 'improvement': return 'border-amber-200 bg-amber-50'
-    case 'suggestion': return 'border-blue-200 bg-blue-50'
-  }
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-MX', {
+function formatDate(dateStr: string, locale: string): string {
+  return new Date(dateStr).toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
   })
 }
 
-export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCardProps) {
+export function WeeklyReportCard({ report }: { report: WeeklyReportData | null }) {
+  const { t, locale } = useI18n()
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleGenerate() {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/business/weekly-report', { method: 'POST' })
+      if (!res.ok) throw new Error('generate_failed')
+      router.refresh()
+    } catch {
+      setError(t.weeklyReport.generateFailed)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (loading) {
     return (
-      <div className="rounded-2xl border border-olive-100 bg-white p-6">
+      <div
+        className="rounded-2xl border p-6"
+        style={{ backgroundColor: 'var(--elevation-1)', borderColor: 'var(--atmosphere-border)' }}
+      >
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-olive-600 border-t-transparent" />
-          <p className="text-sm text-zinc-500">Generando mi reporte semanal...</p>
+          <div
+            className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
+            style={{ borderColor: 'var(--atmosphere-accent)', borderTopColor: 'transparent' }}
+          />
+          <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            {t.weeklyReport.generating}
+          </p>
         </div>
       </div>
     )
@@ -59,35 +53,48 @@ export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCa
 
   if (!report) {
     return (
-      <div className="rounded-2xl border border-olive-100 bg-white p-6 text-center">
-        <p className="text-lg text-zinc-600">Aún no tengo un reporte semanal.</p>
-        <p className="mt-1 text-sm text-zinc-400">
-          Los reportes se generan automáticamente cada lunes.
+      <div
+        className="rounded-2xl border p-6 text-center"
+        style={{ backgroundColor: 'var(--elevation-1)', borderColor: 'var(--atmosphere-border)' }}
+      >
+        <p style={{ color: 'var(--atmosphere-text)' }}>{t.weeklyReport.noReport}</p>
+        <p className="mt-1 text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+          {t.weeklyReport.autoMonday}
         </p>
-        {onGenerate && (
-          <button
-            onClick={onGenerate}
-            className="mt-4 rounded-lg bg-olive-600 px-4 py-2 text-sm font-medium text-white hover:bg-olive-700"
-          >
-            Generar mi primer reporte
-          </button>
+        {error && (
+          <p className="mt-2 text-sm" style={{ color: 'var(--mia-gold)' }}>
+            {error}
+          </p>
         )}
+        <button
+          onClick={handleGenerate}
+          className="mt-4 rounded-lg px-4 py-2 text-sm font-medium text-white transition-all duration-200"
+          style={{ backgroundColor: 'var(--atmosphere-accent)' }}
+        >
+          {t.weeklyReport.generate}
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl border border-olive-100 bg-white p-6">
+    <div
+      className="rounded-2xl border p-6"
+      style={{ backgroundColor: 'var(--elevation-1)', borderColor: 'var(--atmosphere-border)' }}
+    >
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-zinc-900">Mi reporte semanal</h3>
-        <span className="text-xs text-zinc-400">
-          {formatDate(report.week_start)} — {formatDate(report.week_end)}
+        <h3 style={{ color: 'var(--atmosphere-text)' }}>{t.weeklyReport.title}</h3>
+        <span className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+          {formatDate(report.week_start, locale)} — {formatDate(report.week_end, locale)}
         </span>
       </div>
 
       {report.narrative && (
-        <div className="mt-4 rounded-xl bg-olive-50 p-5">
-          <p className="whitespace-pre-line text-sm leading-relaxed text-olive-900">
+        <div
+          className="mt-4 rounded-xl p-5"
+          style={{ backgroundColor: 'var(--atmosphere-surface)' }}
+        >
+          <p className="whitespace-pre-line text-sm leading-relaxed" style={{ color: 'var(--atmosphere-text)' }}>
             {report.narrative}
           </p>
         </div>
@@ -95,37 +102,60 @@ export function WeeklyReportCard({ report, onGenerate, loading }: WeeklyReportCa
 
       <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="text-center">
-          <p className="text-2xl font-bold text-zinc-900">{report.conversations_attended}</p>
-          <p className="text-xs text-zinc-500">conversaciones</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--atmosphere-text)' }}>
+            {report.conversations_attended}
+          </p>
+          <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            {t.weeklyReport.conversations}
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-emerald-600">{report.new_facts_learned}</p>
-          <p className="text-xs text-zinc-500">cosas nuevas</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--mia-green)' }}>
+            {report.new_facts_learned}
+          </p>
+          <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            {t.weeklyReport.newFacts}
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-blue-600">{report.products_reviewed}</p>
-          <p className="text-xs text-zinc-500">productos</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--mia-cyan)' }}>
+            {report.products_reviewed}
+          </p>
+          <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            {t.weeklyReport.products}
+          </p>
         </div>
         <div className="text-center">
           <div className="flex items-center justify-center gap-1">
-            <span className="text-lg font-bold text-zinc-700">{report.preparation_before}%</span>
-            <span className="text-xs text-zinc-400">→</span>
-            <span className="text-lg font-bold text-emerald-600">{report.preparation_after}%</span>
+            <span className="text-lg font-bold" style={{ color: 'var(--atmosphere-text)' }}>
+              {report.preparation_before}%
+            </span>
+            <span className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>→</span>
+            <span className="text-lg font-bold" style={{ color: 'var(--mia-green)' }}>
+              {report.preparation_after}%
+            </span>
           </div>
-          <p className="text-xs text-zinc-500">preparación</p>
+          <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            {t.weeklyReport.preparation}
+          </p>
         </div>
       </div>
 
       {report.recommendations.length > 0 && (
         <div className="mt-5">
-          <h4 className="text-sm font-medium text-zinc-700">Recomendaciones</h4>
+          <h4 className="text-sm font-medium" style={{ color: 'var(--atmosphere-text)' }}>
+            {t.weeklyReport.recommendations}
+          </h4>
           <div className="mt-3 space-y-2">
             {report.recommendations.map((rec, i) => (
-              <div key={i} className={`rounded-lg border p-3 ${getRecommendationColor(rec.type)}`}>
-                <div className="flex items-start gap-2">
-                  <span className="text-sm">{getRecommendationIcon(rec.type)}</span>
-                  <p className="text-sm text-zinc-700">{rec.content}</p>
-                </div>
+              <div
+                key={i}
+                className="rounded-lg border p-3"
+                style={{ borderColor: 'var(--atmosphere-border)' }}
+              >
+                <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+                  {rec.content}
+                </p>
               </div>
             ))}
           </div>

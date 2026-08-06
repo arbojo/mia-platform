@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import { ProductsManager } from '@/components/dashboard/ProductsManager'
 
@@ -8,7 +8,7 @@ export default async function ProductsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const { supabase } = await requireAuth()
+  const { supabase } = await requirePageAuth()
 
   const { data: assistant } = await supabase
     .from('assistants')

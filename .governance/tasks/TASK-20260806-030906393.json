@@ -1,0 +1,39 @@
+{
+  "id": "TASK-20260806-030906393",
+  "title": "Wire atmosphere heuristic to knowledge-studio route",
+  "description": "Sidebar.tsx declares atmosphere:\"heuristic\" for /dashboard/knowledge-studio but AtmosphereProvider maps that route to \"memory\". The olive heuristic tone exists in globals.css but is never applied.",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): backend, frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-06T03:09:06.758Z",
+  "classifiedAt": "2026-08-06T03:09:06.758Z",
+  "approvedAt": "2026-08-06T03:09:06.758Z",
+  "startedAt": "2026-08-06T03:58:50.699Z",
+  "completedAt": "2026-08-06T04:03:00.023Z"
+}

@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { TrainingChat } from '@/components/chat/TrainingChat'
@@ -10,7 +10,7 @@ export default async function TrainingPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const { supabase } = await requireAuth()
+  const { supabase } = await requirePageAuth()
 
   const { data: assistant } = await supabase
     .from('assistants')

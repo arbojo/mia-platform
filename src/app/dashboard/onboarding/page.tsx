@@ -1,8 +1,8 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePageAuth } from '@/lib/auth'
 import { ConversationalOnboarding } from '@/components/onboarding/ConversationalOnboarding'
 
 export default async function OnboardingPage() {
-  const { supabase, user } = await requireAuth()
+  const { supabase, user } = await requirePageAuth()
 
   const { data: business } = await supabase
     .from('businesses')
