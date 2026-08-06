@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c3407be`.
+> Fuente de verdad: este repositorio en `a55363a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c3407be` |
+| **Commit HEAD** | `a55363a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-04T22:28:10-06:00 |
+| **Generado** | 2026-08-06T02:18:43-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-32 tablas definidas en `supabase/migrations/`:
+34 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -108,6 +108,8 @@ Patrón de cliente Supabase:
 | IF | 017_profiles_demo.sql |
 | IF | 019_health_checks.sql |
 | sales_events | 025_sales_events.sql |
+| IF | 027_mia_pixel.sql |
+| IF | 027_mia_pixel.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -141,6 +143,8 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 24 | 024_media_assets.sql |
 | 25 | 025_sales_events.sql |
 | 26 | 026_legacy_tables_cleanup.sql |
+| 27 | 027_mia_pixel.sql |
+| 28 | 028_mia_pixel_init_visit.sql |
 
 ---
 
@@ -178,7 +182,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-45 rutas en `src/app/api/`:
+46 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -217,6 +221,7 @@ laboratorio/evaluate
 laboratorio/sessions
 laboratorio/teach
 onboarding/chat
+pixel/track
 profile/language
 sales/events
 sales/metrics
@@ -340,7 +345,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-56 módulos:
+57 módulos:
 
 ```
 ai/client.ts
@@ -357,6 +362,7 @@ ai/readiness.ts
 ai/skills.ts
 ai/usage-report.ts
 ai/weekly-report.ts
+api-error.ts
 auth.ts
 baileys/bridge.ts
 baileys/config.ts
@@ -417,7 +423,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (38)**:
+**Tareas registradas (46)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -459,12 +465,20 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260805-035136984 | Entorno de pruebas completo y profesional para produccion | completed |
 | TASK-20260805-042040441 | Sistema de badges de tests en README con actualizacion automatica via CI | completed |
 | TASK-20260805-042439273 | Licencia propietaria del repositorio (no open source, no uso libre) | completed |
+| TASK-20260806-030906015 | Fix dark mode toggle not affecting layout | completed |
+| TASK-20260806-030906040 | Start WhatsApp bridge and restore channel connectivity | completed |
+| TASK-20260806-030906069 | Fix accessibility toggles that apply no styles | completed |
+| TASK-20260806-030906393 | Wire atmosphere heuristic to knowledge-studio route | completed |
+| TASK-20260806-030906444 | Fix API auth NEXT_REDIRECT to return 401 | completed |
+| TASK-20260806-030906450 | Mount or remove orphaned WeeklyReportCard | completed |
+| TASK-20260806-030906865 | Internationalize hardcoded dashboard texts | completed |
+| TASK-20260806-071815884 | MIA Landings: monorepo evolutivo + Mia Pixel | in_progress |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-15 ADRs en `docs/adr/`:
+16 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -483,6 +497,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 012-council-advisory-gate | 012: Council Advisory Gate — Automated Post-Development Audit |
 | 013-whatsapp-baileys-bridge | 013: WhatsApp Bridge with Baileys |
 | 014-conditional-knowledge-media | 014: Conditional Knowledge Media (Imágenes condicionales en Knowledge Studio) |
+| 015-mia-landings-architecture | 015: MIA Landings — Modular Monorepo, Concilium Agents and Mia Pixel |
 
 ---
 
@@ -497,6 +512,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+a55363a feat: MIA Landings monorepo + Mia Pixel telemetry (ADR-015)
+cc53ad3 fix: batch of sprint fixes - API error handling, i18n dashboard texts, dark mode, a11y toggles, atmosphere heuristic, WhatsApp bridge
+0c96493 docs: regenerate MASTER.md at c3407be
 c3407be feat: add proprietary license and auto-updating test badges (CI auto-commit)
 d26c3d9 docs: regenerate MASTER.md at fd450f7
 fd450f7 feat: complete professional testing infrastructure (unit, component, api, e2e multi-browser, coverage, CI)
@@ -514,9 +532,6 @@ a9889ab docs: regenerate MASTER.md at 7190129
 a11e4d3 feat(ui): warm editorial design system migration — violet→olive palette
 ad45c82 docs: regenerate MASTER.md at 5bea287
 5bea287 feat: edit-before-approve flow for Knowledge Studio suggestions
-9edd342 docs: regenerate MASTER.md at 2b88051
-2b88051 docs: track remaining Supabase security advisor findings as technical debt
-c5acf00 docs: regenerate MASTER.md at f6e7ba6
 ```
 
 ---
