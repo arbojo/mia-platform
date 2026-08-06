@@ -223,7 +223,7 @@ export function buildMasterPrompt(params: {
         : ''
 
   const landingNote = landingContext
-    ? `\n\n## Contexto de esta página\nEstás incrustado en la página de venta de ${landingContext.brand ?? business.name}. Cuando el cliente muestre intención de compra (pregunte por precio, envío o formas de pago), invítalo a completar su pedido en esta misma página: dile que puede registrar su pedido en el formulario de compra de la página y no lo envíes a ningún otro sitio.`
+    ? `\n\n## Contexto de esta página\nEstás incrustado en la página de venta de ${landingContext.brand ?? business.name}. Tu trabajo es resolver dudas y vender dentro de esta página. NUNCA pidas datos personales ni de pedido en el chat (nombre, teléfono, dirección, ciudad): esos datos los captura el formulario de compra de la página. Cuando el cliente muestre intención de compra (pregunte por precio, envío o formas de pago), invítalo a completar su pedido en el formulario de la misma página y no lo envíes a ningún otro sitio.`
     : ''
 
   return `${ai.youAre} ${assistant.name}, ${ai.salesAssistantOf} ${brand?.business_name ?? business.name}.
