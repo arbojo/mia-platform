@@ -1,0 +1,116 @@
+{
+  "id": "TASK-20260806-071815884",
+  "title": "MIA Landings: monorepo evolutivo + Mia Pixel",
+  "description": "Restructurar a npm workspaces con packages/core, crear apps/mia-landings, migracion 027 mia pixel (landing_visits + landing_events), snippet public/pixel.js, endpoint /api/pixel/track, refactor landing Clean Nails hacia el pixel.",
+  "scope": {
+    "filesAffected": 15,
+    "affectedDomains": [
+      "frontend",
+      "backend",
+      "database",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 15 files affected, schema changes required, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer.",
+    "categories": [
+      "feature",
+      "refactor",
+      "schema_change",
+      "api_change",
+      "infrastructure"
+    ],
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Plan validado por el usuario - estructura monorepo evolutiva aprobada",
+      "timestamp": "2026-08-06T07:18:26.239Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migracion 027 mia pixel - landing_visits/landing_events RLS por business",
+      "timestamp": "2026-08-06T07:18:29.034Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Endpoint /api/pixel/track con admin client",
+      "timestamp": "2026-08-06T07:18:32.107Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Snippet pixel.js + refactor landing Clean Nails",
+      "timestamp": "2026-08-06T07:18:35.020Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin datos sensibles, pixel anonimo, RLS por business",
+      "timestamp": "2026-08-06T07:18:44.957Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, typecheck",
+      "timestamp": "2026-08-06T07:18:47.490Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Entrega con commit y push al final",
+      "timestamp": "2026-08-06T07:18:50.114Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Sin cambios de entorno, solo npm workspaces",
+      "timestamp": "2026-08-06T07:18:52.482Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Baseline inalterado",
+      "timestamp": "2026-08-06T07:18:54.904Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "ADR-015 documentado",
+      "timestamp": "2026-08-06T07:18:57.466Z"
+    }
+  ],
+  "createdAt": "2026-08-06T07:18:15.298Z",
+  "classifiedAt": "2026-08-06T07:18:15.298Z",
+  "approvedAt": "2026-08-06T07:18:57.468Z",
+  "startedAt": "2026-08-06T07:19:05.975Z"
+}
