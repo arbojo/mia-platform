@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 
 function getVisitorId(): string {
@@ -34,11 +35,20 @@ export default function WidgetPage() {
   }
 
   return (
-    <ChatWindow
-      assistantName={assistantName}
-      assistantId={assistantId}
-      apiEndpoint="/api/widget/chat"
-      customerExternalId={visitorId}
-    />
+    <div className="relative h-screen w-screen">
+      <button
+        aria-label="Cerrar chat"
+        onClick={() => window.parent.postMessage({ type: 'mia-widget-close' }, '*')}
+        className="absolute top-3 right-3 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md hover:opacity-80 transition-opacity"
+      >
+        <X className="w-4 h-4 text-gray-600" />
+      </button>
+      <ChatWindow
+        assistantName={assistantName}
+        assistantId={assistantId}
+        apiEndpoint="/api/widget/chat"
+        customerExternalId={visitorId}
+      />
+    </div>
   )
 }

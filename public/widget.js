@@ -81,6 +81,16 @@
       container.classList.toggle('mia-hidden', !isOpen)
       container.classList.toggle('mia-visible', isOpen)
     })
+
+    window.addEventListener('message', function(event) {
+      if (event.source !== iframe.contentWindow) return
+      if (event.data && event.data.type === 'mia-widget-close') {
+        isOpen = false
+        toggle.classList.remove('mia-open')
+        container.classList.add('mia-hidden')
+        container.classList.remove('mia-visible')
+      }
+    })
   }
 
   if (document.readyState === 'loading') {
