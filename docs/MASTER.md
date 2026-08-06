@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3a6f3af`.
+> Fuente de verdad: este repositorio en `166b3a9`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3a6f3af` |
+| **Commit HEAD** | `166b3a9` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-06T17:15:38-06:00 |
+| **Generado** | 2026-08-06T17:39:17-06:00 |
 
 ---
 
@@ -512,6 +512,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+166b3a9 fix: widget chat must never ask for order data, only invite to landing form
+b7cf6dc docs: regenerate MASTER.md at 3a6f3af
 3a6f3af feat: widget sales intent invites checkout on landing + larger labeled button
 cca3807 feat: scope widget chat context to landing page
 74c758c feat: add close button to embed widget chat (postMessage bridge)
@@ -530,8 +532,6 @@ d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and inte
 61dbe15 fix(ui): align html[data-optical] tokens with exact warm editorial palette
 a9889ab docs: regenerate MASTER.md at 7190129
 7190129 fix(ui): apply card shadows and hover-lift to dashboard cards
-46af236 docs: regenerate MASTER.md at 65d9618
-65d9618 fix(ui): apply Lora serif font to headings via --font-lora variable
 ```
 
 ---
