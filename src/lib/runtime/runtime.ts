@@ -18,8 +18,9 @@ export async function processStreaming(params: {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>
   requestType: string
   landingContext?: LandingContext
+  intentTag?: string | null
 }) {
-  const { assistantId, businessId, conversationId, messages, requestType, landingContext } = params
+  const { assistantId, businessId, conversationId, messages, requestType, landingContext, intentTag } = params
 
   const supabase = createAdminClient()
   let customerId: string | undefined
@@ -39,7 +40,7 @@ export async function processStreaming(params: {
     assistantId,
     customerId,
     undefined,
-    undefined,
+    intentTag ?? undefined,
     landingContext
   )
 

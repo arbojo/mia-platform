@@ -12,8 +12,7 @@ export type IntentTag =
   | 'contact'
   | 'greeting'
 
-const INTENT_KEYWORDS: Record<IntentTag, string[]> = {
-  catalog: [
+const INTENT_KEYWORDS: Record<IntentTag, string[]> = {  catalog: [
     'producto',
     'productos',
     'catalogo',
@@ -86,6 +85,12 @@ export function detectIntent(message: string, payload?: MessagePayload): IntentT
     }
   }
   return null
+}
+
+export const SALES_INTENTS: IntentTag[] = ['price', 'shipping', 'payment']
+
+export function isSalesIntent(intent: IntentTag | null): boolean {
+  return intent !== null && SALES_INTENTS.includes(intent)
 }
 
 export function intentButtonId(tag: IntentTag): string {

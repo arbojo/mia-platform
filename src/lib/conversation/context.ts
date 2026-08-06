@@ -113,6 +113,7 @@ export async function loadConversationContext(
     locale: await getOwnerLocale(fullAssistant.businesses.owner_id),
     channel,
     intentTag,
+    landingContext,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

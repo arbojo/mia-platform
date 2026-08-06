@@ -6,6 +6,7 @@ import { WidgetAdapter } from '@/lib/channels/adapters/widget'
 import { resolveCustomer } from '@/lib/channels/identity'
 import { LandingContextError } from '@/lib/ai/knowledge'
 import type { LandingContext } from '@/lib/ai/knowledge'
+import { detectIntent, isSalesIntent } from '@/lib/runtime/intents'
 
 function parseLandingContext(raw: unknown): LandingContext | undefined {
   if (raw === undefined || raw === null) return undefined
@@ -33,6 +34,9 @@ export async function POST(request: Request) {
     }
 
     const landingContext = parseLandingContext(body.landingContext)
+
+    const lastMessage = messages[messages.length - 1]
+    const intent = lastMessage?.content ? detectIntent(lastMessage.content) : null
 
     const adapter = new WidgetAdapter()
     const normalized = await adapter.receiveMessage(body)
@@ -67,9 +71,17 @@ export async function POST(request: Request) {
       messages,
       requestType: 'live_customer',
       landingContext,
+      intentTag: intent,
     })
 
-    return result.toTextStreamResponse()
+    const streamResponse = result.toTextStreamResponse()
+    const headers = new Headers(streamResponse.headers)
+    headers.set('X-MIA-Sales-Intent', isSalesIntent(intent) ? '1' : '0')
+
+    return new Response(streamResponse.body, {
+      status: streamResponse.status,
+      headers,
+    })
   } catch (error) {
     console.error('Widget chat error:', error)
 

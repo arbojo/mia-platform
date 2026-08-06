@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, ArrowRight } from 'lucide-react'
 
 interface Message {
   id: string
@@ -62,6 +62,7 @@ export function ChatWindow({
   const [correctionId, setCorrectionId] = useState<string | null>(null)
   const [correctionText, setCorrectionText] = useState('')
   const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
+  const [showCheckoutInvite, setShowCheckoutInvite] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const restoredCountRef = useRef(0)
@@ -127,6 +128,7 @@ export function ChatWindow({
     setInput('')
     setIsLoading(true)
     setIsTyping(true)
+    setShowCheckoutInvite(false)
 
     try {
       const newMessages = messages.slice(restoredCountRef.current)
@@ -153,6 +155,10 @@ export function ChatWindow({
       })
 
       if (!response.ok) throw new Error('Failed to fetch')
+
+      if (landingContext && response.headers.get('X-MIA-Sales-Intent') === '1') {
+        setShowCheckoutInvite(true)
+      }
 
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
@@ -195,6 +201,12 @@ export function ChatWindow({
     } finally {
       setIsLoading(false)
       setIsTyping(false)
+    }
+  }
+
+  const handleCheckoutContinue = () => {
+    if (typeof window !== 'undefined' && window.parent) {
+      window.parent.postMessage({ type: 'mia-widget-checkout' }, '*')
     }
   }
 
@@ -289,6 +301,24 @@ export function ChatWindow({
             </div>
           </div>
         ))}
+
+        {showCheckoutInvite && landingContext && (
+          <div className="flex justify-start">
+            <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white border border-olive-200">
+              <p className="text-xs text-gray-600 mb-2">
+                ¿Listo para continuar? Puedes registrar tu pedido en el formulario de compra de esta página.
+              </p>
+              <Button
+                size="sm"
+                onClick={handleCheckoutContinue}
+                className="w-full bg-olive-600 hover:bg-olive-700"
+              >
+                Continuar mi pedido
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
 
         {correctionId && (
           <div className="flex justify-end">
