@@ -9,6 +9,7 @@ import { detectIntent, buildInteractiveForIntent } from './intents'
 import { processSaleClosing } from '@/lib/sales/process'
 import type { ChannelAdapter, InteractiveComponent } from '@/lib/channels/types'
 import type { WireMessage } from './types'
+import type { LandingContext } from '@/lib/ai/knowledge'
 
 export async function processStreaming(params: {
   assistantId: string
@@ -16,8 +17,9 @@ export async function processStreaming(params: {
   conversationId?: string
   messages: Array<{ role: 'user' | 'assistant'; content: string }>
   requestType: string
+  landingContext?: LandingContext
 }) {
-  const { assistantId, businessId, conversationId, messages, requestType } = params
+  const { assistantId, businessId, conversationId, messages, requestType, landingContext } = params
 
   const supabase = createAdminClient()
   let customerId: string | undefined
@@ -32,7 +34,14 @@ export async function processStreaming(params: {
     }
   }
 
-  const { systemPrompt, usedContext } = await loadConversationContext(businessId, assistantId, customerId)
+  const { systemPrompt, usedContext } = await loadConversationContext(
+    businessId,
+    assistantId,
+    customerId,
+    undefined,
+    undefined,
+    landingContext
+  )
 
   let chatMessages = messages
   if (conversationId) {

@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getBusinessContext, getRecentLessons } from '@/lib/ai/knowledge'
+import { getBusinessContext, getLandingContext, getRecentLessons, type LandingContext } from '@/lib/ai/knowledge'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
 import { getProfileLanguage } from '@/lib/system/language'
@@ -44,8 +44,16 @@ async function getOwnerLocale(ownerId: string): Promise<Locale> {
   }
 }
 
-function cacheKey(businessId: string, assistantId: string, customerId?: string): string {
-  return customerId ? `${businessId}:${assistantId}:${customerId}` : `${businessId}:${assistantId}`
+function cacheKey(
+  businessId: string,
+  assistantId: string,
+  customerId?: string,
+  landingContext?: LandingContext
+): string {
+  const landing = landingContext
+    ? `:landing:${landingContext.landingId}:${landingContext.brand ?? ''}:${landingContext.product ?? ''}`
+    : ''
+  return `${businessId}:${assistantId}:${customerId ?? ''}${landing}`
 }
 
 export async function loadConversationContext(
@@ -53,9 +61,10 @@ export async function loadConversationContext(
   assistantId: string,
   customerId?: string,
   channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget',
-  intentTag?: string | null
+  intentTag?: string | null,
+  landingContext?: LandingContext
 ): Promise<LoadedContext> {
-  const key = `${cacheKey(businessId, assistantId, customerId)}:${channel ?? 'default'}:${intentTag ?? ''}`
+  const key = `${cacheKey(businessId, assistantId, customerId, landingContext)}:${channel ?? 'default'}:${intentTag ?? ''}`
   const cached = contextCache.get(key)
   if (cached && Date.now() < cached.expiresAt) {
     return cached.data
@@ -74,7 +83,7 @@ export async function loadConversationContext(
   }
 
   const [context, recentLessons] = await Promise.all([
-    getBusinessContext(businessId),
+    landingContext ? getLandingContext(businessId, landingContext) : getBusinessContext(businessId),
     getRecentLessons(assistantId, 10),
   ])
 

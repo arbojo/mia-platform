@@ -102,6 +102,115 @@ export async function getBusinessContext(businessId: string) {
   }
 }
 
+export interface LandingContext {
+  landingId: string
+  brand?: string
+  product?: string
+}
+
+export class LandingContextError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 400
+  ) {
+    super(message)
+    this.name = 'LandingContextError'
+  }
+}
+
+function mentionsOtherProduct(text: string, otherNames: string[]): boolean {
+  const t = text.toLowerCase()
+  return otherNames.some((name) => t.includes(name))
+}
+
+export async function getLandingContext(businessId: string, lc: LandingContext) {
+  const supabase = createAdminClient()
+
+  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult] =
+    await Promise.all([
+      supabase
+        .from('brand_identities')
+        .select('*')
+        .eq('business_id', businessId)
+        .maybeSingle(),
+      supabase
+        .from('products')
+        .select('*')
+        .eq('business_id', businessId)
+        .eq('is_active', true),
+      supabase
+        .from('sales_rules')
+        .select('*')
+        .eq('business_id', businessId)
+        .eq('is_active', true)
+        .order('priority', { ascending: false }),
+      supabase
+        .from('ai_instructions')
+        .select('*')
+        .eq('business_id', businessId)
+        .eq('is_active', true)
+        .order('priority', { ascending: false }),
+      supabase
+        .from('knowledge_items')
+        .select('*')
+        .eq('business_id', businessId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('business_memory')
+        .select('*')
+        .eq('business_id', businessId)
+        .eq('is_active', true),
+    ])
+
+  const allProducts = productsResult.data ?? []
+  const target = (lc.product ?? lc.brand ?? '').trim().toLowerCase()
+
+  let targetProduct: (typeof allProducts)[number] | undefined
+  if (target) {
+    targetProduct = allProducts.find((p) => p.name.toLowerCase() === target)
+    if (!targetProduct) {
+      throw new LandingContextError(
+        `Product "${lc.product ?? lc.brand}" not found for landing "${lc.landingId}"`,
+        'LANDING_PRODUCT_NOT_FOUND'
+      )
+    }
+  }
+
+  const otherNames = allProducts
+    .map((p) => p.name.toLowerCase())
+    .filter((name) => name !== (targetProduct?.name.toLowerCase() ?? target))
+
+  const isLandingContent = (text: string): boolean => !mentionsOtherProduct(text, otherNames)
+
+  const knowledge = (knowledgeResult.data ?? []).filter((k) =>
+    isLandingContent(`${k.question ?? ''} ${k.answer ?? ''} ${k.category ?? ''}`)
+  )
+  const rules = (rulesResult.data ?? []).filter((r) =>
+    isLandingContent(`${r.content} ${r.category ?? ''}`)
+  )
+
+  const brandName = (brandResult.data?.business_name ?? '').toLowerCase()
+  const instructions =
+    brandName && lc.brand
+      ? (instructionsResult.data ?? []).filter((i) => !i.instruction.toLowerCase().includes(brandName))
+      : (instructionsResult.data ?? [])
+
+  const brand = brandResult.data
+    ? { ...brandResult.data, business_name: lc.brand ?? brandResult.data.business_name }
+    : brandResult.data
+
+  return {
+    brand,
+    products: targetProduct ? [targetProduct] : [],
+    rules,
+    instructions,
+    knowledge,
+    memory: memoryResult.data ?? [],
+  }
+}
+
 export async function getBusinessExtractionContext(businessId: string) {
   const supabase = createAdminClient()
 

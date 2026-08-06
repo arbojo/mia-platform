@@ -28,6 +28,12 @@ interface ChatWindowProps {
   onTestAgain?: (question: string) => void
   apiEndpoint?: string
   customerExternalId?: string
+  greeting?: string
+  landingContext?: {
+    landingId: string
+    brand?: string
+    product?: string
+  }
 }
 
 function getRequestType(mode?: string): 'live_customer' | 'simulation' | 'training' {
@@ -46,6 +52,8 @@ export function ChatWindow({
   onTestAgain,
   apiEndpoint = '/api/chat',
   customerExternalId,
+  greeting,
+  landingContext,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -140,6 +148,7 @@ export function ChatWindow({
           conversationId,
           requestType: getRequestType(mode),
           ...(customerExternalId ? { customerExternalId } : {}),
+          ...(landingContext ? { landingContext } : {}),
         }),
       })
 
@@ -212,7 +221,9 @@ export function ChatWindow({
           </Avatar>
           <div>
             <h3 className="font-semibold text-gray-900">{assistantName}</h3>
-            <p className="text-sm text-gray-500">Asistente de ventas</p>
+            <p className="text-sm text-gray-500">
+              {landingContext?.brand ? `Asesora de ${landingContext.brand}` : 'Asistente de ventas'}
+            </p>
           </div>
         </div>
       </div>
@@ -220,8 +231,14 @@ export function ChatWindow({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 py-8">
-            <p>Hola, soy {assistantName}.</p>
-            <p>¿En qué puedo ayudarte hoy?</p>
+            {greeting ? (
+              <p className="whitespace-pre-wrap">{greeting}</p>
+            ) : (
+              <>
+                <p>Hola, soy {assistantName}.</p>
+                <p>¿En qué puedo ayudarte hoy?</p>
+              </>
+            )}
           </div>
         )}
 

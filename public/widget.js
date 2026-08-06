@@ -7,7 +7,11 @@
     position: 'bottom-right',
     color: '#7c3aed',
     width: '380px',
-    height: '520px'
+    height: '520px',
+    landingId: null,
+    brand: null,
+    product: null,
+    greeting: null
   }
 
   var scriptEl = document.currentScript
@@ -18,6 +22,10 @@
     config.color = scriptEl.getAttribute('data-color') || config.color
     config.width = scriptEl.getAttribute('data-width') || config.width
     config.height = scriptEl.getAttribute('data-height') || config.height
+    config.landingId = scriptEl.getAttribute('data-landing-id') || null
+    config.brand = scriptEl.getAttribute('data-brand') || null
+    config.product = scriptEl.getAttribute('data-product') || null
+    config.greeting = scriptEl.getAttribute('data-greeting') || null
   }
 
   if (!config.assistantId) {
@@ -48,6 +56,13 @@
       '#mia-widget-toggle .mia-icon-close { display: none; }',
       '#mia-widget-toggle.mia-open .mia-icon-chat { display: none; }',
       '#mia-widget-toggle.mia-open .mia-icon-close { display: block; }',
+      '@media (max-width: 767px) {',
+      '  #mia-widget-container { top: 0; left: 0; right: 0; bottom: 0; }',
+      '  #mia-widget-container.mia-hidden { transform: translateY(100%); opacity: 0; pointer-events: none; }',
+      '  #mia-widget-container.mia-visible { transform: translateY(0); opacity: 1; pointer-events: auto; }',
+      '  #mia-widget-container.mia-bottom-right, #mia-widget-container.mia-bottom-left { bottom: 0; right: 0; left: 0; }',
+      '  #mia-widget-frame { width: 100% !important; height: 100% !important; border-radius: 0; }',
+      '}',
     ].join('\n')
     document.head.appendChild(style)
   }
@@ -69,7 +84,15 @@
 
     var iframe = document.createElement('iframe')
     iframe.id = 'mia-widget-frame'
-    iframe.src = baseUrl + '/widget?assistantId=' + config.assistantId + '&name=' + encodeURIComponent(config.name)
+    var params = [
+      'assistantId=' + encodeURIComponent(config.assistantId),
+      'name=' + encodeURIComponent(config.name)
+    ]
+    if (config.landingId) params.push('landingId=' + encodeURIComponent(config.landingId))
+    if (config.brand) params.push('brand=' + encodeURIComponent(config.brand))
+    if (config.product) params.push('product=' + encodeURIComponent(config.product))
+    if (config.greeting) params.push('greeting=' + encodeURIComponent(config.greeting))
+    iframe.src = baseUrl + '/widget?' + params.join('&')
     iframe.style.width = config.width
     iframe.style.height = config.height
     container.appendChild(iframe)

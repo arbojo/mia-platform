@@ -24,6 +24,21 @@ export default function WidgetPage() {
     if (typeof window === 'undefined') return null
     return new URLSearchParams(window.location.search).get('assistantId')
   })
+  const [greeting] = useState<string | undefined>(() => {
+    if (typeof window === 'undefined') return undefined
+    return new URLSearchParams(window.location.search).get('greeting') || undefined
+  })
+  const [landingContext] = useState(() => {
+    if (typeof window === 'undefined') return undefined
+    const params = new URLSearchParams(window.location.search)
+    const landingId = params.get('landingId')
+    if (!landingId) return undefined
+    return {
+      landingId,
+      brand: params.get('brand') || undefined,
+      product: params.get('product') || undefined,
+    }
+  })
   const [visitorId] = useState(getVisitorId)
 
   if (!assistantId) {
@@ -39,15 +54,17 @@ export default function WidgetPage() {
       <button
         aria-label="Cerrar chat"
         onClick={() => window.parent.postMessage({ type: 'mia-widget-close' }, '*')}
-        className="absolute top-3 right-3 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white border border-gray-200 shadow-md hover:opacity-80 transition-opacity"
+        className="absolute top-3 right-3 z-10 flex items-center justify-center w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md hover:opacity-80 transition-opacity"
       >
-        <X className="w-4 h-4 text-gray-600" />
+        <X className="w-5 h-5 text-gray-600" />
       </button>
       <ChatWindow
         assistantName={assistantName}
         assistantId={assistantId}
         apiEndpoint="/api/widget/chat"
         customerExternalId={visitorId}
+        greeting={greeting}
+        landingContext={landingContext}
       />
     </div>
   )
