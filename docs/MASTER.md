@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a55363a`.
+> Fuente de verdad: este repositorio en `3a6f3af`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a55363a` |
+| **Commit HEAD** | `3a6f3af` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-06T02:18:43-06:00 |
+| **Generado** | 2026-08-06T17:15:38-06:00 |
 
 ---
 
@@ -512,6 +512,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+3a6f3af feat: widget sales intent invites checkout on landing + larger labeled button
+cca3807 feat: scope widget chat context to landing page
+74c758c feat: add close button to embed widget chat (postMessage bridge)
+6960274 docs: regenerate MASTER.md at a55363a
 a55363a feat: MIA Landings monorepo + Mia Pixel telemetry (ADR-015)
 cc53ad3 fix: batch of sprint fixes - API error handling, i18n dashboard texts, dark mode, a11y toggles, atmosphere heuristic, WhatsApp bridge
 0c96493 docs: regenerate MASTER.md at c3407be
@@ -528,10 +532,6 @@ a9889ab docs: regenerate MASTER.md at 7190129
 7190129 fix(ui): apply card shadows and hover-lift to dashboard cards
 46af236 docs: regenerate MASTER.md at 65d9618
 65d9618 fix(ui): apply Lora serif font to headings via --font-lora variable
-30a25ce docs: regenerate MASTER.md at a11e4d3
-a11e4d3 feat(ui): warm editorial design system migration — violet→olive palette
-ad45c82 docs: regenerate MASTER.md at 5bea287
-5bea287 feat: edit-before-approve flow for Knowledge Studio suggestions
 ```
 
 ---
