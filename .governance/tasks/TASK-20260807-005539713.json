@@ -1,0 +1,108 @@
+{
+  "id": "TASK-20260807-005539713",
+  "title": "WhatsApp order capture with delivery-day awareness",
+  "description": "Turn WhatsApp into a real order-capture channel: structured extraction of name/product/address, explicit confirmation flow, SALE_WON with full data packet to owner. Add prompt rule: never promise delivery days/times until they exist in knowledge; use them automatically when the business adds delivery info later.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ai_behaviour",
+      "api_change"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "backend",
+      "sales"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "WhatsApp as order-capture channel: no schema changes, reuse customers.phone/address/city + mia_signals action_payload JSONB; design validated by Mia Landings council (sanity/hook-master)",
+      "timestamp": "2026-08-07T00:59:43.619Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Extra AI call already gated by hasSalesTrigger + slice(-12) + max_tokens 300; add missing phone triggers only; no unbounded cost",
+      "timestamp": "2026-08-07T00:59:45.592Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "detect.ts+events.ts+process.ts extensions are backward-compatible (optional params, additive JSONB payload)",
+      "timestamp": "2026-08-07T00:59:46.779Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "No new secrets, no cross-tenant risk; phone/address only from customer row scoped by business_id; bridge secret flow unchanged",
+      "timestamp": "2026-08-07T00:59:48.992Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "No UI changes; only prompt dictionary + sales pipeline",
+      "timestamp": "2026-08-07T00:59:50.159Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Quality gates: lint+build+unit+e2e+devtools; will verify mia_signals payload contains phone/address after deploy",
+      "timestamp": "2026-08-07T00:59:52.349Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Delivery-day rule is conditional: never promise dates without knowledge; auto-activates when owner adds knowledge item (existing formatKnowledge injection)",
+      "timestamp": "2026-08-07T00:59:53.495Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Atomic commits per file group; push + vercel --prod + HTTP 200 verification",
+      "timestamp": "2026-08-07T00:59:56.789Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Decision recorded: WhatsApp order capture + conditional delivery-day rule (ADR-010 compliant, no schema change)",
+      "timestamp": "2026-08-07T00:59:59.733Z"
+    }
+  ],
+  "createdAt": "2026-08-07T00:55:39.513Z",
+  "classifiedAt": "2026-08-07T00:55:39.513Z",
+  "approvedAt": "2026-08-07T00:59:59.735Z",
+  "startedAt": "2026-08-07T01:00:12.418Z",
+  "completedAt": "2026-08-07T01:12:29.897Z"
+}

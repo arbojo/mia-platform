@@ -10,6 +10,7 @@ vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/sales/events', () => ({
   applyConversationOutcome: vi.fn(),
   emitSalesEvent: vi.fn(),
+  getCustomerData: vi.fn(),
   getCustomerName: vi.fn(),
   hasClosingEvent: vi.fn(),
   notifySaleToOwner: vi.fn(),
@@ -20,6 +21,7 @@ import { hasSalesTrigger, detectSaleOutcome } from '@/lib/sales/detect'
 import {
   applyConversationOutcome,
   emitSalesEvent,
+  getCustomerData,
   getCustomerName,
   hasClosingEvent,
   notifySaleToOwner,
@@ -48,6 +50,7 @@ beforeEach(() => {
   vi.mocked(detectSaleOutcome).mockReset()
   vi.mocked(applyConversationOutcome).mockReset()
   vi.mocked(emitSalesEvent).mockReset()
+  vi.mocked(getCustomerData).mockReset()
   vi.mocked(getCustomerName).mockReset()
   vi.mocked(hasClosingEvent).mockReset()
   vi.mocked(notifySaleToOwner).mockReset()
@@ -79,6 +82,7 @@ describe('processSaleClosing', () => {
       address: 'Av. Siempre Viva 123',
     })
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue('Juan')
 
     await processSaleClosing(params)
@@ -104,6 +108,10 @@ describe('processSaleClosing', () => {
       customerName: 'Juan',
       amount: 120,
       productName: 'Combo 1',
+      products: undefined,
+      phone: null,
+      city: null,
+      address: 'Av. Siempre Viva 123',
       outcome: 'won',
       conversationId: 'conv-1',
     })
@@ -147,10 +155,47 @@ describe('processSaleClosing', () => {
       address: 'Calle 1',
     })
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue(null)
 
     await processSaleClosing(params)
 
-    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockUpdate).toHaveBeenCalledWith({ address: 'Calle 1' })
+  })
+
+  it('emits FOLLOWUP_REQUIRED when sale confirmed without address', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
+      customerName: 'Ana',
+      phone: '5491100000000',
+    })
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+
+    await processSaleClosing(params)
+
+    expect(notifySaleToOwner).toHaveBeenCalledWith({
+      businessId: 'biz-1',
+      customerName: 'Ana',
+      amount: 120,
+      productName: 'Combo 1',
+      products: undefined,
+      phone: '5491100000000',
+      city: null,
+      address: null,
+      outcome: 'won',
+      conversationId: 'conv-1',
+    })
+    expect(emitSalesEvent).toHaveBeenCalledWith({
+      businessId: 'biz-1',
+      assistantId: 'assistant-1',
+      conversationId: 'conv-1',
+      customerId: 'cust-1',
+      eventType: 'FOLLOWUP_REQUIRED',
+      productName: 'Combo 1',
+      metadata: { reason: 'missing_address' },
+    })
   })
 })

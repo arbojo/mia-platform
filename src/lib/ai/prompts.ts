@@ -217,7 +217,7 @@ export function buildMasterPrompt(params: {
 
   const channelNote =
     channel === 'whatsapp'
-      ? `\n\n${ai.whatsappTone}${intentTag ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}` : ''}`
+      ? `\n\n${ai.whatsappTone}\n\n${ai.waOrderCapture}${intentTag ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}` : ''}`
       : intentTag
         ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}`
         : ''
@@ -275,6 +275,8 @@ ${ai.cannotDo}
 
 ## ${ai.closingPolicy}
 ${buildClosingPolicy(personality.sales_aggressiveness, ai)}
+
+${ai.deliveryPromiseRule}
 
 ## ${ai.businessInfo}
 ${brand?.elevator_pitch ?? ai.noBusinessInfo}

@@ -6,7 +6,10 @@ export interface SaleDetectionResult {
   outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | null
   events: DetectedSaleEvent[]
   customerName?: string | null
+  phone?: string | null
+  city?: string | null
   address?: string | null
+  products?: Array<{ name: string; amount?: number | null }> | null
 }
 
 const DETECTION_SYSTEM_PROMPT = `Eres un analizador de conversaciones de venta. Analiza el diálogo entre un vendedor y un cliente y determina el estado de la venta.
@@ -22,7 +25,12 @@ Devuelve SOLO un JSON con esta forma:
     }
   ],
   "customerName": "nombre del cliente si lo proporcionó o null",
-  "address": "dirección de envío si la proporcionó o null"
+  "phone": "teléfono del cliente si lo proporcionó o null (solo dígitos y +, sin espacios)",
+  "city": "ciudad de entrega si la proporcionó o null",
+  "address": "dirección de envío si la proporcionó o null",
+  "products": [
+    {"name": "nombre del producto", "amount": 123.45 o null}
+  ]
 }
 
 Reglas:
@@ -43,6 +51,8 @@ export function hasSalesTrigger(lastUserMessage: string): boolean {
     'si quiero', 'sí quiero', 'acepto', 'acepto el pedido', 'confirmar', 'me interesa',
     'no me interesa', 'no gracias', 'mejor no', 'rechazo', 'caro', 'cara', 'no me alcanza',
     'necesito pensarlo', 'lo pienso', 'lo voy a pensar',
+    'teléfono', 'telefono', 'celular', 'mi número', 'mi numero', 'te paso mi',
+    'me llamo', 'vivo en', 'mi dirección', 'mi direccion', 'domicilio',
   ]
   const normalized = lastUserMessage.toLowerCase()
   return triggers.some((t) => normalized.includes(t))
@@ -117,11 +127,42 @@ export async function detectSaleOutcome(params: {
         validTypes.has((e as DetectedSaleEvent).type)
     )
 
+    const sanitizePhone = (value: unknown): string | undefined => {
+      if (typeof value !== 'string') return undefined
+      const cleaned = value.replace(/[^\d+]/g, '').trim()
+      return cleaned.length >= 6 ? cleaned : undefined
+    }
+
+    const sanitizeShortText = (value: unknown): string | undefined => {
+      if (typeof value !== 'string') return undefined
+      const cleaned = value.trim()
+      return cleaned.length > 0 && cleaned.length <= 200 ? cleaned : undefined
+    }
+
+    const rawProducts = Array.isArray(parsed.products) ? parsed.products : []
+    const products = rawProducts
+      .filter((p): p is { name: string; amount?: number | null } => {
+        if (typeof p !== 'object' || p === null) return false
+        const name = (p as { name?: unknown }).name
+        return typeof name === 'string' && name.trim().length > 0
+      })
+      .map((p) => ({
+        name: (p.name as string).trim().slice(0, 200),
+        amount:
+          typeof p.amount === 'number' && Number.isFinite(p.amount) && p.amount >= 0
+            ? p.amount
+            : undefined,
+      }))
+      .slice(0, 20)
+
     return {
       outcome,
       events,
       customerName: typeof parsed.customerName === 'string' ? parsed.customerName : undefined,
+      phone: sanitizePhone(parsed.phone),
+      city: sanitizeShortText(parsed.city),
       address: typeof parsed.address === 'string' ? parsed.address : undefined,
+      products: products.length > 0 ? products : undefined,
     }
   } catch {
     return { outcome: null, events: [] }

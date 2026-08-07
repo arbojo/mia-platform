@@ -28,6 +28,12 @@ describe('hasSalesTrigger', () => {
     expect(hasSalesTrigger('mejor no, está caro')).toBe(true)
   })
 
+  it('detects contact data sharing', () => {
+    expect(hasSalesTrigger('mi teléfono es 5491100000000')).toBe(true)
+    expect(hasSalesTrigger('te paso mi celular')).toBe(true)
+    expect(hasSalesTrigger('vivo en Mendoza')).toBe(true)
+  })
+
   it('returns false for neutral messages', () => {
     expect(hasSalesTrigger('hola, ¿cómo estás?')).toBe(false)
     expect(hasSalesTrigger('gracias, chau')).toBe(false)
@@ -95,6 +101,58 @@ describe('detectSaleOutcome', () => {
     const result = await detectSaleOutcome(params)
     expect(result.outcome).toBeNull()
     expect(result.events).toEqual([])
+  })
+
+  it('parses phone, city and products with sanitization', async () => {
+    mockCreate.mockResolvedValue({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              outcome: 'sold',
+              events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
+              customerName: 'Ana',
+              phone: '+54 9 11 5555-1234',
+              city: '  Buenos Aires ',
+              address: 'Calle 1',
+              products: [
+                { name: 'Combo 1', amount: 120 },
+                { name: 'Shampoo', amount: null },
+                { name: '', amount: 50 },
+              ],
+            }),
+          },
+        },
+      ],
+      usage: null,
+    })
+
+    const result = await detectSaleOutcome(params)
+    expect(result.phone).toBe('+5491155551234')
+    expect(result.city).toBe('Buenos Aires')
+    expect(result.products).toEqual([
+      { name: 'Combo 1', amount: 120 },
+      { name: 'Shampoo', amount: undefined },
+    ])
+  })
+
+  it('rejects phone values too short to be valid', async () => {
+    mockCreate.mockResolvedValue({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              outcome: 'interested',
+              events: [],
+              phone: '123',
+            }),
+          },
+        },
+      ],
+      usage: null,
+    })
+    const result = await detectSaleOutcome(params)
+    expect(result.phone).toBeUndefined()
   })
 
   it('rejects invalid event types', async () => {

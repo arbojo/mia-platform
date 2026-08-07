@@ -78,6 +78,9 @@ describe('processStreaming', () => {
     expect(loadConversationContext).toHaveBeenCalledWith(
       FAKE_UUIDS.business,
       FAKE_UUIDS.assistant,
+      undefined,
+      undefined,
+      undefined,
       undefined
     )
   })

@@ -128,6 +128,10 @@ export async function notifySaleToOwner(params: {
   customerName?: string | null
   amount?: number | null
   productName?: string | null
+  products?: Array<{ name: string; amount?: number | null }> | null
+  phone?: string | null
+  city?: string | null
+  address?: string | null
   outcome: 'won' | 'lost' | 'interested'
   conversationId?: string | null
 }): Promise<void> {
@@ -141,11 +145,20 @@ export async function notifySaleToOwner(params: {
         ? 'Cliente interesado'
         : 'Venta perdida'
 
+  const items = (params.products?.length ? params.products : params.productName ? [{ name: params.productName, amount: params.amount }] : [])
+    .map((p) => `• ${p.name}${p.amount ? ` — $${p.amount}` : ''}`)
+    .join('\n')
+
+  const contactLine =
+    params.phone || params.address || params.city
+      ? `\n📱 ${params.phone || 'Sin teléfono'}${params.city ? ` · ${params.city}` : ''}${params.address ? `\n📍 ${params.address}` : ''}`
+      : ''
+
   const message =
     params.outcome === 'won'
-      ? `${name} confirmó un pedido${params.productName ? ` de ${params.productName}` : ''}${params.amount ? ` por $${params.amount}` : ''}`
+      ? `${name} confirmó un pedido${items ? `:\n${items}` : ''}${params.amount ? `\nTotal: $${params.amount}` : ''}${contactLine}${params.address ? '' : '\n📍 Pendiente de dirección'}`
       : params.outcome === 'interested'
-        ? `${name} mostró interés${params.productName ? ` en ${params.productName}` : ''}. Requiere seguimiento.`
+        ? `${name} mostró interés${items ? ` en:\n${items}` : ''}. Requiere seguimiento.${contactLine}`
         : `${name} descartó la compra${params.productName ? ` de ${params.productName}` : ''}.`
 
   await supabase.from('mia_signals').insert({
@@ -157,7 +170,21 @@ export async function notifySaleToOwner(params: {
     source: 'sales-closing',
     status: 'pending',
     action_available: params.conversationId ? 'open_conversation' : null,
-    action_payload: params.conversationId ? { conversation_id: params.conversationId } : {},
+    action_payload: {
+      conversation_id: params.conversationId ?? null,
+      outcome: params.outcome,
+      delivery_pending: params.outcome === 'won' && !params.address,
+      customer: {
+        name: params.customerName ?? null,
+        phone: params.phone ?? null,
+        city: params.city ?? null,
+        address: params.address ?? null,
+      },
+      products: items
+        ? (params.products?.length ? params.products : params.productName ? [{ name: params.productName, amount: params.amount }] : [])
+        : [],
+      amount: params.amount ?? null,
+    },
   })
 }
 
@@ -169,4 +196,21 @@ export async function getCustomerName(customerId: string): Promise<string | null
     .eq('id', customerId)
     .maybeSingle()
   return data?.name ?? null
+}
+
+export async function getCustomerData(customerId: string): Promise<{
+  name: string | null
+  phone: string | null
+  city: string | null
+  address: string | null
+} | null> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('customers')
+    .select('name, phone, city, address')
+    .eq('id', customerId)
+    .maybeSingle()
+  return data
+    ? { name: data.name, phone: data.phone, city: data.city, address: data.address }
+    : null
 }

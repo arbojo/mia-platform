@@ -2,6 +2,7 @@ import { detectSaleOutcome, hasSalesTrigger } from './detect'
 import {
   applyConversationOutcome,
   emitSalesEvent,
+  getCustomerData,
   getCustomerName,
   hasClosingEvent,
   notifySaleToOwner,
@@ -56,23 +57,53 @@ export async function processSaleClosing(params: {
     })
 
     if (result.outcome === 'sold' || result.outcome === 'interested' || result.outcome === 'not_interested') {
-      const customerName = result.customerName ?? (await getCustomerName(customerId))
+      const customerData = await getCustomerData(customerId)
+      const customerName =
+        result.customerName ??
+        (customerData?.name ?? (await getCustomerName(customerId)))
       const deal = result.events.find((e) => e.amount != null)
       const product = result.events.find((e) => e.productName)?.productName ?? null
+
+      const resolved = {
+        phone: result.phone ?? customerData?.phone ?? null,
+        city: result.city ?? customerData?.city ?? null,
+        address: result.address ?? customerData?.address ?? null,
+      }
 
       await notifySaleToOwner({
         businessId,
         customerName,
         amount: deal?.amount ?? null,
         productName: product,
+        products: result.products,
+        phone: resolved.phone,
+        city: resolved.city,
+        address: resolved.address,
         outcome:
           result.outcome === 'sold' ? 'won' : result.outcome === 'interested' ? 'interested' : 'lost',
         conversationId,
       })
 
-      if (result.address) {
-        const supabase = await import('@/lib/supabase/admin').then((m) => m.createAdminClient())
-        await supabase.from('customers').update({ address: result.address }).eq('id', customerId)
+      const supabase = await import('@/lib/supabase/admin').then((m) => m.createAdminClient())
+      const customerUpdate: Record<string, string> = {}
+      if (resolved.phone) customerUpdate.phone = resolved.phone
+      if (resolved.city) customerUpdate.city = resolved.city
+      if (resolved.address) customerUpdate.address = resolved.address
+      if (Object.keys(customerUpdate).length > 0) {
+        await supabase.from('customers').update(customerUpdate).eq('id', customerId)
+      }
+
+      // Pedido confirmado pero sin dirección: el equipo debe coordinar la entrega.
+      if (result.outcome === 'sold' && !resolved.address) {
+        await emitSalesEvent({
+          businessId,
+          assistantId,
+          conversationId,
+          customerId,
+          eventType: 'FOLLOWUP_REQUIRED',
+          productName: product,
+          metadata: { reason: 'missing_address' },
+        })
       }
     }
   }
