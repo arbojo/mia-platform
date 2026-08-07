@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `166b3a9`.
+> Fuente de verdad: este repositorio en `229133f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `166b3a9` |
+| **Commit HEAD** | `229133f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-06T17:39:17-06:00 |
+| **Generado** | 2026-08-06T18:41:30-06:00 |
 
 ---
 
@@ -512,6 +512,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+229133f feat: widget buy button with shimmer animates into landing order form
+168a07d docs: regenerate MASTER.md at 166b3a9
 166b3a9 fix: widget chat must never ask for order data, only invite to landing form
 b7cf6dc docs: regenerate MASTER.md at 3a6f3af
 3a6f3af feat: widget sales intent invites checkout on landing + larger labeled button
@@ -530,8 +532,6 @@ af9157c fix: unstick knowledge analysis stuck in 'analyzing' status
 d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and intent tags
 90d6807 docs: regenerate MASTER.md at 61dbe15
 61dbe15 fix(ui): align html[data-optical] tokens with exact warm editorial palette
-a9889ab docs: regenerate MASTER.md at 7190129
-7190129 fix(ui): apply card shadows and hover-lift to dashboard cards
 ```
 
 ---
