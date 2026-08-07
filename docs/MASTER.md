@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `229133f`.
+> Fuente de verdad: este repositorio en `94a60e0`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `229133f` |
+| **Commit HEAD** | `94a60e0` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-06T18:41:30-06:00 |
+| **Generado** | 2026-08-06T19:13:03-06:00 |
 
 ---
 
@@ -423,7 +423,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (46)**:
+**Tareas registradas (47)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -473,6 +473,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260806-030906450 | Mount or remove orphaned WeeklyReportCard | completed |
 | TASK-20260806-030906865 | Internationalize hardcoded dashboard texts | completed |
 | TASK-20260806-071815884 | MIA Landings: monorepo evolutivo + Mia Pixel | in_progress |
+| TASK-20260807-005539713 | WhatsApp order capture with delivery-day awareness | completed |
 
 ---
 
@@ -512,6 +513,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+94a60e0 feat: WhatsApp order capture with delivery-day awareness
+104bad5 docs: regenerate MASTER.md at 229133f
 229133f feat: widget buy button with shimmer animates into landing order form
 168a07d docs: regenerate MASTER.md at 166b3a9
 166b3a9 fix: widget chat must never ask for order data, only invite to landing form
@@ -530,8 +533,6 @@ d63c71d docs: regenerate MASTER.md at af9157c
 af9157c fix: unstick knowledge analysis stuck in 'analyzing' status
 485f33d docs: regenerate MASTER.md at d249500
 d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and intent tags
-90d6807 docs: regenerate MASTER.md at 61dbe15
-61dbe15 fix(ui): align html[data-optical] tokens with exact warm editorial palette
 ```
 
 ---
