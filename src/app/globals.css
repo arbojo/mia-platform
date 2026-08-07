@@ -576,3 +576,48 @@ html[data-color-temp="cool"] {
 .card-elevated:hover {
   box-shadow: var(--shadow-card-hover);
 }
+
+/* =============================================
+   Botón de compra del chat — destello shimmer
+   ============================================= */
+
+/* Doble destello one-shot (no bucle infinito): barrido, pausa, rebote */
+@keyframes mia-btn-shine {
+  0% {
+    transform: translateX(-130%);
+  }
+  38% {
+    transform: translateX(130%);
+  }
+  50% {
+    transform: translateX(130%);
+  }
+  64% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+.mia-shimmer-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  animation: mia-btn-shine 1.8s ease-in-out 0.5s 1 backwards;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mia-shimmer-layer {
+    animation: none;
+    display: none;
+  }
+}

@@ -63,6 +63,7 @@ export function ChatWindow({
   const [correctionText, setCorrectionText] = useState('')
   const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
   const [showCheckoutInvite, setShowCheckoutInvite] = useState(false)
+  const [isOpeningForm, setIsOpeningForm] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const restoredCountRef = useRef(0)
@@ -158,6 +159,9 @@ export function ChatWindow({
 
       if (landingContext && response.headers.get('X-MIA-Sales-Intent') === '1') {
         setShowCheckoutInvite(true)
+        if (typeof window !== 'undefined' && window.parent) {
+          window.parent.postMessage({ type: 'mia-widget-sales-intent' }, '*')
+        }
       }
 
       const reader = response.body?.getReader()
@@ -205,8 +209,15 @@ export function ChatWindow({
   }
 
   const handleCheckoutContinue = () => {
+    if (isOpeningForm) return
+    setIsOpeningForm(true)
     if (typeof window !== 'undefined' && window.parent) {
       window.parent.postMessage({ type: 'mia-widget-checkout' }, '*')
+      // Cierra el widget en móvil para que no tape el formulario (solo postMessage,
+      // el iframe nunca toca el DOM del padre).
+      window.setTimeout(() => {
+        window.parent.postMessage({ type: 'mia-widget-close' }, '*')
+      }, 450)
     }
   }
 
@@ -306,14 +317,17 @@ export function ChatWindow({
           <div className="flex justify-start">
             <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white border border-olive-200">
               <p className="text-xs text-gray-600 mb-2">
-                ¿Listo para continuar? Puedes registrar tu pedido en el formulario de compra de esta página.
+                ¿Listo para continuar? Completamos tu pedido en el formulario de esta página, sin pedirte datos aquí.
               </p>
               <Button
+                id="btn-comprar-mia"
                 size="sm"
                 onClick={handleCheckoutContinue}
-                className="w-full bg-olive-600 hover:bg-olive-700"
+                disabled={isOpeningForm}
+                className="relative w-full overflow-hidden bg-olive-600 hover:bg-olive-700"
               >
-                Continuar mi pedido
+                <span className="mia-shimmer-layer" aria-hidden="true" />
+                {isOpeningForm ? 'Abriendo formulario…' : 'Comprar ahora'}
                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             </div>
