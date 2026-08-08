@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `94a60e0`.
+> Fuente de verdad: este repositorio en `7eabe5b`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `94a60e0` |
+| **Commit HEAD** | `7eabe5b` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-06T19:13:03-06:00 |
+| **Generado** | 2026-08-07T18:04:24-06:00 |
 
 ---
 
@@ -45,7 +45,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 
 **Dependencias de producción** (19): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, ai, class-variance-authority, clsx, date-fns, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, shadcn, tailwind-merge, tw-animate-css, zod
 
-**DevDependencies** (15): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest
+**DevDependencies** (16): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest
 
 ---
 
@@ -145,6 +145,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 26 | 026_legacy_tables_cleanup.sql |
 | 27 | 027_mia_pixel.sql |
 | 28 | 028_mia_pixel_init_visit.sql |
+| 29 | 029_product_media.sql |
 
 ---
 
@@ -423,7 +424,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (47)**:
+**Tareas registradas (48)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -474,12 +475,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260806-030906865 | Internationalize hardcoded dashboard texts | completed |
 | TASK-20260806-071815884 | MIA Landings: monorepo evolutivo + Mia Pixel | in_progress |
 | TASK-20260807-005539713 | WhatsApp order capture with delivery-day awareness | completed |
+| TASK-20260807-233927408 | Medios por Producto: product_id en multimedia + selector UI + product_context en sesion | completed |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-16 ADRs en `docs/adr/`:
+17 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -499,6 +501,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 013-whatsapp-baileys-bridge | 013: WhatsApp Bridge with Baileys |
 | 014-conditional-knowledge-media | 014: Conditional Knowledge Media (Imágenes condicionales en Knowledge Studio) |
 | 015-mia-landings-architecture | 015: MIA Landings — Modular Monorepo, Concilium Agents and Mia Pixel |
+| 016-product-media-context | 016: Medios por Producto + product_context |
 
 ---
 
@@ -513,6 +516,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7eabe5b chore: pin chrome-devtools-mcp as local dev dependency
+47b241e feat: scope knowledge media to catalog product with product_context
+3ececd5 docs: regenerate MASTER.md at 94a60e0
 94a60e0 feat: WhatsApp order capture with delivery-day awareness
 104bad5 docs: regenerate MASTER.md at 229133f
 229133f feat: widget buy button with shimmer animates into landing order form
@@ -530,9 +536,6 @@ c3407be feat: add proprietary license and auto-updating test badges (CI auto-com
 d26c3d9 docs: regenerate MASTER.md at fd450f7
 fd450f7 feat: complete professional testing infrastructure (unit, component, api, e2e multi-browser, coverage, CI)
 d63c71d docs: regenerate MASTER.md at af9157c
-af9157c fix: unstick knowledge analysis stuck in 'analyzing' status
-485f33d docs: regenerate MASTER.md at d249500
-d249500 feat: interactive WhatsApp UX with Baileys quick replies, lists and intent tags
 ```
 
 ---
