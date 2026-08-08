@@ -19,6 +19,8 @@ export const es = {
     memoryQuestion: '¿qué descubrió MIA?',
     thinking: 'Pensamiento',
     thinkingQuestion: '¿qué está analizando?',
+    catalog: 'Catálogo',
+    catalogQuestion: 'productos y su multimedia',
     grow: 'Crece',
     lab: 'Laboratorio',
     labQuestion: '¿cómo puede mejorar?',

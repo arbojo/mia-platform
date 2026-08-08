@@ -15,6 +15,7 @@ import {
   Cable,
   HeartPulse,
   Accessibility,
+  ShoppingBag,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
@@ -37,6 +38,7 @@ export function Sidebar() {
       items: [
         { href: '/dashboard/knowledge', label: t.nav.memory, question: t.nav.memoryQuestion, icon: BookOpen, atmosphere: 'memory' },
         { href: '/dashboard/knowledge-studio', label: t.nav.thinking, question: t.nav.thinkingQuestion, icon: Brain, atmosphere: 'heuristic' },
+        { href: '/dashboard/catalog', label: t.nav.catalog, question: t.nav.catalogQuestion, icon: ShoppingBag, atmosphere: 'catalog' },
       ],
     },
     {

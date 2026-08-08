@@ -81,6 +81,7 @@ export interface Database {
           id: string
           business_id: string
           name: string
+          sku: string | null
           price: number | null
           description: string | null
           benefits: string | null
@@ -96,6 +97,7 @@ export interface Database {
           id?: string
           business_id: string
           name: string
+          sku?: string | null
           price?: number | null
           description?: string | null
           benefits?: string | null
@@ -111,6 +113,7 @@ export interface Database {
           id?: string
           business_id?: string
           name?: string
+          sku?: string | null
           price?: number | null
           description?: string | null
           benefits?: string | null

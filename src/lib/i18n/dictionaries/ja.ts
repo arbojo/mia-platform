@@ -21,6 +21,8 @@ export const ja: Dict = {
     memoryQuestion: 'MIAは何を発見した？',
     thinking: '思考',
     thinkingQuestion: '何を分析している？',
+    catalog: 'カタログ',
+    catalogQuestion: '商品とそのメディア',
     grow: '成長',
     lab: 'ラボ',
     labQuestion: 'どう改善できる？',

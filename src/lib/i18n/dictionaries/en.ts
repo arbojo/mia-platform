@@ -21,6 +21,8 @@ export const en: Dict = {
     memoryQuestion: 'what did MIA discover?',
     thinking: 'Thinking',
     thinkingQuestion: 'what is it analyzing?',
+    catalog: 'Catalog',
+    catalogQuestion: 'products and their media',
     grow: 'Grow',
     lab: 'Lab',
     labQuestion: 'how can it improve?',

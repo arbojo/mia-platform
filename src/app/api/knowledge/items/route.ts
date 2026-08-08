@@ -16,6 +16,7 @@ export async function GET(request: Request) {
   const search = searchParams.get('search')
   const mediaType = searchParams.get('media_type')
   const hasMedia = searchParams.get('has_media')
+  const productId = searchParams.get('product_id')
 
   if (!businessId) {
     return NextResponse.json({ error: 'business_id required' }, { status: 400 })
@@ -52,6 +53,16 @@ export async function GET(request: Request) {
 
   if (hasMedia === 'true') {
     query = query.not('image_url', 'is', null)
+  }
+
+  if (productId !== null && productId !== undefined) {
+    if (productId === 'null') {
+      query = query.is('product_id', null)
+    } else if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId)) {
+      query = query.eq('product_id', productId)
+    } else {
+      return NextResponse.json({ error: 'Invalid product_id' }, { status: 400 })
+    }
   }
 
   if (search) {

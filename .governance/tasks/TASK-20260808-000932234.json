@@ -1,0 +1,102 @@
+{
+  "id": "TASK-20260808-000932234",
+  "title": "Rediseno Catalogo & Medios (QuickSell): hub SKU-centric + columna sku + filtro product_id",
+  "description": "Reestructurar la gestion de productos y multimedia del panel como hub de catalogo a nivel negocio (estilo QuickSell): grid de tarjetas de producto como contenedor principal, detalle de producto con formulario (titulo, SKU, precio, descripcion) y seccion dedicada de multimedia atada al product_id, MediaLibrary refactorizada como \"medios generales\" (product_id IS NULL), eliminar el silo de imagen+trigger del KnowledgeManager, agregar columna sku a products (unica por negocio), anadir filtro product_id al GET de /api/knowledge/items y redirigir /dashboard/assistants/[id]/products a /dashboard/catalog.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ui_change",
+      "api_change"
+    ],
+    "filesAffected": 12,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 12 files affected, schema changes required, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Veredicto aprobado: problema de silos de UI y jerarquia, no de datos; runtime ya soporta product_id; unico cambio de esquema es la columna sku opcional con indice parcial unico",
+      "timestamp": "2026-08-08T00:09:45.101Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migracion 030: ALTER TABLE products ADD COLUMN sku TEXT NULL + indice unico parcial por negocio (WHERE sku IS NOT NULL). No toca migraciones previas; knowledge_items.product_id ya existe",
+      "timestamp": "2026-08-08T00:09:55.281Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "GET /api/knowledge/items anade filtro product_id (UUID o null); POST/PATCH ya validan product_id contra tenant; sin endpoints nuevos",
+      "timestamp": "2026-08-08T00:10:08.733Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Componentes catalog/ (ProductCard, ProductDetail, ProductForm, ProductMedia) + refactor MediaGrid/MediaUpload + MediaLibrary como medios generales + Sidebar; <150 lineas, Server Components por defecto",
+      "timestamp": "2026-08-08T00:10:23.060Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin implicaciones de seguridad nuevas: sku no sensible, filtro product_id en GET respeta RLS y scoping por business (server client); no se exponen datos entre tenants",
+      "timestamp": "2026-08-08T00:10:36.487Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Matriz de tests: filtro product_id en GET, subida con product_id desde ProductMedia, fallback de media generica, redirect de products a catalog, navegacion sidebar; gates lint/typecheck/build/unit/e2e/devtools",
+      "timestamp": "2026-08-08T00:10:47.272Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico: migracion 030 + filtro API + hub catalogo + refactor media; aplicar migracion antes de push; verificar working tree y sync remoto",
+      "timestamp": "2026-08-08T00:11:00.180Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar decision ADR-017 (catalogo SKU-centric) y el cambio de navegacion de products por-asistente a catalogo por-negocio al cierre",
+      "timestamp": "2026-08-08T00:11:11.788Z"
+    }
+  ],
+  "createdAt": "2026-08-08T00:09:32.964Z",
+  "classifiedAt": "2026-08-08T00:09:32.964Z",
+  "approvedAt": "2026-08-08T00:11:11.790Z",
+  "startedAt": "2026-08-08T00:11:24.081Z",
+  "completedAt": "2026-08-08T00:34:30.561Z"
+}

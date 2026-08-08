@@ -781,6 +781,8 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | [011](docs/adr/011-evidence-first-protocol.md) | Evidence First Protocol | Accepted |
 | [013](docs/adr/013-whatsapp-baileys-bridge.md) | WhatsApp Baileys Bridge | Accepted |
 | [014](docs/adr/014-conditional-knowledge-media.md) | Conditional Knowledge Media | Accepted |
+| [016](docs/adr/016-product-media-context.md) | Product Media Context | Accepted |
+| [017](docs/adr/017-catalog-sku-centric.md) | Catálogo SKU-Centric (QuickSell) | Accepted |
 
 ---
 

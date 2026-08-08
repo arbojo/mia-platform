@@ -8,6 +8,7 @@ const atmosphereMap: Record<string, string> = {
   '/dashboard/conversations': 'conversations',
   '/dashboard/knowledge': 'memory',
   '/dashboard/knowledge-studio': 'heuristic',
+  '/dashboard/catalog': 'memory',
   '/dashboard/laboratorio': 'lab',
   '/dashboard/assistants': 'council',
   '/dashboard/connections': 'conversations',

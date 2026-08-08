@@ -112,9 +112,6 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
     } else {
       edits.question = values.question
       edits.answer = values.answer
-      if (values.imageUrl) edits.image_url = values.imageUrl
-      if (values.triggerCondition) edits.trigger_condition = values.triggerCondition
-      if (values.mediaType) edits.media_type = values.mediaType
     }
 
     const res = await fetch(`/api/knowledge/suggestions/${editingSuggestion.id}`, {
@@ -283,7 +280,6 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
         open={!!editingSuggestion}
         onOpenChange={(o) => { if (!o) setEditingSuggestion(null) }}
         kind={editingSuggestion?.suggested_rule_content ? 'rule' : 'knowledge'}
-        businessId={businessId}
         initial={editingSuggestion ? {
           category: editingSuggestion.suggested_category ?? (editingSuggestion.suggested_rule_content ? 'restrictions' : 'faq'),
           question: editingSuggestion.suggested_question ?? '',

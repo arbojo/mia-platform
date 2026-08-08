@@ -298,8 +298,8 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
         <Link href={`/dashboard/assistants/${assistant.id}/training`}>
           <Button variant="outline">Entrenar</Button>
         </Link>
-        <Link href={`/dashboard/assistants/${assistant.id}/products`}>
-          <Button variant="outline">Productos</Button>
+        <Link href="/dashboard/catalog">
+          <Button variant="outline">Catálogo</Button>
         </Link>
         <Link href={`/dashboard/assistants/${assistant.id}/rules`}>
           <Button variant="outline">Reglas</Button>

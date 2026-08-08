@@ -41,9 +41,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
   const [category, setCategory] = useState<string>('faq')
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [triggerCondition, setTriggerCondition] = useState('')
-  const [uploading, setUploading] = useState(false)
   const [search, setSearch] = useState('')
   const [filterCategory, setFilterCategory] = useState<string>('')
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeItem | null>(null)
@@ -57,31 +54,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     return matchesCategory && matchesSearch
   })
 
-  const handleUpload = async (file: File): Promise<string | null> => {
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('business_id', businessId)
-      formData.append('file', file)
-
-      const res = await fetch('/api/knowledge/media/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (res.ok) {
-        const { url } = await res.json()
-        return url
-      }
-
-      const { error } = await res.json()
-      console.error('Upload failed:', error)
-      return null
-    } finally {
-      setUploading(false)
-    }
-  }
-
   const handleAdd = async () => {
     if (!question.trim() || !answer.trim()) return
     setLoading(true)
@@ -94,8 +66,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
         category,
         question,
         answer,
-        image_url: imageUrl,
-        trigger_condition: triggerCondition.trim() || null,
       }),
     })
 
@@ -104,8 +74,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
       setItems((prev) => [item, ...prev])
       setQuestion('')
       setAnswer('')
-      setImageUrl(null)
-      setTriggerCondition('')
     }
 
     setLoading(false)
@@ -122,8 +90,6 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
         category: values.category,
         question: values.question,
         answer: values.answer,
-        image_url: values.imageUrl,
-        trigger_condition: values.triggerCondition.trim() || null,
       }),
     })
 
@@ -189,49 +155,9 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
             rows={3}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="image">Imagen condicional (opcional)</Label>
-          <Input
-            id="image"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            disabled={uploading}
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void handleUpload(file).then((url) => url && setImageUrl(url))
-            }}
-          />
-          {imageUrl && (
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt="Vista previa" className="h-16 w-16 rounded-lg object-cover" />
-              <Button variant="outline" size="sm" onClick={() => setImageUrl(null)}>
-                Quitar imagen
-              </Button>
-            </div>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="trigger">Condición de envío (opcional)</Label>
-          <Input
-            id="trigger"
-            value={triggerCondition}
-            onChange={(e) => setTriggerCondition(e.target.value)}
-            placeholder="Ej: precio, aspecto físico, testimonio, resultados"
-          />
-          <p className="text-xs text-gray-500">
-            La imagen se enviará automáticamente la primera vez que el cliente mencione este tema en una conversación.
-          </p>
-        </div>
         <Button
           onClick={handleAdd}
-          disabled={
-            loading ||
-            !question.trim() ||
-            !answer.trim() ||
-            uploading ||
-            (!!imageUrl && !triggerCondition.trim())
-          }
+          disabled={loading || !question.trim() || !answer.trim()}
           className="bg-olive-600 hover:bg-olive-700"
         >
           {loading ? 'Agregando...' : 'Agregar conocimiento'}
@@ -345,13 +271,10 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
         open={!!editTarget}
         onOpenChange={(o) => { if (!o) setEditTarget(null) }}
         kind="knowledge"
-        businessId={businessId}
         initial={editTarget ? {
           category: editTarget.category,
           question: editTarget.question,
           answer: editTarget.answer,
-          imageUrl: editTarget.image_url,
-          triggerCondition: editTarget.trigger_condition ?? '',
         } : undefined}
         title="Editar conocimiento"
         submitLabel="Guardar"

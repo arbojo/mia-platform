@@ -37,16 +37,12 @@ export interface KnowledgeItemFormValues {
   question: string
   answer: string
   ruleContent: string
-  imageUrl: string | null
-  triggerCondition: string
-  mediaType: string
 }
 
 interface KnowledgeItemDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   kind: 'knowledge' | 'rule'
-  businessId: string
   initial?: Partial<KnowledgeItemFormValues>
   title?: string
   submitLabel?: string
@@ -58,7 +54,6 @@ export function KnowledgeItemDialog({
   open,
   onOpenChange,
   kind,
-  businessId,
   initial,
   title = 'Editar conocimiento',
   submitLabel = 'Guardar',
@@ -69,25 +64,6 @@ export function KnowledgeItemDialog({
   const [question, setQuestion] = useState(initial?.question ?? '')
   const [answer, setAnswer] = useState(initial?.answer ?? '')
   const [ruleContent, setRuleContent] = useState(initial?.ruleContent ?? '')
-  const [imageUrl, setImageUrl] = useState<string | null>(initial?.imageUrl ?? null)
-  const [triggerCondition, setTriggerCondition] = useState(initial?.triggerCondition ?? '')
-  const [uploading, setUploading] = useState(false)
-
-  const handleUpload = async (file: File) => {
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('business_id', businessId)
-      formData.append('file', file)
-      const res = await fetch('/api/knowledge/media/upload', { method: 'POST', body: formData })
-      if (res.ok) {
-        const { url } = await res.json()
-        setImageUrl(url)
-      }
-    } finally {
-      setUploading(false)
-    }
-  }
 
   const handleSubmit = async () => {
     await onSubmit({
@@ -95,9 +71,6 @@ export function KnowledgeItemDialog({
       question,
       answer,
       ruleContent,
-      imageUrl,
-      triggerCondition,
-      mediaType: imageUrl ? 'image' : 'other',
     })
   }
 
@@ -149,39 +122,6 @@ export function KnowledgeItemDialog({
                   rows={3}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Imagen condicional (opcional)</Label>
-                {imageUrl ? (
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={imageUrl} alt="Vista previa" className="h-16 w-16 rounded-lg object-cover" />
-                    <Button variant="outline" size="sm" onClick={() => setImageUrl(null)}>
-                      Quitar imagen
-                    </Button>
-                  </div>
-                ) : (
-                  <Input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    disabled={uploading}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) void handleUpload(file)
-                    }}
-                  />
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>Condición de envío (opcional)</Label>
-                <Input
-                  value={triggerCondition}
-                  onChange={(e) => setTriggerCondition(e.target.value)}
-                  placeholder="Ej: precio, aspecto físico, testimonio, resultados"
-                />
-                <p className="text-xs text-gray-500">
-                  La imagen se enviará cuando el cliente mencione este tema.
-                </p>
-              </div>
             </>
           ) : (
             <div className="space-y-2">
@@ -199,7 +139,7 @@ export function KnowledgeItemDialog({
           <AlertDialogCancel disabled={submitting}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleSubmit}
-            disabled={submitting || !canSubmit || uploading}
+            disabled={submitting || !canSubmit}
           >
             {submitting ? 'Guardando...' : submitLabel}
           </AlertDialogAction>
