@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8e88e62`.
+> Fuente de verdad: este repositorio en `228382e`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8e88e62` |
+| **Commit HEAD** | `228382e` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-08T01:32:38Z |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-07T19:34:27-06:00 |
 
 ---
 
@@ -547,6 +547,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+228382e docs: regenerate MASTER.md and memory index with ADR-018
 8e88e62 docs: regenerate MASTER.md at e9dfc3c
 e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
 728ebf4 docs: regenerate MASTER.md at d8b1b88
@@ -566,7 +567,6 @@ cca3807 feat: scope widget chat context to landing page
 74c758c feat: add close button to embed widget chat (postMessage bridge)
 6960274 docs: regenerate MASTER.md at a55363a
 a55363a feat: MIA Landings monorepo + Mia Pixel telemetry (ADR-015)
-cc53ad3 fix: batch of sprint fixes - API error handling, i18n dashboard texts, dark mode, a11y toggles, atmosphere heuristic, WhatsApp bridge
 ```
 
 ---
