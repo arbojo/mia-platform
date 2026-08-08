@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7eabe5b`.
+> Fuente de verdad: este repositorio en `d8b1b88`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7eabe5b` |
+| **Commit HEAD** | `d8b1b88` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-07T18:04:24-06:00 |
+| **Generado** | 2026-08-07T18:35:20-06:00 |
 
 ---
 
@@ -146,6 +146,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 27 | 027_mia_pixel.sql |
 | 28 | 028_mia_pixel_init_visit.sql |
 | 29 | 029_product_media.sql |
+| 30 | 030_catalog_sku.sql |
 
 ---
 
@@ -238,7 +239,7 @@ widget/chat
 
 ## 8. Páginas
 
-19 páginas en `src/app/`:
+21 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -249,6 +250,8 @@ dashboard/assistants/[id]/products
 dashboard/assistants/[id]/rules
 dashboard/assistants/[id]/training
 dashboard/assistants
+dashboard/catalog/[id]
+dashboard/catalog
 dashboard/connections
 dashboard/conversations
 dashboard/health
@@ -266,10 +269,15 @@ widget
 
 ## 9. Componentes
 
-71 componentes en `src/components/`:
+79 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
+catalog/CatalogGrid.tsx
+catalog/ProductCard.tsx
+catalog/ProductDetail.tsx
+catalog/ProductFormDialog.tsx
+catalog/ProductMedia.tsx
 chat/ChatWindow.tsx
 chat/TrainingChat.tsx
 connections/ConnectionFollowUpConfig.tsx
@@ -298,7 +306,6 @@ dashboard/OnboardingBanner.tsx
 dashboard/OpportunityAlerts.tsx
 dashboard/ProactiveSuggestions.tsx
 dashboard/ProductIntelligenceCard.tsx
-dashboard/ProductsManager.tsx
 dashboard/QuickActions.tsx
 dashboard/RulesManager.tsx
 dashboard/SalesMetricsCard.tsx
@@ -318,7 +325,11 @@ knowledge/KnowledgeCenter.tsx
 knowledge/KnowledgeItemDialog.tsx
 knowledge/KnowledgeManager.tsx
 knowledge/LearningReport.tsx
+knowledge/MediaBrowser.tsx
+knowledge/MediaEditDialog.tsx
+knowledge/MediaGrid.tsx
 knowledge/MediaLibrary.tsx
+knowledge/MediaUpload.tsx
 knowledge/ProductCard.tsx
 laboratorio/CoachingFeedback.tsx
 laboratorio/ContextPanel.tsx
@@ -424,7 +435,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (48)**:
+**Tareas registradas (49)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -476,12 +487,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260806-071815884 | MIA Landings: monorepo evolutivo + Mia Pixel | in_progress |
 | TASK-20260807-005539713 | WhatsApp order capture with delivery-day awareness | completed |
 | TASK-20260807-233927408 | Medios por Producto: product_id en multimedia + selector UI + product_context en sesion | completed |
+| TASK-20260808-000932234 | Rediseno Catalogo & Medios (QuickSell): hub SKU-centric + columna sku + filtro product_id | completed |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-17 ADRs en `docs/adr/`:
+18 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -502,6 +514,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 014-conditional-knowledge-media | 014: Conditional Knowledge Media (Imágenes condicionales en Knowledge Studio) |
 | 015-mia-landings-architecture | 015: MIA Landings — Modular Monorepo, Concilium Agents and Mia Pixel |
 | 016-product-media-context | 016: Medios por Producto + product_context |
+| 017-catalog-sku-centric | 017: Catálogo SKU-Centric (Rediseño QuickSell) |
 
 ---
 
@@ -516,6 +529,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d8b1b88 feat: catalog hub SKU-centric with product-bound media
+bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 7eabe5b chore: pin chrome-devtools-mcp as local dev dependency
 47b241e feat: scope knowledge media to catalog product with product_context
 3ececd5 docs: regenerate MASTER.md at 94a60e0
@@ -534,8 +549,6 @@ cc53ad3 fix: batch of sprint fixes - API error handling, i18n dashboard texts, d
 0c96493 docs: regenerate MASTER.md at c3407be
 c3407be feat: add proprietary license and auto-updating test badges (CI auto-commit)
 d26c3d9 docs: regenerate MASTER.md at fd450f7
-fd450f7 feat: complete professional testing infrastructure (unit, component, api, e2e multi-browser, coverage, CI)
-d63c71d docs: regenerate MASTER.md at af9157c
 ```
 
 ---
