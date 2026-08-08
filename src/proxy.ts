@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const publicPaths = ['/login', '/signup', '/auth', '/demo', '/']
+const publicPaths = ['/login', '/signup', '/auth', '/demo', '/', '/driver']
 
 async function getBusinessForUser(
   supabase: ReturnType<typeof createServerClient>,

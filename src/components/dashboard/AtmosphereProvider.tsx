@@ -11,6 +11,7 @@ const atmosphereMap: Record<string, string> = {
   '/dashboard/catalog': 'memory',
   '/dashboard/laboratorio': 'lab',
   '/dashboard/assistants': 'council',
+  '/dashboard/delivery': 'delivery',
   '/dashboard/connections': 'conversations',
   '/dashboard/onboarding': 'home',
 }
@@ -33,6 +34,7 @@ const atmosphereLabels: Record<string, string> = {
   heuristic: 'Pensamiento',
   lab: 'Laboratorio',
   council: 'Consejo',
+  delivery: 'Delivery',
 }
 
 export function AtmosphereProvider({ children }: { children: React.ReactNode }) {

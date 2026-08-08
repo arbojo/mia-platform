@@ -16,6 +16,7 @@ import {
   HeartPulse,
   Accessibility,
   ShoppingBag,
+  Truck,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
@@ -45,6 +46,7 @@ export function Sidebar() {
       name: t.nav.grow,
       items: [
         { href: '/dashboard/laboratorio', label: t.nav.lab, question: t.nav.labQuestion, icon: FlaskConical, atmosphere: 'lab' },
+        { href: '/dashboard/delivery', label: t.nav.delivery, question: t.nav.deliveryQuestion, icon: Truck, atmosphere: 'delivery' },
       ],
     },
   ]

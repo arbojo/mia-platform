@@ -26,6 +26,8 @@ export const en: Dict = {
     grow: 'Grow',
     lab: 'Lab',
     labQuestion: 'how can it improve?',
+    delivery: 'Delivery',
+    deliveryQuestion: 'drivers and deliveries',
     settings: 'Settings',
     adjustments: 'Adjustments',
     connections: 'Connections',

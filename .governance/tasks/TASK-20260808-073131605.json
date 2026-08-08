@@ -1,0 +1,103 @@
+{
+  "id": "TASK-20260808-073131605",
+  "title": "Delivery Hub: modulo logístico aislado (schema delivery) + Portal del Repartidor",
+  "description": "Implementar el MIA Delivery Hub bajo el marco híbrido aprobado por el Concilio (Opción 3: aislamiento absoluto en monorepo). (1) Migración 031_delivery_hub.sql: schema PostgreSQL `delivery` completo (business_settings, drivers, orders, routes, visits, driver_events, daily_closures, driver_sessions, outbox_events, evidence_photos, order_counters, ingest_errors, audit_log) con ENABLE/FORCE RLS + REVOKE ALL FROM anon/authenticated/PUBLIC + policies admin (business owner), y trigger AFTER INSERT ON public.sales_events (event_type=SALE_WON) SECURITY DEFINER search_path='' que replica a delivery.orders con ingest_errors (1-way, idempotente vía UNIQUE sales_event_id). (2) Ley de Cierre Diario POR REPARTIDOR: candado en dos capas — trigger BEFORE INSERT ON delivery.routes (RAISE si el driver tiene ruta previa no closed) + check API 409 CLOSURE_PENDING; daily_closures liquida totales. (3) Autenticación driver: token 32B base64url + scrypt hash, magic link de un solo uso, cookie HttpOnly+Secure+SameSite=Lax firmada con DRIVER_SESSION_SECRET (JWT HMAC, 15-30 min, renovación deslizante), /driver/* excluido de src/proxy.ts. (4) API routes admin (/api/admin/delivery/*, auth requirePageAuth) y driver (/api/driver/*, auth requireDriverAuth Bearer + assertDriverOrderAccess). (5) Portal PWA /driver con layout propio: dashboard incentivos (ganancia del día vs meta, % efectividad, histórico semanal), botones Voy en camino / Ya estoy aquí que disparan WhatsApp al cliente (Graph Cloud API con idempotencia via outbox_events + fallback wa.me, fuera Baileys), validación GPS de proximidad server-side (doble muestreo, umbral, calibración manual auditada en audit_log), tipificación de incidencias (→ Revisitar via revisit_of), evidencia de entrega (parentesco + foto obligatoria en bucket PRIVATE delivery-evidence con signed URLs y magic bytes), soporte offline (outbox IndexedDB + POST /api/driver/sync con dedupe por idempotency_key). (6) Licenciamiento por negocio: capability deliveryHub en edition.ts (enterprise/cloud) + flag delivery.business_settings.enabled con gate server-side. (7) Tests: tests/delivery/*.test.ts (incentives, daily-close, outbox, gps, token, whatsapp-trigger, evidence, replication) + e2e admin-delivery.spec.ts y driver.spec.ts con fixtures.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "api_change",
+      "security"
+    ],
+    "filesAffected": 35,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 35 files affected, schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: schema delivery aislado + trigger 1-way SALE_WON, candado cierre por repartidor en doble capa (trigger BEFORE INSERT + API 409), magic link de un solo uso con cookie HttpOnly, integracion hibrida respeta ADR-010 y precedente migracion 026.",
+      "timestamp": "2026-08-08T07:31:45.930Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: migracion 031_delivery_hub.sql con schema delivery dedicado, ENABLE/FORCE RLS + REVOKE ALL anon/authenticated/PUBLIC, policies admin business owner, FKs a public.* SET NULL, UNIQUE sales_event_id/idempotency_key para idempotencia, order_counters atomico.",
+      "timestamp": "2026-08-08T07:31:47.258Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: API routes admin /api/admin/delivery/* y driver /api/driver/* con requireDriverAuth + assertDriverOrderAccess, maquina de estados visits whitelist, outbox offline con idempotency_key + dedupe, WhatsApp Graph API con idempotencia y fallback wa.me (Baileys fuera por falta de endpoint de envio).",
+      "timestamp": "2026-08-08T07:31:59.199Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: portal /driver con layout propio (sin requirePageAuth, excluido de proxy.ts), dashboard incentivos con barra/efectividad/historico, PWA manifest + service worker, seccion Revisitar, evidencia con parentesco + foto, todas las interacciones del driver via API server-side.",
+      "timestamp": "2026-08-08T07:32:00.802Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado con los 3 bloqueantes mitigados en el diseno: (F1/F8) assertDriverOrderAccess obligatorio + bucket delivery-evidence PRIVATE con signed URLs y magic bytes; (F3/F4) scrypt hash con salt + rate limit/lockout; (F6/F7) magic link 1-uso -> cookie HttpOnly, /driver excluido de proxy.ts. REVOKE ALL en cada tabla delivery.*.",
+      "timestamp": "2026-08-08T07:32:12.488Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: suite tests/delivery/*.test.ts (incentives, daily-close con TZ inyectable, outbox, gps haversine, token, whatsapp-trigger, evidence, replication) + e2e admin-delivery.spec.ts y driver.spec.ts con geolocation mock y contador de idempotencia Graph API, smoke SQL del trigger, checklist DevTools incl. offline.",
+      "timestamp": "2026-08-08T07:32:13.812Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: release con migracion 031 (smoke SQL trigger doble insert -> 1 fila), gates lint/build/unit/e2e/chrome_devtools/security_review/typecheck, verificado en produccion via Chrome DevTools antes de Sprint Complete.",
+      "timestamp": "2026-08-08T07:32:24.739Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: documentar ADR-019 Delivery Hub (schema aislado) en docs/adr/ + actualizar tabla ADRs de AGENTS.md y memoria tras implementacion.",
+      "timestamp": "2026-08-08T07:32:26.606Z"
+    }
+  ],
+  "createdAt": "2026-08-08T07:31:31.595Z",
+  "classifiedAt": "2026-08-08T07:31:31.595Z",
+  "approvedAt": "2026-08-08T07:32:26.609Z",
+  "startedAt": "2026-08-08T07:32:44.976Z",
+  "completedAt": "2026-08-08T08:28:55.212Z"
+}

@@ -24,6 +24,8 @@ export const es = {
     grow: 'Crece',
     lab: 'Laboratorio',
     labQuestion: '¿cómo puede mejorar?',
+    delivery: 'Delivery',
+    deliveryQuestion: 'repartidores y entregas',
     settings: 'Configuración',
     adjustments: 'Ajustes',
     connections: 'Conexiones',

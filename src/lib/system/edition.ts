@@ -32,6 +32,7 @@ export interface EditionCapabilities {
   knowledgeStudio: boolean
   salesSimulator: boolean
   connections: boolean
+  deliveryHub: boolean
 }
 
 export interface Edition {
@@ -77,6 +78,7 @@ const EVALUATION: Edition = {
     knowledgeStudio: true,
     salesSimulator: true,
     connections: true,
+    deliveryHub: false,
   },
 }
 
@@ -117,6 +119,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       knowledgeStudio: true,
       salesSimulator: true,
       connections: true,
+      deliveryHub: false,
     },
   },
   enterprise: {
@@ -154,6 +157,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       knowledgeStudio: true,
       salesSimulator: true,
       connections: true,
+      deliveryHub: true,
     },
   },
   cloud: {
@@ -191,6 +195,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       knowledgeStudio: true,
       salesSimulator: true,
       connections: true,
+      deliveryHub: true,
     },
   },
 }
@@ -309,6 +314,10 @@ export function canUseSalesSimulator(): boolean {
 
 export function canUseConnections(): boolean {
   return getEdition().capabilities.connections
+}
+
+export function canUseDeliveryHub(): boolean {
+  return getEdition().capabilities.deliveryHub
 }
 
 export function isWithinLimit(

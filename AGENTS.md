@@ -784,6 +784,7 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | [016](docs/adr/016-product-media-context.md) | Product Media Context | Accepted |
 | [017](docs/adr/017-catalog-sku-centric.md) | Catálogo SKU-Centric (QuickSell) | Accepted |
 | [018](docs/adr/018-import-engine.md) | Motor de Importación Multipropósito | Accepted |
+| [019](docs/adr/019-delivery-hub.md) | Delivery Hub — Módulo Logístico Aislado + Portal del Repartidor | Accepted |
 
 ---
 
