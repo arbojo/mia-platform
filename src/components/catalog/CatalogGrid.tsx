@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Plus, Images } from 'lucide-react'
+import { Plus, Images, Upload } from 'lucide-react'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { ProductFormDialog } from '@/components/catalog/ProductFormDialog'
+import { ImportDialog } from '@/components/catalog/import/ImportDialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ interface CatalogGridProps {
 export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
   const [products, setProducts] = useState<CatalogProduct[]>(initialProducts)
   const [createOpen, setCreateOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<CatalogProduct | null>(null)
 
   const handleSaved = (product: Product) => {
@@ -51,6 +53,44 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
     setDeleteTarget(null)
   }
 
+  const handleImported = async () => {
+    const supabase = createClient()
+    const [productsResult, mediaResult] = await Promise.all([
+      supabase
+        .from('products')
+        .select('*')
+        .eq('business_id', businessId)
+        .order('name', { ascending: true }),
+      supabase
+        .from('knowledge_items')
+        .select('product_id, image_url, created_at')
+        .eq('business_id', businessId)
+        .not('image_url', 'is', null)
+        .not('product_id', 'is', null)
+        .order('created_at', { ascending: true }),
+    ])
+
+    const counts = new Map<string, { mediaCount: number; thumbnail: string | null }>()
+    for (const item of mediaResult.data ?? []) {
+      if (!item.product_id) continue
+      const entry = counts.get(item.product_id) ?? { mediaCount: 0, thumbnail: null }
+      entry.mediaCount += 1
+      if (!entry.thumbnail && item.image_url) entry.thumbnail = item.image_url
+      counts.set(item.product_id, entry)
+    }
+
+    setProducts(
+      (productsResult.data ?? []).map((product) => {
+        const media = counts.get(product.id)
+        return {
+          ...product,
+          mediaCount: media?.mediaCount ?? 0,
+          thumbnail: media?.thumbnail ?? null,
+        }
+      })
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -67,6 +107,10 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
               Medios generales
             </Button>
           </Link>
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Importar
+          </Button>
           <Button className="bg-olive-600 hover:bg-olive-700" onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo producto
@@ -111,6 +155,13 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
         onOpenChange={setCreateOpen}
         businessId={businessId}
         onSaved={handleSaved}
+      />
+
+      <ImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        businessId={businessId}
+        onImported={handleImported}
       />
 
       <AlertDialog

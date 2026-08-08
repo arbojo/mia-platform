@@ -1,0 +1,93 @@
+{
+  "id": "TASK-20260808-005115364",
+  "title": "Motor de importación multipropósito para el Hub de Catálogo (CSV/XLSX, WooCommerce, scraping)",
+  "description": "Motor de importación que permite subir el inventario del negocio en segundos por tres vias: (1) archivo CSV/XLSX con bulk insert mapeando nombre, SKU, precio, descripcion e imagen a la tabla products (columna stock aceptada pero descartada por estar fuera del dominio de ventas ADR-010); (2) sincronizacion por URL (WooCommerce Store API publica, REST autenticado con credenciales en memoria, o feed RSS/Atom/XML) que extrae titulos, precios e imagenes; (3) scraping de HTML estatico con deteccion heuristica de tarjetas de producto. Backend: parser seguro de archivos (SheetJS), fetch SSRF-safe con bloqueo de IPs privadas/loopback/metadata cloud, parseo de HTML/XML con Cheerio y fast-xml-parser, validacion zod de filas, upsert por SKU con admin client y resumen por fila. Endpoints: POST /api/catalog/import/file y POST /api/catalog/import/source (mode preview|import). UI: dialog de importacion en /dashboard/catalog con 3 pestañas (subir archivo, conectar tienda, scraping web), preview de filas extraidas y resumen de resultados con errores por fila.",
+  "scope": {
+    "categories": [
+      "feature",
+      "api_change",
+      "security"
+    ],
+    "filesAffected": 18,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend",
+      "security"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 18 files affected, security implications, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Pipeline unico fetch->parse->normalize->validate->upsert->summary con 3 adaptadores (archivo/woocommerce/scrape). Sin schema change: reusa columnas products; stock descartado por ADR-010. Sin colas: limite 500 filas/request. Preview (mode) solo para fuentes remotas.",
+      "timestamp": "2026-08-08T00:51:55.995Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Endpoints POST /api/catalog/import/file y /source (mode preview|import); zod por fila; header auto-mapping multilingue; upsert por business_id+sku con admin client tras owner check; errores estandar (400/401/403/422/502); duplicados en archivo -> skipped.",
+      "timestamp": "2026-08-08T00:52:09.893Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "SSRF guard (http/https, bloqueo IP privada/loopback/169.254.169.254, redirects re-validados, timeout 10s, 5MB max); magic bytes + tamano archivos; sanitizacion formula-injection; credenciales solo en memoria; owner check + admin client para writes.",
+      "timestamp": "2026-08-08T00:52:21.940Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Matriz: parsers (CSV comillas/CRLF, XLSX), header mapping, validators, ssrf, scraper, feed, engine con mock admin; API 401/403/400/422 con mock chain; gates lint/build/unit/e2e/devtools/security_review.",
+      "timestamp": "2026-08-08T00:52:31.605Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "ImportDialog con 3 pestanas (archivo, tienda, scraping), SourceImportPanel con preview table y credenciales opcionales, ImportResults compartido; componentes <150 lineas, shadcn/ui, client components.",
+      "timestamp": "2026-08-08T00:52:43.838Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico motor import (deps xlsx/cheerio/fast-xml-parser + lib/import + endpoints + UI + tests + ADR-018); verificar deps y build antes de push; deploy vercel --prod y verificacion con DevTools.",
+      "timestamp": "2026-08-08T00:52:54.878Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar ADR-018 (motor importacion multiproposito) y la decision de descartar stock por ADR-010 al cierre; guardar leccion de SSRF en fetch remoto.",
+      "timestamp": "2026-08-08T00:53:04.422Z"
+    }
+  ],
+  "createdAt": "2026-08-08T00:51:15.198Z",
+  "classifiedAt": "2026-08-08T00:51:15.198Z",
+  "approvedAt": "2026-08-08T00:53:04.424Z",
+  "startedAt": "2026-08-08T00:53:14.466Z",
+  "completedAt": "2026-08-08T01:31:07.254Z"
+}

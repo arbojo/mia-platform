@@ -783,6 +783,7 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | [014](docs/adr/014-conditional-knowledge-media.md) | Conditional Knowledge Media | Accepted |
 | [016](docs/adr/016-product-media-context.md) | Product Media Context | Accepted |
 | [017](docs/adr/017-catalog-sku-centric.md) | Catálogo SKU-Centric (QuickSell) | Accepted |
+| [018](docs/adr/018-import-engine.md) | Motor de Importación Multipropósito | Accepted |
 
 ---
 
