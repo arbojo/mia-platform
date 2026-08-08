@@ -1,10 +1,10 @@
 {
   "version": "2.0",
-  "lastScan": "2026-07-30T01:50:48.631Z",
+  "lastScan": "2026-08-08T01:34:20.308Z",
   "totalEntries": {
-    "decisions": 13,
-    "incidents": 1,
-    "patterns": 1,
+    "decisions": 32,
+    "incidents": 2,
+    "patterns": 2,
     "lessons": 0
   },
   "entries": [
@@ -239,6 +239,344 @@
       "body": "medium: Cambio de arquitectura con alcance amplio",
       "source": "council",
       "sourceRef": "C:\\Proyectos\\mia-platform\\workshop\\council\\reports\\audit-council-74e411d-1785376068620.json",
+      "timestamp": "2026-07-30T01:48:27.342Z",
+      "tags": [
+        "council",
+        "pattern",
+        "review"
+      ],
+      "references": [
+        "Cambio sensible en autenticación o sesión"
+      ],
+      "status": "active"
+    },
+    {
+      "id": "adr-001",
+      "type": "decision",
+      "title": "ADR-001: Specialized Engineering Agent System",
+      "body": "Implement a specialized engineering agent system with 9 distinct roles:\n\n1. **Architect** — Technical strategy and architecture decisions\n2. **Domain Expert** — Business domain model guardian\n3. **Product Manager** — User experience protector\n4. **Database Engineer** — Schema authority and migration management\n5. **Backend Engineer** — API routes and business logic\n6. **Frontend Engineer** — UI components and pages\n7. **AI Engineer** — Prompts, context, and AI systems\n8. **QA Engineer** — Qualit",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\001-agent-system.md",
+      "timestamp": "2026-08-08T01:34:20.296Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-002",
+      "type": "decision",
+      "title": "ADR-002: Stage-Based Learning & Reverse Training Evolution",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\002-stage-based-learning.md",
+      "timestamp": "2026-08-08T01:34:20.299Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-003",
+      "type": "decision",
+      "title": "ADR-003: Knowledge Conflict Resolution & Source Hierarchy",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\003-knowledge-conflict-resolution.md",
+      "timestamp": "2026-08-08T01:34:20.300Z",
+      "tags": [
+        "adr",
+        "proposed",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-004",
+      "type": "decision",
+      "title": "ADR-004: Health Communication Policy",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\004-health-communication-policy.md",
+      "timestamp": "2026-08-08T01:34:20.300Z",
+      "tags": [
+        "adr",
+        "proposed",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-005",
+      "type": "decision",
+      "title": "ADR-005: Channel Abstraction",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\005-channel-abstraction.md",
+      "timestamp": "2026-08-08T01:34:20.301Z",
+      "tags": [
+        "adr",
+        "proposed",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-006",
+      "type": "decision",
+      "title": "ADR-006: Conversation Continuity Protocol (CCP)",
+      "body": "### 3.1 The Conversation Checkpoint\n\nA **checkpoint** is a snapshot of conversation state stored in the database at key moments:\n\n```\n                        Checkpoint Chain\n     ┌──────────────────────────────────────────────────┐\n     │                                                  │\n     │  [START] → [CP@5] → [CP@12] → [CP@20] → ...    │\n     │                      │                           │\n     │                      ├── handoff_token: JWT      │\n     │                      ├── summa",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\006-conversation-continuity-protocol.md",
+      "timestamp": "2026-08-08T01:34:20.302Z",
+      "tags": [
+        "adr",
+        "proposed",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-007",
+      "type": "decision",
+      "title": "ADR-007: Heuristic Engine — Conversational Intelligence Layer",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\007-heuristic-engine.md",
+      "timestamp": "2026-08-08T01:34:20.302Z",
+      "tags": [
+        "adr",
+        "v1.1 (updated 2026-07-29 per council review)",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-007",
+      "type": "decision",
+      "title": "ADR-007: 007-review-v1.1",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\007-review-v1.1.md",
+      "timestamp": "2026-08-08T01:34:20.303Z",
+      "tags": [
+        "adr",
+        "unknown",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-008",
+      "type": "decision",
+      "title": "ADR-008: Conversation Center — Unified Inbox & Agent Workspace",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\008-conversation-center.md",
+      "timestamp": "2026-08-08T01:34:20.303Z",
+      "tags": [
+        "adr",
+        "proposed",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-009",
+      "type": "decision",
+      "title": "ADR-009: Health Risk Evaluator",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\009-health-risk-evaluator.md",
+      "timestamp": "2026-08-08T01:34:20.304Z",
+      "tags": [
+        "adr",
+        "proposed",
+        "decision"
+      ],
+      "references": [],
+      "status": "archived"
+    },
+    {
+      "id": "adr-010",
+      "type": "decision",
+      "title": "ADR-010: MIA Sales Domain Boundary",
+      "body": "**MIA is a Conversational Sales Intelligence platform. Its sole domain is sales conversations. It has zero responsibility for operational, logistical, or administrative processes.**\r\n\r\n### 3.1 Core Statement\r\n\r\n> MIA's responsibility begins when a conversation with a customer starts. It ends when:\r\n> 1. The sale is closed or discarded,\r\n> 2. The data is structured,\r\n> 3. Sales Intelligence events are recorded.\r\n>\r\n> Everything after that belongs to another domain.\r\n\r\n### 3.2 Sales Events (Single",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\010-sales-domain-boundary.md",
+      "timestamp": "2026-08-08T01:34:20.304Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-011",
+      "type": "decision",
+      "title": "ADR-011: Evidence First Protocol — Council Audit Reliability",
+      "body": "**Adopt the \"Evidence First\" protocol as mandatory pre-audit procedure for all Council agents.**\r\n\r\n---",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\011-evidence-first-protocol.md",
+      "timestamp": "2026-08-08T01:34:20.304Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-012",
+      "type": "decision",
+      "title": "ADR-012: Council Advisory Gate — Automated Post-Development Audit",
+      "body": "**Adopt a Council Advisory Gate as an automated post-development audit process.**\r\n\r\nThe gate has three components:\r\n\r\n### 3.1 Adapters Layer\r\n\r\nLocated in `workshop/council/adapters/`:\r\n\r\n| Adapter | Purpose |\r\n|---------|---------|\r\n| `GitContextAdapter` | Reads real git state (HEAD, diff, branch) and builds a `CouncilContext` |\r\n| `EvidenceFirstAdapter` | Implements ADR-011 pre-audit: loads previous findings, re-validates against current HEAD |\r\n| `AdrValidator` | Reads all ADRs from `docs/ad",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\012-council-advisory-gate.md",
+      "timestamp": "2026-08-08T01:34:20.305Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-013",
+      "type": "decision",
+      "title": "ADR-013: WhatsApp Bridge with Baileys",
+      "body": "### 3.1 Dedicated Node.js service\r\n\r\nBuild a **standalone process** `services/whatsapp-bridge/` (Node.js ESM, `ws`, `pino`, `qrcode`, `@supabase/supabase-js`):\r\n\r\n- **Owns the Baileys sockets.** One `makeWASocket` per business, managed by a `SessionManager`.\r\n- **Exposes a small HTTP API + WebSocket** for the Next.js app:\r\n  - `POST /v1/sessions/:businessId/start` — begin connection (emits QR).\r\n  - `GET /v1/sessions/:businessId/status` — current status.\r\n  - `DELETE /v1/sessions/:businessId/log",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\013-whatsapp-baileys-bridge.md",
+      "timestamp": "2026-08-08T01:34:20.305Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-014",
+      "type": "decision",
+      "title": "ADR-014: Conditional Knowledge Media (Imágenes condicionales en Knowledge Studio)",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\014-conditional-knowledge-media.md",
+      "timestamp": "2026-08-08T01:34:20.305Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-015",
+      "type": "decision",
+      "title": "ADR-015: MIA Landings — Modular Monorepo, Concilium Agents and Mia Pixel",
+      "body": "### 3.1 Evolutionary modular monorepo (npm workspaces)\n\nConvert the MIA repo to **npm workspaces** without moving the existing production app:\n\n- `package.json` (root) gains `\"workspaces\": [\"packages/*\", \"apps/*\"]`.\n- The current Next.js app **stays at the root** (`src/`, `app/`, `public/`) — it is production-deployed to `mia-platform-psi.vercel.app` and must not be disturbed.\n- **`packages/core/`**: new shared TypeScript package for logic reused across apps (Supabase client factory, shared type",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\015-mia-landings-architecture.md",
+      "timestamp": "2026-08-08T01:34:20.306Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-016",
+      "type": "decision",
+      "title": "ADR-016: Medios por Producto + product_context",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\016-product-media-context.md",
+      "timestamp": "2026-08-08T01:34:20.306Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-017",
+      "type": "decision",
+      "title": "ADR-017: Catálogo SKU-Centric (Rediseño QuickSell)",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\017-catalog-sku-centric.md",
+      "timestamp": "2026-08-08T01:34:20.306Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "adr-018",
+      "type": "decision",
+      "title": "ADR-018: Motor de Importación Multipropósito para el Hub de Catálogo",
+      "body": "",
+      "source": "adr",
+      "sourceRef": "C:\\Users\\david\\mia\\docs\\adr\\018-import-engine.md",
+      "timestamp": "2026-08-08T01:34:20.306Z",
+      "tags": [
+        "adr",
+        "accepted",
+        "decision"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "incident-council-74e411d-1785376068620-Cambio-sensible-en-a",
+      "type": "incident",
+      "title": "Cambio sensible en autenticación o sesión",
+      "body": "Se detectó un cambio en áreas sensibles relacionadas con seguridad.",
+      "source": "council",
+      "sourceRef": "C:\\Users\\david\\mia\\workshop\\council\\reports\\audit-council-74e411d-1785376068620.json",
+      "timestamp": "2026-07-30T01:48:27.342Z",
+      "tags": [
+        "council",
+        "high",
+        "finding"
+      ],
+      "references": [],
+      "status": "active"
+    },
+    {
+      "id": "pattern-council-council-74e411d-1785376068620",
+      "type": "pattern",
+      "title": "Council audit found 1 medium-severity items",
+      "body": "medium: Cambio de arquitectura con alcance amplio",
+      "source": "council",
+      "sourceRef": "C:\\Users\\david\\mia\\workshop\\council\\reports\\audit-council-74e411d-1785376068620.json",
       "timestamp": "2026-07-30T01:48:27.342Z",
       "tags": [
         "council",

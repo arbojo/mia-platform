@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e9dfc3c`.
+> Fuente de verdad: este repositorio en `8e88e62`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e9dfc3c` |
+| **Commit HEAD** | `8e88e62` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-07T19:31:54-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-08T01:32:38Z |
 
 ---
 
@@ -547,6 +547,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+8e88e62 docs: regenerate MASTER.md at e9dfc3c
 e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
 728ebf4 docs: regenerate MASTER.md at d8b1b88
 d8b1b88 feat: catalog hub SKU-centric with product-bound media
@@ -566,7 +567,6 @@ cca3807 feat: scope widget chat context to landing page
 6960274 docs: regenerate MASTER.md at a55363a
 a55363a feat: MIA Landings monorepo + Mia Pixel telemetry (ADR-015)
 cc53ad3 fix: batch of sprint fixes - API error handling, i18n dashboard texts, dark mode, a11y toggles, atmosphere heuristic, WhatsApp bridge
-0c96493 docs: regenerate MASTER.md at c3407be
 ```
 
 ---
