@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d8b1b88`.
+> Fuente de verdad: este repositorio en `e9dfc3c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d8b1b88` |
+| **Commit HEAD** | `e9dfc3c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-07T18:35:20-06:00 |
+| **Generado** | 2026-08-07T19:31:54-06:00 |
 
 ---
 
@@ -43,7 +43,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 | Testing | Playwright (e2e) + Vitest (unit) |
 | CI | GitHub Actions |
 
-**Dependencias de producción** (19): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, ai, class-variance-authority, clsx, date-fns, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, shadcn, tailwind-merge, tw-animate-css, zod
+**Dependencias de producción** (23): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, read-excel-file, shadcn, tailwind-merge, tw-animate-css, zod
 
 **DevDependencies** (16): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest
 
@@ -184,7 +184,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-46 rutas en `src/app/api/`:
+48 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -194,6 +194,8 @@ business/memory
 business/product-intelligence
 business/skills
 business/weekly-report
+catalog/import/file
+catalog/import/source
 channels/baileys/followup
 channels/baileys/session
 channels/baileys/webhook
@@ -269,7 +271,7 @@ widget
 
 ## 9. Componentes
 
-79 componentes en `src/components/`:
+84 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -278,6 +280,11 @@ catalog/ProductCard.tsx
 catalog/ProductDetail.tsx
 catalog/ProductFormDialog.tsx
 catalog/ProductMedia.tsx
+catalog/import/FileImportPanel.tsx
+catalog/import/ImportDialog.tsx
+catalog/import/ImportResults.tsx
+catalog/import/PreviewTable.tsx
+catalog/import/SourceImportPanel.tsx
 chat/ChatWindow.tsx
 chat/TrainingChat.tsx
 connections/ConnectionFollowUpConfig.tsx
@@ -357,7 +364,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-57 módulos:
+66 módulos:
 
 ```
 ai/client.ts
@@ -395,6 +402,15 @@ i18n/dictionaries/index.ts
 i18n/dictionaries/ja.ts
 i18n/dictionaries/pt.ts
 i18n/server.ts
+import/engine.ts
+import/feed.ts
+import/parsers.ts
+import/scraper.ts
+import/sourceClient.ts
+import/ssrf.ts
+import/types.ts
+import/validators.ts
+import/woocommerce.ts
 knowledge/suggestions.ts
 runtime/conditional-media.ts
 runtime/execute-ai.ts
@@ -435,7 +451,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (49)**:
+**Tareas registradas (50)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -488,12 +504,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260807-005539713 | WhatsApp order capture with delivery-day awareness | completed |
 | TASK-20260807-233927408 | Medios por Producto: product_id en multimedia + selector UI + product_context en sesion | completed |
 | TASK-20260808-000932234 | Rediseno Catalogo & Medios (QuickSell): hub SKU-centric + columna sku + filtro product_id | completed |
+| TASK-20260808-005115364 | Motor de importación multipropósito para el Hub de Catálogo (CSV/XLSX, WooCommerce, scraping) | completed |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-18 ADRs en `docs/adr/`:
+19 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -515,6 +532,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 015-mia-landings-architecture | 015: MIA Landings — Modular Monorepo, Concilium Agents and Mia Pixel |
 | 016-product-media-context | 016: Medios por Producto + product_context |
 | 017-catalog-sku-centric | 017: Catálogo SKU-Centric (Rediseño QuickSell) |
+| 018-import-engine | 018: Motor de Importación Multipropósito para el Hub de Catálogo |
 
 ---
 
@@ -529,6 +547,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
+728ebf4 docs: regenerate MASTER.md at d8b1b88
 d8b1b88 feat: catalog hub SKU-centric with product-bound media
 bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 7eabe5b chore: pin chrome-devtools-mcp as local dev dependency
@@ -547,8 +567,6 @@ cca3807 feat: scope widget chat context to landing page
 a55363a feat: MIA Landings monorepo + Mia Pixel telemetry (ADR-015)
 cc53ad3 fix: batch of sprint fixes - API error handling, i18n dashboard texts, dark mode, a11y toggles, atmosphere heuristic, WhatsApp bridge
 0c96493 docs: regenerate MASTER.md at c3407be
-c3407be feat: add proprietary license and auto-updating test badges (CI auto-commit)
-d26c3d9 docs: regenerate MASTER.md at fd450f7
 ```
 
 ---
