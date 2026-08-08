@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `228382e`.
+> Fuente de verdad: este repositorio en `dc20570`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `228382e` |
+| **Commit HEAD** | `dc20570` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-07T19:34:27-06:00 |
+| **Generado** | 2026-08-08T02:30:13-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-34 tablas definidas en `supabase/migrations/`:
+47 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -110,6 +110,19 @@ Patrón de cliente Supabase:
 | sales_events | 025_sales_events.sql |
 | IF | 027_mia_pixel.sql |
 | IF | 027_mia_pixel.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
+| delivery | 031_delivery_hub.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -147,6 +160,9 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 28 | 028_mia_pixel_init_visit.sql |
 | 29 | 029_product_media.sql |
 | 30 | 030_catalog_sku.sql |
+| 31 | 031_delivery_hub.sql |
+| 32 | 032_delivery_schema_expose.sql |
+| 33 | 033_delivery_grants.sql |
 
 ---
 
@@ -184,10 +200,20 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-48 rutas en `src/app/api/`:
+71 rutas en `src/app/api/`:
 
 ```
 accessibility
+admin/delivery/closures
+admin/delivery/drivers/[id]
+admin/delivery/drivers/[id]/token
+admin/delivery/drivers
+admin/delivery/metrics
+admin/delivery/orders/[id]/cancel
+admin/delivery/orders
+admin/delivery/routes/[id]/assign
+admin/delivery/routes
+admin/delivery/settings
 assistants/[id]
 business/memory/analyze
 business/memory
@@ -209,6 +235,19 @@ conversations/[id]/outcome
 conversations/[id]/status
 customers/memory
 demo/chat
+driver/auth/logout
+driver/auth/refresh
+driver/auth
+driver/checkout
+driver/deliveries/[id]/arrived
+driver/deliveries/[id]/delivered
+driver/deliveries/[id]/en-route
+driver/deliveries/[id]/incident
+driver/deliveries/[id]/revisit
+driver/deliveries/[id]
+driver/deliveries
+driver/me
+driver/sync
 knowledge/analyze/[reportId]
 knowledge/analyze
 knowledge/instructions/[id]
@@ -241,7 +280,7 @@ widget/chat
 
 ## 8. Páginas
 
-21 páginas en `src/app/`:
+25 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -256,6 +295,7 @@ dashboard/catalog/[id]
 dashboard/catalog
 dashboard/connections
 dashboard/conversations
+dashboard/delivery
 dashboard/health
 dashboard/knowledge-studio
 dashboard/knowledge
@@ -263,6 +303,9 @@ dashboard/laboratorio
 dashboard/onboarding
 dashboard
 demo
+driver/deliveries/[id]
+driver/login
+driver
 /
 widget
 ```
@@ -271,7 +314,7 @@ widget
 
 ## 9. Componentes
 
-84 componentes en `src/components/`:
+100 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -324,7 +367,23 @@ dashboard/TodaysActivity.tsx
 dashboard/TopBar.tsx
 dashboard/VitalPresence.tsx
 dashboard/WeeklyReportCard.tsx
+delivery/DeliveryAdmin.tsx
+delivery/DeliveryClosuresPanel.tsx
+delivery/DeliveryDriversPanel.tsx
+delivery/DeliveryOrdersPanel.tsx
+delivery/DeliveryRoutesPanel.tsx
+delivery/DeliverySettingsPanel.tsx
+delivery/admin-api.ts
 demo/DemoPaywall.tsx
+driver/DeliverForm.tsx
+driver/DeliveryDetail.tsx
+driver/DriverHome.tsx
+driver/DriverLogin.tsx
+driver/IncidentForm.tsx
+driver/api.ts
+driver/geolocation.ts
+driver/outbox.ts
+driver/types.ts
 health/HealthDashboard.tsx
 knowledge/FileUpload.tsx
 knowledge/InstructionsManager.tsx
@@ -364,7 +423,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-66 módulos:
+81 módulos:
 
 ```
 ai/client.ts
@@ -395,6 +454,21 @@ channels/types.ts
 conversation/context.ts
 conversation/resolver.ts
 dashboard/queries.ts
+delivery/actions.ts
+delivery/admin-api.ts
+delivery/auth.ts
+delivery/closure.ts
+delivery/db.ts
+delivery/errors.ts
+delivery/evidence.ts
+delivery/gps.ts
+delivery/http.ts
+delivery/incentives.ts
+delivery/licensing.ts
+delivery/request.ts
+delivery/token.ts
+delivery/types.ts
+delivery/whatsapp.ts
 i18n/config.ts
 i18n/dictionaries/en.ts
 i18n/dictionaries/es.ts
@@ -451,7 +525,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (50)**:
+**Tareas registradas (51)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -505,12 +579,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260807-233927408 | Medios por Producto: product_id en multimedia + selector UI + product_context en sesion | completed |
 | TASK-20260808-000932234 | Rediseno Catalogo & Medios (QuickSell): hub SKU-centric + columna sku + filtro product_id | completed |
 | TASK-20260808-005115364 | Motor de importación multipropósito para el Hub de Catálogo (CSV/XLSX, WooCommerce, scraping) | completed |
+| TASK-20260808-073131605 | Delivery Hub: modulo logístico aislado (schema delivery) + Portal del Repartidor | completed |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-19 ADRs en `docs/adr/`:
+20 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -533,6 +608,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 016-product-media-context | 016: Medios por Producto + product_context |
 | 017-catalog-sku-centric | 017: Catálogo SKU-Centric (Rediseño QuickSell) |
 | 018-import-engine | 018: Motor de Importación Multipropósito para el Hub de Catálogo |
+| 019-delivery-hub | 019: Delivery Hub — Módulo Logístico Aislado (Schema `delivery`) + Portal del Repartidor |
 
 ---
 
@@ -547,6 +623,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+dc20570 feat: delivery hub - isolated logistics module (delivery schema) + driver portal
+f8899c4 docs: regenerate MASTER.md at 228382e
 228382e docs: regenerate MASTER.md and memory index with ADR-018
 8e88e62 docs: regenerate MASTER.md at e9dfc3c
 e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
@@ -565,8 +643,6 @@ b7cf6dc docs: regenerate MASTER.md at 3a6f3af
 3a6f3af feat: widget sales intent invites checkout on landing + larger labeled button
 cca3807 feat: scope widget chat context to landing page
 74c758c feat: add close button to embed widget chat (postMessage bridge)
-6960274 docs: regenerate MASTER.md at a55363a
-a55363a feat: MIA Landings monorepo + Mia Pixel telemetry (ADR-015)
 ```
 
 ---
