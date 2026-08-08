@@ -13,6 +13,7 @@ export interface SuggestionEdits {
   image_url?: string | null
   trigger_condition?: string | null
   media_type?: string
+  product_id?: string | null
 }
 
 export type SuggestionKind = 'knowledge' | 'rule'
@@ -25,6 +26,7 @@ export interface KnowledgeApproval {
   image_url: string | null
   trigger_condition: string | null
   media_type: string
+  product_id: string | null
 }
 
 export interface RuleApproval {
@@ -89,10 +91,11 @@ export function buildApprovalPayload(
     }
   }
 
-  if (edits?.image_url && !edits.trigger_condition) {
+  if (edits?.image_url && !edits.trigger_condition && !edits.product_id) {
     return {
       ok: false,
-      error: 'Se requiere trigger_condition cuando se proporciona image_url',
+      error:
+        'Se requiere trigger_condition o product_id cuando se proporciona image_url',
     }
   }
 
@@ -134,6 +137,7 @@ export function buildApprovalPayload(
       image_url: edits?.image_url ?? null,
       trigger_condition: edits?.trigger_condition ?? null,
       media_type: edits?.media_type ?? 'other',
+      product_id: edits?.product_id ?? null,
     },
   }
 }

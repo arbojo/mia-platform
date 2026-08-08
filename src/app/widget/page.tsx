@@ -37,6 +37,7 @@ export default function WidgetPage() {
       landingId,
       brand: params.get('brand') || undefined,
       product: params.get('product') || undefined,
+      productId: params.get('productId') || undefined,
     }
   })
   const [visitorId] = useState(getVisitorId)

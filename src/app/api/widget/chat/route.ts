@@ -17,7 +17,8 @@ function parseLandingContext(raw: unknown): LandingContext | undefined {
   }
   const brand = typeof lc.brand === 'string' ? lc.brand.slice(0, 100) : undefined
   const product = typeof lc.product === 'string' ? lc.product.slice(0, 100) : undefined
-  return { landingId: lc.landingId, brand, product }
+  const productId = typeof lc.productId === 'string' ? lc.productId.slice(0, 64) : undefined
+  return { landingId: lc.landingId, brand, product, productId }
 }
 
 export async function POST(request: Request) {

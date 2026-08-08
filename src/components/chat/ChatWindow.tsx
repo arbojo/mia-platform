@@ -33,6 +33,7 @@ interface ChatWindowProps {
     landingId: string
     brand?: string
     product?: string
+    productId?: string
   }
 }
 

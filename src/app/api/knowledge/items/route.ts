@@ -76,7 +76,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { business_id, category, question, answer, image_url, trigger_condition, media_type } = body as {
+  const { business_id, category, question, answer, image_url, trigger_condition, media_type, product_id } = body as {
     business_id: string
     category: string
     question: string
@@ -84,6 +84,7 @@ export async function POST(request: Request) {
     image_url?: string | null
     trigger_condition?: string | null
     media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+    product_id?: string | null
   }
 
   if (!business_id || !category || !question || !answer) {
@@ -95,9 +96,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }
 
-  if (image_url && !trigger_condition) {
+  if (image_url && !trigger_condition && !product_id) {
     return NextResponse.json(
-      { error: 'trigger_condition is required when attaching an image' },
+      { error: 'trigger_condition or product_id is required when attaching an image' },
       { status: 400 }
     )
   }
@@ -113,6 +114,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
+  if (product_id) {
+    const { data: product } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', product_id)
+      .eq('business_id', business_id)
+      .maybeSingle()
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'product_id does not belong to this business' },
+        { status: 400 }
+      )
+    }
+  }
+
   const admin = createAdminClient()
 
   const { data, error } = await admin
@@ -125,6 +142,7 @@ export async function POST(request: Request) {
       image_url: image_url ?? null,
       trigger_condition: trigger_condition ?? null,
       media_type: media_type ?? 'other',
+      product_id: product_id ?? null,
       source: 'manual',
       confidence: 'medium',
     })

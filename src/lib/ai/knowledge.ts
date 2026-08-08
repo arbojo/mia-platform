@@ -106,6 +106,7 @@ export interface LandingContext {
   landingId: string
   brand?: string
   product?: string
+  productId?: string
 }
 
 export class LandingContextError extends Error {
@@ -168,7 +169,15 @@ export async function getLandingContext(businessId: string, lc: LandingContext) 
   const target = (lc.product ?? lc.brand ?? '').trim().toLowerCase()
 
   let targetProduct: (typeof allProducts)[number] | undefined
-  if (target) {
+  if (lc.productId) {
+    targetProduct = allProducts.find((p) => p.id === lc.productId)
+    if (!targetProduct) {
+      throw new LandingContextError(
+        `Product "${lc.productId}" not found for landing "${lc.landingId}"`,
+        'LANDING_PRODUCT_NOT_FOUND'
+      )
+    }
+  } else if (target) {
     targetProduct = allProducts.find((p) => p.name.toLowerCase() === target)
     if (!targetProduct) {
       throw new LandingContextError(
@@ -177,6 +186,8 @@ export async function getLandingContext(businessId: string, lc: LandingContext) 
       )
     }
   }
+
+  const productId = targetProduct?.id
 
   const otherNames = allProducts
     .map((p) => p.name.toLowerCase())
@@ -204,6 +215,7 @@ export async function getLandingContext(businessId: string, lc: LandingContext) 
   return {
     brand,
     products: targetProduct ? [targetProduct] : [],
+    productId,
     rules,
     instructions,
     knowledge,

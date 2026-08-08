@@ -1,11 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +27,7 @@ import {
 import type { Database } from '@/lib/types'
 
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
+type Product = Database['public']['Tables']['products']['Row']
 type MediaType = 'image' | 'testimonial' | 'flyer' | 'other'
 
 const mediaTypes: Array<{ id: MediaType; label: string }> = [
@@ -37,6 +46,7 @@ interface MediaLibraryProps {
 
 export function MediaLibrary({ businessId }: MediaLibraryProps) {
   const [items, setItems] = useState<KnowledgeItem[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -46,11 +56,36 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
   const [newType, setNewType] = useState<MediaType>('image')
   const [newDescription, setNewDescription] = useState('')
   const [newTrigger, setNewTrigger] = useState('')
+  const [newProductId, setNewProductId] = useState('')
   const [editTarget, setEditTarget] = useState<KnowledgeItem | null>(null)
   const [editType, setEditType] = useState<MediaType>('image')
   const [editDescription, setEditDescription] = useState('')
   const [editTrigger, setEditTrigger] = useState('')
+  const [editProductId, setEditProductId] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeItem | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase
+          .from('products')
+          .select('*')
+          .eq('business_id', businessId)
+          .eq('is_active', true)
+          .order('name', { ascending: true })
+        if (!cancelled && data) setProducts(data)
+      } catch {
+        // El catálogo es opcional: el selector queda vacío y el medio se
+        // guarda como genérico.
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [businessId])
 
   useEffect(() => {
     let cancelled = false
@@ -105,7 +140,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
     if (!file) return
     const url = await handleUpload(file)
     if (!url) return
-    if (!newDescription.trim() || !newTrigger.trim()) {
+    if (!newDescription.trim() || (!newTrigger.trim() && !newProductId)) {
       setUploadingName(url)
       return
     }
@@ -113,7 +148,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
   }
 
   const handleCreateItem = async (url: string) => {
-    if (!newDescription.trim() || !newTrigger.trim()) return
+    if (!newDescription.trim() || (!newTrigger.trim() && !newProductId)) return
     const res = await fetch('/api/knowledge/items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -125,11 +160,13 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
         image_url: url,
         trigger_condition: newTrigger,
         media_type: newType,
+        product_id: newProductId || null,
       }),
     })
     if (res.ok) {
       setNewDescription('')
       setNewTrigger('')
+      setNewProductId('')
       setUploadingName('')
       setRefreshKey((k) => k + 1)
     }
@@ -140,6 +177,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
     setEditType((item.media_type as MediaType) ?? 'other')
     setEditDescription(item.answer)
     setEditTrigger(item.trigger_condition ?? '')
+    setEditProductId(item.product_id ?? '')
   }
 
   const handleEdit = async () => {
@@ -151,6 +189,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
         answer: editDescription,
         trigger_condition: editTrigger.trim() || null,
         media_type: editType,
+        product_id: editProductId || null,
       }),
     })
     if (res.ok) {
@@ -170,7 +209,11 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
     }
   }
 
-  const canCreate = uploadingName !== '' && newDescription.trim() && newTrigger.trim()
+  const canCreate =
+    uploadingName !== '' && newDescription.trim() && (newTrigger.trim() || newProductId !== '')
+
+  const productName = (id: string | null) =>
+    products.find((p) => p.id === id)?.name ?? null
 
   return (
     <div className="space-y-6">
@@ -223,6 +266,26 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
               onChange={(e) => setNewTrigger(e.target.value)}
               placeholder="Ej: resultados, antes y después, testimonio"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="media-product">Producto del catálogo</Label>
+            <Select value={newProductId} onValueChange={(v) => setNewProductId(v ?? '')}>
+              <SelectTrigger className="w-full" id="media-product">
+                <SelectValue placeholder="Medio genérico (cualquier producto)" />
+              </SelectTrigger>
+              <SelectContent>
+                {products.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {products.length === 0 && (
+              <p className="text-xs text-gray-500">
+                No hay productos activos. La imagen se guardará como medio genérico.
+              </p>
+            )}
           </div>
           <Button
             onClick={() => uploadingName && handleCreateItem(uploadingName)}
@@ -281,7 +344,14 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
                   )}
                   <div className="p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline">{mediaTypeLabel(item.media_type)}</Badge>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">{mediaTypeLabel(item.media_type)}</Badge>
+                        {item.product_id && (
+                          <Badge variant="secondary">
+                            {productName(item.product_id) ?? 'Producto'}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => startEdit(item)}>
                           Editar
@@ -350,6 +420,21 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
                 value={editTrigger}
                 onChange={(e) => setEditTrigger(e.target.value)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-product">Producto del catálogo</Label>
+              <Select value={editProductId} onValueChange={(v) => setEditProductId(v ?? '')}>
+                <SelectTrigger className="w-full" id="edit-product">
+                  <SelectValue placeholder="Medio genérico (cualquier producto)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <AlertDialogFooter>

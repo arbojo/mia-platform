@@ -70,6 +70,7 @@ export async function PATCH(
             image_url: resolution.payload.image_url,
             trigger_condition: resolution.payload.trigger_condition,
             media_type: resolution.payload.media_type,
+            product_id: resolution.payload.product_id,
             source: 'correction',
             confidence: 'medium',
           })

@@ -135,6 +135,7 @@ export interface Database {
           image_url: string | null
           trigger_condition: string | null
           media_type: 'image' | 'testimonial' | 'flyer' | 'other'
+          product_id: string | null
           is_active: boolean
           created_at: string
           updated_at: string
@@ -150,6 +151,7 @@ export interface Database {
           image_url?: string | null
           trigger_condition?: string | null
           media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+          product_id?: string | null
           is_active?: boolean
           created_at?: string
           updated_at?: string
@@ -165,6 +167,7 @@ export interface Database {
           image_url?: string | null
           trigger_condition?: string | null
           media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+          product_id?: string | null
           is_active?: boolean
           created_at?: string
           updated_at?: string

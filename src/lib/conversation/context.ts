@@ -23,6 +23,7 @@ export interface LoadedContext {
   businessId: string
   assistantId: string
   customerId?: string
+  productId?: string
 }
 
 const CACHE_TTL = 5 * 60 * 1000
@@ -87,6 +88,8 @@ export async function loadConversationContext(
     getRecentLessons(assistantId, 10),
   ])
 
+  const productId = landingContext ? (context as { productId?: string }).productId : undefined
+
   let customerMemory: string | undefined
   if (customerId) {
     try {
@@ -130,6 +133,7 @@ export async function loadConversationContext(
     businessId,
     assistantId,
     customerId,
+    productId,
   }
 
   const ttl = customerId ? CUSTOMER_CACHE_TTL : CACHE_TTL

@@ -1,0 +1,119 @@
+{
+  "id": "TASK-20260807-233927408",
+  "title": "Medios por Producto: product_id en multimedia + selector UI + product_context en sesion",
+  "description": "Asociar knowledge_items multimedia a un producto del catalogo mediante product_id (FK nullable a products), anadir selector de producto en el formulario \"Subir nuevo medio\" y en edicion de la Media Library, hacer que resolveConditionalMedia escale por product_context, e inyectar product_context de forma invisible en la sesion de chat (landing/widget, campanas Facebook y anclas publicitarias) para que el matcher de medios y el prompt usen el producto activo.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "ui_change",
+      "api_change"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 10 files affected, schema changes required, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "product_id nullable en knowledge_items respeta ADR-014 (Products != Knowledge); reusa canal LandingContext existente para product_context; sin jerarquias paralelas",
+      "timestamp": "2026-08-07T23:40:05.234Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Migracion 029 + product_id en items API, validacion (image requiere product_id o trigger), resolveConditionalMedia filtra por productId (especifico -> general)",
+      "timestamp": "2026-08-07T23:40:06.891Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "product_context desde DB (no hardcode), nota de producto activo en buildMasterPrompt, [IMAGEN_DISPONIBLE] filtrada por producto, envío sigue determinista sin coste extra",
+      "timestamp": "2026-08-07T23:40:08.051Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "unit tests matcher con scoping por producto, e2e formulario con selector, gates: lint/build/typecheck/unit/e2e/devtools",
+      "timestamp": "2026-08-07T23:40:09.247Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migracion 029: product_id FK nullable con ON DELETE SET NULL, indice, sin cambios de RLS (knowledge_items ya scoped por business)",
+      "timestamp": "2026-08-07T23:45:41.958Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Selector de producto en MediaLibrary (shadcn Select) alimentado del catalogo, badge por producto, sin logica de negocio en UI",
+      "timestamp": "2026-08-07T23:45:43.784Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin coste LLM extra: matcher determinista, productId viaja en objeto existente (0 params nuevos), cacheKey intacta",
+      "timestamp": "2026-08-07T23:45:45.323Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "FK product_id hereda scoping por business; validacion server-side de productId contra tenant en widget route; sin exposicion de datos",
+      "timestamp": "2026-08-07T23:45:46.535Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, typecheck, unit_tests, e2e_tests, chrome_devtools, security_review, performance_review; commit + push tras verde",
+      "timestamp": "2026-08-07T23:45:47.409Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "ADR-016 documentara la decision (product_id + product_context); leccion: resolver id en un unico punto en vez de cascadas de params",
+      "timestamp": "2026-08-07T23:45:50.298Z"
+    }
+  ],
+  "createdAt": "2026-08-07T23:39:27.330Z",
+  "classifiedAt": "2026-08-07T23:39:27.330Z",
+  "approvedAt": "2026-08-07T23:45:50.299Z",
+  "startedAt": "2026-08-07T23:46:05.116Z",
+  "completedAt": "2026-08-07T23:57:24.818Z"
+}

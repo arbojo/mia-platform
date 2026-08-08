@@ -166,7 +166,7 @@ export async function processIncomingMessage(
     }
   }
 
-  const { systemPrompt, usedContext } = await loadConversationContext(
+  const { systemPrompt, usedContext, productId } = await loadConversationContext(
     businessId,
     assistantId,
     customer.id,
@@ -251,6 +251,7 @@ export async function processIncomingMessage(
     conversationId: conversationId ?? null,
     userMessage: wireMessage.content,
     intentTag: intentTag ?? null,
+    productId: productId ?? null,
   })
 
   // SHADOW: the reply is generated and stored for learning but never sent.
