@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { X } from 'lucide-react'
 import { ChatWindow } from '@/components/chat/ChatWindow'
 
@@ -15,32 +16,22 @@ function getVisitorId(): string {
   return id
 }
 
-export default function WidgetPage() {
-  const [assistantName] = useState(() => {
-    if (typeof window === 'undefined') return 'MIA'
-    return new URLSearchParams(window.location.search).get('name') || 'MIA'
-  })
-  const [assistantId] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null
-    return new URLSearchParams(window.location.search).get('assistantId')
-  })
-  const [greeting] = useState<string | undefined>(() => {
-    if (typeof window === 'undefined') return undefined
-    return new URLSearchParams(window.location.search).get('greeting') || undefined
-  })
-  const [landingContext] = useState(() => {
-    if (typeof window === 'undefined') return undefined
-    const params = new URLSearchParams(window.location.search)
-    const landingId = params.get('landingId')
-    if (!landingId) return undefined
-    return {
-      landingId,
-      brand: params.get('brand') || undefined,
-      product: params.get('product') || undefined,
-      productId: params.get('productId') || undefined,
-    }
-  })
+function WidgetContent() {
+  const searchParams = useSearchParams()
   const [visitorId] = useState(getVisitorId)
+
+  const assistantName = searchParams.get('name') || 'MIA'
+  const assistantId = searchParams.get('assistantId')
+  const greeting = searchParams.get('greeting') || undefined
+  const landingId = searchParams.get('landingId')
+  const landingContext = landingId
+    ? {
+        landingId,
+        brand: searchParams.get('brand') || undefined,
+        product: searchParams.get('product') || undefined,
+        productId: searchParams.get('productId') || undefined,
+      }
+    : undefined
 
   if (!assistantId) {
     return (
@@ -69,5 +60,19 @@ export default function WidgetPage() {
         landingContext={landingContext}
       />
     </div>
+  )
+}
+
+export default function WidgetPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen bg-gray-50">
+          <p className="text-gray-500 text-sm">Cargando…</p>
+        </div>
+      }
+    >
+      <WidgetContent />
+    </Suspense>
   )
 }
