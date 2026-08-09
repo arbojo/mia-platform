@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `816ce47`.
+> Fuente de verdad: este repositorio en `f023768`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `816ce47` |
+| **Commit HEAD** | `f023768` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T17:42:24-06:00 |
+| **Generado** | 2026-08-09T17:43:43-06:00 |
 
 ---
 
@@ -677,6 +677,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+f023768 subaru: checkpoint subaru-cli - en-progreso
+56b3c5f feat: Subaru CLI para resurrección multi-máquina de tareas
+0d65765 docs: regenerate MASTER.md at 816ce47
 816ce47 subaru: checkpoint subaru-cli - en-progreso
 b147329 subaru: checkpoint subaru-cli - en-progreso
 08bf7f5 subaru: checkpoint subaru-cli - listo
@@ -694,9 +697,6 @@ fabd1cd docs: regenerate MASTER.md at 1b8b26a
 bdddfab docs: regenerate MASTER.md at 1016ced
 1016ced feat: native sale closing in widget with sales_events sync (P4)
 97f5f3a docs: regenerate MASTER.md at d8d5b3e
-d8d5b3e docs: add conversational reliability audit report with simulation harness and governance artifacts
-0e29db4 fix: reliability guardrails - plural-tolerant media triggers and channel-gated image promise
-7bbdae5 docs: regenerate MASTER.md at eaf3a4c
 ```
 
 ---
