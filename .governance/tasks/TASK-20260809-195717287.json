@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260809-195717287",
+  "title": "Inventory Hub Paywall + ruta de suscripcion (checkout placeholder)",
+  "description": "Paywall premium para el Inventory Hub cuando la edicion no lo incluye, y nueva ruta /dashboard/billing/upgrade como checkout placeholder listo para integrar SDK de pagos.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Paywall como componente presentacional + checkout placeholder; sin schema ni deuda arquitectonica",
+      "timestamp": "2026-08-09T19:57:32.327Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin cambios de API; gating server-side via canUseInventoryHub, consistente con licensing.ts",
+      "timestamp": "2026-08-09T19:57:35.714Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Diseno consistente con DemoPaywall y tokens atmosphere; cliente para router.push",
+      "timestamp": "2026-08-09T19:57:41.908Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se validara con lint y build; cambios presentacionales",
+      "timestamp": "2026-08-09T19:57:54.723Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin secrets ni env; commit atomico + push tras gates",
+      "timestamp": "2026-08-09T19:57:58.053Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Feature menor, sin decisiones arquitectonicas nuevas",
+      "timestamp": "2026-08-09T19:58:02.009Z"
+    }
+  ],
+  "createdAt": "2026-08-09T19:57:17.087Z",
+  "classifiedAt": "2026-08-09T19:57:17.087Z",
+  "approvedAt": "2026-08-09T19:58:02.011Z",
+  "startedAt": "2026-08-09T19:58:16.446Z",
+  "completedAt": "2026-08-09T20:11:22.564Z"
+}

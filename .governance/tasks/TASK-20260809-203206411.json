@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260809-203206411",
+  "title": "Paywall Inventory Hub: pulido de copywriting aspiracional",
+  "description": "Eliminar rastro de bloqueo y backend del paywall del Inventory Hub, integrar gancho de dolor aspiracional y verificar enrutamiento del CTA.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-09T20:32:06.479Z",
+  "classifiedAt": "2026-08-09T20:32:06.479Z",
+  "approvedAt": "2026-08-09T20:32:06.479Z",
+  "startedAt": "2026-08-09T20:32:17.268Z",
+  "completedAt": "2026-08-09T20:35:18.206Z"
+}

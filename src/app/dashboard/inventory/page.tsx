@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { requirePageAuth } from '@/lib/auth'
+import { canUseInventoryHub } from '@/lib/system/edition'
 import { InventoryAdmin } from '@/components/inventory/InventoryAdmin'
+import { InventoryPaywall } from '@/components/inventory/InventoryPaywall'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +19,10 @@ export default async function InventoryAdminPage() {
 
   if (!business) {
     redirect('/dashboard/onboarding')
+  }
+
+  if (!canUseInventoryHub()) {
+    return <InventoryPaywall />
   }
 
   return <InventoryAdmin businessId={business.id} />
