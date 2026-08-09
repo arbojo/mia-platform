@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b3c19c2`.
+> Fuente de verdad: este repositorio en `141136a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b3c19c2` |
+| **Commit HEAD** | `141136a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T13:37:16-06:00 |
+| **Generado** | 2026-08-09T14:39:25-06:00 |
 
 ---
 
@@ -297,7 +297,7 @@ widget/chat
 
 ## 8. Páginas
 
-26 páginas en `src/app/`:
+27 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -308,6 +308,7 @@ dashboard/assistants/[id]/products
 dashboard/assistants/[id]/rules
 dashboard/assistants/[id]/training
 dashboard/assistants
+dashboard/billing/upgrade
 dashboard/catalog/[id]
 dashboard/catalog
 dashboard/connections
@@ -332,10 +333,11 @@ widget
 
 ## 9. Componentes
 
-108 componentes en `src/components/`:
+110 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
+billing/UpgradeCheckout.tsx
 catalog/CatalogGrid.tsx
 catalog/ProductCard.tsx
 catalog/ProductDetail.tsx
@@ -408,6 +410,7 @@ health/HealthDashboard.tsx
 inventory/InventoryAdmin.tsx
 inventory/InventoryImportPanel.tsx
 inventory/InventoryMovementsPanel.tsx
+inventory/InventoryPaywall.tsx
 inventory/InventoryStockPanel.tsx
 inventory/InventorySuggestionsPanel.tsx
 inventory/admin-api.ts
@@ -562,7 +565,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (53)**:
+**Tareas registradas (55)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -619,6 +622,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260808-073131605 | Delivery Hub: modulo logístico aislado (schema delivery) + Portal del Repartidor | completed |
 | TASK-20260808-084307057 | Inventory Hub: modulo de inventario, catalogo y probabilidad/demanda (schema inventory) | completed |
 | TASK-20260809-185222360 | Delivery Hub: PWA offline-first del Portal del Repartidor | completed |
+| TASK-20260809-195717287 | Inventory Hub Paywall + ruta de suscripcion (checkout placeholder) | completed |
+| TASK-20260809-203206411 | Paywall Inventory Hub: pulido de copywriting aspiracional | completed |
 
 ---
 
@@ -663,6 +668,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+141136a feat: inventory hub paywall (aspirational copy) + billing upgrade checkout placeholder
+cafd95a docs: regenerate MASTER.md at b3c19c2
 b3c19c2 feat: delivery pwa - offline-first driver portal (service worker, outbox IndexedDB, offline cache)
 28ffa28 docs: regenerate MASTER.md at e3720fb
 e3720fb feat: inventory hub - isolated inventory module (schema inventory) + catalog availability
@@ -681,8 +688,6 @@ bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 94a60e0 feat: WhatsApp order capture with delivery-day awareness
 104bad5 docs: regenerate MASTER.md at 229133f
 229133f feat: widget buy button with shimmer animates into landing order form
-168a07d docs: regenerate MASTER.md at 166b3a9
-166b3a9 fix: widget chat must never ask for order data, only invite to landing form
 ```
 
 ---
