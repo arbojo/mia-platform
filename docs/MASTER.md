@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ebb65ab`.
+> Fuente de verdad: este repositorio en `e66e8a2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ebb65ab` |
+| **Commit HEAD** | `e66e8a2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T17:22:12-06:00 |
+| **Generado** | 2026-08-09T17:27:35-06:00 |
 
 ---
 
@@ -676,6 +676,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e66e8a2 subaru: checkpoint mia-vestido-azul - protocolo-corregido
+65003e0 docs: regenerate MASTER.md at ebb65ab
 ebb65ab subaru: checkpoint mia-vestido-azul - listo
 af80ab7 docs: regenerate MASTER.md at f01e936
 f01e936 subaru: checkpoint subaru-agent-concilio - completado
@@ -694,8 +696,6 @@ f178130 docs: regenerate MASTER.md at 141136a
 141136a feat: inventory hub paywall (aspirational copy) + billing upgrade checkout placeholder
 cafd95a docs: regenerate MASTER.md at b3c19c2
 b3c19c2 feat: delivery pwa - offline-first driver portal (service worker, outbox IndexedDB, offline cache)
-28ffa28 docs: regenerate MASTER.md at e3720fb
-e3720fb feat: inventory hub - isolated inventory module (schema inventory) + catalog availability
 ```
 
 ---
