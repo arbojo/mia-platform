@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `141136a`.
+> Fuente de verdad: este repositorio en `eaf3a4c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `141136a` |
+| **Commit HEAD** | `eaf3a4c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T14:39:25-06:00 |
+| **Generado** | 2026-08-09T14:48:23-06:00 |
 
 ---
 
@@ -565,7 +565,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (55)**:
+**Tareas registradas (56)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -624,6 +624,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-185222360 | Delivery Hub: PWA offline-first del Portal del Repartidor | completed |
 | TASK-20260809-195717287 | Inventory Hub Paywall + ruta de suscripcion (checkout placeholder) | completed |
 | TASK-20260809-203206411 | Paywall Inventory Hub: pulido de copywriting aspiracional | completed |
+| TASK-20260809-204316702 | Paywall + Suscripcion Inventory Hub: correccion definitiva de copy y localizacion (espanol neutro, cero voseo) | completed |
 
 ---
 
@@ -668,6 +669,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+eaf3a4c refactor: neutral spanish copy for inventory hub paywall and upgrade view
+f178130 docs: regenerate MASTER.md at 141136a
 141136a feat: inventory hub paywall (aspirational copy) + billing upgrade checkout placeholder
 cafd95a docs: regenerate MASTER.md at b3c19c2
 b3c19c2 feat: delivery pwa - offline-first driver portal (service worker, outbox IndexedDB, offline cache)
@@ -686,8 +689,6 @@ bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 47b241e feat: scope knowledge media to catalog product with product_context
 3ececd5 docs: regenerate MASTER.md at 94a60e0
 94a60e0 feat: WhatsApp order capture with delivery-day awareness
-104bad5 docs: regenerate MASTER.md at 229133f
-229133f feat: widget buy button with shimmer animates into landing order form
 ```
 
 ---
