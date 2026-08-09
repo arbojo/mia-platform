@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260809-231109825",
+  "title": "Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul)",
+  "description": "Crear src/styles/design-system.css (variables CSS para tema claro/oscuro + tokens de acento por módulo + efectos de glow) y modificar el layout raíz para inyectar data-theme y data-module.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Sistema de tokens CSS modular, single source of truth, no rompe RLS ni dominio",
+      "timestamp": "2026-08-09T23:11:22.615Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin impacto en APIs ni lógica backend; solo presentación",
+      "timestamp": "2026-08-09T23:11:26.133Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Tokens reutilizables con ThemeProvider existente, cero regresiones",
+      "timestamp": "2026-08-09T23:11:28.220Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Verificaré lint, build y tema claro/oscuro con DevTools",
+      "timestamp": "2026-08-09T23:11:30.304Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado para commit y push tras gates",
+      "timestamp": "2026-08-09T23:11:32.600Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentará en checkpoint y memoria",
+      "timestamp": "2026-08-09T23:11:35.761Z"
+    }
+  ],
+  "createdAt": "2026-08-09T23:11:09.569Z",
+  "classifiedAt": "2026-08-09T23:11:09.569Z",
+  "approvedAt": "2026-08-09T23:11:35.762Z",
+  "startedAt": "2026-08-09T23:13:58.839Z",
+  "completedAt": "2026-08-09T23:21:21.227Z"
+}

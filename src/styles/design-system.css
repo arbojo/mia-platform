@@ -1,0 +1,196 @@
+/* ============================================================
+   MIA DESIGN SYSTEM — Sistema de Diseño Modular
+   ------------------------------------------------------------
+   Capa de presentación sobre globals.css. Define:
+
+   1. Terreno compartido  — tokens estables para todo módulo
+   2. Contexto por módulo — data-module="sales|inventory|logistics"
+   3. Toque maestro       — glow de urgencia animado
+
+   Activación:
+   - <html data-theme="dark|light">        (ThemeProvider)
+   - <AppLayout data-module="...">         (contexto de módulo)
+   ============================================================ */
+
+/* 1. Terreno compartido — tokens estables */
+:root {
+  /* Espaciado */
+  --mod-space-1: 4px;
+  --mod-space-2: 8px;
+  --mod-space-3: 12px;
+  --mod-space-4: 16px;
+  --mod-space-5: 24px;
+  --mod-space-6: 32px;
+  --mod-space-8: 48px;
+
+  /* Radio */
+  --mod-radius-sm: 8px;
+  --mod-radius-md: 12px;
+  --mod-radius-lg: 16px;
+  --mod-radius-pill: 9999px;
+
+  /* Movimiento */
+  --mod-ease-premium: var(--ease-premium, cubic-bezier(0.16, 1, 0.3, 1));
+  --mod-duration-fast: var(--duration-fast, 150ms);
+  --mod-duration-medium: var(--duration-medium, 300ms);
+  --mod-duration-slow: var(--duration-slow, 500ms);
+
+  /* Acento por defecto — Ventas en Azul */
+  --module-accent: #1E5A99;
+  --module-accent-strong: #174A80;
+  --module-accent-soft: rgba(30, 90, 153, 0.1);
+  --module-accent-softer: rgba(30, 90, 153, 0.06);
+  --module-accent-border: rgba(30, 90, 153, 0.25);
+  --module-glow: rgba(30, 90, 153, 0.35);
+  --module-glow-soft: rgba(30, 90, 153, 0.18);
+
+  /* Superficies de módulo */
+  --module-surface: #FFFFFF;
+  --module-surface-hover: rgba(30, 90, 153, 0.04);
+  --module-surface-active: rgba(30, 90, 153, 0.08);
+
+  /* Toque maestro — glow de urgencia */
+  --urgency-color: #D4743A;
+  --urgency-glow: rgba(212, 116, 58, 0.45);
+  --urgency-glow-strong: rgba(212, 116, 58, 0.7);
+}
+
+/* Ventas en Azul — variante oscura */
+[data-theme='dark'] {
+  --module-accent: #6CA8E0;
+  --module-accent-strong: #9CC6EE;
+  --module-accent-soft: rgba(108, 168, 224, 0.16);
+  --module-accent-softer: rgba(108, 168, 224, 0.1);
+  --module-accent-border: rgba(108, 168, 224, 0.35);
+  --module-glow: rgba(108, 168, 224, 0.4);
+  --module-glow-soft: rgba(108, 168, 224, 0.22);
+  --module-surface: #252420;
+  --module-surface-hover: rgba(108, 168, 224, 0.08);
+  --module-surface-active: rgba(108, 168, 224, 0.14);
+  --urgency-color: #F0A35E;
+  --urgency-glow: rgba(240, 163, 94, 0.45);
+  --urgency-glow-strong: rgba(240, 163, 94, 0.7);
+}
+
+/* 2. Contexto por módulo — paleta propia por data-module */
+
+/* sales — hereda el azul por defecto de :root */
+[data-module='sales'] {
+  /* sin overrides: usa Ventas en Azul del terreno compartido */
+}
+
+/* inventory — esmeralda */
+[data-module='inventory'] {
+  --module-accent: #2D8A5E;
+  --module-accent-strong: #22694A;
+  --module-accent-soft: rgba(45, 138, 94, 0.1);
+  --module-accent-softer: rgba(45, 138, 94, 0.06);
+  --module-accent-border: rgba(45, 138, 94, 0.25);
+  --module-glow: rgba(45, 138, 94, 0.35);
+  --module-glow-soft: rgba(45, 138, 94, 0.18);
+  --module-surface-hover: rgba(45, 138, 94, 0.04);
+  --module-surface-active: rgba(45, 138, 94, 0.08);
+}
+
+[data-theme='dark'] [data-module='inventory'] {
+  --module-accent: #6EC29C;
+  --module-accent-strong: #9BD8BC;
+  --module-accent-soft: rgba(110, 194, 156, 0.16);
+  --module-accent-softer: rgba(110, 194, 156, 0.1);
+  --module-accent-border: rgba(110, 194, 156, 0.35);
+  --module-glow: rgba(110, 194, 156, 0.4);
+  --module-glow-soft: rgba(110, 194, 156, 0.22);
+  --module-surface-hover: rgba(110, 194, 156, 0.08);
+  --module-surface-active: rgba(110, 194, 156, 0.14);
+}
+
+/* logistics — ámbar / naranja */
+[data-module='logistics'] {
+  --module-accent: #D4743A;
+  --module-accent-strong: #A9552A;
+  --module-accent-soft: rgba(212, 116, 58, 0.1);
+  --module-accent-softer: rgba(212, 116, 58, 0.06);
+  --module-accent-border: rgba(212, 116, 58, 0.25);
+  --module-glow: rgba(212, 116, 58, 0.35);
+  --module-glow-soft: rgba(212, 116, 58, 0.18);
+  --module-surface-hover: rgba(212, 116, 58, 0.04);
+  --module-surface-active: rgba(212, 116, 58, 0.08);
+}
+
+[data-theme='dark'] [data-module='logistics'] {
+  --module-accent: #F0A35E;
+  --module-accent-strong: #F7C594;
+  --module-accent-soft: rgba(240, 163, 94, 0.16);
+  --module-accent-softer: rgba(240, 163, 94, 0.1);
+  --module-accent-border: rgba(240, 163, 94, 0.35);
+  --module-glow: rgba(240, 163, 94, 0.4);
+  --module-glow-soft: rgba(240, 163, 94, 0.22);
+  --module-surface-hover: rgba(240, 163, 94, 0.08);
+  --module-surface-active: rgba(240, 163, 94, 0.14);
+}
+
+/* 3. Utilidades de acento de módulo */
+.text-module-accent {
+  color: var(--module-accent);
+}
+
+.text-module-strong {
+  color: var(--module-accent-strong);
+}
+
+.bg-module-soft {
+  background-color: var(--module-accent-soft);
+}
+
+.bg-module-softer {
+  background-color: var(--module-accent-softer);
+}
+
+.border-module {
+  border-color: var(--module-accent-border);
+}
+
+.ring-module {
+  box-shadow: inset 0 0 0 1px var(--module-accent-border);
+}
+
+/* 4. Toque maestro — glow de módulo y urgencia */
+.glow-module {
+  box-shadow: 0 0 0 1px var(--module-accent-border), 0 0 20px var(--module-glow-soft);
+  transition: box-shadow var(--mod-duration-medium) var(--mod-ease-premium);
+}
+
+.glow-module-strong {
+  box-shadow: 0 0 0 1px var(--module-accent-border), 0 0 32px var(--module-glow);
+  transition: box-shadow var(--mod-duration-medium) var(--mod-ease-premium);
+}
+
+.glow-module:hover,
+.glow-module-strong:hover {
+  box-shadow: 0 0 0 1px var(--module-accent-border), 0 0 44px var(--module-glow);
+}
+
+/* Glow de urgencia — pulso persistente para llamar la atención */
+@keyframes glow-urgency-pulse {
+  0%, 100% {
+    box-shadow: 0 0 6px var(--urgency-glow), 0 0 16px var(--urgency-glow);
+  }
+  50% {
+    box-shadow: 0 0 14px var(--urgency-glow-strong), 0 0 40px var(--urgency-glow-strong);
+  }
+}
+
+.glow-urgency {
+  animation: glow-urgency-pulse 2.4s var(--mod-ease-premium) infinite;
+}
+
+.glow-urgency-strong {
+  animation: glow-urgency-pulse 1.6s var(--mod-ease-premium) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-urgency,
+  .glow-urgency-strong {
+    animation: none;
+  }
+}

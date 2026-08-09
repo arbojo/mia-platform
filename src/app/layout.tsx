@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Lora } from 'next/font/google'
 import './globals.css'
+import '@/styles/design-system.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 const lora = Lora({ subsets: ['latin'], variable: '--font-lora' })

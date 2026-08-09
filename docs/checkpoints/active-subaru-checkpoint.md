@@ -1,30 +1,42 @@
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
-- **ID de Tarea / Sprint:** subaru-agent-concilio
-- **Estado:** ✅ Completado (verificado el 2026-08-09)
-- **Fecha / Hora de Resurrección:** 2026-08-09T16:56:29-06:00
+- **ID de Tarea / Sprint:** mia-vestido-azul
+- **Estado:** ✅ Completado y sincronizado (verificado el 2026-08-09)
+- **Fecha / Hora de Resurrección:** 2026-08-09T17:22:00-06:00
+- **Gobernanza:** TASK-20260809-231109825 (approved, completed)
+- **Commit de resurrección:** ver `git log --oneline -3` (esperado: `subaru: checkpoint mia-vestido-azul - listo`)
 
 ## 1. Contexto y Objetivo
-Crear el agente **subaru** (El Guardián del Checkpoint) en el concilio de
-OpenCode (Mia Landings). Es un agente de continuidad multi-máquina: congela
-planes en `docs/checkpoints/active-subaru-checkpoint.md`, ejecuta la
-sincronización git (Return-by-Death) y diagnostica la resurrección al retomar
-en HP/Dell/Linux. La tarea incluye su definición, su integración en el
-Director, y este mismo checkpoint como respaldo anti-tokens.
+Implementar el sistema de diseño modular de MIA: soporte de **Tema Claro /
+Tema Oscuro**, **Selector de Contexto por Módulo** (Ventas en Azul por
+defecto, Inventario esmeralda, Logística ámbar), manteniendo el terreno
+compartido y el toque maestro con **glow de urgencia**. Capa de presentación
+pura: no toca RLS, dominio, APIs ni AI.
 
 ## 2. Archivos Involucrados (Crear / Modificar)
-- `~/.config/opencode/agent/subaru.md` -> [Crear] Definición del agente subaru: frontmatter válido (`mode: subagent`, `permission.read/edit/bash: allow`) + cuerpo verbatim (Rol, Responsabilidades, Reglas).
-- `~/.config/opencode/agent/director.md` -> [Modificar] Agregar subaru como punto 8 del roster y como Fase Transversal del flujo operativo (cierre de fases + arranque multi-máquina).
-- `docs/checkpoints/active-subaru-checkpoint.md` -> [Crear] Este checkpoint de respaldo (ID subaru-agent-concilio).
+- `src/styles/design-system.css` -> [Crear] Tokens CSS: terreno compartido (`:root` y `[data-theme='dark']`), acento por módulo (`[data-module='sales|inventory|logistics']`), utilidades (`text-module-accent`, `bg-module-soft`, `ring-module`, `glow-module`) y `glow-urgency` animado.
+- `src/components/layout/AppLayout.tsx` -> [Crear] Root container cliente: `ModuleContext` + `useModule()`, inyecta `data-theme` y `data-module` en `[data-layout-root]`, auto-detecta módulo por pathname, persiste elección en `localStorage['mia-module']`. Exporta `ModuleSelector` (píldora Ventas/Inventario/Logística).
+- `src/app/dashboard/layout.tsx` -> [Modificar] Envuelve Sidebar+TopBar+main+MIAIndicator en `<AppLayout>` (reemplaza el div `data-layout-root` inline).
+- `src/app/layout.tsx` -> [Modificar] Import de `@/styles/design-system.css` tras `./globals.css`.
+- `src/components/dashboard/TopBar.tsx` -> [Modificar] Monta `<ModuleSelector />` antes de SignalIndicator.
+- `docs/checkpoints/active-subaru-checkpoint.md` -> [Modificar] Este checkpoint.
+- `.governance/tasks/TASK-20260809-231109825.json` -> [Crear] Manifest aprobado por concilio (6 agentes).
 
 ## 3. Plan de Ataque (Sprints de Código)
-- [x] **Paso 1:** Crear `~/.config/opencode/agent/subaru.md` con frontmatter válido y el cuerpo del agente verbatim (Rol, Responsabilidades Principales, Reglas de Comportamiento). Mantener `edit: allow`, `bash: allow`, `read: allow` para poder escribir el checkpoint y ejecutar git.
-- [x] **Paso 2:** Modificar `~/.config/opencode/agent/director.md`: añadir subaru al roster (punto 8) y al flujo operativo como Fase Transversal.
-- [x] **Paso 3:** Verificar que ambos archivos de la config global siguen el formato del concilio (comparar con scout.md / sanity.md: frontmatter `mode` + `permission`, cuerpo por secciones).
-- [x] **Paso 4:** Reiniciar opencode para que el agente `subaru` cargue (la config NO se recarga en caliente).
+- [x] **Paso 1:** Gobernanza: clasificar tarea, aprobar concilio, validar.
+- [x] **Paso 2:** Crear `design-system.css` (terreno compartido + módulos + glow).
+- [x] **Paso 3:** Crear `AppLayout.tsx` con contexto de módulo y selector.
+- [x] **Paso 4:** Cablear dashboard layout, root layout y TopBar.
+- [x] **Paso 5:** Gates: lint 0 errores, build OK (78 páginas), unit 492, e2e 66, DevTools (atributos/accentos/no errores de consola).
 
 ## 4. Validación y Pruebas
-- [x] Confirmar existencia y formato de `~/.config/opencode/agent/subaru.md`.
-- [x] Confirmar que `~/.config/opencode/agent/director.md` lista a subaru (roster + Fase Transversal).
-- [x] Ejecutar `git add docs/checkpoints/ && git commit -m "subaru: checkpoint subaru-agent-concilio - listo para ejecucion" && git push origin main`.
-- [x] Verificar `git status` limpio y remote sincronizado.
-- [x] Tras reiniciar opencode: `subaru` visible como subagente en la herramienta `task`.
+- [x] `npm run lint` — 0 errores / 0 warnings.
+- [x] `npm run build` — OK (`.next` corrupto previo: borrar `Remove-Item -Recurse -Force .next` y rebuild).
+- [x] `npm run test:unit` — 492 passed.
+- [x] `npm test` — 66 passed (2 skipped).
+- [x] Chrome DevTools: `data-theme` en html+root, `data-module` cambia sales/inventory/logistics con accentos `#1e5a99`/`#2d8a5e`/`#d4743a` (dark: `#6ca8e0`/`#6ec29c`/`#f0a35e`), CSS cargado, sin errores de consola.
+
+## 5. Comando de Resurrección (una línea)
+```
+git -C C:\Users\david\mia pull origin main
+```
+En Linux/macOS: `git -C ~/mia pull origin main`

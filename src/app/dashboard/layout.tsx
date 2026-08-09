@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/dashboard/ThemeProvider'
 import { AccessibilityProvider } from '@/components/dashboard/AccessibilityProvider'
 import { I18nProvider } from '@/components/dashboard/I18nProvider'
 import { TopBar } from '@/components/dashboard/TopBar'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { getUserLocale } from '@/lib/i18n/server'
 
 export default async function DashboardLayout({
@@ -27,17 +28,8 @@ export default async function DashboardLayout({
     <I18nProvider key={locale} locale={locale}>
       <ThemeProvider>
         <AtmosphereProvider>
-          <AccessibilityProvider>
-          <div
-            data-layout-root
-            className="flex min-h-screen"
-            style={{
-              backgroundColor: 'var(--atmosphere-bg)',
-              backgroundImage: 'var(--atmosphere-gradient)',
-              color: 'var(--atmosphere-text)',
-              transition: 'background-color 0.6s ease, background-image 0.6s ease',
-            }}
-          >
+      <AccessibilityProvider>
+          <AppLayout>
             <Sidebar />
             <div className="flex flex-1 flex-col overflow-auto">
               <TopBar />
@@ -49,8 +41,8 @@ export default async function DashboardLayout({
               </main>
             </div>
             <MIAIndicator status="active" />
-          </div>
-        </AccessibilityProvider>
+          </AppLayout>
+      </AccessibilityProvider>
       </AtmosphereProvider>
     </ThemeProvider>
     </I18nProvider>
