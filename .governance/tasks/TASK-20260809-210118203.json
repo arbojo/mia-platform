@@ -1,0 +1,93 @@
+{
+  "id": "TASK-20260809-210118203",
+  "title": "Auditoria integral de fiabilidad: simulacion de flujos conversacionales + guardrails de intencion + trazabilidad de datos al dashboard",
+  "description": "Auditar psicologia de ventas, manejo de objeciones, falsos positivos en clasificacion de intenciones, captura/persistencia de datos del chat hacia Supabase y dashboard, y disparo de multimedia contextual. Entregar reporte tecnico y propuestas de guardrails en prompts.",
+  "scope": {
+    "categories": [
+      "ai_behaviour",
+      "documentation"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: AI behaviour changes, cross-cutting (multi-domain). Required agents (7): architect, backend, ai_engineer, performance, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Auditoria read-only + propuestas de prompt; sin cambios de arquitectura",
+      "timestamp": "2026-08-09T21:01:33.584Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Trazabilidad chat->Supabase->dashboard bajo revision; sin cambios de schema",
+      "timestamp": "2026-08-09T21:01:37.819Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Guardrails en prompt del sistema para mitigar falsos positivos; audit de intenciones",
+      "timestamp": "2026-08-09T21:01:42.066Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin impacto de rendimiento en auditoria; se revisara token usage",
+      "timestamp": "2026-08-09T21:01:56.548Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Simulacion de conversaciones + validacion de datos en dashboard",
+      "timestamp": "2026-08-09T21:02:01.223Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Reporte tecnico como entregable; commit tras validacion",
+      "timestamp": "2026-08-09T21:02:06.238Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Hallazgos se registraran en memoria de ingenieria",
+      "timestamp": "2026-08-09T21:02:13.102Z"
+    }
+  ],
+  "createdAt": "2026-08-09T21:01:18.800Z",
+  "classifiedAt": "2026-08-09T21:01:18.800Z",
+  "approvedAt": "2026-08-09T21:02:13.105Z",
+  "startedAt": "2026-08-09T21:02:32.621Z",
+  "completedAt": "2026-08-09T21:36:57.416Z"
+}
