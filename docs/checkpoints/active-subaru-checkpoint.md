@@ -2,13 +2,13 @@
 task_id: subaru-cli
 title: CLI Subaru: resurrección multi-máquina de tareas
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 7
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260809-233611402
 created: 2026-08-09T23:41:46.720Z
-updated: 2026-08-09T23:42:10.534Z
+updated: 2026-08-09T23:42:24.320Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
