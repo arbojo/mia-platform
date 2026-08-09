@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e66e8a2`.
+> Fuente de verdad: este repositorio en `816ce47`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e66e8a2` |
+| **Commit HEAD** | `816ce47` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T17:27:35-06:00 |
+| **Generado** | 2026-08-09T17:42:24-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (60)**:
+**Tareas registradas (61)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -632,6 +632,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-214955006 | Implementar cierre de venta nativo en el Widget y sincronizacion con metricas (P4) | completed |
 | TASK-20260809-222311495 | Fix hydration mismatch en pagina del widget | completed |
 | TASK-20260809-231109825 | Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul) | completed |
+| TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | in_progress |
 
 ---
 
@@ -676,6 +677,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+816ce47 subaru: checkpoint subaru-cli - en-progreso
+b147329 subaru: checkpoint subaru-cli - en-progreso
+08bf7f5 subaru: checkpoint subaru-cli - listo
+3f190e3 chore: governance task TASK-20260809-233611402 (subaru-cli)
+7c70b9d docs: regenerate MASTER.md at e66e8a2
 e66e8a2 subaru: checkpoint mia-vestido-azul - protocolo-corregido
 65003e0 docs: regenerate MASTER.md at ebb65ab
 ebb65ab subaru: checkpoint mia-vestido-azul - listo
@@ -691,11 +697,6 @@ bdddfab docs: regenerate MASTER.md at 1016ced
 d8d5b3e docs: add conversational reliability audit report with simulation harness and governance artifacts
 0e29db4 fix: reliability guardrails - plural-tolerant media triggers and channel-gated image promise
 7bbdae5 docs: regenerate MASTER.md at eaf3a4c
-eaf3a4c refactor: neutral spanish copy for inventory hub paywall and upgrade view
-f178130 docs: regenerate MASTER.md at 141136a
-141136a feat: inventory hub paywall (aspirational copy) + billing upgrade checkout placeholder
-cafd95a docs: regenerate MASTER.md at b3c19c2
-b3c19c2 feat: delivery pwa - offline-first driver portal (service worker, outbox IndexedDB, offline cache)
 ```
 
 ---
