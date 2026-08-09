@@ -1,14 +1,14 @@
 ---
 task_id: subaru-cli
 title: CLI Subaru: resurrección multi-máquina de tareas
-state: blueprint_ready
-current_step: 0
+state: in_progress
+current_step: 3
 total_steps: 7
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260809-233611402
 created: 2026-08-09T23:41:46.720Z
-updated: 2026-08-09T23:41:46.720Z
+updated: 2026-08-09T23:42:10.534Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -62,7 +62,7 @@ implementación (freeze → mark → complete).
 ### 2.2 Pasos atómicos
 - [x] **Paso 1:** Gobernanza: clasificar tarea y aprobación del concilio (TASK-20260809-233611402).
 - [x] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar (plan atómico + comandos de validación).
-- [ ] **Paso 3:** Crear `workshop/subaru/lib.ts` + `cli.ts` + `lib.test.ts` (mínimo viable).
+- [x] **Paso 3:** Crear `workshop/subaru/lib.ts` + `cli.ts` + `lib.test.ts` (mínimo viable).
 - [ ] **Paso 4 (SUBARU self-demo):** `freeze` → frontmatter + commit `subaru: checkpoint subaru-cli - listo` + push (el primer commit del sprint es el blueprint).
 - [ ] **Paso 5:** Integración: `.agents/subaru.md`, agente global, sección AGENTS.md, script npm `subaru`.
 - [ ] **Paso 6:** Gates de calidad (comandos abajo) + smoke del CLI (`status`, `revive --no-pull`, `bootstrap`).
