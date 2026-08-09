@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `eaf3a4c`.
+> Fuente de verdad: este repositorio en `d8d5b3e`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `eaf3a4c` |
+| **Commit HEAD** | `d8d5b3e` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T14:48:23-06:00 |
+| **Generado** | 2026-08-09T15:37:55-06:00 |
 
 ---
 
@@ -565,7 +565,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (56)**:
+**Tareas registradas (57)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -625,6 +625,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-195717287 | Inventory Hub Paywall + ruta de suscripcion (checkout placeholder) | completed |
 | TASK-20260809-203206411 | Paywall Inventory Hub: pulido de copywriting aspiracional | completed |
 | TASK-20260809-204316702 | Paywall + Suscripcion Inventory Hub: correccion definitiva de copy y localizacion (espanol neutro, cero voseo) | completed |
+| TASK-20260809-210118203 | Auditoria integral de fiabilidad: simulacion de flujos conversacionales + guardrails de intencion + trazabilidad de datos al dashboard | completed |
 
 ---
 
@@ -669,6 +670,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d8d5b3e docs: add conversational reliability audit report with simulation harness and governance artifacts
+0e29db4 fix: reliability guardrails - plural-tolerant media triggers and channel-gated image promise
+7bbdae5 docs: regenerate MASTER.md at eaf3a4c
 eaf3a4c refactor: neutral spanish copy for inventory hub paywall and upgrade view
 f178130 docs: regenerate MASTER.md at 141136a
 141136a feat: inventory hub paywall (aspirational copy) + billing upgrade checkout placeholder
@@ -686,9 +690,6 @@ e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce,
 d8b1b88 feat: catalog hub SKU-centric with product-bound media
 bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 7eabe5b chore: pin chrome-devtools-mcp as local dev dependency
-47b241e feat: scope knowledge media to catalog product with product_context
-3ececd5 docs: regenerate MASTER.md at 94a60e0
-94a60e0 feat: WhatsApp order capture with delivery-day awareness
 ```
 
 ---
