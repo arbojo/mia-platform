@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f01e936`.
+> Fuente de verdad: este repositorio en `ebb65ab`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f01e936` |
+| **Commit HEAD** | `ebb65ab` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T17:06:30-06:00 |
+| **Generado** | 2026-08-09T17:22:12-06:00 |
 
 ---
 
@@ -334,7 +334,7 @@ widget
 
 ## 9. Componentes
 
-110 componentes en `src/components/`:
+111 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -438,6 +438,7 @@ laboratorio/SessionHistory.tsx
 laboratorio/SimulationModes.tsx
 laboratorio/TeachModal.tsx
 laboratorio/UsageBar.tsx
+layout/AppLayout.tsx
 onboarding/ConversationalOnboarding.tsx
 onboarding/OnboardingWizard.tsx
 signals/MIAInbox.tsx
@@ -567,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (59)**:
+**Tareas registradas (60)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -630,6 +631,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-210118203 | Auditoria integral de fiabilidad: simulacion de flujos conversacionales + guardrails de intencion + trazabilidad de datos al dashboard | completed |
 | TASK-20260809-214955006 | Implementar cierre de venta nativo en el Widget y sincronizacion con metricas (P4) | completed |
 | TASK-20260809-222311495 | Fix hydration mismatch en pagina del widget | completed |
+| TASK-20260809-231109825 | Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul) | completed |
 
 ---
 
@@ -674,6 +676,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ebb65ab subaru: checkpoint mia-vestido-azul - listo
+af80ab7 docs: regenerate MASTER.md at f01e936
 f01e936 subaru: checkpoint subaru-agent-concilio - completado
 3982625 docs: regenerate MASTER.md at 9584d0a
 9584d0a subaru: checkpoint subaru-agent-concilio - listo para ejecucion
@@ -692,8 +696,6 @@ cafd95a docs: regenerate MASTER.md at b3c19c2
 b3c19c2 feat: delivery pwa - offline-first driver portal (service worker, outbox IndexedDB, offline cache)
 28ffa28 docs: regenerate MASTER.md at e3720fb
 e3720fb feat: inventory hub - isolated inventory module (schema inventory) + catalog availability
-b1e1832 docs: regenerate MASTER.md at dc20570
-dc20570 feat: delivery hub - isolated logistics module (delivery schema) + driver portal
 ```
 
 ---
