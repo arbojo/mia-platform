@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1b8b26a`.
+> Fuente de verdad: este repositorio en `9584d0a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1b8b26a` |
+| **Commit HEAD** | `9584d0a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T16:29:57-06:00 |
+| **Generado** | 2026-08-09T16:57:03-06:00 |
 
 ---
 
@@ -674,6 +674,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9584d0a subaru: checkpoint subaru-agent-concilio - listo para ejecucion
+fabd1cd docs: regenerate MASTER.md at 1b8b26a
 1b8b26a fix: eliminate hydration mismatch on widget page
 bdddfab docs: regenerate MASTER.md at 1016ced
 1016ced feat: native sale closing in widget with sales_events sync (P4)
@@ -692,8 +694,6 @@ b1e1832 docs: regenerate MASTER.md at dc20570
 dc20570 feat: delivery hub - isolated logistics module (delivery schema) + driver portal
 f8899c4 docs: regenerate MASTER.md at 228382e
 228382e docs: regenerate MASTER.md and memory index with ADR-018
-8e88e62 docs: regenerate MASTER.md at e9dfc3c
-e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
 ```
 
 ---
