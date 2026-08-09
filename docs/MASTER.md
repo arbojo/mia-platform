@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `dc20570`.
+> Fuente de verdad: este repositorio en `e3720fb`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `dc20570` |
+| **Commit HEAD** | `e3720fb` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-08T02:30:13-06:00 |
+| **Generado** | 2026-08-09T02:38:06-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-47 tablas definidas en `supabase/migrations/`:
+53 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -123,6 +123,12 @@ Patrón de cliente Supabase:
 | delivery | 031_delivery_hub.sql |
 | delivery | 031_delivery_hub.sql |
 | delivery | 031_delivery_hub.sql |
+| inventory | 034_inventory_hub.sql |
+| inventory | 034_inventory_hub.sql |
+| inventory | 034_inventory_hub.sql |
+| inventory | 034_inventory_hub.sql |
+| inventory | 034_inventory_hub.sql |
+| inventory | 034_inventory_hub.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -163,6 +169,9 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 31 | 031_delivery_hub.sql |
 | 32 | 032_delivery_schema_expose.sql |
 | 33 | 033_delivery_grants.sql |
+| 34 | 034_inventory_hub.sql |
+| 35 | 035_inventory_schema_expose.sql |
+| 36 | 036_inventory_grants.sql |
 
 ---
 
@@ -200,7 +209,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-71 rutas en `src/app/api/`:
+79 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -214,6 +223,14 @@ admin/delivery/orders
 admin/delivery/routes/[id]/assign
 admin/delivery/routes
 admin/delivery/settings
+admin/inventory/adjustments
+admin/inventory/import
+admin/inventory/items
+admin/inventory/items/threshold
+admin/inventory/movements
+admin/inventory/settings
+admin/inventory/suggestions/ai
+admin/inventory/suggestions
 assistants/[id]
 business/memory/analyze
 business/memory
@@ -280,7 +297,7 @@ widget/chat
 
 ## 8. Páginas
 
-25 páginas en `src/app/`:
+26 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -297,6 +314,7 @@ dashboard/connections
 dashboard/conversations
 dashboard/delivery
 dashboard/health
+dashboard/inventory
 dashboard/knowledge-studio
 dashboard/knowledge
 dashboard/laboratorio
@@ -314,7 +332,7 @@ widget
 
 ## 9. Componentes
 
-100 componentes en `src/components/`:
+106 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -385,6 +403,12 @@ driver/geolocation.ts
 driver/outbox.ts
 driver/types.ts
 health/HealthDashboard.tsx
+inventory/InventoryAdmin.tsx
+inventory/InventoryImportPanel.tsx
+inventory/InventoryMovementsPanel.tsx
+inventory/InventoryStockPanel.tsx
+inventory/InventorySuggestionsPanel.tsx
+inventory/admin-api.ts
 knowledge/FileUpload.tsx
 knowledge/InstructionsManager.tsx
 knowledge/KnowledgeCenter.tsx
@@ -423,7 +447,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-81 módulos:
+92 módulos:
 
 ```
 ai/client.ts
@@ -485,6 +509,17 @@ import/ssrf.ts
 import/types.ts
 import/validators.ts
 import/woocommerce.ts
+inventory/adjustments.ts
+inventory/admin-api.ts
+inventory/ai.ts
+inventory/db.ts
+inventory/errors.ts
+inventory/import.ts
+inventory/licensing.ts
+inventory/rules.ts
+inventory/stock.ts
+inventory/suggestions.ts
+inventory/types.ts
 knowledge/suggestions.ts
 runtime/conditional-media.ts
 runtime/execute-ai.ts
@@ -525,7 +560,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (51)**:
+**Tareas registradas (52)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -580,12 +615,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260808-000932234 | Rediseno Catalogo & Medios (QuickSell): hub SKU-centric + columna sku + filtro product_id | completed |
 | TASK-20260808-005115364 | Motor de importación multipropósito para el Hub de Catálogo (CSV/XLSX, WooCommerce, scraping) | completed |
 | TASK-20260808-073131605 | Delivery Hub: modulo logístico aislado (schema delivery) + Portal del Repartidor | completed |
+| TASK-20260808-084307057 | Inventory Hub: modulo de inventario, catalogo y probabilidad/demanda (schema inventory) | completed |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-20 ADRs en `docs/adr/`:
+21 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -609,6 +645,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 017-catalog-sku-centric | 017: Catálogo SKU-Centric (Rediseño QuickSell) |
 | 018-import-engine | 018: Motor de Importación Multipropósito para el Hub de Catálogo |
 | 019-delivery-hub | 019: Delivery Hub — Módulo Logístico Aislado (Schema `delivery`) + Portal del Repartidor |
+| 020-inventory-hub | 020: Inventory Hub — Módulo de Inventario, Catálogo y Probabilidad/Demanda (Schema `inventory`) |
 
 ---
 
@@ -623,6 +660,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e3720fb feat: inventory hub - isolated inventory module (schema inventory) + catalog availability
+b1e1832 docs: regenerate MASTER.md at dc20570
 dc20570 feat: delivery hub - isolated logistics module (delivery schema) + driver portal
 f8899c4 docs: regenerate MASTER.md at 228382e
 228382e docs: regenerate MASTER.md and memory index with ADR-018
@@ -641,8 +680,6 @@ bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 166b3a9 fix: widget chat must never ask for order data, only invite to landing form
 b7cf6dc docs: regenerate MASTER.md at 3a6f3af
 3a6f3af feat: widget sales intent invites checkout on landing + larger labeled button
-cca3807 feat: scope widget chat context to landing page
-74c758c feat: add close button to embed widget chat (postMessage bridge)
 ```
 
 ---
