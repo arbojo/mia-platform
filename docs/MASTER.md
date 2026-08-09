@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1016ced`.
+> Fuente de verdad: este repositorio en `1b8b26a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1016ced` |
+| **Commit HEAD** | `1b8b26a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T16:18:15-06:00 |
+| **Generado** | 2026-08-09T16:29:57-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (58)**:
+**Tareas registradas (59)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -629,6 +629,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-204316702 | Paywall + Suscripcion Inventory Hub: correccion definitiva de copy y localizacion (espanol neutro, cero voseo) | completed |
 | TASK-20260809-210118203 | Auditoria integral de fiabilidad: simulacion de flujos conversacionales + guardrails de intencion + trazabilidad de datos al dashboard | completed |
 | TASK-20260809-214955006 | Implementar cierre de venta nativo en el Widget y sincronizacion con metricas (P4) | completed |
+| TASK-20260809-222311495 | Fix hydration mismatch en pagina del widget | completed |
 
 ---
 
@@ -673,6 +674,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1b8b26a fix: eliminate hydration mismatch on widget page
+bdddfab docs: regenerate MASTER.md at 1016ced
 1016ced feat: native sale closing in widget with sales_events sync (P4)
 97f5f3a docs: regenerate MASTER.md at d8d5b3e
 d8d5b3e docs: add conversational reliability audit report with simulation harness and governance artifacts
@@ -691,8 +694,6 @@ f8899c4 docs: regenerate MASTER.md at 228382e
 228382e docs: regenerate MASTER.md and memory index with ADR-018
 8e88e62 docs: regenerate MASTER.md at e9dfc3c
 e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
-728ebf4 docs: regenerate MASTER.md at d8b1b88
-d8b1b88 feat: catalog hub SKU-centric with product-bound media
 ```
 
 ---
