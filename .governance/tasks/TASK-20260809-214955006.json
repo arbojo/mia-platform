@@ -1,0 +1,92 @@
+{
+  "id": "TASK-20260809-214955006",
+  "title": "Implementar cierre de venta nativo en el Widget y sincronizacion con metricas (P4)",
+  "description": "Conectar el disparador del widget interactivo con sales_events y canales para registrar la conversion con la misma trazabilidad que WhatsApp, evitando duplicidad con hasClosingEvent, y verificar UI/consola sin errores de hidratacion.",
+  "scope": {
+    "categories": [
+      "feature",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Flujo reutiliza processSaleClosing/hasClosingEvent; sin nuevos cambios de schema. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.368Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Se reutiliza el motor de cierre existente con deduplicacion via hasClosingEvent. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.373Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Widget dispara confirmacion explicita y refleja estado visual en tiempo real. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.376Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin datos sensibles nuevos; escrituras via admin server-side con validacion. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.379Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Verificacion con lint, build, tests unitarios y DevTools sin errores de consola. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.384Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commits atomicos y push a origin/main tras quality gates. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.388Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentara la decision en la memoria de ingenieria. Aprobado.",
+      "timestamp": "2026-08-09T21:49:55.391Z"
+    }
+  ],
+  "createdAt": "2026-08-09T21:49:55.364Z",
+  "classifiedAt": "2026-08-09T21:49:55.364Z",
+  "approvedAt": "2026-08-09T21:49:55.392Z",
+  "startedAt": "2026-08-09T21:50:15.442Z",
+  "completedAt": "2026-08-09T22:17:01.877Z"
+}

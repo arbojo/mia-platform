@@ -28,6 +28,8 @@ interface ChatWindowProps {
   onTestAgain?: (question: string) => void
   apiEndpoint?: string
   customerExternalId?: string
+  customerName?: string
+  widgetCloseEndpoint?: string
   greeting?: string
   landingContext?: {
     landingId: string
@@ -53,6 +55,8 @@ export function ChatWindow({
   onTestAgain,
   apiEndpoint = '/api/chat',
   customerExternalId,
+  customerName,
+  widgetCloseEndpoint,
   greeting,
   landingContext,
 }: ChatWindowProps) {
@@ -65,9 +69,11 @@ export function ChatWindow({
   const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
   const [showCheckoutInvite, setShowCheckoutInvite] = useState(false)
   const [isOpeningForm, setIsOpeningForm] = useState(false)
+  const [saleStatus, setSaleStatus] = useState<'idle' | 'registering' | 'registered' | 'error'>('idle')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const restoredCountRef = useRef(0)
+  const conversationIdRef = useRef<string | null>(conversationId ?? null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -158,6 +164,11 @@ export function ChatWindow({
 
       if (!response.ok) throw new Error('Failed to fetch')
 
+      const serverConversationId = response.headers.get('X-MIA-Conversation-Id')
+      if (serverConversationId) {
+        conversationIdRef.current = serverConversationId
+      }
+
       if (landingContext && response.headers.get('X-MIA-Sales-Intent') === '1') {
         setShowCheckoutInvite(true)
         if (typeof window !== 'undefined' && window.parent) {
@@ -209,9 +220,36 @@ export function ChatWindow({
     }
   }
 
-  const handleCheckoutContinue = () => {
+  const handleCheckoutContinue = async () => {
     if (isOpeningForm) return
     setIsOpeningForm(true)
+
+    if (widgetCloseEndpoint && conversationIdRef.current) {
+      setSaleStatus('registering')
+      try {
+        const response = await fetch(widgetCloseEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assistantId,
+            conversationId: conversationIdRef.current,
+            customerExternalId,
+            customerName,
+            landingContext,
+          }),
+        })
+        const data = await response.json()
+        if (response.ok && data.recorded) {
+          setSaleStatus('registered')
+        } else {
+          setSaleStatus('error')
+        }
+      } catch (error) {
+        console.error('Widget sale registration failed:', error)
+        setSaleStatus('error')
+      }
+    }
+
     if (typeof window !== 'undefined' && window.parent) {
       window.parent.postMessage({ type: 'mia-widget-checkout' }, '*')
       // Cierra el widget en móvil para que no tape el formulario (solo postMessage,
@@ -324,12 +362,18 @@ export function ChatWindow({
                 id="btn-comprar-mia"
                 size="sm"
                 onClick={handleCheckoutContinue}
-                disabled={isOpeningForm}
+                disabled={isOpeningForm || saleStatus === 'registering'}
                 className="relative w-full overflow-hidden bg-olive-600 hover:bg-olive-700"
               >
                 <span className="mia-shimmer-layer" aria-hidden="true" />
-                {isOpeningForm ? 'Abriendo formulario…' : 'Comprar ahora'}
-                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                {saleStatus === 'registering'
+                  ? 'Registrando pedido…'
+                  : saleStatus === 'registered'
+                    ? 'Pedido registrado ✓'
+                    : isOpeningForm
+                      ? 'Abriendo formulario…'
+                      : 'Comprar ahora'}
+                {saleStatus !== 'registered' && <ArrowRight className="w-3.5 h-3.5 ml-1" />}
               </Button>
             </div>
           </div>

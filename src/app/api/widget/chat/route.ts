@@ -63,6 +63,17 @@ export async function POST(request: Request) {
       customerName: normalized.customerName,
     })
 
+    await supabase.from('channel_messages').insert({
+      business_id: businessId,
+      customer_id: customer.id,
+      channel: 'widget',
+      direction: 'incoming',
+      content: lastMessage?.content ?? '',
+      external_id: normalized.externalId,
+      external_customer_id: normalized.customerExternalId,
+      status: 'received',
+    })
+
     const conversationId = (await resolveConversation(assistantId, customer.id)) ?? undefined
 
     const result = await processStreaming({
@@ -78,6 +89,9 @@ export async function POST(request: Request) {
     const streamResponse = result.toTextStreamResponse()
     const headers = new Headers(streamResponse.headers)
     headers.set('X-MIA-Sales-Intent', isSalesIntent(intent) ? '1' : '0')
+    if (conversationId) {
+      headers.set('X-MIA-Conversation-Id', conversationId)
+    }
 
     return new Response(streamResponse.body, {
       status: streamResponse.status,

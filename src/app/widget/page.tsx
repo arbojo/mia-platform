@@ -64,6 +64,7 @@ export default function WidgetPage() {
         assistantId={assistantId}
         apiEndpoint="/api/widget/chat"
         customerExternalId={visitorId}
+        widgetCloseEndpoint="/api/widget/close"
         greeting={greeting}
         landingContext={landingContext}
       />
