@@ -1,0 +1,88 @@
+{
+  "id": "TASK-20260809-233611402",
+  "title": "Subaru CLI: resurrección multi-máquina de tareas",
+  "description": "Implementar el Protocolo de Resurrección Subaru como herramienta determinista: (A) workshop/subaru/lib.ts con helpers puros (parse/serialize frontmatter YAML, buildCommitMessage, validateStep, flipStepCheckbox); (B) workshop/subaru/cli.ts con comandos freeze/mark/complete/revive/status/bootstrap sobre docs/checkpoints/active-subaru-checkpoint.md con frontmatter (task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated); freeze = blueprint tras aprobación del concilio y ANTES de codificar (commit+push \"subaru: checkpoint <id> - listo\"); mark = paso completado; complete = misión terminada; revive = git pull + resumen + siguiente paso para retomar en otra máquina; bootstrap = auto-restaura el agente global desde .agents/subaru.md. (C) workshop/subaru/lib.test.ts unit tests; (D) .agents/subaru.md espejo en repo; (E) actualizar agente global ~/.config/opencode/agent/subaru.md para delegar en el CLI; (F) sección Protocolo de Resurrección Subaru en AGENTS.md; (G) script npm \"subaru\". Sin cambios de schema, sin cambios de comportamiento de IA. El propio CLI se usará como self-demo para gestionar su implementación.",
+  "scope": {
+    "categories": [
+      "infrastructure"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Herramienta determinista para retomar tareas multi-máquina; diseño limpio y sin cambios de esquema",
+      "timestamp": "2026-08-09T23:36:20.315Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "CLI Node puro sin dependencias nuevas; helpers separados de UI para testear",
+      "timestamp": "2026-08-09T23:36:22.003Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se añadirán unit tests para parse/serialize; smoke tests del CLI en gates",
+      "timestamp": "2026-08-09T23:36:23.447Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "freeze hace commit+push atómico del checkpoint; commits con formato subaru; push verificado",
+      "timestamp": "2026-08-09T23:36:25.094Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Sin instalaciones; usa node:fs, node:child_process y tsx ya presente",
+      "timestamp": "2026-08-09T23:36:26.677Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Valida entorno (node, git remote) en bootstrap; sin riesgo de drift",
+      "timestamp": "2026-08-09T23:36:27.641Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "El checkpoint pasa a ser el único registro autoritativo de estado; historial git como bitácora",
+      "timestamp": "2026-08-09T23:36:28.701Z"
+    }
+  ],
+  "createdAt": "2026-08-09T23:36:11.100Z",
+  "classifiedAt": "2026-08-09T23:36:11.100Z",
+  "approvedAt": "2026-08-09T23:36:28.703Z",
+  "startedAt": "2026-08-09T23:36:39.736Z"
+}
