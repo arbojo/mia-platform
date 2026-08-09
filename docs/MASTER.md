@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d8d5b3e`.
+> Fuente de verdad: este repositorio en `1016ced`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d8d5b3e` |
+| **Commit HEAD** | `1016ced` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T15:37:55-06:00 |
+| **Generado** | 2026-08-09T16:18:15-06:00 |
 
 ---
 
@@ -209,7 +209,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-79 rutas en `src/app/api/`:
+80 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -291,6 +291,7 @@ system/health
 training/corrections
 training/lessons
 widget/chat
+widget/close
 ```
 
 ---
@@ -452,7 +453,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-92 módulos:
+93 módulos:
 
 ```
 ai/client.ts
@@ -535,6 +536,7 @@ runtime/types.ts
 sales/detect.ts
 sales/events.ts
 sales/process.ts
+sales/widget.ts
 supabase/admin.ts
 supabase/client.ts
 supabase/route-handler.ts
@@ -565,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (57)**:
+**Tareas registradas (58)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -626,6 +628,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-203206411 | Paywall Inventory Hub: pulido de copywriting aspiracional | completed |
 | TASK-20260809-204316702 | Paywall + Suscripcion Inventory Hub: correccion definitiva de copy y localizacion (espanol neutro, cero voseo) | completed |
 | TASK-20260809-210118203 | Auditoria integral de fiabilidad: simulacion de flujos conversacionales + guardrails de intencion + trazabilidad de datos al dashboard | completed |
+| TASK-20260809-214955006 | Implementar cierre de venta nativo en el Widget y sincronizacion con metricas (P4) | completed |
 
 ---
 
@@ -670,6 +673,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1016ced feat: native sale closing in widget with sales_events sync (P4)
+97f5f3a docs: regenerate MASTER.md at d8d5b3e
 d8d5b3e docs: add conversational reliability audit report with simulation harness and governance artifacts
 0e29db4 fix: reliability guardrails - plural-tolerant media triggers and channel-gated image promise
 7bbdae5 docs: regenerate MASTER.md at eaf3a4c
@@ -688,8 +693,6 @@ f8899c4 docs: regenerate MASTER.md at 228382e
 e9dfc3c feat: multipurpose import engine for catalog hub (CSV/XLSX, WooCommerce, feed, scraping)
 728ebf4 docs: regenerate MASTER.md at d8b1b88
 d8b1b88 feat: catalog hub SKU-centric with product-bound media
-bb6ca2f docs: regenerate MASTER.md at 7eabe5b
-7eabe5b chore: pin chrome-devtools-mcp as local dev dependency
 ```
 
 ---
