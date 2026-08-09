@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f023768`.
+> Fuente de verdad: este repositorio en `51c9940`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f023768` |
+| **Commit HEAD** | `51c9940` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T17:43:43-06:00 |
+| **Generado** | 2026-08-09T17:48:07-06:00 |
 
 ---
 
@@ -632,7 +632,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-214955006 | Implementar cierre de venta nativo en el Widget y sincronizacion con metricas (P4) | completed |
 | TASK-20260809-222311495 | Fix hydration mismatch en pagina del widget | completed |
 | TASK-20260809-231109825 | Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul) | completed |
-| TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | in_progress |
+| TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | completed |
 
 ---
 
@@ -677,6 +677,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+51c9940 chore: governance log subaru-cli completed
+26769ab subaru: checkpoint subaru-cli - completado
+60d5a23 subaru: checkpoint subaru-cli - en-progreso
+fce2a2b docs: regenerate MASTER.md at f023768
 f023768 subaru: checkpoint subaru-cli - en-progreso
 56b3c5f feat: Subaru CLI para resurrección multi-máquina de tareas
 0d65765 docs: regenerate MASTER.md at 816ce47
@@ -693,10 +697,6 @@ f01e936 subaru: checkpoint subaru-agent-concilio - completado
 3982625 docs: regenerate MASTER.md at 9584d0a
 9584d0a subaru: checkpoint subaru-agent-concilio - listo para ejecucion
 fabd1cd docs: regenerate MASTER.md at 1b8b26a
-1b8b26a fix: eliminate hydration mismatch on widget page
-bdddfab docs: regenerate MASTER.md at 1016ced
-1016ced feat: native sale closing in widget with sales_events sync (P4)
-97f5f3a docs: regenerate MASTER.md at d8d5b3e
 ```
 
 ---
