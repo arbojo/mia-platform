@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e3720fb`.
+> Fuente de verdad: este repositorio en `b3c19c2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e3720fb` |
+| **Commit HEAD** | `b3c19c2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T02:38:06-06:00 |
+| **Generado** | 2026-08-09T13:37:16-06:00 |
 
 ---
 
@@ -332,7 +332,7 @@ widget
 
 ## 9. Componentes
 
-106 componentes en `src/components/`:
+108 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -398,8 +398,10 @@ driver/DeliveryDetail.tsx
 driver/DriverHome.tsx
 driver/DriverLogin.tsx
 driver/IncidentForm.tsx
+driver/SwRegister.tsx
 driver/api.ts
 driver/geolocation.ts
+driver/offline.ts
 driver/outbox.ts
 driver/types.ts
 health/HealthDashboard.tsx
@@ -560,7 +562,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (52)**:
+**Tareas registradas (53)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -616,6 +618,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260808-005115364 | Motor de importación multipropósito para el Hub de Catálogo (CSV/XLSX, WooCommerce, scraping) | completed |
 | TASK-20260808-073131605 | Delivery Hub: modulo logístico aislado (schema delivery) + Portal del Repartidor | completed |
 | TASK-20260808-084307057 | Inventory Hub: modulo de inventario, catalogo y probabilidad/demanda (schema inventory) | completed |
+| TASK-20260809-185222360 | Delivery Hub: PWA offline-first del Portal del Repartidor | completed |
 
 ---
 
@@ -660,6 +663,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b3c19c2 feat: delivery pwa - offline-first driver portal (service worker, outbox IndexedDB, offline cache)
+28ffa28 docs: regenerate MASTER.md at e3720fb
 e3720fb feat: inventory hub - isolated inventory module (schema inventory) + catalog availability
 b1e1832 docs: regenerate MASTER.md at dc20570
 dc20570 feat: delivery hub - isolated logistics module (delivery schema) + driver portal
@@ -678,8 +683,6 @@ bb6ca2f docs: regenerate MASTER.md at 7eabe5b
 229133f feat: widget buy button with shimmer animates into landing order form
 168a07d docs: regenerate MASTER.md at 166b3a9
 166b3a9 fix: widget chat must never ask for order data, only invite to landing form
-b7cf6dc docs: regenerate MASTER.md at 3a6f3af
-3a6f3af feat: widget sales intent invites checkout on landing + larger labeled button
 ```
 
 ---
