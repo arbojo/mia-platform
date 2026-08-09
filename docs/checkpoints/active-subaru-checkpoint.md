@@ -1,6 +1,6 @@
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 - **ID de Tarea / Sprint:** subaru-agent-concilio
-- **Estado:** Blueprint Aprobado - Listo para Ejecución
+- **Estado:** ✅ Completado (verificado el 2026-08-09)
 - **Fecha / Hora de Resurrección:** 2026-08-09T16:56:29-06:00
 
 ## 1. Contexto y Objetivo
@@ -17,14 +17,14 @@ Director, y este mismo checkpoint como respaldo anti-tokens.
 - `docs/checkpoints/active-subaru-checkpoint.md` -> [Crear] Este checkpoint de respaldo (ID subaru-agent-concilio).
 
 ## 3. Plan de Ataque (Sprints de Código)
-- [ ] **Paso 1:** Crear `~/.config/opencode/agent/subaru.md` con frontmatter válido y el cuerpo del agente verbatim (Rol, Responsabilidades Principales, Reglas de Comportamiento). Mantener `edit: allow`, `bash: allow`, `read: allow` para poder escribir el checkpoint y ejecutar git.
-- [ ] **Paso 2:** Modificar `~/.config/opencode/agent/director.md`: añadir subaru al roster (punto 8) y al flujo operativo como Fase Transversal.
-- [ ] **Paso 3:** Verificar que ambos archivos de la config global siguen el formato del concilio (comparar con scout.md / sanity.md: frontmatter `mode` + `permission`, cuerpo por secciones).
-- [ ] **Paso 4:** Reiniciar opencode para que el agente `subaru` cargue (la config NO se recarga en caliente).
+- [x] **Paso 1:** Crear `~/.config/opencode/agent/subaru.md` con frontmatter válido y el cuerpo del agente verbatim (Rol, Responsabilidades Principales, Reglas de Comportamiento). Mantener `edit: allow`, `bash: allow`, `read: allow` para poder escribir el checkpoint y ejecutar git.
+- [x] **Paso 2:** Modificar `~/.config/opencode/agent/director.md`: añadir subaru al roster (punto 8) y al flujo operativo como Fase Transversal.
+- [x] **Paso 3:** Verificar que ambos archivos de la config global siguen el formato del concilio (comparar con scout.md / sanity.md: frontmatter `mode` + `permission`, cuerpo por secciones).
+- [x] **Paso 4:** Reiniciar opencode para que el agente `subaru` cargue (la config NO se recarga en caliente).
 
 ## 4. Validación y Pruebas
-- Confirmar existencia y formato de `~/.config/opencode/agent/subaru.md`.
-- Confirmar que `~/.config/opencode/agent/director.md` lista a subaru (roster + Fase Transversal).
-- Ejecutar `git add docs/checkpoints/ && git commit -m "subaru: checkpoint subaru-agent-concilio - listo para ejecucion" && git push origin main`.
-- Verificar `git status` limpio y remote sincronizado.
-- Tras reiniciar opencode: `subaru` visible como subagente en la herramienta `task`.
+- [x] Confirmar existencia y formato de `~/.config/opencode/agent/subaru.md`.
+- [x] Confirmar que `~/.config/opencode/agent/director.md` lista a subaru (roster + Fase Transversal).
+- [x] Ejecutar `git add docs/checkpoints/ && git commit -m "subaru: checkpoint subaru-agent-concilio - listo para ejecucion" && git push origin main`.
+- [x] Verificar `git status` limpio y remote sincronizado.
+- [x] Tras reiniciar opencode: `subaru` visible como subagente en la herramienta `task`.
