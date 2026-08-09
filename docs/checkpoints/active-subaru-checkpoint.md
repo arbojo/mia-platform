@@ -1,11 +1,19 @@
-# ⛩️ PROTOCOL SUBARU: Checkpoint Activo
-- **ID de Tarea / Sprint:** mia-vestido-azul
-- **Estado:** ✅ Implementado y sincronizado
-- **Fecha / Hora de Resurrección:** 2026-08-09T17:30:00-06:00
-- **Gobernanza:** TASK-20260809-231109825 (approved → completed)
-- **Commit de resurrección:** `ebb65ab` (implementación)
+---
+task_id: subaru-cli
+title: CLI Subaru: resurrección multi-máquina de tareas
+state: blueprint_ready
+current_step: 0
+total_steps: 7
+branch: main
+last_machine: Deivis-Desktop
+governance_id: TASK-20260809-233611402
+created: 2026-08-09T23:41:46.720Z
+updated: 2026-08-09T23:41:46.720Z
+---
 
-## 0. PROTOCOLO SUBARU — Secuencia Correcta (lección aplicada)
+# ⛩️ PROTOCOL SUBARU: Checkpoint Activo
+
+## 0. PROTOCOLO SUBARU — Secuencia Correcta
 
 Subaru NO documenta lo ya hecho: **congela el blueprint de lo que se va a
 implementar** en el instante en que el concilio aprueba la tarea, y lo
@@ -28,36 +36,37 @@ remoto.** El checkpoint es un plan de misión, no una bitácora.
 ---
 
 ## 1. Contexto y Objetivo
-Implementar el sistema de diseño modular de MIA: soporte de **Tema Claro /
-Tema Oscuro**, **Selector de Contexto por Módulo** (Ventas en Azul por
-defecto, Inventario esmeralda, Logística ámbar), manteniendo el terreno
-compartido y el toque maestro con **glow de urgencia**. Capa de presentación
-pura: no toca RLS, dominio, APIs ni AI.
+
+Implementar el **Protocolo de Resurrección Subaru como herramienta
+determinista** (CLI): que cualquier instancia de opencode en cualquier máquina
+pueda hacer `git pull`, leer el checkpoint y **retomar la misma tarea con el
+mismo plan en el paso exacto donde murió la anterior**. El checkpoint pasa a
+tener frontmatter YAML con estado máquina-legible, y el CLI gestiona el ciclo
+de vida completo. El propio CLI se usa como **self-demo**: gestiona su propia
+implementación (freeze → mark → complete).
 
 ## 2. Blueprint de Ejecución (plan congelado pre-implementación)
 
 ### 2.1 Archivos exactos a tocar
 | Archivo | Acción | Detalle |
 |---------|--------|---------|
-| `src/styles/design-system.css` | Crear | Terreno compartido `:root` + `[data-theme='dark']`, acento por módulo `[data-module='sales|inventory|logistics']`, utilidades (`text-module-accent`, `bg-module-soft`, `ring-module`, `glow-module`), `glow-urgency` animado con `prefers-reduced-motion`. |
-| `src/components/layout/AppLayout.tsx` | Crear | Root container cliente: `ModuleContext` + `useModule()`, inyecta `data-theme` y `data-module` en `[data-layout-root]`, auto-detecta módulo por pathname, persiste en `localStorage['mia-module']`. Exporta `ModuleSelector`. |
-| `src/app/dashboard/layout.tsx` | Modificar | Envolver Sidebar+TopBar+main+MIAIndicator en `<AppLayout>` (reemplaza el div `data-layout-root` inline). |
-| `src/app/layout.tsx` | Modificar | Import `@/styles/design-system.css` tras `./globals.css`. |
-| `src/components/dashboard/TopBar.tsx` | Modificar | Montar `<ModuleSelector />` antes de SignalIndicator. |
-| `docs/checkpoints/active-subaru-checkpoint.md` | Modificar | Este checkpoint (blueprint → completado). |
+| `workshop/subaru/lib.ts` | Crear | Helpers puros, cero I/O: `parseFrontmatter(content)` → `{data, body}`, `serializeCheckpoint(data, body)` → string con frontmatter YAML, `buildCommitMessage(taskId, state)`, `validateStep(n, total)`, `flipStepCheckbox(body, step)`. Frontmatter con claves EN: `task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated`. |
+| `workshop/subaru/cli.ts` | Crear | CLI sobre `docs/checkpoints/active-subaru-checkpoint.md`. Comandos: `freeze <id> --title <t> --steps <n> [--governance <id>]` (blueprint: escribe frontmatter, `git add <checkpoint>`, commit `subaru: checkpoint <id> - listo`, push; guard: no sobrescribir misión no-completada distinta sin `--force`), `mark <id> <step>` (state `in_progress`, tick checkbox, commit+push `- en-progreso`), `complete <id>` (state `completed`, commit+push `- completado`), `revive` (git pull --rebase + resumen + siguiente comando; flag `--no-pull`), `status` (leer y resumir), `bootstrap` (valida node/git remote y restaura el agente global desde `.agents/subaru.md`). Node builtins: `node:fs`, `node:path`, `node:os`, `node:child_process`. |
+| `workshop/subaru/lib.test.ts` | Crear | Unit tests de `parseFrontmatter` (con y sin frontmatter), `serializeCheckpoint` (round-trip), `buildCommitMessage` (4 estados), `validateStep`, `flipStepCheckbox`. |
+| `.agents/subaru.md` | Crear | Espejo en repo de la definición del agente (restaurable vía `bootstrap` en cualquier máquina). |
+| `~/.config/opencode/agent/subaru.md` | Modificar | Agente global: delegar en el CLI (comandos exactos) + ciclo de vida del checkpoint. |
+| `AGENTS.md` | Modificar | Nueva sección "24. Protocolo de Resurrección Subaru (Multi-máquina)". |
+| `package.json` | Modificar | Script npm `"subaru": "tsx workshop/subaru/cli.ts"`. |
+| `docs/checkpoints/active-subaru-checkpoint.md` | Modificar | Este archivo: frontmatter (vía freeze) + cuerpo del plan. |
 
 ### 2.2 Pasos atómicos
-- [x] **Paso 1:** Gobernanza: clasificar tarea y aprobación del concilio.
-- [ ] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar (plan atómico + comandos de validación).
-- [x] **Paso 3:** Crear `src/styles/design-system.css` (terreno + módulos + glow).
-- [x] **Paso 4:** Crear `src/components/layout/AppLayout.tsx` (contexto + selector).
-- [x] **Paso 5:** Cablear `dashboard/layout.tsx`, `app/layout.tsx` y `TopBar.tsx`.
-- [x] **Paso 6:** Gates de calidad (comandos abajo).
-- [x] **Paso 7 (SUBARU):** Marcar checkpoint como Completado y sincronizar.
-
-> ⚠ **Paso 2 quedó pendiente en la ejecución real** (se corrige con este
-> commit). El blueprint se documentó después de implementar; en adelante se
-> congela y se pushea en el paso 2.
+- [x] **Paso 1:** Gobernanza: clasificar tarea y aprobación del concilio (TASK-20260809-233611402).
+- [x] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar (plan atómico + comandos de validación).
+- [ ] **Paso 3:** Crear `workshop/subaru/lib.ts` + `cli.ts` + `lib.test.ts` (mínimo viable).
+- [ ] **Paso 4 (SUBARU self-demo):** `freeze` → frontmatter + commit `subaru: checkpoint subaru-cli - listo` + push (el primer commit del sprint es el blueprint).
+- [ ] **Paso 5:** Integración: `.agents/subaru.md`, agente global, sección AGENTS.md, script npm `subaru`.
+- [ ] **Paso 6:** Gates de calidad (comandos abajo) + smoke del CLI (`status`, `revive --no-pull`, `bootstrap`).
+- [ ] **Paso 7 (SUBARU self-demo):** `mark` pasos + `complete` → commit `subaru: checkpoint subaru-cli - completado` + push + reporte con comando de resurrección.
 
 ### 2.3 Comandos de validación obligatorios
 ```
@@ -65,16 +74,16 @@ npm run lint
 npm run build
 npm run test:unit
 npm test
-# Chrome DevTools MCP: data-theme, data-module, accentos por módulo, consola limpia
+npx tsx workshop/subaru/cli.ts status
+npx tsx workshop/subaru/cli.ts revive --no-pull
+npx tsx workshop/subaru/cli.ts bootstrap
 ```
 
-## 3. Evidencia de Ejecución
-- **Gates:** lint 0/0 · build OK (78 páginas) · unit 492 ✓ · e2e 66 ✓ (2 skipped) · DevTools: acentos `#1e5a99`(ventas)/`#2d8a5e`(inventario)/`#d4743a`(logística), dark `#6ca8e0`/`#6ec29c`/`#f0a35e`, sin errores de consola.
-- **Commits:** `ebb65ab` implementación + `af80ab7` `docs: regenerate MASTER.md at f01e936` (previo, otro autor).
-- **Manifest:** `.governance/tasks/TASK-20260809-231109825.json` (aprobado por 6 agentes, completado).
+## 3. Evidencia de Ejecución (se llena al cierre)
+- Gates, commits, manifest y smoke results.
 
 ## 4. Comando de Resurrección (una línea)
 ```
 git -C C:\Users\david\mia pull origin main
 ```
-En Linux/macOS: `git -C ~/mia pull origin main`
+En Linux/macOS: `git -C ~/mia pull origin main`. Luego: `npx tsx workshop/subaru/cli.ts revive`.
