@@ -120,7 +120,8 @@ function formatInstructions(instructions: AiInstruction[]): string {
 function formatKnowledge(
   knowledge: KnowledgeItem[],
   ai: PromptDict,
-  activeProductId?: string
+  activeProductId?: string,
+  channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget'
 ): string {
   if (knowledge.length === 0) return ''
 
@@ -129,7 +130,7 @@ function formatKnowledge(
       const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
       const belongsToActive = !activeProductId || !k.product_id || k.product_id === activeProductId
       const imageNote =
-        k.image_url && k.trigger_condition && belongsToActive
+        k.image_url && k.trigger_condition && belongsToActive && channel
           ? `\n[IMAGEN_DISPONIBLE] ${ai.imageAvailable} ("${k.trigger_condition}").`
           : ''
       return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] ${ai.knowledgeQuestion}: ${k.question}\n${ai.knowledgeAnswer}: ${k.answer}${imageNote}`
@@ -301,7 +302,7 @@ ${formatProducts(products, ai)}
 ## ${ai.salesRules}
 ${formatRules(rules, ai)}
 ${formatInstructions(instructions) ? `\n## ${ai.additionalInstructions}\n${formatInstructions(instructions)}` : ''}
-${formatKnowledge(knowledge, ai, landingContext?.productId) ? `\n## ${ai.additionalKnowledge}\n${formatKnowledge(knowledge, ai, landingContext?.productId)}` : ''}
+${formatKnowledge(knowledge, ai, landingContext?.productId, channel) ? `\n## ${ai.additionalKnowledge}\n${formatKnowledge(knowledge, ai, landingContext?.productId, channel)}` : ''}
 ${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemory(memory, ai)}` : ''}
 ${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
 ${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}

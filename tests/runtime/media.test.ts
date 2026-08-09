@@ -52,6 +52,12 @@ describe('triggerMatches', () => {
     expect(triggerMatches('me interesa el antes y después', 'antes y despues')).toBe(true)
   })
 
+  it('tolerates singular/plural inflection of a keyword', () => {
+    expect(triggerMatches('¿hacen envíos a mi ciudad?', 'envio')).toBe(true)
+    expect(triggerMatches('flores rojas', 'flor')).toBe(true)
+    expect(triggerMatches('hay fotos del producto', 'foto')).toBe(true)
+  })
+
   it('does not match a multi-word trigger split across words', () => {
     expect(triggerMatches('antes de irte y despues de volver', 'antes y despues')).toBe(false)
   })

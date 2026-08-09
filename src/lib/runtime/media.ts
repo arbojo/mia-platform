@@ -17,7 +17,10 @@ export function triggerMatches(message: string, triggerCondition: string): boole
 
   return parts.some((part) => {
     const escaped = part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const pattern = new RegExp(`(?:^|\\s)${escaped}(?=\\s|$)`)
+    // Tolerancia a plural/singular: "envio" alcanza "envíos", "flor" alcanza "flores".
+    // Se exige palabra completa (límite previo y posterior), por lo que "precio"
+    // nunca alcanza "presupuesto" ni "es" alcanza "clientes".
+    const pattern = new RegExp(`(?:^|\\s)${escaped}(?:s|es)?(?=\\s|$)`)
     return pattern.test(normalizedMessage)
   })
 }

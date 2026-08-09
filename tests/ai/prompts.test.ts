@@ -141,4 +141,16 @@ describe('buildMasterPrompt', () => {
     const prompt = build({ customerMemory: 'Cliente prefiere botas café.' })
     expect(prompt).toContain('Cliente prefiere botas café.')
   })
+
+  it('promete una imagen solo en canales que despachan media', () => {
+    const knowledgeWithImage = [
+      { ...KNOWLEDGE, image_url: 'https://example.com/img.jpg', trigger_condition: 'envio' },
+    ] as never
+
+    const whatsapp = build({ channel: 'whatsapp', knowledge: knowledgeWithImage })
+    expect(whatsapp).toContain('[IMAGEN_DISPONIBLE]')
+
+    const streaming = build({ knowledge: knowledgeWithImage })
+    expect(streaming).not.toContain('[IMAGEN_DISPONIBLE]')
+  })
 })
