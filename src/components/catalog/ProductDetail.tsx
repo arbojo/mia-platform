@@ -20,15 +20,23 @@ import {
 } from '@/components/ui/alert-dialog'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/lib/types'
+import type { CatalogAvailability } from '@/lib/inventory/stock'
 
 type Product = Database['public']['Tables']['products']['Row']
+
+const AVAILABILITY_BADGE: Record<string, { label: string; className: string }> = {
+  ok: { label: 'Disponible', className: 'bg-emerald-100 text-emerald-800' },
+  low: { label: 'Stock bajo', className: 'bg-amber-100 text-amber-800' },
+  out: { label: 'Agotado', className: 'bg-red-100 text-red-800' },
+}
 
 interface ProductDetailProps {
   businessId: string
   product: Product
+  availability?: CatalogAvailability | null
 }
 
-export function ProductDetail({ businessId, product }: ProductDetailProps) {
+export function ProductDetail({ businessId, product, availability }: ProductDetailProps) {
   const router = useRouter()
   const [current, setCurrent] = useState<Product>(product)
   const [editOpen, setEditOpen] = useState(false)
@@ -63,12 +71,19 @@ export function ProductDetail({ businessId, product }: ProductDetailProps) {
           <div className="space-y-3 rounded-xl border bg-white p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-zinc-900">{current.name}</h2>
-              {current.sku && (
-                <Badge variant="outline" className="font-mono text-xs">
-                  {current.sku}
-                </Badge>
+              {availability && (
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${AVAILABILITY_BADGE[availability.status].className}`}
+                >
+                  {AVAILABILITY_BADGE[availability.status].label}
+                </span>
               )}
             </div>
+            {current.sku && (
+              <Badge variant="outline" className="font-mono text-xs">
+                {current.sku}
+              </Badge>
+            )}
             {current.price !== null && (
               <p className="text-2xl font-semibold text-olive-600">${current.price}</p>
             )}

@@ -1,6 +1,8 @@
 import { requirePageAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { CatalogGrid } from '@/components/catalog/CatalogGrid'
+import { getCatalogAvailability } from '@/lib/inventory/stock'
+import type { CatalogAvailability } from '@/lib/inventory/stock'
 import type { Database } from '@/lib/types'
 
 type Product = Database['public']['Tables']['products']['Row']
@@ -8,6 +10,7 @@ type Product = Database['public']['Tables']['products']['Row']
 export interface CatalogProduct extends Product {
   mediaCount: number
   thumbnail: string | null
+  availability?: CatalogAvailability | null
 }
 
 export default async function CatalogPage() {
@@ -55,6 +58,17 @@ export default async function CatalogPage() {
       thumbnail: media?.thumbnail ?? null,
     }
   })
+
+  const availability = await getCatalogAvailability(
+    business.id,
+    products.map((p) => p.id)
+  )
+
+  if (availability) {
+    for (const product of products) {
+      product.availability = availability[product.id] ?? null
+    }
+  }
 
   return <CatalogGrid businessId={business.id} initialProducts={products} />
 }

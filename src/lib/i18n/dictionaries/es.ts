@@ -26,6 +26,8 @@ export const es = {
     labQuestion: '¿cómo puede mejorar?',
     delivery: 'Delivery',
     deliveryQuestion: 'repartidores y entregas',
+    inventory: 'Inventario',
+    inventoryQuestion: 'stock y reposición',
     settings: 'Configuración',
     adjustments: 'Ajustes',
     connections: 'Conexiones',

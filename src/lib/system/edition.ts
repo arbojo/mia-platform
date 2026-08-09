@@ -33,6 +33,7 @@ export interface EditionCapabilities {
   salesSimulator: boolean
   connections: boolean
   deliveryHub: boolean
+  inventoryHub: boolean
 }
 
 export interface Edition {
@@ -79,6 +80,7 @@ const EVALUATION: Edition = {
     salesSimulator: true,
     connections: true,
     deliveryHub: false,
+    inventoryHub: false,
   },
 }
 
@@ -120,6 +122,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       salesSimulator: true,
       connections: true,
       deliveryHub: false,
+      inventoryHub: false,
     },
   },
   enterprise: {
@@ -158,6 +161,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       salesSimulator: true,
       connections: true,
       deliveryHub: true,
+      inventoryHub: true,
     },
   },
   cloud: {
@@ -196,6 +200,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       salesSimulator: true,
       connections: true,
       deliveryHub: true,
+      inventoryHub: true,
     },
   },
 }
@@ -318,6 +323,10 @@ export function canUseConnections(): boolean {
 
 export function canUseDeliveryHub(): boolean {
   return getEdition().capabilities.deliveryHub
+}
+
+export function canUseInventoryHub(): boolean {
+  return getEdition().capabilities.inventoryHub
 }
 
 export function isWithinLimit(

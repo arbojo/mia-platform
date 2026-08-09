@@ -28,6 +28,8 @@ export const ja: Dict = {
     labQuestion: 'どう改善できる？',
     delivery: 'デリバリー',
     deliveryQuestion: '配達員と配達',
+    inventory: '在庫',
+    inventoryQuestion: '在庫と補充',
     settings: '設定',
     adjustments: '調整',
     connections: '接続',

@@ -1,0 +1,120 @@
+{
+  "id": "TASK-20260808-084307057",
+  "title": "Inventory Hub: modulo de inventario, catalogo y probabilidad/demanda (schema inventory)",
+  "description": "Modulo aislado (schema inventory) tipo ADR-019: decremento atomico de stock por SALE_WON sin bloquear venta, ajustes admin, import CSV/SKU reusando ADR-018, sugerencias de recompra deterministas + IA on-demand costo cero diario, catalogo enriquecido con disponibilidad server-side.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "ai_behaviour",
+      "ui_change",
+      "api_change",
+      "security"
+    ],
+    "filesAffected": 35,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "database",
+      "frontend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 35 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aislamiento absoluto en schema inventory (patron ADR-019), join server-side sin tocar public.products, decremento atomico con guarda optimista. Arquitectura consistente y escalable a multi-tenant.",
+      "timestamp": "2026-08-08T08:43:50.683Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Schema inventory con RLS ENABLE+FORCE+REVOKE, UNIQUE(business_id, sales_event_id) idempotente, ledger append-only y version optimista. Sin conflicto con public; migraciones 034/035/036 incrementales.",
+      "timestamp": "2026-08-08T08:44:00.093Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "API /api/admin/inventory/* con admin client, validacion estricta, business scoping via get_user_business_ids y reuso del motor de import ADR-018. Decremento nunca bloquea la venta.",
+      "timestamp": "2026-08-08T08:44:08.886Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "UI /dashboard/inventory con pestanas Stock/Movimientos/Sugerencias/Importar + badge de disponibilidad en ProductCard/ProductDetail via server join. Componentes pequenos y shadcn/ui.",
+      "timestamp": "2026-08-08T08:44:17.556Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "IA estrictamente on-demand (max_tokens bajo, JSON estricto, recordAiUsage). Ningun cron llama IA; la operacion diaria es determinista con costo cero.",
+      "timestamp": "2026-08-08T08:44:26.929Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Costo diario cero (solo SQL determinista), IA on-demand trackeada, decremento con un unico UPDATE atomico, indice por business_id. Sin optimizacion prematura.",
+      "timestamp": "2026-08-08T08:44:42.599Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "REVOKE ALL de anon/authenticated/PUBLIC, grants solo service_role, trigger SECURITY DEFINER search_path vacio, decremento atomico sin negativo. Sin superficie anon ni cross-tenant.",
+      "timestamp": "2026-08-08T08:44:52.251Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates exigidos: lint, build, unit_tests, e2e_tests, chrome_devtools, typecheck, security_review, performance_review. Suite unit de reglas de sugerencia y decremento atomico + e2e de flujo admin.",
+      "timestamp": "2026-08-08T08:45:01.573Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico y push a origin/main tras pasar todos los quality gates; verificacion de deploy en produccion antes de reportar sprint complete.",
+      "timestamp": "2026-08-08T08:45:10.628Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar ADR-020 como decision arquitectonica y el patron de modulo aislado como precedente para futuros hubs operativos.",
+      "timestamp": "2026-08-08T08:45:19.768Z"
+    }
+  ],
+  "createdAt": "2026-08-08T08:43:07.107Z",
+  "classifiedAt": "2026-08-08T08:43:07.107Z",
+  "approvedAt": "2026-08-08T08:45:19.769Z",
+  "startedAt": "2026-08-08T08:45:28.942Z",
+  "completedAt": "2026-08-09T08:36:04.447Z"
+}

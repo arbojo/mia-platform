@@ -17,6 +17,7 @@ import {
   Accessibility,
   ShoppingBag,
   Truck,
+  Package,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
@@ -47,6 +48,7 @@ export function Sidebar() {
       items: [
         { href: '/dashboard/laboratorio', label: t.nav.lab, question: t.nav.labQuestion, icon: FlaskConical, atmosphere: 'lab' },
         { href: '/dashboard/delivery', label: t.nav.delivery, question: t.nav.deliveryQuestion, icon: Truck, atmosphere: 'delivery' },
+        { href: '/dashboard/inventory', label: t.nav.inventory, question: t.nav.inventoryQuestion, icon: Package, atmosphere: 'inventory' },
       ],
     },
   ]

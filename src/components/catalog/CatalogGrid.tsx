@@ -144,6 +144,7 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
               description={product.description}
               thumbnail={product.thumbnail}
               mediaCount={product.mediaCount}
+              availability={product.availability}
               onDelete={() => setDeleteTarget(product)}
             />
           ))}

@@ -1,6 +1,8 @@
 import { requirePageAuth } from '@/lib/auth'
 import { notFound, redirect } from 'next/navigation'
 import { ProductDetail } from '@/components/catalog/ProductDetail'
+import { getCatalogAvailability } from '@/lib/inventory/stock'
+import type { CatalogAvailability } from '@/lib/inventory/stock'
 
 export default async function CatalogProductPage({
   params,
@@ -31,5 +33,14 @@ export default async function CatalogProductPage({
     notFound()
   }
 
-  return <ProductDetail businessId={business.id} product={product} />
+  const availability = await getCatalogAvailability(business.id, [product.id])
+  const availabilityForProduct: CatalogAvailability | null = availability?.[product.id] ?? null
+
+  return (
+    <ProductDetail
+      businessId={business.id}
+      product={product}
+      availability={availabilityForProduct}
+    />
+  )
 }

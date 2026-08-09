@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ImageIcon, Package, Trash2 } from 'lucide-react'
+import type { CatalogAvailability } from '@/lib/inventory/stock'
 
 interface ProductCardProps {
   id: string
@@ -13,7 +14,14 @@ interface ProductCardProps {
   description: string | null
   thumbnail: string | null
   mediaCount: number
+  availability?: CatalogAvailability | null
   onDelete: () => void
+}
+
+const AVAILABILITY_BADGE: Record<string, { label: string; className: string }> = {
+  ok: { label: 'Disponible', className: 'bg-emerald-100 text-emerald-800' },
+  low: { label: 'Stock bajo', className: 'bg-amber-100 text-amber-800' },
+  out: { label: 'Agotado', className: 'bg-red-100 text-red-800' },
 }
 
 export function ProductCard({
@@ -24,8 +32,11 @@ export function ProductCard({
   description,
   thumbnail,
   mediaCount,
+  availability,
   onDelete,
 }: ProductCardProps) {
+  const availabilityBadge = availability ? AVAILABILITY_BADGE[availability.status] : null
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white transition-shadow hover:shadow-md">
       <Link href={`/dashboard/catalog/${id}`} className="flex flex-1 flex-col">
@@ -58,9 +69,18 @@ export function ProductCard({
               </Badge>
             )}
           </div>
-          {price !== null && (
-            <p className="text-sm font-semibold text-olive-600">${price}</p>
-          )}
+          <div className="flex items-center justify-between gap-2">
+            {price !== null && (
+              <p className="text-sm font-semibold text-olive-600">${price}</p>
+            )}
+            {availabilityBadge && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${availabilityBadge.className}`}
+              >
+                {availabilityBadge.label}
+              </span>
+            )}
+          </div>
           {description && (
             <p className="line-clamp-2 text-sm text-zinc-500">{description}</p>
           )}

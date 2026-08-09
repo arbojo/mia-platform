@@ -28,6 +28,8 @@ export const pt: Dict = {
     labQuestion: 'como ela pode melhorar?',
     delivery: 'Delivery',
     deliveryQuestion: 'entregadores e entregas',
+    inventory: 'Inventário',
+    inventoryQuestion: 'estoque e reposição',
     settings: 'Configurações',
     adjustments: 'Ajustes',
     connections: 'Conexões',

@@ -28,6 +28,8 @@ export const en: Dict = {
     labQuestion: 'how can it improve?',
     delivery: 'Delivery',
     deliveryQuestion: 'drivers and deliveries',
+    inventory: 'Inventory',
+    inventoryQuestion: 'stock and restocking',
     settings: 'Settings',
     adjustments: 'Adjustments',
     connections: 'Connections',
