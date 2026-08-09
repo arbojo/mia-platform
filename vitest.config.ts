@@ -54,6 +54,14 @@ export default defineConfig({
         },
         resolve: { alias },
       },
+      {
+        test: {
+          name: 'workshop',
+          include: ['workshop/subaru/**/*.test.ts'],
+          exclude: ['node_modules', '.next'],
+          environment: 'node',
+        },
+      },
     ],
     coverage,
   },

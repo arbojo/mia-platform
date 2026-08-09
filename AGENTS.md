@@ -1031,3 +1031,50 @@ Any agent that modifies code without governance approval is in violation of the 
 1. The Release Manager will reject the commit.
 2. The Memory Engineer will record the violation in engineering memory.
 3. The CTO will review the violation and determine remediation.
+
+---
+
+## 24. Protocolo de Resurrección Subaru (Multi-máquina)
+
+El **Protocolo Subaru** garantiza que cualquier instancia de opencode, en cualquier máquina, pueda retomar la misma tarea con el mismo plan en el paso exacto donde murió la anterior (por límite de tokens u otra interrupción). El checkpoint es **un plan de misión, no una bitácora**: se congela ANTES de codificar y se sincroniza a remoto.
+
+### 24.1 Herramienta
+
+El protocolo está implementado como CLI determinista en `workshop/subaru/`:
+
+```bash
+npx tsx workshop/subaru/cli.ts <command> [options]
+```
+
+| Comando | Cuándo | Efecto |
+|---------|--------|--------|
+| `freeze <id> --title "<t>" --steps <n> [--governance <id>]` | El concilio APRUEBA la tarea y ANTES de codificar | Escribe frontmatter en `docs/checkpoints/active-subaru-checkpoint.md`, commit `subaru: checkpoint <id> - listo` + push |
+| `mark <id> <n>` | Cada paso atómico completado | State `in_progress`, tick del checkbox, commit `- en-progreso` + push |
+| `complete <id>` | Misión terminada (gates pasados) | State `completed`, commit `- completado` + push |
+| `revive [--no-pull]` | Al despertar en cualquier máquina | `git pull --rebase` + resumen + siguiente paso exacto |
+| `status` | Consultar estado | Resumen del checkpoint |
+| `bootstrap` | Entorno nuevo | Valida node/git remote y restaura el agente global desde `.agents/subaru.md` |
+
+El frontmatter del checkpoint contiene: `task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated`.
+
+### 24.2 Secuencia Obligatoria (Return-by-Death)
+
+```
+1. Governance: classify → concilio aprueba (análisis + plan)
+2. SUBARU: escribe el blueprint (plan atómico) en el checkpoint
+3. SUBARU: freeze → commit "subaru: checkpoint <id> - listo" + push
+   (el blueprint sobrevive en GitHub antes de escribir código)
+4. Implementación (agentes) + Gates de calidad
+5. SUBARU: mark cada paso + complete → commit "subaru: checkpoint <id> - completado" + push
+```
+
+Regla de oro: **nunca un commit de implementación sin su blueprint previo en remoto.**
+
+### 24.3 Reglas
+
+1. **No editar el checkpoint a mano**: el CLI es la única autoridad que lo modifica y sincroniza.
+2. **Guard del freeze**: no se sobrescribe una misión activa distinta sin `--force`.
+3. **Agente espejo**: `.agents/subaru.md` es la fuente canónica del agente Subaru; `bootstrap` lo restaura en `~/.config/opencode/agent/subaru.md` si falta.
+4. **Soporte si el push falla**: el CLI commit local y avisa si el remoto avanzó (se resuelve con `git pull --rebase`).
+5. **Verificación**: tras `mark`/`complete`/`revive`, confirmar con `status`.
+

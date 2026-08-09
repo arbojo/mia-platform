@@ -33,6 +33,7 @@
     "governance": "npx tsx workshop/governance/cli.ts",
     "governance:validate": "npx tsx workshop/governance/cli.ts validate",
     "governance:classify": "npx tsx workshop/governance/cli.ts classify",
+    "subaru": "npx tsx workshop/subaru/cli.ts",
     "doctor": "npx tsx scripts/doctor.script.ts",
     "environment-check": "npx tsx scripts/environment-check.script.ts"
   },
