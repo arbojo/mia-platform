@@ -2,13 +2,13 @@
 task_id: subaru-cli
 title: CLI Subaru: resurrección multi-máquina de tareas
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 7
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260809-233611402
 created: 2026-08-09T23:41:46.720Z
-updated: 2026-08-09T23:43:31.705Z
+updated: 2026-08-09T23:47:19.961Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -65,7 +65,7 @@ implementación (freeze → mark → complete).
 - [x] **Paso 3:** Crear `workshop/subaru/lib.ts` + `cli.ts` + `lib.test.ts` (mínimo viable).
 - [ ] **Paso 4 (SUBARU self-demo):** `freeze` → frontmatter + commit `subaru: checkpoint subaru-cli - listo` + push (el primer commit del sprint es el blueprint).
 - [x] **Paso 5:** Integración: `.agents/subaru.md`, agente global, sección AGENTS.md, script npm `subaru`.
-- [ ] **Paso 6:** Gates de calidad (comandos abajo) + smoke del CLI (`status`, `revive --no-pull`, `bootstrap`).
+- [x] **Paso 6:** Gates de calidad (comandos abajo) + smoke del CLI (`status`, `revive --no-pull`, `bootstrap`).
 - [ ] **Paso 7 (SUBARU self-demo):** `mark` pasos + `complete` → commit `subaru: checkpoint subaru-cli - completado` + push + reporte con comando de resurrección.
 
 ### 2.3 Comandos de validación obligatorios
@@ -79,8 +79,11 @@ npx tsx workshop/subaru/cli.ts revive --no-pull
 npx tsx workshop/subaru/cli.ts bootstrap
 ```
 
-## 3. Evidencia de Ejecución (se llena al cierre)
-- Gates, commits, manifest y smoke results.
+## 3. Evidencia de Ejecución
+- **Self-demo del ciclo completo:** `freeze` (blueprint, commit `08bf7f5`) → `mark 3/4/5` (commits `b147329`, `816ce47`, `f023768`) → push rechazado en `mark 5` resuelto con `git pull --rebase` (verifica rule 24.3.4).
+- **Archivos:** `workshop/subaru/lib.ts` (helpers puros), `workshop/subaru/cli.ts` (6 comandos), `workshop/subaru/lib.test.ts` (10 tests), `.agents/subaru.md` (espejo), agente global actualizado, `AGENTS.md` sección 24, script npm `subaru`, proyecto vitest `workshop`.
+- **Gates:** lint 0/0 · build OK · unit 502 ✓ (492 previos + 10 nuevos) · e2e 66 ✓ (2 skipped) · DevTools sin errores de consola · smoke: `status` (5/7), `revive --no-pull` (sugiere Paso 6), `bootstrap` (node v24.19.0, remote OK, agente global presente).
+- **Manifest:** `.governance/tasks/TASK-20260809-233611402.json` (approved por 7 agentes).
 
 ## 4. Comando de Resurrección (una línea)
 ```
