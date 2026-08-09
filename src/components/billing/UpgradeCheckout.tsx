@@ -29,7 +29,7 @@ const PLANS: Plan[] = [
     highlighted: true,
     features: [
       'Inventory Hub: stock en tiempo real',
-      'Descuento automático por venta (SALE_WON)',
+      'Descuento automático de stock por cada venta confirmada',
       'Alertas de reposición y movimientos auditados',
       'Sugerencias de reabastecimiento con IA',
       '3 asistentes y hasta 5 usuarios',
@@ -77,13 +77,13 @@ export function UpgradeCheckout() {
           className="mt-4 text-3xl font-bold md:text-4xl"
           style={{ color: 'var(--atmosphere-text)' }}
         >
-          Elegí el plan que escala con tu negocio
+          Elige el plan que escala con tu negocio
         </h1>
         <p
           className="mt-2 text-sm md:text-base"
           style={{ color: 'var(--atmosphere-text-secondary)' }}
         >
-          Desbloqueá el Inventory Hub y el resto del ecosistema MIA.
+          Desbloquea el Inventory Hub y el resto del ecosistema MIA.
         </p>
       </div>
 

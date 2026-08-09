@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260809-204316702",
+  "title": "Paywall + Suscripcion Inventory Hub: correccion definitiva de copy y localizacion (espanol neutro, cero voseo)",
+  "description": "Eliminar voseo, integrar gancho de dolor profesional, limpiar menciones tecnicas (SALE_WON) y mantener consistencia visual SaaS en el paywall y la vista de suscripcion del Inventory Hub.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-09T20:43:16.983Z",
+  "classifiedAt": "2026-08-09T20:43:16.983Z",
+  "approvedAt": "2026-08-09T20:43:16.983Z",
+  "startedAt": "2026-08-09T20:43:27.697Z",
+  "completedAt": "2026-08-09T20:46:27.684Z"
+}

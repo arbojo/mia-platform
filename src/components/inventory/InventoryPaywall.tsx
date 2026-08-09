@@ -91,10 +91,9 @@ export function InventoryPaywall() {
                 className="text-sm leading-relaxed md:text-base"
                 style={{ color: 'var(--atmosphere-text-secondary)' }}
               >
-                ¿Tu stock se acaba y no te enteras hasta que el repartidor o almacén te
-                avisa que ya no hay producto? Eleva tu operación al siguiente nivel: activa
-                el Inventory Hub y gana visibilidad absoluta de tu mercancía, automatiza
-                reposiciones y adelántate a los quiebres de stock.
+                ¿Tu stock se termina y te enteras solo cuando el repartidor o el almacén
+                te avisan que ya no hay producto? Evita quiebres de inventario y pérdidas
+                de venta. Elige el plan que escala con tu operación.
               </p>
             </div>
 
