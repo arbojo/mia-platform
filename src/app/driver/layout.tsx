@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { SwRegister } from '@/components/driver/SwRegister'
 
 export const metadata: Metadata = {
   title: 'MIA Delivery — Portal del Repartidor',
@@ -22,6 +23,7 @@ export const viewport: Viewport = {
 export default function DriverLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
+      <SwRegister />
       <header className="sticky top-0 z-10 bg-emerald-700 px-4 py-3 text-white shadow">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <span className="text-lg font-bold tracking-tight">MIA Delivery</span>

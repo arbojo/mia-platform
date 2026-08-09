@@ -4,8 +4,20 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { driverFetch } from '@/components/driver/api'
 import { captureGpsSamples } from '@/components/driver/geolocation'
-import { enqueueAction } from '@/components/driver/outbox'
-import type { DeliveriesResponse, DriverMeResponse, VisitStatus } from '@/components/driver/types'
+import { enqueueAction, cacheSet, cacheGet } from '@/components/driver/outbox'
+import {
+  flushOutbox,
+  getPendingCounts,
+  isRetryableError,
+} from '@/components/driver/offline'
+import type {
+  DeliveriesResponse,
+  DriverMeResponse,
+  VisitStatus,
+} from '@/components/driver/types'
+
+const CACHE_ME = 'me'
+const CACHE_DELIVERIES = 'deliveries'
 
 interface DeliveryItem {
   visit_id: string
@@ -46,6 +58,9 @@ export function DriverHome() {
   const [offline, setOffline] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [pendingCount, setPendingCount] = useState(0)
+  const [failedCount, setFailedCount] = useState(0)
+  const [flushBusy, setFlushBusy] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -56,20 +71,55 @@ export function DriverHome() {
       setMe(meData)
       setList(deliveriesData)
       setError(null)
+      void cacheSet(CACHE_ME, meData)
+      void cacheSet(CACHE_DELIVERIES, deliveriesData)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar')
+      const [cachedMe, cachedList] = await Promise.all([
+        cacheGet<DriverMeResponse>(CACHE_ME),
+        cacheGet<DeliveriesResponse>(CACHE_DELIVERIES),
+      ])
+      if (cachedMe || cachedList) {
+        if (cachedMe) setMe(cachedMe)
+        if (cachedList) setList(cachedList)
+        setOffline(true)
+        setError(null)
+      } else {
+        setError(err instanceof Error ? err.message : 'Error al cargar')
+      }
     } finally {
       setLoading(false)
     }
   }, [])
 
+  const refreshPending = useCallback(async () => {
+    const counts = await getPendingCounts()
+    setPendingCount(counts.pending)
+    setFailedCount(counts.failed)
+  }, [])
+
+  const retryNow = useCallback(async () => {
+    setFlushBusy(true)
+    try {
+      await flushOutbox()
+      await refreshPending()
+      await load()
+    } finally {
+      setFlushBusy(false)
+    }
+  }, [load, refreshPending])
+
   useEffect(() => {
     void (async () => {
-      await load()
+      await Promise.all([load(), flushOutbox()])
+      await refreshPending()
     })()
     const onOnline = () => {
       setOffline(false)
-      void load()
+      void (async () => {
+        await flushOutbox()
+        await refreshPending()
+        await load()
+      })()
     }
     const onOffline = () => setOffline(true)
     window.addEventListener('online', onOnline)
@@ -78,7 +128,7 @@ export function DriverHome() {
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOffline)
     }
-  }, [load])
+  }, [load, refreshPending])
 
   async function runTransition(item: DeliveryItem, eventType: 'voy_en_camino' | 'ya_estoy_aqui') {
     setBusyId(item.visit_id)
@@ -92,13 +142,14 @@ export function DriverHome() {
       try {
         await driverFetch(endpoint, { method: 'POST', body: JSON.stringify({ samples }) })
       } catch (err) {
-        if (err instanceof TypeError) {
+        if (isRetryableError(err)) {
           await enqueueAction({
             idempotencyKey: `${me?.driver.id}:${eventType}:${item.visit_id}:${new Date(samples[1].capturedAt).getTime()}`,
             eventType,
             visitId: item.visit_id,
             samples,
           })
+          await refreshPending()
         } else {
           throw err
         }
@@ -132,6 +183,25 @@ export function DriverHome() {
       {offline && (
         <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
           Sin conexión. Tus acciones se guardarán y se enviarán al recuperar señal.
+        </div>
+      )}
+
+      {(pendingCount > 0 || failedCount > 0) && (
+        <div className="rounded-lg bg-sky-50 px-4 py-3 text-sm text-sky-800">
+          <p>
+            {pendingCount > 0
+              ? `${pendingCount} acción/es pendiente(s) de envío.`
+              : `${failedCount} acción/es no pudieron enviarse.`}
+          </p>
+          {pendingCount > 0 && (
+            <button
+              onClick={retryNow}
+              disabled={flushBusy}
+              className="mt-2 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+            >
+              {flushBusy ? 'Enviando...' : 'Reintentar ahora'}
+            </button>
+          )}
         </div>
       )}
 

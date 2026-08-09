@@ -4,9 +4,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { driverFetch } from '@/components/driver/api'
 import { captureGpsSamples } from '@/components/driver/geolocation'
-import { enqueueAction } from '@/components/driver/outbox'
+import { enqueueAction, cacheSet, cacheGet } from '@/components/driver/outbox'
+import { flushOutbox, isRetryableError } from '@/components/driver/offline'
 import { DeliverForm } from '@/components/driver/DeliverForm'
 import { IncidentForm } from '@/components/driver/IncidentForm'
+
+const cacheKey = (visitId: string) => `visit:${visitId}`
 
 interface DeliveryDetailData {
   visit_id: string
@@ -34,11 +37,13 @@ export function DeliveryDetail({ visitId }: { visitId: string }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [offline, setOffline] = useState(false)
 
   const load = useCallback(async () => {
     try {
       const detail = await driverFetch<DeliveryDetailData>(`/api/driver/deliveries/${visitId}`)
       setData(detail)
+      void cacheSet(cacheKey(visitId), detail)
       try {
         const me = await driverFetch<{ driver: { id: string } }>('/api/driver/me')
         setDriverId(me.driver.id)
@@ -47,7 +52,14 @@ export function DeliveryDetail({ visitId }: { visitId: string }) {
       }
       setError(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar')
+      const cached = await cacheGet<DeliveryDetailData>(cacheKey(visitId))
+      if (cached) {
+        setData(cached)
+        setOffline(true)
+        setError(null)
+      } else {
+        setError(err instanceof Error ? err.message : 'Error al cargar')
+      }
     } finally {
       setLoading(false)
     }
@@ -55,7 +67,7 @@ export function DeliveryDetail({ visitId }: { visitId: string }) {
 
   useEffect(() => {
     void (async () => {
-      await load()
+      await Promise.all([load(), flushOutbox()])
     })()
   }, [load])
 
@@ -71,7 +83,7 @@ export function DeliveryDetail({ visitId }: { visitId: string }) {
       try {
         await driverFetch(endpoint, { method: 'POST', body: JSON.stringify({ samples }) })
       } catch (err) {
-        if (err instanceof TypeError && driverId) {
+        if (isRetryableError(err) && driverId) {
           await enqueueAction({
             idempotencyKey: `${driverId}:${eventType}:${visitId}:${new Date(samples[1].capturedAt).getTime()}`,
             eventType,
@@ -120,6 +132,12 @@ export function DeliveryDetail({ visitId }: { visitId: string }) {
       <button onClick={() => router.push('/driver')} className="text-sm text-emerald-700">
         ← Volver
       </button>
+
+      {offline && (
+        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Sin conexión. Mostrando datos guardados.
+        </div>
+      )}
 
       <div className="rounded-xl bg-white p-4 shadow">
         <p className="text-lg font-bold text-slate-900">{order?.customer_name ?? 'Cliente'}</p>

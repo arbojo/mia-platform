@@ -3,13 +3,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { driverFetch } from '@/components/driver/api'
+import { captureGpsSamples } from '@/components/driver/geolocation'
+import { enqueueAction } from '@/components/driver/outbox'
+import { isRetryableError } from '@/components/driver/offline'
 
 const INCIDENT_TYPES = [
+  { value: 'domicilio_incorrecto', label: 'Dirección incorrecta/errónea' },
+  { value: 'no_se_encuentra', label: 'No se encuentra' },
+  { value: 'rechazado', label: 'Cliente rechazó el pedido' },
+  { value: 'zona_inaccesible', label: 'Zona inaccesible' },
   { value: 'cliente_ausente', label: 'Cliente ausente' },
-  { value: 'direccion_incompleta', label: 'Dirección incompleta/errónea' },
-  { value: 'rechazo_entrega', label: 'Cliente rechazó el pedido' },
-  { value: 'producto_danado', label: 'Producto dañado o incompleto' },
-  { value: 'otra', label: 'Otra' },
+  { value: 'otro', label: 'Otra' },
 ]
 
 export function IncidentForm({
@@ -29,15 +33,43 @@ export function IncidentForm({
   async function submit() {
     setBusy(true)
     setError(null)
+
+    let samples: Array<{ lat: number; lng: number; capturedAt: string }> | undefined
     try {
-      await driverFetch(`/api/driver/deliveries/${visitId}/incident`, {
-        method: 'POST',
-        body: JSON.stringify({
-          incidentType,
-          notes: notes || undefined,
-          scheduleRevisit,
-        }),
-      })
+      samples = await captureGpsSamples()
+    } catch {
+      samples = undefined
+    }
+
+    try {
+      try {
+        await driverFetch(`/api/driver/deliveries/${visitId}/incident`, {
+          method: 'POST',
+          body: JSON.stringify({
+            incidentType,
+            notes: notes || undefined,
+            scheduleRevisit,
+            samples,
+          }),
+        })
+      } catch (err) {
+        if (isRetryableError(err)) {
+          const capturedAt = samples?.[1]?.capturedAt ?? new Date().toISOString()
+          await enqueueAction({
+            idempotencyKey: `driver:incidencia_reportada:${visitId}:${new Date(capturedAt).getTime()}`,
+            eventType: 'incidencia_reportada',
+            visitId,
+            samples,
+            payload: {
+              incident_type: incidentType,
+              notes: notes || undefined,
+              schedule_revisit: scheduleRevisit,
+            },
+          })
+        } else {
+          throw err
+        }
+      }
       router.push('/driver')
       onDone()
     } catch (err) {

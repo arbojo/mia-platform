@@ -1,7 +1,9 @@
 'use client'
 
 const DB_NAME = 'mia-driver-outbox'
+const DB_VERSION = 2
 const STORE = 'actions'
+const CACHE_STORE = 'cache'
 
 export interface OutboxAction {
   idempotencyKey: string
@@ -10,6 +12,12 @@ export interface OutboxAction {
   orderId?: string | null
   samples?: Array<{ lat: number; lng: number; capturedAt: string }>
   payload?: Record<string, unknown>
+  photo?: Blob
+  photoType?: string
+  photoName?: string
+  attempts?: number
+  failed?: boolean
+  lastError?: string
   createdAt?: string
 }
 
@@ -19,11 +27,14 @@ function openDb(): Promise<IDBDatabase> {
       reject(new Error('IndexedDB no disponible'))
       return
     }
-    const request = indexedDB.open(DB_NAME, 1)
+    const request = indexedDB.open(DB_NAME, DB_VERSION)
     request.onupgradeneeded = () => {
       const db = request.result
       if (!db.objectStoreNames.contains(STORE)) {
         db.createObjectStore(STORE, { keyPath: 'idempotencyKey' })
+      }
+      if (!db.objectStoreNames.contains(CACHE_STORE)) {
+        db.createObjectStore(CACHE_STORE, { keyPath: 'key' })
       }
     }
     request.onsuccess = () => resolve(request.result)
@@ -45,6 +56,10 @@ export async function enqueueAction(action: OutboxAction): Promise<void> {
   })
 }
 
+export async function updateAction(action: OutboxAction): Promise<void> {
+  await enqueueAction(action)
+}
+
 export async function getPendingActions(): Promise<OutboxAction[]> {
   const db = await openDb()
   return new Promise((resolve, reject) => {
@@ -62,5 +77,25 @@ export async function removeAction(idempotencyKey: string): Promise<void> {
     tx.objectStore(STORE).delete(idempotencyKey)
     tx.oncomplete = () => resolve()
     tx.onerror = () => reject(tx.error)
+  })
+}
+
+export async function cacheSet(key: string, value: unknown): Promise<void> {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(CACHE_STORE, 'readwrite')
+    tx.objectStore(CACHE_STORE).put({ key, value })
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+}
+
+export async function cacheGet<T>(key: string): Promise<T | null> {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(CACHE_STORE, 'readonly')
+    const request = tx.objectStore(CACHE_STORE).get(key)
+    request.onsuccess = () => resolve((request.result?.value as T) ?? null)
+    request.onerror = () => reject(request.error)
   })
 }

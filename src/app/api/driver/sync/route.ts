@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
           await applyIncident(ctx, {
             incidentType: incidentType as (typeof INCIDENT_TYPES)[number],
             notes: typeof item.payload?.notes === 'string' ? item.payload.notes : undefined,
+            scheduleRevisit: item.payload?.schedule_revisit === true,
             samples,
           })
         } else {

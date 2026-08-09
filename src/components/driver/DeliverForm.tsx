@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { driverUpload } from '@/components/driver/api'
 import { captureGpsSamples } from '@/components/driver/geolocation'
 import { enqueueAction } from '@/components/driver/outbox'
+import { isRetryableError } from '@/components/driver/offline'
 
 const KINSHIPS = [
   { value: 'titular', label: 'Titular' },
@@ -69,13 +70,16 @@ export function DeliverForm({
       try {
         await driverUpload(`/api/driver/deliveries/${visitId}/delivered`, formData)
       } catch (err) {
-        if (err instanceof TypeError) {
+        if (isRetryableError(err) && photo) {
           await enqueueAction({
             idempotencyKey: `${driverId}:entrega_realizada:${visitId}:${new Date(samples[1].capturedAt).getTime()}`,
             eventType: 'entrega_realizada',
             visitId,
             orderId,
             samples,
+            photo,
+            photoType: photo.type,
+            photoName: photo.name,
             payload: { kinship, amount_collected: amountCollected, payment_method: paymentMethod },
           })
         } else {

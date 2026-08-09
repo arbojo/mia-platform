@@ -1,0 +1,94 @@
+{
+  "id": "TASK-20260809-185222360",
+  "title": "Delivery Hub: PWA offline-first del Portal del Repartidor",
+  "description": "Implementar PWA offline-first del Portal del Repartidor /driver. (A) Service Worker hand-rolled en public/sw.js (sin deps): precache del app shell (/driver, /driver/login, manifest, iconos) con network-first para HTML preservando el magic-link (nunca cachear redirects de login), stale-while-revalidate para /_next/static/*, y network-first con fallback a cache para GET /api/driver/*; cache versionada + limpieza; nunca cachear respuestas no-2xx o con Set-Cookie. (B) Outbox IndexedDB completo que arregla el bug de solo-escritura: flush automático via POST /api/driver/sync (lotes <=50, dedupe por idempotency_key) en evento online + arranque + tras cada enqueue; detección de error extendida a AbortError (timeout 8s via AbortSignal) y DriverApiError 5xx como retryable; entrega diferida completa reutilizando POST /api/driver/deliveries/{visitId}/delivered con foto como Blob en IndexedDB (GPS capturado offline es hardware satelital) + GPS samples + kinship/amount/payment; incidencias (IncidentForm) pasan a encolar incidencia_reportada. (C) Lectura offline: cache IndexedDB del listado y detalle de entregas escrito en cada GET exitoso para render de respaldo con banner cuando falle la red. Sin cambios de schema (la evidencia usa el bucket PRIVATE delivery-evidence existente via applyDelivered).",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change",
+      "api_change",
+      "security"
+    ],
+    "filesAffected": 11,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 11 files affected, security implications, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.106Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.111Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.113Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.114Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.115Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.118Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: PWA offline-first respeta el aislamiento del schema delivery (ADR-019), sin cambios de schema, security review: SW nunca cachea 3xx/Set-Cookie, flush idempotente por idempotency_key, evidencia vía bucket privado existente.",
+      "timestamp": "2026-08-09T18:52:32.119Z"
+    }
+  ],
+  "createdAt": "2026-08-09T18:52:22.549Z",
+  "classifiedAt": "2026-08-09T18:52:22.549Z",
+  "approvedAt": "2026-08-09T18:52:32.120Z",
+  "startedAt": "2026-08-09T18:52:42.616Z",
+  "completedAt": "2026-08-09T19:35:58.130Z"
+}
