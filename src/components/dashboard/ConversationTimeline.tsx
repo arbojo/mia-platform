@@ -1,4 +1,9 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowUpRight, ExternalLink } from 'lucide-react'
+import { useContextMenu, type ContextMenuItems } from '@/components/ui/context-menu'
 import type { ConversationTimeline as TimelineType } from '@/lib/dashboard/queries'
 
 function OutcomeBadge({ outcome }: { outcome: 'interested' | 'answered' | 'sold' | 'pending' }) {
@@ -25,6 +30,26 @@ function OutcomeBadge({ outcome }: { outcome: 'interested' | 'answered' | 'sold'
 }
 
 export function ConversationTimeline({ data }: { data: TimelineType }) {
+  const router = useRouter()
+  const { openMenu } = useContextMenu()
+
+  function openEntryMenu(e: React.MouseEvent, id: string) {
+    const items: ContextMenuItems = [
+      { label: 'Conversación', heading: true },
+      {
+        label: 'Abrir conversación',
+        icon: ExternalLink,
+        onSelect: () => router.push(`/dashboard/conversations?id=${id}`),
+      },
+      {
+        label: 'Ver todas',
+        icon: ArrowUpRight,
+        onSelect: () => router.push('/dashboard/conversations'),
+      },
+    ]
+    openMenu(e, items)
+  }
+
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
@@ -46,7 +71,7 @@ export function ConversationTimeline({ data }: { data: TimelineType }) {
       {data.entries.length === 0 ? (
         <div
           className="rounded-xl p-6 text-center"
-          style={{ backgroundColor: 'var(--elevation-1)' }}
+          style={{ backgroundColor: 'var(--atmosphere-surface)' }}
         >
           <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
             Aún no he tenido conversaciones. Pronto empezaré a atender clientes.
@@ -55,52 +80,57 @@ export function ConversationTimeline({ data }: { data: TimelineType }) {
       ) : (
         <div className="space-y-2">
           {data.entries.map((entry) => (
-            <Link
+            <div
               key={entry.id}
-              href={`/dashboard/conversations?id=${entry.id}`}
-              className="block"
+              onContextMenu={(e) => openEntryMenu(e, entry.id)}
+              className="cursor-context-menu"
             >
-              <div
-                className="flex items-start gap-3 rounded-xl border p-3 transition-all duration-200"
-                style={{
-                  backgroundColor: 'var(--elevation-1)',
-                  borderColor: 'var(--atmosphere-border)',
-                }}
+              <Link
+                href={`/dashboard/conversations?id=${entry.id}`}
+                className="block"
               >
                 <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium"
+                  className="flex items-start gap-3 rounded-xl border p-3 transition-all duration-200"
                   style={{
-                    backgroundColor: 'rgba(255,255,255,0.06)',
-                    color: 'var(--atmosphere-text-secondary)',
+                    backgroundColor: 'var(--atmosphere-surface)',
+                    borderColor: 'var(--atmosphere-border)',
                   }}
                 >
-                  {entry.customerName.charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: 'var(--atmosphere-text)' }}
-                    >
-                      {entry.customerName}
-                    </span>
-                    <span
-                      className="text-xs"
-                      style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
-                    >
-                      {entry.time}
-                    </span>
-                  </div>
-                  <p
-                    className="mt-0.5 truncate text-sm"
-                    style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.8 }}
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium"
+                    style={{
+                      backgroundColor: 'color-mix(in srgb, var(--atmosphere-text) 12%, transparent)',
+                      color: 'var(--atmosphere-text-secondary)',
+                    }}
                   >
-                    {entry.lastMessage}
-                  </p>
+                    {entry.customerName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--atmosphere-text)' }}
+                      >
+                        {entry.customerName}
+                      </span>
+                      <span
+                        className="text-xs"
+                        style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
+                      >
+                        {entry.time}
+                      </span>
+                    </div>
+                    <p
+                      className="mt-0.5 truncate text-sm"
+                      style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.8 }}
+                    >
+                      {entry.lastMessage}
+                    </p>
+                  </div>
+                  <OutcomeBadge outcome={entry.outcome} />
                 </div>
-                <OutcomeBadge outcome={entry.outcome} />
-              </div>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
       )}

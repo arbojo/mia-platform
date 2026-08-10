@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { MessageSquare, UserPlus, BellRing, Sparkles, type LucideIcon } from 'lucide-react'
+import { MessageSquare, UserPlus, BellRing, Sparkles, ArrowUpRight, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useContextMenu, type ContextMenuItems } from '@/components/ui/context-menu'
 
 const iconMap: Record<string, LucideIcon> = {
   MessageSquare,
@@ -33,6 +35,8 @@ export function VitalPresence({
   href,
 }: VitalPresenceProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const { openMenu } = useContextMenu()
   const Icon = iconName ? iconMap[iconName] : null
 
   useEffect(() => {
@@ -42,23 +46,53 @@ export function VitalPresence({
     el.style.setProperty('--presence-intensity', String(intensity))
   }, [value])
 
+  const openCardMenu = (e: React.MouseEvent) => {
+    const items: ContextMenuItems = [
+      { label: action, heading: true },
+      href
+        ? {
+            label: 'Abrir',
+            icon: ArrowUpRight,
+            onSelect: () => router.push(href),
+          }
+        : null,
+    ].filter((item) => item !== null) as ContextMenuItems
+    openMenu(e, items)
+  }
+
   return (
     <div
       ref={ref}
-      className="group relative overflow-hidden rounded-2xl border p-6 transition-all duration-700 hover:lift"
+      onContextMenu={href ? openCardMenu : undefined}
+      className={`group relative overflow-hidden transition-all duration-700 hover:lift ${href ? 'cursor-context-menu' : ''}`}
       style={{
-        backgroundColor: 'var(--elevation-1)',
-        borderColor: 'var(--atmosphere-border)',
-        boxShadow: 'var(--shadow-card)',
+        borderRadius: 'var(--mod-radius-lg)',
+        border: '1px solid var(--atmosphere-border)',
+        backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+        backdropFilter: 'blur(24px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+        boxShadow:
+          '0 0 0 1px var(--module-accent-border), 0 0 24px var(--module-glow-soft)',
+        transition: 'box-shadow var(--mod-duration-medium) var(--mod-ease-premium)',
         cursor: href ? 'pointer' : 'default',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow =
+          '0 0 0 1px var(--module-accent-border), 0 0 40px var(--module-glow)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow =
+          '0 0 0 1px var(--module-accent-border), 0 0 24px var(--module-glow-soft)'
       }}
     >
       {href ? (
-        <Link href={href} className="block">
+        <Link href={href} className="block p-6">
           <CardContent color={color} value={value} action={action} meaning={meaning} Icon={Icon} trend={trend} context={context} />
         </Link>
       ) : (
-        <CardContent color={color} value={value} action={action} meaning={meaning} Icon={Icon} trend={trend} context={context} />
+        <div className="p-6">
+          <CardContent color={color} value={value} action={action} meaning={meaning} Icon={Icon} trend={trend} context={context} />
+        </div>
       )}
       <div
         className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-1000"
@@ -134,8 +168,8 @@ function CardContent({ color, value, action, meaning, Icon, trend, context }: {
           </span>
           {trend && (
             <span
-              className={`text-xs font-medium ${trend.positive ? 'text-green-400' : 'text-orange-400'}`}
-              style={{ opacity: 0.7 }}
+              className="text-xs font-medium"
+              style={{ color: trend.positive ? 'var(--mia-green)' : 'var(--mia-orange)', opacity: 0.7 }}
             >
               {trend.positive ? '↑' : '↓'} {Math.abs(trend.value)} respecto a ayer
             </span>

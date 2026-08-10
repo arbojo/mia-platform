@@ -55,8 +55,15 @@ export default async function DashboardPage() {
             subtitle: t.dashboard.greetingSubtitleEmpty,
           }}
         />
-        <div className="rounded-2xl border-2 border-dashed p-12 text-center"
-          style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--elevation-1)' }}>
+        <div
+          className="rounded-2xl border-2 border-dashed p-12 text-center"
+          style={{
+            borderColor: 'var(--atmosphere-border)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+            backdropFilter: 'blur(24px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+          }}
+        >
           <h2 className="mb-2 text-xl font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
             {t.dashboard.letsStart}
           </h2>
@@ -87,8 +94,15 @@ export default async function DashboardPage() {
             subtitle: t.dashboard.greetingSubtitleEmpty,
           }}
         />
-        <div className="rounded-2xl border-2 border-dashed p-12 text-center"
-          style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--elevation-1)' }}>
+        <div
+          className="rounded-2xl border-2 border-dashed p-12 text-center"
+          style={{
+            borderColor: 'var(--atmosphere-border)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+            backdropFilter: 'blur(24px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+          }}
+        >
           <h2 className="mb-2 text-xl font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
             {t.dashboard.createAssistantTitle}
           </h2>
@@ -156,7 +170,16 @@ export default async function DashboardPage() {
       </div>
 
       {data.conversationTimeline.entries.length > 0 && (
-        <div style={{ backgroundColor: 'var(--elevation-1)', border: '1px solid var(--atmosphere-border)', borderRadius: '1rem' }}>
+        <div
+          style={{
+            borderRadius: 'var(--mod-radius-lg)',
+            border: '1px solid var(--atmosphere-border)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+            backdropFilter: 'blur(24px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+            boxShadow: '0 0 0 1px var(--module-accent-border), 0 0 24px var(--module-glow-soft)',
+          }}
+        >
           <div className="p-6">
             <ConversationTimeline data={data.conversationTimeline} />
           </div>
@@ -175,10 +198,14 @@ export default async function DashboardPage() {
           {t.dashboard.explore}
         </h2>
         <div
-          className="flex flex-col overflow-hidden rounded-2xl"
+          className="flex flex-col overflow-hidden"
           style={{
-            backgroundColor: 'var(--elevation-1)',
+            borderRadius: 'var(--mod-radius-lg)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
             border: '1px solid var(--atmosphere-border)',
+            backdropFilter: 'blur(24px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+            boxShadow: '0 0 0 1px var(--module-accent-border), 0 0 24px var(--module-glow-soft)',
           }}
         >
           <ModuleZone
@@ -217,8 +244,12 @@ export default async function DashboardPage() {
         <div
           className="rounded-2xl border p-5"
           style={{
-            backgroundColor: 'var(--elevation-1)',
+            borderRadius: 'var(--mod-radius-lg)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
             borderColor: 'var(--atmosphere-border)',
+            backdropFilter: 'blur(24px) saturate(1.4)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+            boxShadow: '0 0 0 1px var(--module-accent-border), 0 0 24px var(--module-glow-soft)',
           }}
         >
           <h3
@@ -232,7 +263,7 @@ export default async function DashboardPage() {
               <div
                 key={i}
                 className="flex items-center gap-3 rounded-xl px-3 py-2"
-                style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+                style={{ backgroundColor: 'var(--atmosphere-surface)' }}
               >
                 <span className="text-base">{item.icon}</span>
                 <span
