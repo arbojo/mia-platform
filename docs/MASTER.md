@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `63adbbc`.
+> Fuente de verdad: este repositorio en `666fe3c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `63adbbc` |
+| **Commit HEAD** | `666fe3c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T19:03:18-06:00 |
+| **Generado** | 2026-08-09T19:28:20-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (63)**:
+**Tareas registradas (64)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -634,6 +634,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | completed |
 | TASK-20260810-002545865 | MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas | completed |
 | TASK-20260810-005415049 | quiet chrome: inbox glass y zonas activas en home | completed |
+| TASK-20260810-011350200 | Ghost UI context menu en MIAInbox (reutilizando context-menu.tsx) | completed |
 
 ---
 
@@ -678,6 +679,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+666fe3c feat: ghost ui context menu en MIAInbox reutilizando context-menu.tsx
+2e4e479 docs: regenerate MASTER.md at 63adbbc
 63adbbc feat: quiet chrome - inbox glass con tokens y zonas activas en home
 fe1d362 docs: regenerate MASTER.md at 25cbd82
 25cbd82 chore: governance task TASK-20260810-002545865 (quiet-chrome) completada
@@ -696,8 +699,6 @@ fef9f43 subaru: checkpoint quiet-chrome - en-progreso
 26769ab subaru: checkpoint subaru-cli - completado
 60d5a23 subaru: checkpoint subaru-cli - en-progreso
 fce2a2b docs: regenerate MASTER.md at f023768
-f023768 subaru: checkpoint subaru-cli - en-progreso
-56b3c5f feat: Subaru CLI para resurrección multi-máquina de tareas
 ```
 
 ---
