@@ -2,13 +2,13 @@
 task_id: quiet-chrome
 title: MIA Quiet Chrome: contexto por clic derecho y zonas activas
 state: in_progress
-current_step: 6
+current_step: 7
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260810-002545865
 created: 2026-08-10T00:26:42.754Z
-updated: 2026-08-10T00:41:59.398Z
+updated: 2026-08-10T00:42:04.438Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -62,7 +62,7 @@ toca RLS, APIs, AI ni datos.
 - [x] **Paso 4:** Crear `ActivityRail.tsx` (rail expansible + power-nav por clic derecho).
 - [x] **Paso 5:** Crear `CommandStrip.tsx` + refactor de `MIAIndicator.tsx` (ember silencioso).
 - [x] **Paso 6:** Wiring en `dashboard/layout.tsx` (provider + rail + strip).
-- [ ] **Paso 7:** Gates (comandos abajo) + DevTools (interacciones: clic derecho, hover, keyboard).
+- [x] **Paso 7:** Gates (comandos abajo) + DevTools (interacciones: clic derecho, hover, keyboard).
 - [ ] **Paso 8 (SUBARU):** `complete` → commit `subaru: checkpoint quiet-chrome - completado` + push + reporte.
 
 ### 2.3 Comandos de validación obligatorios
