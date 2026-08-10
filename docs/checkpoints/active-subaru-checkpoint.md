@@ -1,14 +1,14 @@
 ---
-task_id: subaru-cli
-title: CLI Subaru: resurrección multi-máquina de tareas
-state: completed
-current_step: 7
-total_steps: 7
+task_id: quiet-chrome
+title: MIA Quiet Chrome: contexto por clic derecho y zonas activas
+state: blueprint_ready
+current_step: 0
+total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
-governance_id: TASK-20260809-233611402
-created: 2026-08-09T23:41:46.720Z
-updated: 2026-08-09T23:47:55.569Z
+governance_id: TASK-20260810-002545865
+created: 2026-08-10T00:26:42.754Z
+updated: 2026-08-10T00:26:42.754Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -24,49 +24,46 @@ GitHub y continúa sin perder contexto.
 ```
 1. Governance: classify → concilio aprueba (análisis + plan)
 2. SUBARU: escribe checkpoint con Plan de Ataque ATOMICO   ← AQUÍ
-   (archivos exactos, pasos, comandos de validación)
-3. SUBARU: git add + commit + push  → el blueprint sobrevive (Return-by-Death)
+3. SUBARU: freeze → commit "subaru: checkpoint <id> - listo" + push
 4. Implementación (agentes) + Gates de calidad
-5. SUBARU: actualiza checkpoint a "Completado" + commit + push (cierre)
+5. SUBARU: complete → commit "subaru: checkpoint <id> - completado" + push
 ```
 
-Regla de oro: **nunca un commit de implementación sin su blueprint previo en
-remoto.** El checkpoint es un plan de misión, no una bitácora.
+Regla de oro: **nunca un commit de implementación sin su blueprint previo en remoto.**
 
 ---
 
 ## 1. Contexto y Objetivo
 
-Implementar el **Protocolo de Resurrección Subaru como herramienta
-determinista** (CLI): que cualquier instancia de opencode en cualquier máquina
-pueda hacer `git pull`, leer el checkpoint y **retomar la misma tarea con el
-mismo plan en el paso exacto donde murió la anterior**. El checkpoint pasa a
-tener frontmatter YAML con estado máquina-legible, y el CLI gestiona el ciclo
-de vida completo. El propio CLI se usa como **self-demo**: gestiona su propia
-implementación (freeze → mark → complete).
+Refactorizar el **chrome del dashboard** de MIA: eliminar el ruido visual
+(barra superior saturada, sidebar fijo, orbe animado 24/7, acciones raras
+siempre visibles) y sustituirlo por **interacciones directas con el mouse**:
+menús contextuales por clic derecho, hovers inteligentes con delay y
+navegación por zonas activas. Estética oscura pulida (backdrop-blur, hairline,
+acento por módulo) sin parches CSS globales. Capa de presentación pura: no
+toca RLS, APIs, AI ni datos.
 
 ## 2. Blueprint de Ejecución (plan congelado pre-implementación)
 
 ### 2.1 Archivos exactos a tocar
 | Archivo | Acción | Detalle |
 |---------|--------|---------|
-| `workshop/subaru/lib.ts` | Crear | Helpers puros, cero I/O: `parseFrontmatter(content)` → `{data, body}`, `serializeCheckpoint(data, body)` → string con frontmatter YAML, `buildCommitMessage(taskId, state)`, `validateStep(n, total)`, `flipStepCheckbox(body, step)`. Frontmatter con claves EN: `task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated`. |
-| `workshop/subaru/cli.ts` | Crear | CLI sobre `docs/checkpoints/active-subaru-checkpoint.md`. Comandos: `freeze <id> --title <t> --steps <n> [--governance <id>]` (blueprint: escribe frontmatter, `git add <checkpoint>`, commit `subaru: checkpoint <id> - listo`, push; guard: no sobrescribir misión no-completada distinta sin `--force`), `mark <id> <step>` (state `in_progress`, tick checkbox, commit+push `- en-progreso`), `complete <id>` (state `completed`, commit+push `- completado`), `revive` (git pull --rebase + resumen + siguiente comando; flag `--no-pull`), `status` (leer y resumir), `bootstrap` (valida node/git remote y restaura el agente global desde `.agents/subaru.md`). Node builtins: `node:fs`, `node:path`, `node:os`, `node:child_process`. |
-| `workshop/subaru/lib.test.ts` | Crear | Unit tests de `parseFrontmatter` (con y sin frontmatter), `serializeCheckpoint` (round-trip), `buildCommitMessage` (4 estados), `validateStep`, `flipStepCheckbox`. |
-| `.agents/subaru.md` | Crear | Espejo en repo de la definición del agente (restaurable vía `bootstrap` en cualquier máquina). |
-| `~/.config/opencode/agent/subaru.md` | Modificar | Agente global: delegar en el CLI (comandos exactos) + ciclo de vida del checkpoint. |
-| `AGENTS.md` | Modificar | Nueva sección "24. Protocolo de Resurrección Subaru (Multi-máquina)". |
-| `package.json` | Modificar | Script npm `"subaru": "tsx workshop/subaru/cli.ts"`. |
-| `docs/checkpoints/active-subaru-checkpoint.md` | Modificar | Este archivo: frontmatter (vía freeze) + cuerpo del plan. |
+| `src/components/ui/context-menu.tsx` | Crear | `ContextMenuProvider` (estado global, capa en portal al body) + `useContextMenu()` → `{ openMenu(items, e), closeMenu() }` + `ContextMenuPanel` glass (backdrop-blur, hairline `--atmosphere-border`, acento `--module-accent`, radii `--mod-radius-*`, ease `--mod-ease-premium`). Intercepta `onContextMenu` con `preventDefault`, posiciona en `fixed` con clamp al viewport, cierra en pointerdown-fuera / Escape / scroll / resize / blur. Items: `ContextMenuItem` (icono+label+atajo, hover con acento), `ContextMenuSeparator`, `ContextMenuLabel`. Navegación por teclado: ArrowUp/Down, Enter, Escape, Home/End. |
+| `src/lib/hooks/use-hover-intent.ts` | Crear | Hook reutilizable: `useHoverIntent(delayMs = 120)` → `{ hoverProps, intent }`; `intent` pasa a `true` tras mantener el pointer `delayMs` (evita reveal saltarines al pasar rápido). |
+| `src/components/dashboard/ActivityRail.tsx` | Crear | Reemplaza `Sidebar.tsx`. Rail de iconos `w-16` que se expande al hover a `w-64` (CSS width + `--mod-ease-premium`). Grupos como zonas (hairline separador, label de grupo visible solo al expandir). Ítem activo: barra indicadora izquierda + acento del módulo. Logo/ajustes: clic derecho sobre el rail abre menú contextual con navegación rápida (todas las secciones) y ajustes (connections/assistants/health/accessibility). Usa `useHoverIntent` para no expandir en hovers accidentales y `useContextMenu` para el power-nav. |
+| `src/components/dashboard/CommandStrip.tsx` | Crear | Reemplaza `TopBar.tsx`. Franja transparente (sin fondo ni borde saturados): chip de módulo compacto (icono+label, hover muestra descripción vía tooltip) + campana de señales. Tema e idioma **ya no son botones**: clic derecho sobre el chip abre menú contextual (tema claro/oscuro, idioma con check, toggle de panel de señales). |
+| `src/components/dashboard/MIAIndicator.tsx` | Modificar | De orbe fijo con texto+anillos+pulso a un **ember silencioso**: punto pequeño bottom-right, opacidad baja por defecto, **sin texto ni anillos ni animación en reposo**. Al hover: florece en un glass tooltip ("Estoy aquí · Acompañando tu negocio"). Clic derecho: menú contextual de presencia (cambiar estado activo/learning/paused, ir a salud). Respeta `prefers-reduced-motion`. |
+| `src/app/dashboard/layout.tsx` | Modificar | Envolver con `<ContextMenuProvider>`; `Sidebar`→`ActivityRail`; `TopBar`→`CommandStrip`. |
 
 ### 2.2 Pasos atómicos
-- [x] **Paso 1:** Gobernanza: clasificar tarea y aprobación del concilio (TASK-20260809-233611402).
-- [x] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar (plan atómico + comandos de validación).
-- [x] **Paso 3:** Crear `workshop/subaru/lib.ts` + `cli.ts` + `lib.test.ts` (mínimo viable).
-- [ ] **Paso 4 (SUBARU self-demo):** `freeze` → frontmatter + commit `subaru: checkpoint subaru-cli - listo` + push (el primer commit del sprint es el blueprint).
-- [x] **Paso 5:** Integración: `.agents/subaru.md`, agente global, sección AGENTS.md, script npm `subaru`.
-- [x] **Paso 6:** Gates de calidad (comandos abajo) + smoke del CLI (`status`, `revive --no-pull`, `bootstrap`).
-- [ ] **Paso 7 (SUBARU self-demo):** `mark` pasos + `complete` → commit `subaru: checkpoint subaru-cli - completado` + push + reporte con comando de resurrección.
+- [x] **Paso 1:** Gobernanza: clasificar + concilio aprobar (TASK-20260810-002545865).
+- [x] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar.
+- [ ] **Paso 3:** Crear primitivas: `context-menu.tsx` + `use-hover-intent.ts`.
+- [ ] **Paso 4:** Crear `ActivityRail.tsx` (rail expansible + power-nav por clic derecho).
+- [ ] **Paso 5:** Crear `CommandStrip.tsx` + refactor de `MIAIndicator.tsx` (ember silencioso).
+- [ ] **Paso 6:** Wiring en `dashboard/layout.tsx` (provider + rail + strip).
+- [ ] **Paso 7:** Gates (comandos abajo) + DevTools (interacciones: clic derecho, hover, keyboard).
+- [ ] **Paso 8 (SUBARU):** `complete` → commit `subaru: checkpoint quiet-chrome - completado` + push + reporte.
 
 ### 2.3 Comandos de validación obligatorios
 ```
@@ -74,19 +71,14 @@ npm run lint
 npm run build
 npm run test:unit
 npm test
-npx tsx workshop/subaru/cli.ts status
-npx tsx workshop/subaru/cli.ts revive --no-pull
-npx tsx workshop/subaru/cli.ts bootstrap
+# Chrome DevTools MCP: abrir dashboard → clic derecho en rail/chip/ember →
+# menús glass visibles, posicionados, sin desbordes; Escape cierra; sin errores de consola.
 ```
 
-## 3. Evidencia de Ejecución
-- **Self-demo del ciclo completo:** `freeze` (blueprint, commit `08bf7f5`) → `mark 3/4/5` (commits `b147329`, `816ce47`, `f023768`) → push rechazado en `mark 5` resuelto con `git pull --rebase` (verifica rule 24.3.4).
-- **Archivos:** `workshop/subaru/lib.ts` (helpers puros), `workshop/subaru/cli.ts` (6 comandos), `workshop/subaru/lib.test.ts` (10 tests), `.agents/subaru.md` (espejo), agente global actualizado, `AGENTS.md` sección 24, script npm `subaru`, proyecto vitest `workshop`.
-- **Gates:** lint 0/0 · build OK · unit 502 ✓ (492 previos + 10 nuevos) · e2e 66 ✓ (2 skipped) · DevTools sin errores de consola · smoke: `status` (5/7), `revive --no-pull` (sugiere Paso 6), `bootstrap` (node v24.19.0, remote OK, agente global presente).
-- **Manifest:** `.governance/tasks/TASK-20260809-233611402.json` (approved por 7 agentes).
+## 3. Evidencia de Ejecución (se llena al cierre)
+- Gates, commits, manifest y verificación de interacciones.
 
 ## 4. Comando de Resurrección (una línea)
 ```
-git -C C:\Users\david\mia pull origin main
+git -C C:\Users\david\mia pull origin main && npx tsx workshop/subaru/cli.ts revive
 ```
-En Linux/macOS: `git -C ~/mia pull origin main`. Luego: `npx tsx workshop/subaru/cli.ts revive`.
