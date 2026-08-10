@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `5c66ce2`.
+> Fuente de verdad: este repositorio en `30485ab`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `5c66ce2` |
+| **Commit HEAD** | `30485ab` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T20:37:45-06:00 |
+| **Generado** | 2026-08-09T22:46:08-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (66)**:
+**Tareas registradas (67)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -637,6 +637,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-011350200 | Ghost UI context menu en MIAInbox (reutilizando context-menu.tsx) | completed |
 | TASK-20260810-015658359 | Fix hydration mismatch en AppLayout por lectura de localStorage en estado inicial | completed |
 | TASK-20260810-020352435 | Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu | completed |
+| TASK-20260810-044135422 | Sidebar refine: posicion Settings, hover intent con grace period, purga verde legacy + Quiet Chrome | completed |
 
 ---
 
@@ -681,6 +682,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+30485ab fix: refinar sidebar ActivityRail (settings, hover grace period, Quiet Chrome)
+d9d1ad5 docs: regenerate MASTER.md at 5c66ce2
 5c66ce2 fix: hydration mismatch timezone en WeeklyReportCard (timeZone UTC)
 fed7342 docs: regenerate MASTER.md at 90e5a2f
 90e5a2f chore: governance artifacts dashboard-quiet-chrome completed
@@ -699,8 +702,6 @@ b4c413e docs: regenerate MASTER.md at 09e29be
 09e29be fix: hydration mismatch en AppLayout por lectura de localStorage en estado inicial
 36fa083 docs: regenerate MASTER.md at 666fe3c
 666fe3c feat: ghost ui context menu en MIAInbox reutilizando context-menu.tsx
-2e4e479 docs: regenerate MASTER.md at 63adbbc
-63adbbc feat: quiet chrome - inbox glass con tokens y zonas activas en home
 ```
 
 ---
