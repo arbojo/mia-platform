@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `90e5a2f`.
+> Fuente de verdad: este repositorio en `5c66ce2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `90e5a2f` |
+| **Commit HEAD** | `5c66ce2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T20:25:21-06:00 |
+| **Generado** | 2026-08-09T20:37:45-06:00 |
 
 ---
 
@@ -681,6 +681,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+5c66ce2 fix: hydration mismatch timezone en WeeklyReportCard (timeZone UTC)
+fed7342 docs: regenerate MASTER.md at 90e5a2f
 90e5a2f chore: governance artifacts dashboard-quiet-chrome completed
 9cbb6be docs: regenerate MASTER.md at 02638a6
 02638a6 subaru: checkpoint dashboard-quiet-chrome - completado
@@ -699,8 +701,6 @@ b4c413e docs: regenerate MASTER.md at 09e29be
 666fe3c feat: ghost ui context menu en MIAInbox reutilizando context-menu.tsx
 2e4e479 docs: regenerate MASTER.md at 63adbbc
 63adbbc feat: quiet chrome - inbox glass con tokens y zonas activas en home
-fe1d362 docs: regenerate MASTER.md at 25cbd82
-25cbd82 chore: governance task TASK-20260810-002545865 (quiet-chrome) completada
 ```
 
 ---
