@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260810-011350200",
+  "title": "Ghost UI context menu en MIAInbox (reutilizando context-menu.tsx)",
+  "description": "Integrar el sistema de menu contextual de clic derecho existente (src/components/ui/context-menu.tsx, useContextMenu + ContextMenuProvider) en las tarjetas de senales de MIAInbox: cada senal gana onContextMenu con acciones contextuales (Marcar como resuelta via PATCH /api/signals/[id], Abrir conversacion si action_available === open_conversation), eliminando el boton flotante redundante de Check por senal. Se reutiliza la infraestructura existente (preventDefault+stopPropagation, listeners globales pointerdown/scroll/keydown con cleanup, portal, clamp de viewport, teclado, estetica Quiet Chrome con tokens) sin duplicar hook ni componente. Sin cambios de schema, sin cambios de comportamiento de AI, sin implicaciones de seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "feature"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: reutiliza el sistema existente context-menu.tsx (sin duplicacion), integra menu contextual en MIAInbox, elimina boton redundante, sin schema/AI/security.",
+      "timestamp": "2026-08-10T01:14:07.392Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: reutiliza el sistema existente context-menu.tsx (sin duplicacion), integra menu contextual en MIAInbox, elimina boton redundante, sin schema/AI/security.",
+      "timestamp": "2026-08-10T01:14:07.395Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: reutiliza el sistema existente context-menu.tsx (sin duplicacion), integra menu contextual en MIAInbox, elimina boton redundante, sin schema/AI/security.",
+      "timestamp": "2026-08-10T01:14:07.396Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: reutiliza el sistema existente context-menu.tsx (sin duplicacion), integra menu contextual en MIAInbox, elimina boton redundante, sin schema/AI/security.",
+      "timestamp": "2026-08-10T01:14:07.398Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: reutiliza el sistema existente context-menu.tsx (sin duplicacion), integra menu contextual en MIAInbox, elimina boton redundante, sin schema/AI/security.",
+      "timestamp": "2026-08-10T01:14:07.399Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: reutiliza el sistema existente context-menu.tsx (sin duplicacion), integra menu contextual en MIAInbox, elimina boton redundante, sin schema/AI/security.",
+      "timestamp": "2026-08-10T01:14:07.400Z"
+    }
+  ],
+  "createdAt": "2026-08-10T01:13:50.961Z",
+  "classifiedAt": "2026-08-10T01:13:50.961Z",
+  "approvedAt": "2026-08-10T01:14:07.400Z",
+  "startedAt": "2026-08-10T01:14:18.954Z",
+  "completedAt": "2026-08-10T01:27:48.433Z"
+}

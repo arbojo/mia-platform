@@ -1,7 +1,13 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { X, Sparkles, Bell, Check } from 'lucide-react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
+import { useRouter } from 'next/navigation'
+import { X, Sparkles, Bell, Check, MessageSquare } from 'lucide-react'
+import {
+  useContextMenu,
+  type ContextMenuItems,
+} from '@/components/ui/context-menu'
 
 interface Signal {
   id: string
@@ -34,6 +40,8 @@ export function MIAInbox({
   const [signals, setSignals] = useState<Signal[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { openMenu } = useContextMenu()
+  const router = useRouter()
 
   const loadSignals = useCallback(async (): Promise<Signal[]> => {
     const res = await fetch('/api/signals?status=pending&limit=20')
@@ -82,6 +90,29 @@ export function MIAInbox({
     if (res.ok) {
       setSignals((prev) => prev.filter((s) => s.id !== id))
     }
+  }
+
+  const openSignalMenu = (e: ReactMouseEvent, signal: Signal) => {
+    const payload = signal.action_payload as { conversation_id?: string | null } | null
+    const items: ContextMenuItems = [
+      { label: signal.title, heading: true },
+      signal.action_available === 'open_conversation' && payload?.conversation_id
+        ? {
+            label: 'Abrir conversación',
+            icon: MessageSquare,
+            onSelect: () => {
+              router.push(`/dashboard/conversations/${payload.conversation_id}`)
+            },
+          }
+        : null,
+      'separator',
+      {
+        label: 'Marcar como resuelta',
+        icon: Check,
+        onSelect: () => dismissSignal(signal.id),
+      },
+    ].filter((item) => item !== null) as ContextMenuItems
+    openMenu(e, items)
   }
 
   if (!open) return null
@@ -161,7 +192,8 @@ export function MIAInbox({
               return (
                 <div
                   key={signal.id}
-                  className="rounded-xl border p-3 transition-colors duration-200"
+                  onContextMenu={(e) => openSignalMenu(e, signal)}
+                  className="cursor-context-menu rounded-xl border p-3 transition-colors duration-200"
                   style={{
                     borderColor: 'var(--atmosphere-border)',
                     backgroundColor: 'color-mix(in srgb, var(--module-accent-softer) 35%, transparent)',
@@ -191,17 +223,6 @@ export function MIAInbox({
                         {new Date(signal.created_at).toLocaleString()}
                       </p>
                     </div>
-                    <button
-                      onClick={() => dismissSignal(signal.id)}
-                      aria-label="Marcar como resuelta"
-                      className="rounded-md p-1 transition-colors duration-200"
-                      style={{
-                        color: 'var(--atmosphere-text-secondary)',
-                        backgroundColor: 'transparent',
-                      }}
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                    </button>
                   </div>
                 </div>
               )
