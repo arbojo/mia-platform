@@ -1,14 +1,14 @@
 ---
 task_id: quiet-chrome
 title: MIA Quiet Chrome: contexto por clic derecho y zonas activas
-state: in_progress
-current_step: 7
+state: completed
+current_step: 8
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260810-002545865
 created: 2026-08-10T00:26:42.754Z
-updated: 2026-08-10T00:42:04.438Z
+updated: 2026-08-10T00:42:16.566Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
