@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `51c9940`.
+> Fuente de verdad: este repositorio en `93a5f9a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `51c9940` |
+| **Commit HEAD** | `93a5f9a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T17:48:07-06:00 |
+| **Generado** | 2026-08-09T18:26:54-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (61)**:
+**Tareas registradas (62)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -633,6 +633,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-222311495 | Fix hydration mismatch en pagina del widget | completed |
 | TASK-20260809-231109825 | Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul) | completed |
 | TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | completed |
+| TASK-20260810-002545865 | MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas | in_progress |
 
 ---
 
@@ -677,6 +678,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+93a5f9a subaru: checkpoint quiet-chrome - listo
+73cafda chore: governance task TASK-20260810-002545865 (quiet-chrome)
+35f33c6 docs: regenerate MASTER.md at 51c9940
 51c9940 chore: governance log subaru-cli completed
 26769ab subaru: checkpoint subaru-cli - completado
 60d5a23 subaru: checkpoint subaru-cli - en-progreso
@@ -694,9 +698,6 @@ e66e8a2 subaru: checkpoint mia-vestido-azul - protocolo-corregido
 ebb65ab subaru: checkpoint mia-vestido-azul - listo
 af80ab7 docs: regenerate MASTER.md at f01e936
 f01e936 subaru: checkpoint subaru-agent-concilio - completado
-3982625 docs: regenerate MASTER.md at 9584d0a
-9584d0a subaru: checkpoint subaru-agent-concilio - listo para ejecucion
-fabd1cd docs: regenerate MASTER.md at 1b8b26a
 ```
 
 ---
