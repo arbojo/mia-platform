@@ -1,6 +1,11 @@
 'use client'
 
-import { createContext, useCallback, useContext, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useSyncExternalStore,
+} from 'react'
 import { usePathname } from 'next/navigation'
 import { useTheme } from '@/components/dashboard/ThemeProvider'
 import { Package, ShoppingBag, Truck, type LucideIcon } from 'lucide-react'
@@ -38,20 +43,38 @@ function isModuleKey(value: string | null): value is ModuleKey {
   return value === 'sales' || value === 'inventory' || value === 'logistics'
 }
 
+const moduleListeners = new Set<() => void>()
+
+function subscribe(callback: () => void): () => void {
+  moduleListeners.add(callback)
+  return () => {
+    moduleListeners.delete(callback)
+  }
+}
+
+function getModuleSnapshot(): ModuleKey | null {
+  const stored = localStorage.getItem('mia-module')
+  return isModuleKey(stored) ? stored : null
+}
+
+function getServerSnapshot(): ModuleKey | null {
+  return null
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme()
   const pathname = usePathname()
-  const [manual, setManual] = useState<ModuleKey | null>(() => {
-    if (typeof window === 'undefined') return null
-    const stored = localStorage.getItem('mia-module')
-    return isModuleKey(stored) ? stored : null
-  })
+  const manual = useSyncExternalStore(
+    subscribe,
+    getModuleSnapshot,
+    getServerSnapshot
+  )
 
   const activeModule: ModuleKey = manual ?? detectModule(pathname)
 
   const selectModule = useCallback((m: ModuleKey) => {
-    setManual(m)
     localStorage.setItem('mia-module', m)
+    moduleListeners.forEach((listener) => listener())
   }, [])
 
   return (

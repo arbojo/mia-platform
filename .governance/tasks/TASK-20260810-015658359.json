@@ -1,0 +1,39 @@
+{
+  "id": "TASK-20260810-015658359",
+  "title": "Fix hydration mismatch en AppLayout por lectura de localStorage en estado inicial",
+  "description": "AppLayout.tsx lee localStorage.getItem(\"mia-module\") dentro del initializer de useState. En el server ese codigo devuelve null (typeof window === undefined), pero en el primer render del cliente devuelve el modulo almacenado (ej. logistics), causando hydration mismatch (React #418) porque el server renderizo detectModule() -> sales. Fix estandar SSR-safe: mover la lectura de localStorage a un useEffect que corre despues del mount (setManual), dejando el estado inicial en null para que server y cliente rendericen identico. Sin cambios de schema, sin cambios de comportamiento de AI, sin implicaciones de seguridad.",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): backend, frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-10T01:56:58.335Z",
+  "classifiedAt": "2026-08-10T01:56:58.335Z",
+  "approvedAt": "2026-08-10T01:56:58.335Z",
+  "startedAt": "2026-08-10T01:57:11.749Z",
+  "completedAt": "2026-08-10T02:01:16.775Z"
+}
