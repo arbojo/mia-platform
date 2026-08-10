@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3f8bad3`.
+> Fuente de verdad: este repositorio en `02638a6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3f8bad3` |
+| **Commit HEAD** | `02638a6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T20:05:30-06:00 |
+| **Generado** | 2026-08-09T20:24:08-06:00 |
 
 ---
 
@@ -681,6 +681,14 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+02638a6 subaru: checkpoint dashboard-quiet-chrome - completado
+f65e491 subaru: checkpoint dashboard-quiet-chrome - en-progreso
+218a119 subaru: checkpoint dashboard-quiet-chrome - en-progreso
+cf0b1e5 subaru: checkpoint dashboard-quiet-chrome - en-progreso
+0164ec9 subaru: checkpoint dashboard-quiet-chrome - en-progreso
+eb61e2b subaru: checkpoint dashboard-quiet-chrome - en-progreso
+098f17b feat: migrar Dashboard a Quiet Chrome glass atmosferico + ghost UI
+acba597 docs: regenerate MASTER.md at 3f8bad3
 3f8bad3 chore: governance artifacts dashboard-quiet-chrome
 9e7b0ff subaru: checkpoint dashboard-quiet-chrome - listo
 b4c413e docs: regenerate MASTER.md at 09e29be
@@ -693,14 +701,6 @@ fe1d362 docs: regenerate MASTER.md at 25cbd82
 25cbd82 chore: governance task TASK-20260810-002545865 (quiet-chrome) completada
 3dca391 subaru: checkpoint quiet-chrome - completado
 56aca3c subaru: checkpoint quiet-chrome - en-progreso
-feb0e99 subaru: checkpoint quiet-chrome - en-progreso
-bd37996 subaru: checkpoint quiet-chrome - en-progreso
-12a623a subaru: checkpoint quiet-chrome - en-progreso
-fef9f43 subaru: checkpoint quiet-chrome - en-progreso
-142f9e0 feat: quiet chrome - contexto por clic derecho, rail de zonas activas y ember silencioso
-1c0ead4 docs: regenerate MASTER.md at 93a5f9a
-93a5f9a subaru: checkpoint quiet-chrome - listo
-73cafda chore: governance task TASK-20260810-002545865 (quiet-chrome)
 ```
 
 ---
