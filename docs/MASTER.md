@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `93a5f9a`.
+> Fuente de verdad: este repositorio en `25cbd82`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `93a5f9a` |
+| **Commit HEAD** | `25cbd82` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T18:26:54-06:00 |
+| **Generado** | 2026-08-09T18:42:40-06:00 |
 
 ---
 
@@ -334,7 +334,7 @@ widget
 
 ## 9. Componentes
 
-111 componentes en `src/components/`:
+109 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -358,14 +358,15 @@ conversations/ConversationList.tsx
 customers/MemoryPanel.tsx
 dashboard/AIOperationsCard.tsx
 dashboard/AccessibilityProvider.tsx
+dashboard/ActivityRail.tsx
 dashboard/AtmosphereProvider.tsx
 dashboard/BusinessHealth.tsx
 dashboard/CelebrateProgress.tsx
+dashboard/CommandStrip.tsx
 dashboard/ConversationTimeline.tsx
 dashboard/DailyReport.tsx
 dashboard/EmployeeStatusCard.tsx
 dashboard/I18nProvider.tsx
-dashboard/LanguageSelector.tsx
 dashboard/LearningTimeline.tsx
 dashboard/MIAIndicator.tsx
 dashboard/MIAReadiness.tsx
@@ -380,12 +381,9 @@ dashboard/ProductIntelligenceCard.tsx
 dashboard/QuickActions.tsx
 dashboard/RulesManager.tsx
 dashboard/SalesMetricsCard.tsx
-dashboard/Sidebar.tsx
 dashboard/SkillsDisplay.tsx
 dashboard/ThemeProvider.tsx
-dashboard/ThemeToggle.tsx
 dashboard/TodaysActivity.tsx
-dashboard/TopBar.tsx
 dashboard/VitalPresence.tsx
 dashboard/WeeklyReportCard.tsx
 delivery/DeliveryAdmin.tsx
@@ -454,7 +452,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-93 módulos:
+94 módulos:
 
 ```
 ai/client.ts
@@ -500,6 +498,7 @@ delivery/request.ts
 delivery/token.ts
 delivery/types.ts
 delivery/whatsapp.ts
+hooks/use-hover-intent.ts
 i18n/config.ts
 i18n/dictionaries/en.ts
 i18n/dictionaries/es.ts
@@ -633,7 +632,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-222311495 | Fix hydration mismatch en pagina del widget | completed |
 | TASK-20260809-231109825 | Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul) | completed |
 | TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | completed |
-| TASK-20260810-002545865 | MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas | in_progress |
+| TASK-20260810-002545865 | MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas | completed |
 
 ---
 
@@ -678,6 +677,15 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+25cbd82 chore: governance task TASK-20260810-002545865 (quiet-chrome) completada
+3dca391 subaru: checkpoint quiet-chrome - completado
+56aca3c subaru: checkpoint quiet-chrome - en-progreso
+feb0e99 subaru: checkpoint quiet-chrome - en-progreso
+bd37996 subaru: checkpoint quiet-chrome - en-progreso
+12a623a subaru: checkpoint quiet-chrome - en-progreso
+fef9f43 subaru: checkpoint quiet-chrome - en-progreso
+142f9e0 feat: quiet chrome - contexto por clic derecho, rail de zonas activas y ember silencioso
+1c0ead4 docs: regenerate MASTER.md at 93a5f9a
 93a5f9a subaru: checkpoint quiet-chrome - listo
 73cafda chore: governance task TASK-20260810-002545865 (quiet-chrome)
 35f33c6 docs: regenerate MASTER.md at 51c9940
@@ -689,15 +697,6 @@ f023768 subaru: checkpoint subaru-cli - en-progreso
 56b3c5f feat: Subaru CLI para resurrección multi-máquina de tareas
 0d65765 docs: regenerate MASTER.md at 816ce47
 816ce47 subaru: checkpoint subaru-cli - en-progreso
-b147329 subaru: checkpoint subaru-cli - en-progreso
-08bf7f5 subaru: checkpoint subaru-cli - listo
-3f190e3 chore: governance task TASK-20260809-233611402 (subaru-cli)
-7c70b9d docs: regenerate MASTER.md at e66e8a2
-e66e8a2 subaru: checkpoint mia-vestido-azul - protocolo-corregido
-65003e0 docs: regenerate MASTER.md at ebb65ab
-ebb65ab subaru: checkpoint mia-vestido-azul - listo
-af80ab7 docs: regenerate MASTER.md at f01e936
-f01e936 subaru: checkpoint subaru-agent-concilio - completado
 ```
 
 ---
