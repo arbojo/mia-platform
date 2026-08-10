@@ -1,14 +1,14 @@
 ---
 task_id: dashboard-quiet-chrome
 title: Dashboard Quiet Chrome: glass atmosferico + ghost UI
-state: blueprint_ready
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260810-020352435
 created: 2026-08-10T00:26:42.754Z
-updated: 2026-08-10T02:04:53.862Z
+updated: 2026-08-10T02:22:23.311Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
