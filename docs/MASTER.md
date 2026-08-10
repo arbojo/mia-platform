@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `09e29be`.
+> Fuente de verdad: este repositorio en `3f8bad3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `09e29be` |
+| **Commit HEAD** | `3f8bad3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T20:01:35-06:00 |
+| **Generado** | 2026-08-09T20:05:30-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (65)**:
+**Tareas registradas (66)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -636,6 +636,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-005415049 | quiet chrome: inbox glass y zonas activas en home | completed |
 | TASK-20260810-011350200 | Ghost UI context menu en MIAInbox (reutilizando context-menu.tsx) | completed |
 | TASK-20260810-015658359 | Fix hydration mismatch en AppLayout por lectura de localStorage en estado inicial | completed |
+| TASK-20260810-020352435 | Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu | in_progress |
 
 ---
 
@@ -680,6 +681,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+3f8bad3 chore: governance artifacts dashboard-quiet-chrome
+9e7b0ff subaru: checkpoint dashboard-quiet-chrome - listo
+b4c413e docs: regenerate MASTER.md at 09e29be
 09e29be fix: hydration mismatch en AppLayout por lectura de localStorage en estado inicial
 36fa083 docs: regenerate MASTER.md at 666fe3c
 666fe3c feat: ghost ui context menu en MIAInbox reutilizando context-menu.tsx
@@ -697,9 +701,6 @@ fef9f43 subaru: checkpoint quiet-chrome - en-progreso
 1c0ead4 docs: regenerate MASTER.md at 93a5f9a
 93a5f9a subaru: checkpoint quiet-chrome - listo
 73cafda chore: governance task TASK-20260810-002545865 (quiet-chrome)
-35f33c6 docs: regenerate MASTER.md at 51c9940
-51c9940 chore: governance log subaru-cli completed
-26769ab subaru: checkpoint subaru-cli - completado
 ```
 
 ---
