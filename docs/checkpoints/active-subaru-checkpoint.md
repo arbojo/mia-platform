@@ -1,14 +1,14 @@
 ---
 task_id: quiet-chrome
 title: MIA Quiet Chrome: contexto por clic derecho y zonas activas
-state: blueprint_ready
-current_step: 0
+state: in_progress
+current_step: 3
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260810-002545865
 created: 2026-08-10T00:26:42.754Z
-updated: 2026-08-10T00:26:42.754Z
+updated: 2026-08-10T00:41:36.272Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -58,7 +58,7 @@ toca RLS, APIs, AI ni datos.
 ### 2.2 Pasos atómicos
 - [x] **Paso 1:** Gobernanza: clasificar + concilio aprobar (TASK-20260810-002545865).
 - [x] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar.
-- [ ] **Paso 3:** Crear primitivas: `context-menu.tsx` + `use-hover-intent.ts`.
+- [x] **Paso 3:** Crear primitivas: `context-menu.tsx` + `use-hover-intent.ts`.
 - [ ] **Paso 4:** Crear `ActivityRail.tsx` (rail expansible + power-nav por clic derecho).
 - [ ] **Paso 5:** Crear `CommandStrip.tsx` + refactor de `MIAIndicator.tsx` (ember silencioso).
 - [ ] **Paso 6:** Wiring en `dashboard/layout.tsx` (provider + rail + strip).
