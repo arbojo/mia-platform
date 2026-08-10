@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `25cbd82`.
+> Fuente de verdad: este repositorio en `63adbbc`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `25cbd82` |
+| **Commit HEAD** | `63adbbc` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T18:42:40-06:00 |
+| **Generado** | 2026-08-09T19:03:18-06:00 |
 
 ---
 
@@ -370,7 +370,7 @@ dashboard/I18nProvider.tsx
 dashboard/LearningTimeline.tsx
 dashboard/MIAIndicator.tsx
 dashboard/MIAReadiness.tsx
-dashboard/ModuleCard.tsx
+dashboard/ModuleZone.tsx
 dashboard/MorningGreeting.tsx
 dashboard/MotivationBanner.tsx
 dashboard/NeedsFromYou.tsx
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (62)**:
+**Tareas registradas (63)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -633,6 +633,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260809-231109825 | Sistema de diseño modular MIA con tema claro/oscuro y contexto por módulo (Vestido Azul) | completed |
 | TASK-20260809-233611402 | Subaru CLI: resurrección multi-máquina de tareas | completed |
 | TASK-20260810-002545865 | MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas | completed |
+| TASK-20260810-005415049 | quiet chrome: inbox glass y zonas activas en home | completed |
 
 ---
 
@@ -677,6 +678,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+63adbbc feat: quiet chrome - inbox glass con tokens y zonas activas en home
+fe1d362 docs: regenerate MASTER.md at 25cbd82
 25cbd82 chore: governance task TASK-20260810-002545865 (quiet-chrome) completada
 3dca391 subaru: checkpoint quiet-chrome - completado
 56aca3c subaru: checkpoint quiet-chrome - en-progreso
@@ -695,8 +698,6 @@ fef9f43 subaru: checkpoint quiet-chrome - en-progreso
 fce2a2b docs: regenerate MASTER.md at f023768
 f023768 subaru: checkpoint subaru-cli - en-progreso
 56b3c5f feat: Subaru CLI para resurrección multi-máquina de tareas
-0d65765 docs: regenerate MASTER.md at 816ce47
-816ce47 subaru: checkpoint subaru-cli - en-progreso
 ```
 
 ---
