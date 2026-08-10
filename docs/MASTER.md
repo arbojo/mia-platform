@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `02638a6`.
+> Fuente de verdad: este repositorio en `90e5a2f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `02638a6` |
+| **Commit HEAD** | `90e5a2f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T20:24:08-06:00 |
+| **Generado** | 2026-08-09T20:25:21-06:00 |
 
 ---
 
@@ -636,7 +636,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-005415049 | quiet chrome: inbox glass y zonas activas en home | completed |
 | TASK-20260810-011350200 | Ghost UI context menu en MIAInbox (reutilizando context-menu.tsx) | completed |
 | TASK-20260810-015658359 | Fix hydration mismatch en AppLayout por lectura de localStorage en estado inicial | completed |
-| TASK-20260810-020352435 | Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu | in_progress |
+| TASK-20260810-020352435 | Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu | completed |
 
 ---
 
@@ -681,6 +681,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+90e5a2f chore: governance artifacts dashboard-quiet-chrome completed
+9cbb6be docs: regenerate MASTER.md at 02638a6
 02638a6 subaru: checkpoint dashboard-quiet-chrome - completado
 f65e491 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 218a119 subaru: checkpoint dashboard-quiet-chrome - en-progreso
@@ -699,8 +701,6 @@ b4c413e docs: regenerate MASTER.md at 09e29be
 63adbbc feat: quiet chrome - inbox glass con tokens y zonas activas en home
 fe1d362 docs: regenerate MASTER.md at 25cbd82
 25cbd82 chore: governance task TASK-20260810-002545865 (quiet-chrome) completada
-3dca391 subaru: checkpoint quiet-chrome - completado
-56aca3c subaru: checkpoint quiet-chrome - en-progreso
 ```
 
 ---
