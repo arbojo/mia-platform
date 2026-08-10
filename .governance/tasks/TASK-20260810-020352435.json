@@ -1,0 +1,82 @@
+{
+  "id": "TASK-20260810-020352435",
+  "title": "Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu",
+  "description": "Migrar el Dashboard principal (page.tsx + VitalPresence, SalesMetricsCard, WeeklyReportCard, ConversationTimeline) al sistema de diseno Quiet Chrome: reemplazar --elevation-1/--shadow-card/rounded-2xl por glass real (color-mix con --atmosphere-bg 90%, backdrop-filter blur 24px saturate 1.4), hairline --atmosphere-border, glow 0 0 0 1px var(--module-accent-border) + 0 0 32px var(--module-glow-soft), radios --mod-radius-lg. Integrar useContextMenu (context-menu.tsx existente) en las tarjetas interactivas y delegar el boton estatico Generar del WeeklyReportCard al menu contextual. Reutiliza exclusivamente infraestructura existente; sin props inventadas; sin cambios de schema, AI ni seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "feature"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Glass atmosferico + ghost UI sobre infraestructura existente (context-menu.tsx, tokens). Sin props inventadas, sin regresiones.",
+      "timestamp": "2026-08-10T02:04:10.396Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Solo UI client-side; sin API, sin schema, sin AI. Zero riesgo backend.",
+      "timestamp": "2026-08-10T02:04:13.559Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Reemplaza patrones legacy por tokens Quiet Chrome validados en commit 63adbbc; ContextMenuProvider ya envuelve el dashboard.",
+      "timestamp": "2026-08-10T02:04:16.549Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit_tests, e2e_tests, chrome_devtools.",
+      "timestamp": "2026-08-10T02:04:19.404Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin cambios de schema ni secretos; commit atomico + push + deploy verificado.",
+      "timestamp": "2026-08-10T02:04:22.690Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documenta decision de migracion visual en ADR/checkpoint.",
+      "timestamp": "2026-08-10T02:04:25.398Z"
+    }
+  ],
+  "createdAt": "2026-08-10T02:03:52.625Z",
+  "classifiedAt": "2026-08-10T02:03:52.625Z",
+  "approvedAt": "2026-08-10T02:04:25.399Z",
+  "startedAt": "2026-08-10T02:04:39.774Z"
+}
