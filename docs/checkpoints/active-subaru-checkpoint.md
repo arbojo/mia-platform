@@ -1,14 +1,14 @@
 ---
-task_id: quiet-chrome
-title: MIA Quiet Chrome: contexto por clic derecho y zonas activas
-state: completed
-current_step: 8
-total_steps: 8
+task_id: dashboard-quiet-chrome
+title: Dashboard Quiet Chrome: glass atmosferico + ghost UI
+state: blueprint_ready
+current_step: 0
+total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
-governance_id: TASK-20260810-002545865
+governance_id: TASK-20260810-020352435
 created: 2026-08-10T00:26:42.754Z
-updated: 2026-08-10T00:42:16.566Z
+updated: 2026-08-10T02:04:53.862Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
