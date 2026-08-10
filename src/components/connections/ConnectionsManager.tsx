@@ -44,6 +44,18 @@ interface Assistant {
 
 type WaStatus = 'idle' | 'connecting' | 'connected' | 'error'
 
+const WA_CONNECT_TIMEOUT_MS = 60000
+const WA_FETCH_TIMEOUT_MS = 20000
+
+const channelCardStyle: React.CSSProperties = {
+  borderRadius: 'var(--mod-radius-lg)',
+  border: '1px solid var(--atmosphere-border)',
+  backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+  backdropFilter: 'blur(24px) saturate(1.4)',
+  WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+  boxShadow: '0 0 0 1px var(--module-accent-border), 0 0 24px var(--module-glow-soft)',
+}
+
 export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boolean }) {
   const [connections, setConnections] = useState<Connection[]>([])
   const [assistants, setAssistants] = useState<Assistant[]>([])
@@ -61,6 +73,12 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   const [waError, setWaError] = useState<string | null>(null)
   const [waAssistantId, setWaAssistantId] = useState('')
   const wsRef = useRef<WebSocket | null>(null)
+  const waTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const waStatusRef = useRef<WaStatus>('idle')
+
+  useEffect(() => {
+    waStatusRef.current = waStatus
+  }, [waStatus])
 
   const channels = [
     { id: 'web' as ChannelType, label: 'Chat Web', emoji: '\u{1F310}' },
@@ -116,16 +134,54 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     }
   }, [])
 
+  const clearWaTimeout = useCallback(() => {
+    if (waTimeoutRef.current) {
+      clearTimeout(waTimeoutRef.current)
+      waTimeoutRef.current = null
+    }
+  }, [])
+
+  const armWaTimeout = useCallback(() => {
+    clearWaTimeout()
+    waTimeoutRef.current = setTimeout(() => {
+      closeWs()
+      setWaError('La conexión con WhatsApp tardó demasiado. Reintenta.')
+      setWaStatus('error')
+      setWaQr(null)
+    }, WA_CONNECT_TIMEOUT_MS)
+  }, [clearWaTimeout, closeWs])
+
   useEffect(() => {
-    return () => closeWs()
-  }, [closeWs])
+    return () => {
+      closeWs()
+      clearWaTimeout()
+    }
+  }, [closeWs, clearWaTimeout])
+
+  async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), WA_FETCH_TIMEOUT_MS)
+    try {
+      return await fetch(url, { ...options, signal: controller.signal })
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  function cancelWhatsAppConnect() {
+    clearWaTimeout()
+    closeWs()
+    setWaQr(null)
+    setWaError(null)
+    setWaStatus('idle')
+  }
 
   async function handleCreate() {
     if (!businessId || !selectedChannel || !selectedAssistant) return
 
     setCreating(true)
     try {
-      const res = await fetch('/api/channels/connections', {
+      const res = await fetchWithTimeout('/api/channels/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,7 +205,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   async function handleDelete() {
     if (!deleteId) return
 
-    const res = await fetch('/api/channels/connections', {
+    const res = await fetchWithTimeout('/api/channels/connections', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ connectionId: deleteId }),
@@ -162,7 +218,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   }
 
   async function handleModeChange(connectionId: string, mode: 'active' | 'shadow' | 'paused') {
-    const res = await fetch('/api/channels/connections', {
+    const res = await fetchWithTimeout('/api/channels/connections', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ connectionId, mode }),
@@ -175,17 +231,20 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     }
   }
 
-  async function handleWhatsAppConnect() {
-    if (!businessId || !waAssistantId) return
+  async function handleWhatsAppConnect(assistantIdOverride?: string) {
+    if (!businessId) return
+    const assistantId = assistantIdOverride ?? waAssistantId
+    if (!assistantId) return
+
     setWaStatus('connecting')
     setWaQr(null)
     setWaError(null)
 
     try {
-      const sessionRes = await fetch('/api/channels/baileys/session', {
+      const sessionRes = await fetchWithTimeout('/api/channels/baileys/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ businessId, assistantId: waAssistantId }),
+        body: JSON.stringify({ businessId, assistantId }),
       })
 
       if (!sessionRes.ok) {
@@ -193,7 +252,9 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         throw new Error(err?.error ?? 'No se pudo iniciar la sesión de WhatsApp')
       }
 
-      const tokenRes = await fetch(`/api/channels/baileys/ws-token?businessId=${businessId}`)
+      const tokenRes = await fetchWithTimeout(
+        `/api/channels/baileys/ws-token?businessId=${businessId}`
+      )
       if (!tokenRes.ok) {
         throw new Error('No se pudo obtener el token de conexión')
       }
@@ -202,6 +263,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
       closeWs()
       const ws = new WebSocket(`${tokenData.wsUrl}?businessId=${businessId}&token=${tokenData.token}`)
       wsRef.current = ws
+      armWaTimeout()
 
       ws.onmessage = (event) => {
         const msg = JSON.parse(event.data) as {
@@ -216,27 +278,41 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         if (msg.type === 'qr') {
           setWaQr(msg.dataUrl ?? msg.qr ?? null)
           setWaStatus('connecting')
+          armWaTimeout()
         } else if (msg.type === 'status') {
           if (msg.status === 'connected') {
+            clearWaTimeout()
             setWaStatus('connected')
             setWaPhone(msg.phone ?? null)
             setWaQr(null)
             refreshConnections()
           } else if (msg.status === 'disconnected') {
+            clearWaTimeout()
             setWaStatus('idle')
             setWaQr(null)
           }
         } else if (msg.type === 'error') {
+          clearWaTimeout()
           setWaError(msg.message ?? 'Error de conexión')
           setWaStatus('error')
         }
       }
 
       ws.onerror = () => {
+        clearWaTimeout()
         setWaError('No se pudo conectar con el servicio de WhatsApp')
         setWaStatus('error')
       }
+
+      ws.onclose = () => {
+        clearWaTimeout()
+        if (waStatusRef.current !== 'connected') {
+          setWaError('Se perdió la conexión con el servicio de WhatsApp')
+          setWaStatus('error')
+        }
+      }
     } catch (error) {
+      clearWaTimeout()
       setWaError(error instanceof Error ? error.message : 'Error desconocido')
       setWaStatus('error')
     }
@@ -255,13 +331,14 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
 
   async function handleWhatsAppLogout() {
     if (!businessId) return
+    clearWaTimeout()
+    closeWs()
     setWaStatus('idle')
     setWaQr(null)
     setWaPhone(null)
     setWaError(null)
-    closeWs()
 
-    const res = await fetch('/api/channels/baileys/session', {
+    const res = await fetchWithTimeout('/api/channels/baileys/session', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ businessId }),
@@ -278,20 +355,22 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   const waSessionPersisted = connections.some((c) => c.channel === 'whatsapp')
 
   if (loading) {
-    return <div className="text-muted-foreground py-8 text-center">Cargando conexiones...</div>
+    return <div className="py-8 text-center text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>Cargando conexiones...</div>
   }
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card style={channelCardStyle}>
         <CardHeader>
-          <CardTitle>Agregar canal</CardTitle>
-          <CardDescription>Conecta un nuevo canal de comunicacion</CardDescription>
+          <CardTitle style={{ color: 'var(--atmosphere-text)' }}>Agregar canal</CardTitle>
+          <CardDescription style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            Conecta un nuevo canal de comunicacion
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-3 items-end">
             <div className="flex-1">
-              <label className="text-sm font-medium mb-1 block">Canal</label>
+              <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>Canal</label>
               <Select value={selectedChannel} onValueChange={(v) => setSelectedChannel(v as ChannelType)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar canal" />
@@ -306,7 +385,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
               </Select>
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium mb-1 block">Asistente</label>
+              <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>Asistente</label>
               <Select value={selectedAssistant} onValueChange={(v) => setSelectedAssistant(v ?? '')}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar asistente" />
@@ -328,17 +407,17 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
       </Card>
 
       {whatsAppEnabled && (
-        <Card>
+        <Card style={channelCardStyle}>
           <CardHeader>
-            <CardTitle>WhatsApp (Baileys)</CardTitle>
-            <CardDescription>
+            <CardTitle style={{ color: 'var(--atmosphere-text)' }}>WhatsApp (Baileys)</CardTitle>
+            <CardDescription style={{ color: 'var(--atmosphere-text-secondary)' }}>
               Conecta el WhatsApp de tu negocio escaneando el codigo QR desde la app de WhatsApp.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-3 items-end">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-1 block">Asistente</label>
+                <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>Asistente</label>
                 <Select value={waAssistantId} onValueChange={(v) => setWaAssistantId(v ?? '')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar asistente" />
@@ -353,12 +432,19 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                 </Select>
               </div>
               {waStatus !== 'connected' ? (
-                <Button
-                  onClick={handleWhatsAppConnect}
-                  disabled={!waAssistantId || waStatus === 'connecting'}
-                >
-                  {waStatus === 'connecting' ? 'Conectando...' : 'Conectar WhatsApp'}
-                </Button>
+                <>
+                  <Button
+                    onClick={() => handleWhatsAppConnect()}
+                    disabled={!waAssistantId || waStatus === 'connecting'}
+                  >
+                    {waStatus === 'connecting' ? 'Conectando...' : 'Conectar WhatsApp'}
+                  </Button>
+                  {waStatus === 'connecting' && (
+                    <Button variant="ghost" onClick={cancelWhatsAppConnect}>
+                      Cancelar
+                    </Button>
+                  )}
+                </>
               ) : (
                 <Button variant="destructive" onClick={handleWhatsAppLogout}>
                   Desconectar
@@ -375,7 +461,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
               <div className="flex flex-col items-center gap-2 py-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={waQr} alt="Código QR de WhatsApp" className="rounded-lg" width={320} height={320} />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
                   Escanea este codigo con WhatsApp: Ajustes → Dispositivos vinculados
                 </p>
               </div>
@@ -383,30 +469,45 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
 
             {waStatus === 'connected' && (
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                <span className="text-sm">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{
+                    backgroundColor: 'var(--module-accent)',
+                    boxShadow: '0 0 8px var(--module-glow)',
+                  }}
+                />
+                <span className="text-sm" style={{ color: 'var(--atmosphere-text)' }}>
                   WhatsApp conectado{waPhone ? ` (${waPhone})` : ''}
                 </span>
               </div>
             )}
 
             {waStatus === 'error' && (
-              <p className="text-sm text-red-600">{waError ?? 'Error al conectar WhatsApp'}</p>
+              <div
+                className="rounded-lg border px-4 py-3 text-sm"
+                style={{
+                  borderColor: 'var(--atmosphere-border)',
+                  backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+                  color: 'var(--mia-red)',
+                }}
+              >
+                {waError ?? 'Error al conectar WhatsApp'}
+              </div>
             )}
           </CardContent>
         </Card>
       )}
 
       {connections.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+        <Card style={channelCardStyle}>
+          <CardContent className="py-8 text-center text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
             No hay canales conectados. Agrega uno arriba para empezar.
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-3">
           {connections.map((conn) => (
-            <Card key={conn.id}>
+            <Card key={conn.id} style={channelCardStyle}>
               <CardContent className="py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -414,15 +515,26 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                       {channelMap[conn.channel as ChannelType]?.emoji ?? '\u{1F4E8}'}
                     </span>
                     <div>
-                      <div className="font-medium">
+                      <div className="font-medium" style={{ color: 'var(--atmosphere-text)' }}>
                         {channelMap[conn.channel as ChannelType]?.label ?? conn.channel}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm" style={{ color: conn.status === 'connected' ? 'var(--module-accent-strong)' : 'var(--atmosphere-text-secondary)' }}>
                         {conn.status === 'connected' ? 'Conectado' : 'Desconectado'}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
+                    {conn.channel === 'whatsapp' && conn.status !== 'connected' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        style={{ borderColor: 'var(--atmosphere-border)' }}
+                        onClick={() => handleWhatsAppConnect(conn.assistant_id)}
+                        disabled={waStatus === 'connecting'}
+                      >
+                        {waStatus === 'connecting' ? 'Conectando...' : 'Reconectar'}
+                      </Button>
+                    )}
                     <Select
                       value={conn.mode ?? 'active'}
                       onValueChange={(v) =>

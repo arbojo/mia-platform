@@ -1,0 +1,40 @@
+{
+  "id": "TASK-20260810-051218566",
+  "title": "Canales: boton reconectar, anti-estado-zombie connecting y Quiet Chrome en ConnectionsManager",
+  "description": "Corregir el fallo critico en la gestion de canales (WhatsApp/Baileys) donde un estado desconectado deja al usuario atrapado en la etiqueta connecting sin opcion de reintento. (1) Boton \"Reconectar\" explicito en tarjetas de canal WhatsApp con status !== connected que dispara el endpoint existente POST /api/channels/baileys/session (startBridgeSession). (2) Anti-zombie: AbortController 20s en fetch, timeout 60s en WebSocket, ws.onclose que resuelve a error si no estaba connected, boton \"Cancelar\" durante connecting. (3) Quiet Chrome: glass atmosferico (color-mix 90% + blur 24px), hairline --atmosphere-border, glow modulo, dot con --module-accent, errores con --mia-red. Un solo archivo (ConnectionsManager.tsx), sin props inventadas, sin endpoints ni librerias externas nuevas, sin cambios de schema, AI ni seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "bugfix"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "backend",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): frontend, qa, backend, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-10T05:12:18.023Z",
+  "classifiedAt": "2026-08-10T05:12:18.023Z",
+  "approvedAt": "2026-08-10T05:12:18.023Z",
+  "startedAt": "2026-08-10T05:12:28.281Z",
+  "completedAt": "2026-08-10T05:16:29.551Z"
+}

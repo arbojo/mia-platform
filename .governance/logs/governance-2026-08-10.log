@@ -35,3 +35,6 @@
 [2026-08-10T04:41:35.182Z] CREATED: TASK-20260810-044135422 — SIMPLE — Sidebar refine: posicion Settings, hover intent con grace period, purga verde legacy + Quiet Chrome
 [2026-08-10T04:41:46.155Z] TRANSITION: TASK-20260810-044135422 → in_progress
 [2026-08-10T04:45:37.393Z] TRANSITION: TASK-20260810-044135422 → completed
+[2026-08-10T05:12:18.025Z] CREATED: TASK-20260810-051218566 — SIMPLE — Canales: boton reconectar, anti-estado-zombie connecting y Quiet Chrome en ConnectionsManager
+[2026-08-10T05:12:28.283Z] TRANSITION: TASK-20260810-051218566 → in_progress
+[2026-08-10T05:16:29.553Z] TRANSITION: TASK-20260810-051218566 → completed
