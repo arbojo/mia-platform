@@ -11,6 +11,7 @@ function formatDate(dateStr: string, locale: string): string {
   return new Date(dateStr).toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
+    timeZone: 'UTC',
   })
 }
 
