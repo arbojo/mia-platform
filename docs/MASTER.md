@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `666fe3c`.
+> Fuente de verdad: este repositorio en `09e29be`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `666fe3c` |
+| **Commit HEAD** | `09e29be` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T19:28:20-06:00 |
+| **Generado** | 2026-08-09T20:01:35-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (64)**:
+**Tareas registradas (65)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -635,6 +635,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-002545865 | MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas | completed |
 | TASK-20260810-005415049 | quiet chrome: inbox glass y zonas activas en home | completed |
 | TASK-20260810-011350200 | Ghost UI context menu en MIAInbox (reutilizando context-menu.tsx) | completed |
+| TASK-20260810-015658359 | Fix hydration mismatch en AppLayout por lectura de localStorage en estado inicial | completed |
 
 ---
 
@@ -679,6 +680,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+09e29be fix: hydration mismatch en AppLayout por lectura de localStorage en estado inicial
+36fa083 docs: regenerate MASTER.md at 666fe3c
 666fe3c feat: ghost ui context menu en MIAInbox reutilizando context-menu.tsx
 2e4e479 docs: regenerate MASTER.md at 63adbbc
 63adbbc feat: quiet chrome - inbox glass con tokens y zonas activas en home
@@ -697,8 +700,6 @@ fef9f43 subaru: checkpoint quiet-chrome - en-progreso
 35f33c6 docs: regenerate MASTER.md at 51c9940
 51c9940 chore: governance log subaru-cli completed
 26769ab subaru: checkpoint subaru-cli - completado
-60d5a23 subaru: checkpoint subaru-cli - en-progreso
-fce2a2b docs: regenerate MASTER.md at f023768
 ```
 
 ---
