@@ -1,0 +1,41 @@
+{
+  "id": "TASK-20260810-005415049",
+  "title": "quiet chrome: inbox glass y zonas activas en home",
+  "description": "Restyling de MIAInbox (panel de señales) a glass oscuro usando tokens del design system (--atmosphere-bg, --atmosphere-border, --module-accent-*, --mod-radius-*), eliminando los 15 colores hardcodeados de tema claro (#ffffff, #f8fafc, #1e293b, #64748b, #e2e8f0, #94a3b8). Compactacion de los 3 ModuleCards del home (Memoria/Pensamiento/Laboratorio) a zonas activas de una linea (ModuleZone): icono pequeno + label + dot de estado con hairline separador y reveal al hover, conservando los datos de estado en vivo. Sin cambios de schema, sin cambios de comportamiento de AI, sin implicaciones de seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "refactor"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "architect",
+      "backend",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (5): frontend, qa, architect, backend, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-10T00:54:15.281Z",
+  "classifiedAt": "2026-08-10T00:54:15.281Z",
+  "approvedAt": "2026-08-10T00:54:15.281Z",
+  "startedAt": "2026-08-10T00:54:26.026Z",
+  "completedAt": "2026-08-10T01:02:51.234Z"
+}

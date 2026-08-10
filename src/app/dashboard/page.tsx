@@ -3,7 +3,7 @@ import { getDashboardData, type ModuleCardStatus } from '@/lib/dashboard/queries
 import type { Dict } from '@/lib/i18n/dictionaries'
 import { MorningGreeting } from '@/components/dashboard/MorningGreeting'
 import { VitalPresence } from '@/components/dashboard/VitalPresence'
-import { ModuleCard } from '@/components/dashboard/ModuleCard'
+import { ModuleZone } from '@/components/dashboard/ModuleZone'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
 import { SalesMetricsCard } from '@/components/dashboard/SalesMetricsCard'
 import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
@@ -174,8 +174,14 @@ export default async function DashboardPage() {
         >
           {t.dashboard.explore}
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <ModuleCard
+        <div
+          className="flex flex-col overflow-hidden rounded-2xl"
+          style={{
+            backgroundColor: 'var(--elevation-1)',
+            border: '1px solid var(--atmosphere-border)',
+          }}
+        >
+          <ModuleZone
             title={t.dashboard.memoryTitle}
             description={t.dashboard.memoryDescription}
             href="/dashboard/knowledge"
@@ -184,7 +190,8 @@ export default async function DashboardPage() {
             accentColor="var(--mia-green)"
             icon={BookOpen}
           />
-          <ModuleCard
+          <div className="h-px w-full" style={{ backgroundColor: 'var(--atmosphere-border)' }} />
+          <ModuleZone
             title={t.dashboard.thinkingTitle}
             description={t.dashboard.thinkingDescription}
             href="/dashboard/knowledge-studio"
@@ -193,7 +200,8 @@ export default async function DashboardPage() {
             accentColor="var(--mia-olive)"
             icon={Brain}
           />
-          <ModuleCard
+          <div className="h-px w-full" style={{ backgroundColor: 'var(--atmosphere-border)' }} />
+          <ModuleZone
             title={t.dashboard.labTitle}
             description={t.dashboard.labDescription}
             href="/dashboard/laboratorio"
