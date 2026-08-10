@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -41,7 +42,8 @@ export function ActivityRail() {
   const { t } = useI18n()
   const { activeModule, setModule } = useModule()
   const { openMenu } = useContextMenu()
-  const { intent, hoverProps } = useHoverIntent(140)
+  const { intent, hoverProps } = useHoverIntent(140, 300)
+  const [settingsHovered, setSettingsHovered] = useState(false)
   const expanded = intent
 
   const nav: Array<{ name: string; items: NavItem[] }> = [
@@ -174,7 +176,8 @@ export function ActivityRail() {
       style={{
         width: expanded ? RAIL_WIDTH_EXPANDED : RAIL_WIDTH,
         borderColor: 'var(--atmosphere-border)',
-        backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 96%, transparent)',
+        backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+        backdropFilter: 'blur(24px) saturate(1.4)',
         transition: 'width var(--mod-duration-medium) var(--mod-ease-premium)',
       }}
     >
@@ -191,7 +194,7 @@ export function ActivityRail() {
         >
           <Sparkles
             className="h-4 w-4"
-            style={{ color: 'var(--atmosphere-accent)', filter: 'drop-shadow(0 0 6px var(--atmosphere-glow))' }}
+            style={{ color: 'var(--module-accent)', filter: 'drop-shadow(0 0 6px var(--module-glow-soft))' }}
           />
           {expanded && (
             <span className="text-sm font-semibold tracking-tight">{expanded ? 'MIA' : ''}</span>
@@ -250,19 +253,26 @@ export function ActivityRail() {
       </nav>
 
       <div
-        className="shrink-0 border-t px-2.5 py-2"
+        className="shrink-0 border-t px-2.5 py-3"
         style={{ borderColor: 'var(--atmosphere-border)' }}
       >
         <button
           type="button"
           onClick={(e) => openMenu(e, settingsMenu)}
           onContextMenu={(e) => openMenu(e, settingsMenu)}
+          onPointerEnter={() => setSettingsHovered(true)}
+          onPointerLeave={() => setSettingsHovered(false)}
           title={t.nav.settings}
           className={cn(
             'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
             !expanded && 'justify-center px-0'
           )}
-          style={{ color: 'var(--atmosphere-text-secondary)' }}
+          style={{
+            color: settingsHovered
+              ? 'var(--atmosphere-text)'
+              : 'var(--atmosphere-text-secondary)',
+            backgroundColor: settingsHovered ? 'var(--module-accent-soft)' : 'transparent',
+          }}
         >
           <Settings className="h-4 w-4 shrink-0" />
           {expanded && <span className="whitespace-nowrap">{t.nav.settings}</span>}

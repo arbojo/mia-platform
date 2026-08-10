@@ -1,0 +1,39 @@
+{
+  "id": "TASK-20260810-044135422",
+  "title": "Sidebar refine: posicion Settings, hover intent con grace period, purga verde legacy + Quiet Chrome",
+  "description": "Refinar la sidebar ActivityRail: (1) reposicionar el boton Configuracion con aire simetrico y estado hover; (2) corregir la hiper-reactividad del collapse anadiendo leaveDelayMs al hook useHoverIntent (retrocompatible, MIAIndicator sin cambios) y usandolo en el rail; (3) purgar el tinte verde legacy del logo MIA (var(--atmosphere-accent) -> var(--module-accent)) y aplicar glass real de Quiet Chrome (color-mix 90% + backdrop-filter blur 24px saturate 1.4). Solo 2 archivos (ActivityRail.tsx, use-hover-intent.ts), sin props inventadas, sin dependencias externas, sin cambios de schema, AI ni seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "bug_fix"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-10T04:41:35.180Z",
+  "classifiedAt": "2026-08-10T04:41:35.180Z",
+  "approvedAt": "2026-08-10T04:41:35.180Z",
+  "startedAt": "2026-08-10T04:41:46.153Z",
+  "completedAt": "2026-08-10T04:45:37.392Z"
+}

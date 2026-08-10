@@ -10,30 +10,40 @@ export interface HoverIntentResult {
   }
 }
 
-export function useHoverIntent(delayMs = 120): HoverIntentResult {
+export function useHoverIntent(delayMs = 120, leaveDelayMs = 0): HoverIntentResult {
   const [intent, setIntent] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const enterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const aliveRef = useRef(true)
 
   useEffect(() => {
     aliveRef.current = true
     return () => {
       aliveRef.current = false
-      if (timerRef.current) clearTimeout(timerRef.current)
+      if (enterTimerRef.current) clearTimeout(enterTimerRef.current)
+      if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current)
     }
   }, [])
 
   const onPointerEnter = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
+    if (enterTimerRef.current) clearTimeout(enterTimerRef.current)
+    if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current)
+    enterTimerRef.current = setTimeout(() => {
       if (aliveRef.current) setIntent(true)
     }, delayMs)
   }, [delayMs])
 
   const onPointerLeave = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    setIntent(false)
-  }, [])
+    if (enterTimerRef.current) clearTimeout(enterTimerRef.current)
+    if (leaveTimerRef.current) clearTimeout(leaveTimerRef.current)
+    if (leaveDelayMs > 0) {
+      leaveTimerRef.current = setTimeout(() => {
+        if (aliveRef.current) setIntent(false)
+      }, leaveDelayMs)
+    } else {
+      setIntent(false)
+    }
+  }, [leaveDelayMs])
 
   return { intent, hoverProps: { onPointerEnter, onPointerLeave } }
 }
