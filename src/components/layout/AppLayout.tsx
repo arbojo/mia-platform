@@ -19,8 +19,6 @@ export const MODULES: Record<ModuleKey, ModuleMeta> = {
   logistics: { label: 'Logística', description: 'Delivery y envíos', icon: Truck },
 }
 
-const MODULE_KEYS: ModuleKey[] = ['sales', 'inventory', 'logistics']
-
 const ModuleContext = createContext<{
   activeModule: ModuleKey
   setModule: (m: ModuleKey) => void
@@ -73,45 +71,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </div>
     </ModuleContext.Provider>
-  )
-}
-
-export function ModuleSelector() {
-  const { activeModule, setModule } = useModule()
-
-  return (
-    <div
-      className="flex items-center gap-0.5 rounded-full border p-0.5"
-      style={{
-        borderColor: 'var(--atmosphere-border)',
-        backgroundColor: 'var(--elevation-1)',
-      }}
-      role="group"
-      aria-label="Contexto por módulo"
-    >
-      {MODULE_KEYS.map((key) => {
-        const meta = MODULES[key]
-        const active = key === activeModule
-        const Icon = meta.icon
-        return (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setModule(key)}
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-200"
-            style={{
-              color: active ? 'var(--module-accent-strong)' : 'var(--atmosphere-text-secondary)',
-              backgroundColor: active ? 'var(--module-accent-soft)' : 'transparent',
-              boxShadow: active ? '0 0 12px var(--module-glow-soft)' : 'none',
-            }}
-            title={meta.description}
-            aria-pressed={active}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            <span>{meta.label}</span>
-          </button>
-        )
-      })}
-    </div>
   )
 }

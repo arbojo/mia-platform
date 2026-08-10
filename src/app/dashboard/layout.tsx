@@ -1,13 +1,14 @@
 import { requirePageAuth } from '@/lib/auth'
-import { Sidebar } from '@/components/dashboard/Sidebar'
+import { ActivityRail } from '@/components/dashboard/ActivityRail'
+import { CommandStrip } from '@/components/dashboard/CommandStrip'
 import { OnboardingBanner } from '@/components/dashboard/OnboardingBanner'
 import { AtmosphereProvider } from '@/components/dashboard/AtmosphereProvider'
 import { MIAIndicator } from '@/components/dashboard/MIAIndicator'
 import { ThemeProvider } from '@/components/dashboard/ThemeProvider'
 import { AccessibilityProvider } from '@/components/dashboard/AccessibilityProvider'
 import { I18nProvider } from '@/components/dashboard/I18nProvider'
-import { TopBar } from '@/components/dashboard/TopBar'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { ContextMenuProvider } from '@/components/ui/context-menu'
 import { getUserLocale } from '@/lib/i18n/server'
 
 export default async function DashboardLayout({
@@ -29,10 +30,11 @@ export default async function DashboardLayout({
       <ThemeProvider>
         <AtmosphereProvider>
       <AccessibilityProvider>
+        <ContextMenuProvider>
           <AppLayout>
-            <Sidebar />
+            <ActivityRail />
             <div className="flex flex-1 flex-col overflow-auto">
-              <TopBar />
+              <CommandStrip />
               <main className="relative flex-1">
                 <div className="p-8">
                   <OnboardingBanner onboardingStatus={business?.onboarding_status} />
@@ -40,8 +42,9 @@ export default async function DashboardLayout({
                 </div>
               </main>
             </div>
-            <MIAIndicator status="active" />
+            <MIAIndicator />
           </AppLayout>
+        </ContextMenuProvider>
       </AccessibilityProvider>
       </AtmosphereProvider>
     </ThemeProvider>

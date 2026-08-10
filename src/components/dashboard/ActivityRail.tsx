@@ -1,0 +1,273 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import {
+  LayoutDashboard,
+  HeartHandshake,
+  BookOpen,
+  Brain,
+  FlaskConical,
+  Settings,
+  Users,
+  Cable,
+  HeartPulse,
+  Accessibility,
+  ShoppingBag,
+  Truck,
+  Package,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react'
+import { useI18n } from '@/components/dashboard/I18nProvider'
+import { useModule, MODULES, type ModuleKey } from '@/components/layout/AppLayout'
+import { useContextMenu, type ContextMenuItemDef, type ContextMenuItems } from '@/components/ui/context-menu'
+import { useHoverIntent } from '@/lib/hooks/use-hover-intent'
+
+const RAIL_WIDTH = 68
+const RAIL_WIDTH_EXPANDED = 260
+
+interface NavItem {
+  href: string
+  label: string
+  question: string
+  icon: LucideIcon
+}
+
+export function ActivityRail() {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { t } = useI18n()
+  const { activeModule, setModule } = useModule()
+  const { openMenu } = useContextMenu()
+  const { intent, hoverProps } = useHoverIntent(140)
+  const expanded = intent
+
+  const nav: Array<{ name: string; items: NavItem[] }> = [
+    {
+      name: t.nav.today,
+      items: [
+        {
+          href: '/dashboard',
+          label: t.nav.commandCenter,
+          question: t.nav.commandCenterQuestion,
+          icon: LayoutDashboard,
+        },
+        {
+          href: '/dashboard/conversations',
+          label: t.nav.relations,
+          question: t.nav.relationsQuestion,
+          icon: HeartHandshake,
+        },
+      ],
+    },
+    {
+      name: t.nav.learn,
+      items: [
+        {
+          href: '/dashboard/knowledge',
+          label: t.nav.memory,
+          question: t.nav.memoryQuestion,
+          icon: BookOpen,
+        },
+        {
+          href: '/dashboard/knowledge-studio',
+          label: t.nav.thinking,
+          question: t.nav.thinkingQuestion,
+          icon: Brain,
+        },
+        {
+          href: '/dashboard/catalog',
+          label: t.nav.catalog,
+          question: t.nav.catalogQuestion,
+          icon: ShoppingBag,
+        },
+      ],
+    },
+    {
+      name: t.nav.grow,
+      items: [
+        {
+          href: '/dashboard/laboratorio',
+          label: t.nav.lab,
+          question: t.nav.labQuestion,
+          icon: FlaskConical,
+        },
+        {
+          href: '/dashboard/delivery',
+          label: t.nav.delivery,
+          question: t.nav.deliveryQuestion,
+          icon: Truck,
+        },
+        {
+          href: '/dashboard/inventory',
+          label: t.nav.inventory,
+          question: t.nav.inventoryQuestion,
+          icon: Package,
+        },
+      ],
+    },
+  ]
+
+  const moduleKeys = Object.keys(MODULES) as ModuleKey[]
+
+  function isActive(href: string) {
+    if (href === '/dashboard') return pathname === '/dashboard'
+    return pathname.startsWith(href)
+  }
+
+  const moduleMenu: ContextMenuItems = moduleKeys.map((key) => ({
+    label: MODULES[key].label,
+    icon: MODULES[key].icon,
+    checked: key === activeModule,
+    onSelect: () => setModule(key),
+  }))
+
+  const settingsMenu: ContextMenuItems = [
+    { label: t.nav.adjustments, heading: true },
+    {
+      label: t.nav.connections,
+      icon: Cable,
+      onSelect: () => router.push('/dashboard/connections'),
+    },
+    {
+      label: t.nav.council,
+      icon: Users,
+      onSelect: () => router.push('/dashboard/assistants'),
+    },
+    {
+      label: t.nav.health,
+      icon: HeartPulse,
+      onSelect: () => router.push('/dashboard/health'),
+    },
+    {
+      label: t.nav.accessibility,
+      icon: Accessibility,
+      onSelect: () => router.push('/dashboard/accessibility'),
+    },
+  ]
+
+  const powerMenu: ContextMenuItems = [
+    ...nav.flatMap((group) => [
+      { label: group.name, heading: true } as ContextMenuItemDef,
+      ...group.items.map((item) => ({
+        label: item.label,
+        icon: item.icon,
+        checked: isActive(item.href),
+        onSelect: () => router.push(item.href),
+      })),
+    ]),
+    'separator',
+    ...settingsMenu,
+    'separator',
+    { label: MODULES[activeModule].label, heading: true },
+    ...moduleMenu,
+  ]
+
+  return (
+    <aside
+      {...hoverProps}
+      onContextMenu={(e) => openMenu(e, powerMenu)}
+      aria-label="Navegación"
+      className="relative flex h-screen shrink-0 flex-col overflow-hidden border-r"
+      style={{
+        width: expanded ? RAIL_WIDTH_EXPANDED : RAIL_WIDTH,
+        borderColor: 'var(--atmosphere-border)',
+        backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 96%, transparent)',
+        transition: 'width var(--mod-duration-medium) var(--mod-ease-premium)',
+      }}
+    >
+      <div
+        className="flex shrink-0 items-center justify-center pt-6 pb-2"
+        onContextMenu={(e) => openMenu(e, moduleMenu)}
+      >
+        <button
+          type="button"
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors duration-200"
+          title="MIA"
+          style={{ color: 'var(--atmosphere-text)' }}
+        >
+          <Sparkles
+            className="h-4 w-4"
+            style={{ color: 'var(--atmosphere-accent)', filter: 'drop-shadow(0 0 6px var(--atmosphere-glow))' }}
+          />
+          {expanded && (
+            <span className="text-sm font-semibold tracking-tight">{expanded ? 'MIA' : ''}</span>
+          )}
+        </button>
+      </div>
+
+      <nav className="flex-1 space-y-5 overflow-y-auto px-2.5 py-2">
+        {nav.map((group) => (
+          <div key={group.name}>
+            {expanded && (
+              <p
+                className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.14em]"
+                style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.5 }}
+              >
+                {group.name}
+              </p>
+            )}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = isActive(item.href)
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    title={item.question}
+                    className={cn(
+                      'relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
+                      !expanded && 'justify-center px-0'
+                    )}
+                    style={{
+                      color: active
+                        ? 'var(--module-accent-strong)'
+                        : 'var(--atmosphere-text-secondary)',
+                      backgroundColor: active ? 'var(--module-accent-soft)' : 'transparent',
+                    }}
+                  >
+                    {active && (
+                      <span
+                        className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full"
+                        style={{
+                          backgroundColor: 'var(--module-accent)',
+                          boxShadow: '0 0 8px var(--module-glow)',
+                        }}
+                      />
+                    )}
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {expanded && <span className="whitespace-nowrap">{item.label}</span>}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div
+        className="shrink-0 border-t px-2.5 py-2"
+        style={{ borderColor: 'var(--atmosphere-border)' }}
+      >
+        <button
+          type="button"
+          onClick={(e) => openMenu(e, settingsMenu)}
+          onContextMenu={(e) => openMenu(e, settingsMenu)}
+          title={t.nav.settings}
+          className={cn(
+            'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
+            !expanded && 'justify-center px-0'
+          )}
+          style={{ color: 'var(--atmosphere-text-secondary)' }}
+        >
+          <Settings className="h-4 w-4 shrink-0" />
+          {expanded && <span className="whitespace-nowrap">{t.nav.settings}</span>}
+        </button>
+      </div>
+    </aside>
+  )
+}

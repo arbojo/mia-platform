@@ -1,120 +1,105 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Activity, PauseCircle, GraduationCap } from 'lucide-react'
+import { useContextMenu, type ContextMenuItems } from '@/components/ui/context-menu'
+import { useHoverIntent } from '@/lib/hooks/use-hover-intent'
 
 type MIAStatus = 'active' | 'learning' | 'paused'
 
-interface MIAIndicatorProps {
-  status?: MIAStatus
-}
-
-const presenceConfig: Record<MIAStatus, {
-  says: string
-  feels: string
-  color: string
-  glow: string
-  pulseClass: string
-  breathDuration: string
-}> = {
+const presenceConfig: Record<
+  MIAStatus,
+  { says: string; feels: string; color: string; glow: string }
+> = {
   active: {
     says: 'Estoy aquí',
     feels: 'Acompañando tu negocio',
     color: 'var(--mia-blue)',
-    glow: 'rgba(30, 90, 153, 0.4)',
-    pulseClass: 'animate-pulse-mia',
-    breathDuration: '4s',
+    glow: 'rgba(30, 90, 153, 0.5)',
   },
   learning: {
     says: 'Estoy aprendiendo',
     feels: 'Descubriendo algo nuevo',
     color: 'var(--mia-olive)',
-    glow: 'rgba(107, 63, 160, 0.4)',
-    pulseClass: 'animate-pulse-learning',
-    breathDuration: '3s',
+    glow: 'rgba(107, 120, 73, 0.5)',
   },
   paused: {
     says: 'Descansando',
     feels: 'Esperando tu regreso',
     color: 'var(--mia-platinum)',
-    glow: 'rgba(155, 170, 184, 0.2)',
-    pulseClass: 'animate-pulse-paused',
-    breathDuration: '6s',
+    glow: 'rgba(155, 170, 184, 0.3)',
   },
 }
 
-export function MIAIndicator({ status = 'active' }: MIAIndicatorProps) {
-  const flashRef = useRef<HTMLDivElement>(null)
-  const config = presenceConfig[status]
+export function MIAIndicator({ status = 'active' }: { status?: MIAStatus }) {
+  const router = useRouter()
+  const { openMenu } = useContextMenu()
+  const { intent, hoverProps } = useHoverIntent(200)
+  const [current, setCurrent] = useState<MIAStatus>(status)
+  const config = presenceConfig[current]
 
-  useEffect(() => {
-    const el = flashRef.current
-    if (!el) return
-    if (status === 'learning') {
-      el.style.animation = 'none'
-      void el.offsetWidth
-      el.style.animation = 'flash-new-learning 2.5s ease-out forwards'
-    } else {
-      el.style.animation = 'none'
-    }
-  }, [status])
+  const presenceMenu: ContextMenuItems = [
+    { label: 'Presencia', heading: true },
+    {
+      label: 'Activa',
+      icon: Activity,
+      checked: current === 'active',
+      onSelect: () => setCurrent('active'),
+    },
+    {
+      label: 'Aprendiendo',
+      icon: GraduationCap,
+      checked: current === 'learning',
+      onSelect: () => setCurrent('learning'),
+    },
+    {
+      label: 'Descansando',
+      icon: PauseCircle,
+      checked: current === 'paused',
+      onSelect: () => setCurrent('paused'),
+    },
+    'separator',
+    { label: 'Ir a salud', onSelect: () => router.push('/dashboard/health') },
+  ]
 
   return (
-    <div
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-4"
-      style={{ userSelect: 'none' }}
-    >
-      <div className="flex flex-col items-end gap-0.5">
+    <div className="fixed bottom-5 right-5 z-50" style={{ userSelect: 'none' }}>
+      <button
+        {...hoverProps}
+        type="button"
+        onClick={(e) => openMenu(e, presenceMenu)}
+        onContextMenu={(e) => openMenu(e, presenceMenu)}
+        className="flex items-center gap-2 rounded-full transition-all duration-300"
+        style={{
+          padding: intent ? '6px 12px 6px 8px' : '6px',
+          border: intent ? '1px solid var(--atmosphere-border)' : '1px solid transparent',
+          backgroundColor: intent
+            ? 'color-mix(in srgb, var(--atmosphere-bg) 84%, transparent)'
+            : 'transparent',
+          backdropFilter: intent ? 'blur(16px)' : 'none',
+          boxShadow: intent ? '0 0 24px var(--module-glow-soft)' : `0 0 12px ${config.glow}`,
+        }}
+        title={config.says}
+      >
         <span
-          className="text-sm font-medium tracking-tight"
-          style={{ color: 'var(--atmosphere-text)' }}
-        >
-          {config.says}
-        </span>
-        <span
-          className="text-[10px] font-normal uppercase tracking-[0.08em]"
-          style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.5 }}
-        >
-          {config.feels}
-        </span>
-      </div>
-
-      <div className="relative flex h-10 w-10 items-center justify-center">
-        <div
-          className="absolute h-full w-full rounded-full"
-          style={{
-            backgroundColor: config.color,
-            opacity: 0.06,
-            animation: `${config.pulseClass} ${config.breathDuration} ease-in-out infinite`,
-          }}
+          className="h-2.5 w-2.5 shrink-0 rounded-full"
+          style={{ backgroundColor: config.color, boxShadow: `0 0 8px ${config.glow}` }}
         />
-        <div
-          className="absolute h-6 w-6 rounded-full"
-          style={{
-            backgroundColor: config.color,
-            opacity: 0.12,
-            animation: `${config.pulseClass} ${config.breathDuration} ease-in-out infinite`,
-            animationDelay: '0.5s',
-          }}
-        />
-        <div
-          className="relative h-3 w-3 rounded-full"
-          style={{
-            backgroundColor: config.color,
-            boxShadow: status === 'learning'
-              ? `0 0 16px ${config.glow}, 0 0 32px ${config.glow}`
-              : `0 0 10px ${config.glow}`,
-            transition: 'box-shadow 0.5s ease',
-          }}
-        />
-        <div
-          ref={flashRef}
-          className="absolute -inset-3 rounded-full pointer-events-none"
-          style={{
-            backgroundColor: 'var(--mia-green)',
-            opacity: 0.1,
-          }}
-        />
-      </div>
+        {intent && (
+          <span className="flex flex-col items-start leading-tight">
+            <span className="text-xs font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
+              {config.says}
+            </span>
+            <span
+              className="text-[10px] uppercase tracking-[0.08em] opacity-60"
+              style={{ color: 'var(--atmosphere-text-secondary)' }}
+            >
+              {config.feels}
+            </span>
+          </span>
+        )}
+      </button>
     </div>
   )
 }
