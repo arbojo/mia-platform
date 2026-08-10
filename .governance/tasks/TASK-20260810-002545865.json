@@ -1,0 +1,82 @@
+{
+  "id": "TASK-20260810-002545865",
+  "title": "MIA Quiet Chrome: contexto por clic derecho, hovers inteligentes y zonas activas",
+  "description": "Refactorizar el chrome del dashboard eliminando el ruido visual y sustituyéndolo por interacciones directas con el mouse. (A) Primitiva reutilizable src/components/ui/context-menu.tsx: ContextMenuProvider + useContextMenu() + panel glass (backdrop-blur, hairline, acento por módulo) que intercepta onContextMenu con preventDefault, posiciona en portal con clamp al viewport y cierra con click-fuera/Escape/scroll/resize + navegación por teclado. (B) Hook src/lib/hooks/use-hover-intent.ts: reveal con delay (hovers inteligentes). (C) src/components/dashboard/ActivityRail.tsx reemplaza Sidebar: rail de iconos w-16 que se expande al hover a w-64, grupos como zonas, ajustes (connections/assistants/health/accessibility) colapsados a un menú contextual sobre el rail. (D) src/components/dashboard/CommandStrip.tsx reemplaza TopBar: franja transparente sin botones permanentes, chip de módulo compacto + campana; tema/idioma reubicados en menú contextual. (E) MIAIndicator refactor: de orbe fijo animado a un \"ember\" silencioso (sin texto ni anillos por defecto) que florece al hover y abre menú contextual de estado con clic derecho. (F) Wiring en src/app/dashboard/layout.tsx: ContextMenuProvider + ActivityRail + CommandStrip. Sin cambios de schema, sin cambios de AI. La barra de navegación deja de ocupar espacio permanente: el contenido gana anchura.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "refactor"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Primitivas reutilizables (context menu + hover intent) sobre tokens existentes; sin CSS global nuevo",
+      "timestamp": "2026-08-10T00:25:55.555Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Solo capa de presentación; no toca APIs ni datos; ContextMenu se mantiene en cliente",
+      "timestamp": "2026-08-10T00:25:57.140Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Elimina chrome permanente; rail expansible, menú contextual glass y ember silencioso siguen el sistema de diseño",
+      "timestamp": "2026-08-10T00:25:58.976Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Accesible por teclado (arrows/enter/esc) y dismiss por todas las vías; se verifica con lint/build/e2e/DevTools",
+      "timestamp": "2026-08-10T00:26:00.338Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Wire en dashboard layout; commit atómico; sin cambios de datos; verificable en el dev server",
+      "timestamp": "2026-08-10T00:26:01.336Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Interacciones documentadas en el diseño; sin estado global nuevo fuera del provider del menú",
+      "timestamp": "2026-08-10T00:26:02.217Z"
+    }
+  ],
+  "createdAt": "2026-08-10T00:25:45.513Z",
+  "classifiedAt": "2026-08-10T00:25:45.513Z",
+  "approvedAt": "2026-08-10T00:26:02.218Z",
+  "startedAt": "2026-08-10T00:26:14.812Z"
+}
