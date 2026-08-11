@@ -1,14 +1,14 @@
 ---
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
-state: blueprint_ready
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:20:48.132Z
+updated: 2026-08-11T03:21:53.705Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -53,7 +53,7 @@ aprobada por el Engineering Council (TASK-20260811-031812147).
 
 Pasos atómicos aprobados por el Council (orden estricto):
 
-- [ ] **Paso 1:** Governance: clasificar (COMPLEX) + concilio aprobar 8/8
+- [x] **Paso 1:** Governance: clasificar (COMPLEX) + concilio aprobar 8/8
   (TASK-20260811-031812147) + `governance validate` PASSED. Criterio: manifest con
   status `approved`. Gate: governance validate.
 - [ ] **Paso 2 (SUBARU):** Escribir blueprint + `freeze` + commit `subaru: checkpoint
