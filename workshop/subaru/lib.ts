@@ -18,6 +18,22 @@ export interface ParsedCheckpoint {
   body: string
 }
 
+export interface StepCheckbox {
+  step: number
+  checked: boolean
+  text: string
+}
+
+export const REQUIRED_FIELDS: (keyof CheckpointData)[] = [
+  'taskId',
+  'title',
+  'state',
+  'totalSteps',
+  'branch',
+  'created',
+  'updated',
+]
+
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 
 const KEY_MAP: Record<string, keyof CheckpointData> = {
@@ -88,8 +104,132 @@ export function validateStep(step: number, totalSteps: number): boolean {
   return Number.isInteger(step) && step >= 1 && step <= totalSteps
 }
 
+export function listStepCheckboxes(body: string): StepCheckbox[] {
+  const out: StepCheckbox[] = []
+  const re = /^- \[([ x])\] \*\*Paso (\d+)(?: ?\([^)]*\))?:/gm
+  let match: RegExpExecArray | null
+  while ((match = re.exec(body)) !== null) {
+    out.push({ step: Number(match[2]), checked: match[1] === 'x', text: match[0] })
+  }
+  return out.sort((a, b) => a.step - b.step)
+}
+
+export function countCheckboxSteps(body: string): number {
+  return listStepCheckboxes(body).length
+}
+
+export function countCheckedSteps(body: string): number {
+  return listStepCheckboxes(body).filter((s) => s.checked).length
+}
+
+export function findStepCheckbox(body: string, step: number): StepCheckbox | undefined {
+  return listStepCheckboxes(body).find((s) => s.step === step)
+}
+
+export function allStepsChecked(body: string): boolean {
+  const boxes = listStepCheckboxes(body)
+  return boxes.length > 0 && boxes.every((s) => s.checked)
+}
+
+export function missingSteps(body: string): number[] {
+  return listStepCheckboxes(body).filter((s) => !s.checked).map((s) => s.step)
+}
+
 export function flipStepCheckbox(body: string, step: number): string {
-  const re = new RegExp(`^(\\- \\[ \\] \\*\\*Paso ${step}:)`, 'm')
-  if (!re.test(body)) return body
-  return body.replace(re, `- [x] **Paso ${step}:`)
+  const box = findStepCheckbox(body, step)
+  if (!box || box.checked) return body
+  return body.replace(box.text, box.text.replace('[ ]', '[x]'))
+}
+
+export function scaffoldBlueprint(input: {
+  taskId: string
+  title: string
+  governanceId?: string
+  steps: number
+}): string {
+  const stepsLines: string[] = []
+  for (let i = 1; i <= input.steps; i++) {
+    stepsLines.push(`- [ ] **Paso ${i}:** (objetivo del paso ${i} — completar antes de implementar)`)
+  }
+
+  const governance = input.governanceId ? `\n\nAprobación: ${input.governanceId}.` : ''
+  return `# ⛩️ PROTOCOL SUBARU: Checkpoint Activo
+
+## Mission
+
+${input.title}${governance}
+
+## Scope
+
+- (archivos/módulos/dominios involucrados — completar)
+
+## Non-goals
+
+- (qué NO tocar — completar)
+
+## Approved plan
+
+Pasos atómicos aprobados por el Council:
+
+${stepsLines.join('\n')}
+
+## Current state
+
+- Misión congelada (state: blueprint_ready). Pasos pendientes: 1..${input.steps}.
+
+## Next action
+
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+
+## Constraints
+
+- (decisiones arquitectónicas, ADRs, reglas de governance, restricciones de seguridad — completar)
+
+## Verification
+
+- (gates obligatorios y estado de ejecución — completar)
+
+## Recovery instructions
+
+Tras un revive en cualquier máquina:
+1. \`git pull --rebase origin main\`
+2. \`npx tsx workshop/subaru/cli.ts revive\`
+3. Leer el informe: misión, último paso completado, siguiente paso exacto.
+4. Si \`DRIFT DETECTED\` aparece: NO continuar; resolver la contradicción.
+5. Continuar el paso indicado y ejecutar \`subaru mark ${input.taskId} <n>\`.
+6. Al final: \`subaru complete ${input.taskId}\`.
+`
+}
+
+export function readSection(body: string, heading: string): string {
+  const marker = `## ${heading}`
+  const idx = body.indexOf(marker)
+  if (idx === -1) return ''
+  const rest = body.slice(idx + marker.length)
+  const end = rest.search(/\n## /)
+  const section = end === -1 ? rest : rest.slice(0, end)
+  return section.trim()
+}
+
+export function readNextAction(body: string): string {
+  return readSection(body, 'Next action')
+}
+
+export function updateNextAction(body: string, action: string): string {
+  const marker = '## Next action'
+  const idx = body.indexOf(marker)
+  if (idx === -1) return body
+  const sectionEnd = body.indexOf('\n## ', idx + marker.length)
+  const end = sectionEnd === -1 ? body.length : sectionEnd
+  const section = body.slice(idx, end)
+  const headerLine = section.slice(0, section.indexOf('\n'))
+  const newSection = `${headerLine}\n\n${action}\n`
+  return body.slice(0, idx) + newSection + body.slice(end)
+}
+
+export function missingFrontmatterFields(data: Partial<CheckpointData>): string[] {
+  return REQUIRED_FIELDS.filter((field) => {
+    const value = data[field]
+    return value === undefined || value === null || value === ''
+  })
 }

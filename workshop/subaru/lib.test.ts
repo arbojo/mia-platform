@@ -5,6 +5,17 @@ import {
   buildCommitMessage,
   validateStep,
   flipStepCheckbox,
+  listStepCheckboxes,
+  countCheckboxSteps,
+  countCheckedSteps,
+  findStepCheckbox,
+  allStepsChecked,
+  missingSteps,
+  scaffoldBlueprint,
+  readSection,
+  readNextAction,
+  updateNextAction,
+  missingFrontmatterFields,
   type CheckpointData,
 } from './lib'
 
@@ -111,5 +122,137 @@ describe('flipStepCheckbox', () => {
   it('returns the body unchanged when the step is not found', () => {
     const body = '- [ ] **Paso 1:** a'
     expect(flipStepCheckbox(body, 9)).toBe(body)
+  })
+
+  it('is idempotent when the step is already checked', () => {
+    const body = '- [x] **Paso 1:** a\n- [ ] **Paso 2:** b'
+    expect(flipStepCheckbox(body, 1)).toBe(body)
+  })
+})
+
+describe('step checkboxes helpers', () => {
+  const body = '- [ ] **Paso 1:** a\n- [x] **Paso 2:** b\n- [x] **Paso 3:** c\n- [ ] **Paso 4:** d'
+
+  it('lists steps with checked state', () => {
+    const boxes = listStepCheckboxes(body)
+    expect(boxes.map((b) => b.step)).toEqual([1, 2, 3, 4])
+    expect(boxes.filter((b) => b.checked).map((b) => b.step)).toEqual([2, 3])
+  })
+
+  it('tolerates descriptive suffixes like "Paso 2 (SUBARU):"', () => {
+    const sufixed = '- [ ] **Paso 2 (SUBARU):** paso con sufijo\n- [x] **Paso 3 (H):** otro'
+    expect(listStepCheckboxes(sufixed).map((b) => b.step)).toEqual([2, 3])
+    expect(countCheckedSteps(sufixed)).toBe(1)
+    const flipped = flipStepCheckbox(sufixed, 2)
+    expect(flipped).toContain('- [x] **Paso 2 (SUBARU):**')
+    expect(flipped).toContain('- [x] **Paso 3 (H):**')
+    expect(countCheckedSteps(flipped)).toBe(2)
+  })
+
+  it('counts total and checked steps', () => {
+    expect(countCheckboxSteps(body)).toBe(4)
+    expect(countCheckedSteps(body)).toBe(2)
+  })
+
+  it('finds a step checkbox by number', () => {
+    expect(findStepCheckbox(body, 2)?.checked).toBe(true)
+    expect(findStepCheckbox(body, 9)).toBeUndefined()
+  })
+
+  it('detects all-checked and missing steps', () => {
+    expect(allStepsChecked(body)).toBe(false)
+    expect(missingSteps(body)).toEqual([1, 4])
+    expect(allStepsChecked('- [x] **Paso 1:** a\n- [x] **Paso 2:** b')).toBe(true)
+    expect(allStepsChecked('sin checkboxes')).toBe(false)
+  })
+})
+
+describe('scaffoldBlueprint', () => {
+  const blueprint = scaffoldBlueprint({ taskId: 'mia-x', title: 'Misión X', governanceId: 'TASK-1', steps: 3 })
+
+  it('produces all structural sections', () => {
+    for (const heading of ['Mission', 'Scope', 'Non-goals', 'Approved plan', 'Current state', 'Next action', 'Constraints', 'Verification', 'Recovery instructions']) {
+      expect(blueprint).toContain(`## ${heading}`)
+    }
+  })
+
+  it('scaffolds N unchecked atomic steps', () => {
+    expect(countCheckboxSteps(blueprint)).toBe(3)
+    expect(countCheckedSteps(blueprint)).toBe(0)
+  })
+
+  it('can be parsed back via parseFrontmatter round-trip', () => {
+    const data: CheckpointData = {
+      taskId: 'mia-x',
+      title: 'Misión X',
+      state: 'blueprint_ready',
+      currentStep: 0,
+      totalSteps: 3,
+      branch: 'main',
+      lastMachine: 'test-machine',
+      governanceId: 'TASK-1',
+      created: '2026-08-09T00:00:00.000Z',
+      updated: '2026-08-09T00:00:00.000Z',
+    }
+    const parsed = parseFrontmatter(serializeCheckpoint(data, blueprint))
+    expect(parsed.data.taskId).toBe('mia-x')
+    expect(countCheckboxSteps(parsed.body)).toBe(3)
+  })
+})
+
+describe('section helpers', () => {
+  const body = [
+    '## Mission',
+    'misión',
+    '',
+    '## Next action',
+    'Implementar el Paso 2',
+    '',
+    '## Constraints',
+    'no secretos',
+  ].join('\n')
+
+  it('reads a section', () => {
+    expect(readSection(body, 'Constraints')).toBe('no secretos')
+    expect(readSection(body, 'Mission')).toBe('misión')
+    expect(readSection(body, 'Inexistente')).toBe('')
+  })
+
+  it('reads the next action section', () => {
+    expect(readNextAction(body)).toBe('Implementar el Paso 2')
+  })
+
+  it('updates only the Next action section', () => {
+    const updated = updateNextAction(body, 'Implementar el Paso 3')
+    expect(updated).toContain('## Next action\n\nImplementar el Paso 3')
+    expect(updated).toContain('## Constraints\nno secretos')
+  })
+
+  it('returns the body unchanged when Next action is absent', () => {
+    const noSection = '## Mission\nsolo misión'
+    expect(updateNextAction(noSection, 'x')).toBe(noSection)
+  })
+})
+
+describe('missingFrontmatterFields', () => {
+  it('flags required fields that are absent', () => {
+    const fields = missingFrontmatterFields({ taskId: 'x' })
+    expect(fields).toContain('title')
+    expect(fields).toContain('state')
+    expect(fields).not.toContain('taskId')
+  })
+
+  it('returns empty for a complete record', () => {
+    expect(
+      missingFrontmatterFields({
+        taskId: 'x',
+        title: 't',
+        state: 'in_progress',
+        totalSteps: 1,
+        branch: 'main',
+        created: 'c',
+        updated: 'u',
+      })
+    ).toEqual([])
   })
 })

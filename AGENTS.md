@@ -1048,14 +1048,16 @@ npx tsx workshop/subaru/cli.ts <command> [options]
 
 | Comando | Cuándo | Efecto |
 |---------|--------|--------|
-| `freeze <id> --title "<t>" --steps <n> [--governance <id>]` | El concilio APRUEBA la tarea y ANTES de codificar | Escribe frontmatter en `docs/checkpoints/active-subaru-checkpoint.md`, commit `subaru: checkpoint <id> - listo` + push |
-| `mark <id> <n>` | Cada paso atómico completado | State `in_progress`, tick del checkbox, commit `- en-progreso` + push |
-| `complete <id>` | Misión terminada (gates pasados) | State `completed`, commit `- completado` + push |
-| `revive [--no-pull]` | Al despertar en cualquier máquina | `git pull --rebase` + resumen + siguiente paso exacto |
+| `freeze <id> --title "<t>" --steps <n> --governance <id> [--force]` | El concilio APRUEBA la tarea y ANTES de codificar | Verifica governance aprobado, scaffold del blueprint (Mission/Scope/Non-goals/Approved plan/Current state/Next action/Constraints/Verification/Recovery instructions + N checkboxes), escribe frontmatter, commit `subaru: checkpoint <id> - listo` + push |
+| `mark <id> <n>` | Cada paso atómico completado | Secuencial (`n == current_step + 1`), idempotente, State `in_progress`, tick del checkbox, commit `- en-progreso` + push |
+| `complete <id>` | Misión terminada (gates pasados) | Verificado: todos los checkboxes `[x]`, `current_step == total_steps`, governance aprobado. State `completed`, commit `- completado` + push |
+| `revive [--no-pull]` | Al despertar en cualquier máquina | `git pull --rebase` + drift detection (BLOQUEA si el checkpoint fue editado a mano, working tree sucio, frontmatter contradice el body, o el remoto avanzó) + resumen + siguiente paso exacto |
 | `status` | Consultar estado | Resumen del checkpoint |
 | `bootstrap` | Entorno nuevo | Valida node/git remote y restaura el agente global desde `.agents/subaru.md` |
 
 El frontmatter del checkpoint contiene: `task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated`.
+
+**Guarantee `subaru: checkpoint <id> - completado` sin governance no existe**: `freeze` y `complete` son bloqueados por el `WorkflowEngine` si el manifest de governance no está `approved`.
 
 ### 24.2 Secuencia Obligatoria (Return-by-Death)
 
@@ -1072,9 +1074,11 @@ Regla de oro: **nunca un commit de implementación sin su blueprint previo en re
 
 ### 24.3 Reglas
 
-1. **No editar el checkpoint a mano**: el CLI es la única autoridad que lo modifica y sincroniza.
+1. **No editar el checkpoint a mano**: el CLI es la única autoridad que lo modifica y sincroniza. `revive` detecta ediciones manuales y BLOQUEA con `DRIFT DETECTED → BLOCKED — HUMAN/COUNCIL INPUT REQUIRED`.
 2. **Guard del freeze**: no se sobrescribe una misión activa distinta sin `--force`.
-3. **Agente espejo**: `.agents/subaru.md` es la fuente canónica del agente Subaru; `bootstrap` lo restaura en `~/.config/opencode/agent/subaru.md` si falta.
-4. **Soporte si el push falla**: el CLI commit local y avisa si el remoto avanzó (se resuelve con `git pull --rebase`).
-5. **Verificación**: tras `mark`/`complete`/`revive`, confirmar con `status`.
+3. **Governance gate**: `freeze` y `complete` exigen `--governance <id>` aprobado por el `WorkflowEngine`; sin manifest aprobado no se congela ni se cierra una misión.
+4. **Mark secuencial**: `mark` solo avanza `current_step + 1`; repetir es idempotente, saltarse un paso falla.
+5. **Agente espejo**: `.agents/subaru.md` es la fuente canónica del agente Subaru; `bootstrap` lo restaura en `~/.config/opencode/agent/subaru.md` si falta.
+6. **Soporte si el push falla**: el CLI commit local y reporta `LOCAL CHECKPOINT` vs `REMOTE CHECKPOINT` para decidir (re-try, `git pull --rebase`, o escalar).
+7. **Verificación**: tras `mark`/`complete`/`revive`, confirmar con `status`.
 

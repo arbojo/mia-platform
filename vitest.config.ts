@@ -60,6 +60,7 @@ export default defineConfig({
           include: ['workshop/subaru/**/*.test.ts'],
           exclude: ['node_modules', '.next'],
           environment: 'node',
+          testTimeout: 60000,
         },
       },
     ],

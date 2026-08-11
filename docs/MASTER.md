@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `277cd8d`.
+> Fuente de verdad: este repositorio en `1d351c4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `277cd8d` |
+| **Commit HEAD** | `1d351c4` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-10T21:22:00-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-10T21:56:15-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (71)**:
+**Tareas registradas (73)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -643,6 +643,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | completed |
 | TASK-20260811-012128636 | Sidebar estable: Configuracion en la nav principal y sin colapso por hover | completed |
 | TASK-20260811-013644736 | Conectar boton WhatsApp (Conectar/Reconectar/Estado) con el bridge de produccion | completed |
+| TASK-20260811-024549288 | Pulir UI/UX de la tarjeta de WhatsApp y filas de conexiones (textos amigables y estilos estandarizados) | completed |
+| TASK-20260811-031812147 | Endurecer protocolo Return-by-Death (Subaru): governance validado, mark secuencial, complete verificado, revive con drift detection | approved |
 
 ---
 
@@ -687,6 +689,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1d351c4 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+96a745b docs: regenerate MASTER.md at 277cd8d
 277cd8d subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 f1c7ec0 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 d5b26fe subaru: checkpoint subaru-return-by-death-hardening - listo
@@ -705,8 +709,6 @@ f4def95 docs: regenerate MASTER.md at d03625f
 d03625f fix: reconexion WhatsApp, anti-estado-zombie connecting y Quiet Chrome en canales
 adfa081 docs: regenerate MASTER.md at 30485ab
 30485ab fix: refinar sidebar ActivityRail (settings, hover grace period, Quiet Chrome)
-d9d1ad5 docs: regenerate MASTER.md at 5c66ce2
-5c66ce2 fix: hydration mismatch timezone en WeeklyReportCard (timeZone UTC)
 ```
 
 ---

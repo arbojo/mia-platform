@@ -1,0 +1,373 @@
+import { describe, it, expect, afterEach } from 'vitest'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { spawnSync } from 'node:child_process'
+import { runSubaruCommand, type SubaruConfig } from './cli'
+import { parseFrontmatter } from './lib'
+
+const GOVERNANCE_OK = 'TASK-APPROVED'
+const GOVERNANCE_NO = 'TASK-NOT-APPROVED'
+
+function approvedStub(governanceId: string): void {
+  if (governanceId === GOVERNANCE_NO) {
+    throw new Error(
+      `Task manifest ${governanceId} is not approved (status: awaiting_council). Governance check blocked.`
+    )
+  }
+}
+
+const tmpDirs: string[] = []
+
+function cleanup(): void {
+  while (tmpDirs.length > 0) {
+    const dir = tmpDirs.pop()!
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+}
+
+afterEach(cleanup)
+
+function run(cmd: string, args: string[], cwd: string): { status: number; stdout: string; stderr: string } {
+  const res = spawnSync(cmd, args, { encoding: 'utf8', cwd })
+  return { status: res.status ?? -1, stdout: res.stdout ?? '', stderr: res.stderr ?? '' }
+}
+
+function makeRepo(label: string): { repo: string; remote: string } {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), `subaru-${label}-`))
+  tmpDirs.push(base)
+  const repo = path.join(base, 'work')
+  const remote = path.join(base, 'remote.git')
+  fs.mkdirSync(path.join(repo, 'docs', 'checkpoints'), { recursive: true })
+  run('git', ['init', '-b', 'main'], repo)
+  run('git', ['init', '--bare', '-b', 'main', remote])
+  run('git', ['config', 'user.email', 'test@mia.local'], repo)
+  run('git', ['config', 'user.name', 'Subaru Test'], repo)
+  run('git', ['remote', 'add', 'origin', remote], repo)
+  fs.writeFileSync(path.join(repo, 'README.md'), '# test\n', 'utf8')
+  run('git', ['add', '.'], repo)
+  run('git', ['commit', '-m', 'init'], repo)
+  return { repo, remote }
+}
+
+function cloneRepo(remotePath: string): string {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'subaru-clone-'))
+  tmpDirs.push(base)
+  const clone = path.join(base, 'work')
+  run('git', ['clone', remotePath, clone])
+  return clone
+}
+
+function readCheckpoint(cwd: string): { data: Record<string, string | number | boolean | undefined>; body: string } {
+  const raw = fs.readFileSync(path.join(cwd, 'docs', 'checkpoints', 'active-subaru-checkpoint.md'), 'utf8')
+  return parseFrontmatter(raw)
+}
+
+function subaru(
+  cwd: string,
+  command: string,
+  args: string[],
+  opts: { realGovernance?: boolean } = {}
+): { code: number; out: string } {
+  const chunks: string[] = []
+  const origLog = console.log
+  const origError = console.error
+  console.log = (...a: unknown[]) => chunks.push(a.join(' '))
+  console.error = (...a: unknown[]) => chunks.push(a.join(' '))
+  let code: number
+  try {
+    const config: Partial<SubaruConfig> = { cwd }
+    if (!opts.realGovernance) config.assertGovernance = approvedStub
+    code = runSubaruCommand(command, args, config)
+  } finally {
+    console.log = origLog
+    console.error = origError
+  }
+  return { code, out: chunks.join('\n') }
+}
+
+describe('freeze (governance + scaffold)', () => {
+  it('scaffolds the blueprint, writes the checkpoint and pushes it', () => {
+    const { repo, remote } = makeRepo('freeze-ok')
+    const res = subaru(repo, 'freeze', ['mia-x', '--title', 'Misión X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    expect(res.code).toBe(0)
+
+    const cp = readCheckpoint(repo)
+    expect(cp.data.taskId).toBe('mia-x')
+    expect(cp.data.state).toBe('blueprint_ready')
+    expect(cp.data.currentStep).toBe(0)
+    expect(cp.data.totalSteps).toBe(3)
+    expect(cp.data.governanceId).toBe(GOVERNANCE_OK)
+    for (const heading of ['## Mission', '## Scope', '## Non-goals', '## Approved plan', '## Current state', '## Next action', '## Constraints', '## Verification', '## Recovery instructions']) {
+      expect(cp.body).toContain(heading)
+    }
+    expect(cp.body.match(/- \[ \] \*\*Paso \d+:/g)).toHaveLength(3)
+
+    const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], repo).stdout.trim()
+    expect(remoteHead).toBe('subaru: checkpoint mia-x - listo')
+    const remoteExists = fs.existsSync(path.join(remote, 'objects'))
+    expect(remoteExists).toBe(true)
+  })
+
+  it('rejects freeze without --governance', () => {
+    const { repo } = makeRepo('freeze-nogov')
+    const res = subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('--governance')
+  })
+
+  it('rejects freeze with a non-approved governance id', () => {
+    const { repo } = makeRepo('freeze-govno')
+    const res = subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_NO])
+    expect(res.code).toBe(1)
+    expect(res.out.toLowerCase()).toContain('governance')
+  })
+
+  it('blocks freeze over an active mission unless --force is used', () => {
+    const { repo } = makeRepo('freeze-guard')
+    subaru(repo, 'freeze', ['mia-a', '--title', 'A', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'freeze', ['mia-b', '--title', 'B', '--steps', '2', '--governance', GOVERNANCE_OK])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('misión activa')
+
+    const forced = subaru(repo, 'freeze', ['mia-b', '--title', 'B', '--steps', '2', '--governance', GOVERNANCE_OK, '--force'])
+    expect(forced.code).toBe(0)
+    expect(readCheckpoint(repo).data.taskId).toBe('mia-b')
+  })
+
+  it('reconciles total_steps with the actual number of checkboxes', () => {
+    const { repo } = makeRepo('freeze-reconcile')
+    const res = subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '7', '--governance', GOVERNANCE_OK])
+    expect(res.code).toBe(0)
+    expect(readCheckpoint(repo).data.totalSteps).toBe(7)
+  })
+
+  it('connects to the real governance wiring and blocks unknown manifests', () => {
+    const { repo } = makeRepo('freeze-real-gov')
+    const res = subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', 'TASK-NOT-REAL-000000'], {
+      realGovernance: true,
+    })
+    expect(res.code).toBe(1)
+    expect(res.out.toLowerCase()).toContain('governance')
+  })
+})
+
+describe('mark (secuencial)', () => {
+  it('rejects mark before freeze', () => {
+    const { repo } = makeRepo('mark-before-freeze')
+    const res = subaru(repo, 'mark', ['mia-x', '1'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('No hay checkpoint')
+  })
+
+  it('marks steps in order and updates current_step', () => {
+    const { repo } = makeRepo('mark-seq')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    const m1 = subaru(repo, 'mark', ['mia-x', '1'])
+    expect(m1.code).toBe(0)
+    let cp = readCheckpoint(repo)
+    expect(cp.data.state).toBe('in_progress')
+    expect(cp.data.currentStep).toBe(1)
+
+    expect(subaru(repo, 'mark', ['mia-x', '2']).code).toBe(0)
+    cp = readCheckpoint(repo)
+    expect(cp.data.currentStep).toBe(2)
+    expect(cp.body).toContain('- [x] **Paso 1:')
+    expect(cp.body).toContain('- [x] **Paso 2:')
+  })
+
+  it('rejects out-of-sequence steps', () => {
+    const { repo } = makeRepo('mark-skip')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'mark', ['mia-x', '2'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('fuera de secuencia')
+    expect(res.out).toContain('se esperaba 1')
+  })
+
+  it('is idempotent when re-marking an already-marked step', () => {
+    const { repo } = makeRepo('mark-idem')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const logBefore = run('git', ['log', '--oneline'], repo).stdout.split('\n').filter(Boolean).length
+    const again = subaru(repo, 'mark', ['mia-x', '1'])
+    expect(again.code).toBe(0)
+    expect(again.out).toContain('ya estaba marcado')
+    const logAfter = run('git', ['log', '--oneline'], repo).stdout.split('\n').filter(Boolean).length
+    expect(logAfter).toBe(logBefore)
+  })
+
+  it('fails when the body has no checkbox for the expected step', () => {
+    const { repo } = makeRepo('mark-missing-box')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const cpPath = path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md')
+    const raw = fs.readFileSync(cpPath, 'utf8').replace('- [ ] **Paso 2:', '- [ ] **Paso X:')
+    fs.writeFileSync(cpPath, raw, 'utf8')
+    const res = subaru(repo, 'mark', ['mia-x', '2'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('no tiene el checkbox')
+  })
+
+  it('rejects mark on a completed mission', () => {
+    const { repo } = makeRepo('mark-completed')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '1', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    subaru(repo, 'complete', ['mia-x'])
+    const res = subaru(repo, 'mark', ['mia-x', '1'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('ya está completada')
+  })
+})
+
+describe('complete (verificado)', () => {
+  it('blocks complete while steps remain unchecked', () => {
+    const { repo } = makeRepo('complete-pending')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const res = subaru(repo, 'complete', ['mia-x'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('pasos sin completar')
+  })
+
+  it('blocks complete when governance_id is missing', () => {
+    const { repo } = makeRepo('complete-nogov')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '1', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const cpPath = path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md')
+    const raw = fs.readFileSync(cpPath, 'utf8').replace(/governance_id: .*\n/, '')
+    fs.writeFileSync(cpPath, raw, 'utf8')
+    const res = subaru(repo, 'complete', ['mia-x'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('governance_id')
+  })
+
+  it('completes a fully-marked mission, commits and pushes the final state', () => {
+    const { repo } = makeRepo('complete-ok')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    subaru(repo, 'mark', ['mia-x', '2'])
+    const res = subaru(repo, 'complete', ['mia-x'])
+    expect(res.code).toBe(0)
+
+    const cp = readCheckpoint(repo)
+    expect(cp.data.state).toBe('completed')
+    expect(cp.data.currentStep).toBe(2)
+    const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], repo).stdout.trim()
+    expect(remoteHead).toBe('subaru: checkpoint mia-x - completado')
+  })
+})
+
+describe('revive (return-by-death)', () => {
+  it('reports no checkpoint and returns success', () => {
+    const { repo } = makeRepo('revive-empty')
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('No hay checkpoint')
+  })
+
+  it('fails safely on a corrupt checkpoint', () => {
+    const { repo } = makeRepo('revive-corrupt')
+    fs.writeFileSync(
+      path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md'),
+      '---\ntask_id: mia-x\n---\nbody roto',
+      'utf8'
+    )
+    run('git', ['add', '.'], repo)
+    run('git', ['commit', '-m', 'corrupt cp'], repo)
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('CHECKPOINT ILEGIBLE / CORRUPTO')
+    expect(res.out).toContain('title')
+  })
+
+  it('returns the exact next step for a coherent in-progress checkpoint', () => {
+    const { repo } = makeRepo('revive-coherent')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('SUBARU REVIVE')
+    expect(res.out).toContain('SAFE TO CONTINUE')
+    expect(res.out).toMatch(/\[x\] Step 1/)
+    expect(res.out).toMatch(/\[ \] Step 2/)
+    expect(res.out).toMatch(/subaru mark mia-x 2/)
+  })
+
+  it('detects drift from uncommitted changes and blocks', () => {
+    const { repo } = makeRepo('revive-drift-dirty')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    fs.writeFileSync(path.join(repo, 'TODO.txt'), 'cambio sin commit', 'utf8')
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('DRIFT DETECTED')
+    expect(res.out).toContain('BLOCKED — HUMAN/COUNCIL INPUT REQUIRED')
+  })
+
+  it('detects drift when the checkpoint was edited by hand', () => {
+    const { repo } = makeRepo('revive-drift-hand')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const cpPath = path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md')
+    fs.writeFileSync(cpPath, fs.readFileSync(cpPath, 'utf8') + '\n# edición manual\n', 'utf8')
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('DRIFT DETECTED')
+  })
+
+  it('detects incoherence between frontmatter and body', () => {
+    const { repo } = makeRepo('revive-incoherent')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const cpPath = path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md')
+    const raw = fs.readFileSync(cpPath, 'utf8').replace('current_step: 1', 'current_step: 3')
+    fs.writeFileSync(cpPath, raw, 'utf8')
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('DRIFT DETECTED')
+    expect(res.out).toContain('Contradicción')
+  })
+
+  it('survives death across machines: A freezes/marks, B revives and finishes', () => {
+    const a = makeRepo('revive-death')
+    subaru(a.repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    subaru(a.repo, 'mark', ['mia-x', '1'])
+
+    const b = cloneRepo(a.remote)
+    const rev = subaru(b, 'revive', [])
+    expect(rev.code).toBe(0)
+    expect(rev.out).toContain('SAFE TO CONTINUE')
+
+    expect(subaru(b, 'mark', ['mia-x', '2']).code).toBe(0)
+    expect(subaru(b, 'mark', ['mia-x', '3']).code).toBe(0)
+    expect(subaru(b, 'complete', ['mia-x']).code).toBe(0)
+
+    const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], b).stdout.trim()
+    expect(remoteHead).toBe('subaru: checkpoint mia-x - completado')
+  })
+})
+
+describe('push failures', () => {
+  it('keeps the local checkpoint and reports the missing remote checkpoint', () => {
+    const base = fs.mkdtempSync(path.join(os.tmpdir(), 'subaru-pushfail-'))
+    tmpDirs.push(base)
+    const repo = path.join(base, 'work')
+    fs.mkdirSync(path.join(repo, 'docs', 'checkpoints'), { recursive: true })
+    run('git', ['init', '-b', 'main'], repo)
+    run('git', ['config', 'user.email', 'test@mia.local'], repo)
+    run('git', ['config', 'user.name', 'Subaru Test'], repo)
+    run('git', ['remote', 'add', 'origin', path.join(base, 'does-not-exist.git')], repo)
+    fs.writeFileSync(path.join(repo, 'README.md'), 'x', 'utf8')
+    run('git', ['add', '.'], repo)
+    run('git', ['commit', '-m', 'init'], repo)
+
+    const res = subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('LOCAL CHECKPOINT')
+    expect(res.out).toContain('REMOTE CHECKPOINT')
+    expect(res.out).toContain('push falló')
+
+    const localHead = run('git', ['log', '-1', '--format=%s'], repo).stdout.trim()
+    expect(localHead).toBe('subaru: checkpoint mia-x - listo')
+  })
+})

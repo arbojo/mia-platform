@@ -1,0 +1,97 @@
+{
+  "id": "TASK-20260811-031812147",
+  "title": "Endurecer protocolo Return-by-Death (Subaru): governance validado, mark secuencial, complete verificado, revive con drift detection",
+  "description": "Mision de endurecimiento del protocolo Return-by-Death (Subaru), NO reescritura. A partir de la auditoria de workshop/subaru/*: (1) freeze debe validar governance via WorkflowEngine.assertGovernance (rechaza manifest inexistente o no aprobado) y scaffoldear el blueprint ejecutable con las secciones estructurales (Mission, Scope, Non-goals, Approved plan atomico con pasos `- [ ] **Paso N:**`, Current state, Next action, Constraints, Verification, Recovery instructions); (2) mark secuencial: solo permite marcar currentStep+1 y falla duro si el checkbox `Paso N:` no existe en el body (evita divergencia frontmatter/body); (3) complete verificado: exige todos los checkboxes [x], currentStep==totalSteps y manifest governance aprobado, impidiendo complete prematuro; (4) revive completo: valida legibilidad del checkpoint, inspecciona el repo (git status), detecta drift (working tree sucio, commits locales sin pushear, cambios posteriores al ultimo checkpoint subaru), produce reporte operativo (Completed, Next, Next action, Files expected, Constraints, Required verification, DO NOT, Recovery status), emite DRIFT DETECTED y BLOCKED - HUMAN/COUNCIL INPUT REQUIRED ante contradiccion, y falla de forma segura ante checkpoint corrupto o ilegible explicando que falta; (5) bootstrap con checks de git, checkpoint y resync del espejo global del agente; (6) reconciliar total_steps con los checkboxes reales del body (el checkpoint actual de quiet-chrome muestra total_steps 5 con 8 pasos en el body); (7) estado `frozen` en vez de `blueprint_ready` (commit sigue siendo - listo); (8) archivar checkpoint completado en docs/checkpoints/archive/ al congelar una mision nueva. Tests de integracion en workshop/subaru/cli.test.ts sobre repo git temporal (happy path freeze-mark-mark-complete, death simulation freeze-mark-muerte-revive-continuar, multi-maquina repo A push -> repo B pull revive, invalid transitions mark antes de freeze/saltar pasos/complete incompleto/freeze sobre mision activa sin --force, push failure distinguiendo LOCAL CHECKPOINT vs REMOTE CHECKPOINT, drift detection, checkpoint corrupto/missing fail seguro). Sin cambios de schema, sin cambios de AI, sin implicaciones de seguridad de datos (el checkpoint no almacena secretos).",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "refactor",
+      "infrastructure"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "engineering-process"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, cross-cutting (multi-domain), category requires council. Required agents (8): architect, backend, frontend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "El diseno preserva la arquitectura actual (frontmatter + CLI + commits) y endurece el estado sin reescribir: freeze/plan atomico (C), mark secuencial (D), complete verificado (E), revive con drift (F). Scope: indispensable + B/H. A,G,I fuera. Aprobado.",
+      "timestamp": "2026-08-11T03:19:18.183Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "CLI de herramientas: la validacion de governance en freeze via WorkflowEngine.assertGovernance reutiliza el sistema existente sin duplicarlo. Refactor testable (H) habilita tests de integracion sin cambiar comandos. Sin tocar APIs de la plataforma. Aprobado.",
+      "timestamp": "2026-08-11T03:19:20.783Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin impacto en UI. Los comandos CLI permanecen identicos (freeze/mark/complete/revive/status/bootstrap). Refactor solo interno para testabilidad. Aprobado.",
+      "timestamp": "2026-08-11T03:19:22.974Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Los tests de integracion cubren el criterio de exito: happy path, death simulation, multi-maquina, invalid transitions, push failure (LOCAL vs REMOTE), drift, corrupto/missing. e2e/chrome_devtools declarados N/A (CLI sin UI) con unit_tests+lint+build+security como gates. Aprobado.",
+      "timestamp": "2026-08-11T03:19:25.737Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Git operations del checkpoint: git add selectivo (solo el archivo), commits con formato subaru, push fallido distinguiendo LOCAL vs REMOTE. Mejora la trazabilidad de commits sin cambiar convenciones. Aprobado.",
+      "timestamp": "2026-08-11T03:19:28.029Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Multi-maquina (HP/Dell/Linux): el estado vive en Git, no en la maquina. freeze/mark/complete/revive sincronizan remoto. Bootstrap actual ya restaura el agente global; G queda fuera de esta mision. Aprobado.",
+      "timestamp": "2026-08-11T03:19:30.442Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Drift detection es el guardian de entorno del protocolo: revive detecta working tree sucio, commits sin pushear y cambios posteriores al ultimo checkpoint; emite DRIFT DETECTED y bloquea (BLOCKED - HUMAN/COUNCIL INPUT REQUIRED) en vez de continuar. Aprobado.",
+      "timestamp": "2026-08-11T03:19:32.758Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "La documentacion (.agents/subaru.md, AGENTS.md sec. 24, MASTER regenerado) se actualizara con el comportamiento endurecido. El checkpoint nunca almacena secretos (referencia por nombre de env var). Aprobado.",
+      "timestamp": "2026-08-11T03:19:36.102Z"
+    }
+  ],
+  "createdAt": "2026-08-11T03:18:12.308Z",
+  "classifiedAt": "2026-08-11T03:18:12.308Z",
+  "approvedAt": "2026-08-11T03:19:36.103Z"
+}

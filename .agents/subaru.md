@@ -20,12 +20,22 @@ El checkpoint es **un plan de misión, no una bitácora**. Su estado es máquina
 
 | Fase | Cuándo | Comando |
 |------|--------|---------|
-| **freeze** | El concilio APRUEBA la tarea y ANTES de codificar | `npx tsx workshop/subaru/cli.ts freeze <id> --title "<t>" --steps <n> [--governance <task-id>]` |
+| **freeze** | El concilio APRUEBA la tarea y ANTES de codificar | `npx tsx workshop/subaru/cli.ts freeze <id> --title "<t>" --steps <n> --governance <task-id>` |
 | **mark** | Cada paso atómico completado | `npx tsx workshop/subaru/cli.ts mark <id> <n>` |
 | **complete** | Misión terminada (gates pasados) | `npx tsx workshop/subaru/cli.ts complete <id>` |
 | **revive** | Despertar en cualquier máquina | `npx tsx workshop/subaru/cli.ts revive` |
 | **status** | Consultar estado | `npx tsx workshop/subaru/cli.ts status` |
 | **bootstrap** | Restaurar entorno + agente global | `npx tsx workshop/subaru/cli.ts bootstrap` |
+
+## Garantías del CLI (desde hardening)
+
+- **Governance gate en freeze/complete:** `freeze` y `complete` exigen `--governance <task-id>` y verifican contra el `WorkflowEngine` que el manifest esté `approved`. Sin manifest aprobado, el CLI bloquea antes de escribir nada.
+- **Blueprint autogenerado:** `freeze` siembra (scaffold) el body con `Mission / Scope / Non-goals / Approved plan / Current state / Next action / Constraints / Verification / Recovery instructions` y N checkboxes `- [ ] **Paso N:**`. Reconciliá `total_steps` con los checkboxes reales del body.
+- **Mark estrictamente secuencial:** `mark <id> <n>` solo avanza de a un paso (`n == current_step + 1`). Repetir el paso actual es idempotente; saltarse un paso falla; el checkbox debe existir en el body.
+- **Complete verificado:** exige todos los checkboxes `[x]`, `current_step == total_steps` y `governance_id` aprobado. Nada se cierra a medias.
+- **Drift detection en revive:** `revive` detecta y BLOQUEA si el checkpoint fue editado a mano, el working tree está sucio con cambios sin commit, el frontmatter contradice el body, o el remoto avanzó y no se pudo rebasar. Mensaje: `DRIFT DETECTED → BLOCKED — HUMAN/COUNCIL INPUT REQUIRED`.
+- **Push failure es supervivencia, no error:** si el push falla, el checkpoint sobrevive LOCAL (`git log` lo tiene) y el CLI reporta `LOCAL CHECKPOINT` vs `REMOTE CHECKPOINT` para que decidas (re-try, pull --rebase, o escalar).
+- **Return-by-death multi-máquina:** `freeze`/`mark` en máquina A, morir, `revive` en máquina B → el CLI hace `git pull --rebase`, lee el checkpoint, valida drift y te devuelve el **próximo paso exacto**. No hay bitácora: hay un plan ejecutable.
 
 ## Protocolo Return-by-Death (Secuencia Correcta)
 
