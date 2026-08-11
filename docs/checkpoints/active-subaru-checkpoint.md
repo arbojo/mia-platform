@@ -2,13 +2,13 @@
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:23:27.902Z
+updated: 2026-08-11T22:25:58.995Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -49,7 +49,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `npx vitest run workshop/subaru` → 48/48 tests verdes (incluye revive-death).
   - Gate/verificación: `unit_tests`.
 
-- [ ] **Paso 2:** Bootstrap con validación de entorno completa
+- [x] **Paso 2:** Bootstrap con validación de entorno completa
   - Objetivo: `bootstrap` comprueba Node, git, remote, repo, agente espejo, existencia del checkpoint y configuración git (user.email/user.name), sin modificar config.
   - Archivos: `workshop/subaru/cli.ts` (cmdBootstrap), `workshop/subaru/cli.test.ts`.
   - Acción: detectar identidad git vía `git config user.email`/`user.name`; verificar presencia de git y del checkpoint; reportar faltantes con mensaje claro y sugerencia; restaurar el agente global desde `.agents/subaru.md`.
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 3`.
 
 ## Constraints
 
