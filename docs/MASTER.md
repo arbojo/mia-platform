@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `babb166`.
+> Fuente de verdad: este repositorio en `2f92393`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `babb166` |
+| **Commit HEAD** | `2f92393` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T16:35:17-06:00 |
+| **Generado** | 2026-08-11T16:40:42-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (74)**:
+**Tareas registradas (75)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -646,6 +646,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260811-024549288 | Pulir UI/UX de la tarjeta de WhatsApp y filas de conexiones (textos amigables y estilos estandarizados) | completed |
 | TASK-20260811-031812147 | Endurecer protocolo Return-by-Death (Subaru): governance validado, mark secuencial, complete verificado, revive con drift detection | approved |
 | TASK-20260811-072155412 | Edicion por negocio (tenant): capabilities premier para Vitanova con resolucion por businessId y fallback al env global | approved |
+| TASK-20260811-220954273 | Protocolo de modos de trabajo MIA: 5 modos de interaccion agente-concilio | completed |
 
 ---
 
@@ -690,6 +691,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+2f92393 docs: modos de trabajo MIA (protocolo del concilio) TASK-20260811-220954273
+fa4ae56 docs: regenerate MASTER.md at babb166
 babb166 subaru: checkpoint subaru-audit-v2 - en-progreso
 4f8c39f feat(subaru): secret scan (bloquea freeze/mark/complete) + drift con commits remotos
 53aad0f docs: regenerate MASTER.md at b062c12
@@ -708,8 +711,6 @@ fcc2db8 feat(subaru): bootstrap valida entorno completo (node, git, remote, chec
 ffa03b0 docs: regenerate MASTER.md at 245fde9
 245fde9 subaru: checkpoint subaru-audit-v2 - en-progreso
 222ce84 fix(subaru): configurar identidad git en cloneRepo de tests multi-maquina
-dac0322 subaru: checkpoint subaru-audit-v2 - listo
-34b1771 docs: regenerate MASTER.md at 9ae58b5
 ```
 
 ---
