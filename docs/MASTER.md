@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `41da164`.
+> Fuente de verdad: este repositorio en `3cf3fc6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `41da164` |
+| **Commit HEAD** | `3cf3fc6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-10T18:57:48-06:00 |
+| **Generado** | 2026-08-10T19:01:25-06:00 |
 
 ---
 
@@ -684,6 +684,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+3cf3fc6 fix: categorias TaskCategory validas en script de clasificacion del bridge
+db5dac5 docs: regenerate MASTER.md at 41da164
 41da164 feat: dockerizar bridge WhatsApp, desplegar en Fly.io y sincronizar env Vercel
 f4def95 docs: regenerate MASTER.md at d03625f
 d03625f fix: reconexion WhatsApp, anti-estado-zombie connecting y Quiet Chrome en canales
@@ -702,8 +704,6 @@ cf0b1e5 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 eb61e2b subaru: checkpoint dashboard-quiet-chrome - en-progreso
 098f17b feat: migrar Dashboard a Quiet Chrome glass atmosferico + ghost UI
 acba597 docs: regenerate MASTER.md at 3f8bad3
-3f8bad3 chore: governance artifacts dashboard-quiet-chrome
-9e7b0ff subaru: checkpoint dashboard-quiet-chrome - listo
 ```
 
 ---
