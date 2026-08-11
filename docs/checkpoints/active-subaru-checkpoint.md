@@ -1,84 +1,169 @@
 ---
-task_id: dashboard-quiet-chrome
-title: Dashboard Quiet Chrome: glass atmosferico + ghost UI
-state: completed
-current_step: 5
-total_steps: 5
+task_id: subaru-return-by-death-hardening
+title: Endurecer protocolo Return-by-Death (Subaru)
+state: blueprint_ready
+current_step: 0
+total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
-governance_id: TASK-20260810-020352435
-created: 2026-08-10T00:26:42.754Z
-updated: 2026-08-10T02:24:08.633Z
+governance_id: TASK-20260811-031812147
+created: 2026-08-11T03:20:00.000Z
+updated: 2026-08-11T03:20:48.132Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
-## 0. PROTOCOLO SUBARU — Secuencia Correcta
+## Mission
 
-Subaru NO documenta lo ya hecho: **congela el blueprint de lo que se va a
-implementar** en el instante en que el concilio aprueba la tarea, y lo
-sincroniza a remoto ANTES de escribir código. Así, si la máquina muere por
-tokens a mitad de la implementación, la próxima máquina lee el plan desde
-GitHub y continúa sin perder contexto.
+Endurecer el protocolo Return-by-Death del agente Subaru para garantizar que una
+nueva instancia de OpenCode pueda recuperar una misión desde GitHub (git pull →
+revive) y continuarla de forma segura, sin depender de la conversación anterior y
+sin continuar silenciosamente ante drift, corrupción o contradicción.
 
-```
-1. Governance: classify → concilio aprueba (análisis + plan)
-2. SUBARU: escribe checkpoint con Plan de Ataque ATOMICO   ← AQUÍ
-3. SUBARU: freeze → commit "subaru: checkpoint <id> - listo" + push
-4. Implementación (agentes) + Gates de calidad
-5. SUBARU: complete → commit "subaru: checkpoint <id> - completado" + push
-```
+NO es una reescritura: se preservan los comandos CLI (freeze/mark/complete/revive/
+status/bootstrap), el frontmatter YAML y el formato de commits (`subaru: checkpoint
+<id> - listo|en-progreso|completado|bloqueado`). Es una misión de endurecimiento
+aprobada por el Engineering Council (TASK-20260811-031812147).
 
-Regla de oro: **nunca un commit de implementación sin su blueprint previo en remoto.**
+## Scope
 
----
+- `workshop/subaru/lib.ts` — helpers de body (scaffold del blueprint, conteo de
+  checkboxes, next_action) y reutilización de `WorkflowEngine` para governance.
+- `workshop/subaru/cli.ts` — freeze (governance + scaffold), mark (secuencial),
+  complete (verificado), revive (drift + informe), refactor testable.
+- `workshop/subaru/lib.test.ts` — actualización/ampliación de unit tests.
+- `workshop/subaru/cli.test.ts` (NUEVO) — suite de integración sobre repo git temporal.
+- `.agents/subaru.md` — documentación del comportamiento endurecido.
+- `AGENTS.md` (sección 24) — reflejar validación de governance, mark secuencial,
+  complete verificado y revive con drift.
+- `docs/MASTER.md` — regenerado vía `npm run docs:generate` (sin edición manual).
 
-## 1. Contexto y Objetivo
+## Non-goals
 
-Refactorizar el **chrome del dashboard** de MIA: eliminar el ruido visual
-(barra superior saturada, sidebar fijo, orbe animado 24/7, acciones raras
-siempre visibles) y sustituirlo por **interacciones directas con el mouse**:
-menús contextuales por clic derecho, hovers inteligentes con delay y
-navegación por zonas activas. Estética oscura pulida (backdrop-blur, hairline,
-acento por módulo) sin parches CSS globales. Capa de presentación pura: no
-toca RLS, APIs, AI ni datos.
+- NO renombrar el estado `blueprint_ready` (cambio A de la auditoría: excluido por
+  el Council — conveniente, no necesario).
+- NO ampliar `bootstrap` con checks de git/checkpoint (cambio G: excluido).
+- NO archivar checkpoints completados en `docs/checkpoints/archive/` (cambio I: excluido).
+- NO tocar el sistema de governance (`workshop/governance/*`) salvo reutilizarlo vía
+  import. NO tocar la plataforma MIA (src/), NI el código del bridge.
+- NO almacenar secretos en el checkpoint (solo referencias a env vars por nombre).
+- NO cambiar los comandos CLI ni el formato del frontmatter.
 
-## 2. Blueprint de Ejecución (plan congelado pre-implementación)
+## Approved plan
 
-### 2.1 Archivos exactos a tocar
-| Archivo | Acción | Detalle |
-|---------|--------|---------|
-| `src/components/ui/context-menu.tsx` | Crear | `ContextMenuProvider` (estado global, capa en portal al body) + `useContextMenu()` → `{ openMenu(items, e), closeMenu() }` + `ContextMenuPanel` glass (backdrop-blur, hairline `--atmosphere-border`, acento `--module-accent`, radii `--mod-radius-*`, ease `--mod-ease-premium`). Intercepta `onContextMenu` con `preventDefault`, posiciona en `fixed` con clamp al viewport, cierra en pointerdown-fuera / Escape / scroll / resize / blur. Items: `ContextMenuItem` (icono+label+atajo, hover con acento), `ContextMenuSeparator`, `ContextMenuLabel`. Navegación por teclado: ArrowUp/Down, Enter, Escape, Home/End. |
-| `src/lib/hooks/use-hover-intent.ts` | Crear | Hook reutilizable: `useHoverIntent(delayMs = 120)` → `{ hoverProps, intent }`; `intent` pasa a `true` tras mantener el pointer `delayMs` (evita reveal saltarines al pasar rápido). |
-| `src/components/dashboard/ActivityRail.tsx` | Crear | Reemplaza `Sidebar.tsx`. Rail de iconos `w-16` que se expande al hover a `w-64` (CSS width + `--mod-ease-premium`). Grupos como zonas (hairline separador, label de grupo visible solo al expandir). Ítem activo: barra indicadora izquierda + acento del módulo. Logo/ajustes: clic derecho sobre el rail abre menú contextual con navegación rápida (todas las secciones) y ajustes (connections/assistants/health/accessibility). Usa `useHoverIntent` para no expandir en hovers accidentales y `useContextMenu` para el power-nav. |
-| `src/components/dashboard/CommandStrip.tsx` | Crear | Reemplaza `TopBar.tsx`. Franja transparente (sin fondo ni borde saturados): chip de módulo compacto (icono+label, hover muestra descripción vía tooltip) + campana de señales. Tema e idioma **ya no son botones**: clic derecho sobre el chip abre menú contextual (tema claro/oscuro, idioma con check, toggle de panel de señales). |
-| `src/components/dashboard/MIAIndicator.tsx` | Modificar | De orbe fijo con texto+anillos+pulso a un **ember silencioso**: punto pequeño bottom-right, opacidad baja por defecto, **sin texto ni anillos ni animación en reposo**. Al hover: florece en un glass tooltip ("Estoy aquí · Acompañando tu negocio"). Clic derecho: menú contextual de presencia (cambiar estado activo/learning/paused, ir a salud). Respeta `prefers-reduced-motion`. |
-| `src/app/dashboard/layout.tsx` | Modificar | Envolver con `<ContextMenuProvider>`; `Sidebar`→`ActivityRail`; `TopBar`→`CommandStrip`. |
+Pasos atómicos aprobados por el Council (orden estricto):
 
-### 2.2 Pasos atómicos
-- [x] **Paso 1:** Gobernanza: clasificar + concilio aprobar (TASK-20260810-002545865).
-- [x] **Paso 2 (SUBARU):** Escribir este blueprint ANTES de codificar.
-- [x] **Paso 3:** Crear primitivas: `context-menu.tsx` + `use-hover-intent.ts`.
-- [x] **Paso 4:** Crear `ActivityRail.tsx` (rail expansible + power-nav por clic derecho).
-- [x] **Paso 5:** Crear `CommandStrip.tsx` + refactor de `MIAIndicator.tsx` (ember silencioso).
-- [x] **Paso 6:** Wiring en `dashboard/layout.tsx` (provider + rail + strip).
-- [x] **Paso 7:** Gates (comandos abajo) + DevTools (interacciones: clic derecho, hover, keyboard).
-- [ ] **Paso 8 (SUBARU):** `complete` → commit `subaru: checkpoint quiet-chrome - completado` + push + reporte.
+- [ ] **Paso 1:** Governance: clasificar (COMPLEX) + concilio aprobar 8/8
+  (TASK-20260811-031812147) + `governance validate` PASSED. Criterio: manifest con
+  status `approved`. Gate: governance validate.
+- [ ] **Paso 2 (SUBARU):** Escribir blueprint + `freeze` + commit `subaru: checkpoint
+  subaru-return-by-death-hardening - listo` + push. Criterio: checkpoint en remoto
+  (GitHub) con frontmatter y plan atómico. Gate: `git log` + remoto sincronizado.
+- [ ] **Paso 3 (H):** Refactor testable de la CLI. Exportar handlers con config
+  inyectable (`cwd`, `remote`, `checkpointPath`) desde `cli.ts`; agregar en `lib.ts`
+  helpers de body: `scaffoldBlueprint` (secciones Mission/Scope/Non-goals/Approved
+  plan/Current state/Next action/Constraints/Verification/Recovery instructions con
+  pasos `- [ ] **Paso N:**`), `countCheckboxSteps`/`countCheckedSteps`,
+  `allStepsChecked`, `readNextAction`. Los comandos CLI y el frontmatter quedan
+  idénticos. Criterio: handlers llamables en proceso (tests) sin spawnear tsx.
+  Dependencia: Paso 1, 2. Gate: unit_tests.
+- [ ] **Paso 4 (B):** `freeze` valida governance: exige `--governance <id>` y llama
+  `WorkflowEngine.assertGovernance(id)`; falla con mensaje claro si el id falta o el
+  manifest no está aprobado. Criterio: freeze rechazado sin governance aprobado.
+  Dependencia: Paso 3. Gate: unit_tests (invalid).
+- [ ] **Paso 5 (C+J):** `freeze` scaffold el blueprint si el body está vacío
+  (secciones estructurales + pasos `- [ ] **Paso N:**`) y reconcilia `total_steps`
+  con los checkboxes reales del body (aviso si `--steps` no coincide; se toma el
+  conteo del body y se actualiza el frontmatter). Criterio: freeze genera un
+  checkpoint con body ejecutable y total_steps consistente. Dependencia: Paso 3, 4.
+  Gate: unit_tests (round-trip).
+- [ ] **Paso 6 (D):** `mark` secuencial: solo permite marcar `currentStep + 1`;
+  idempotente si ya está marcado; fail duro si el checkbox `Paso N:` no existe en el
+  body; actualiza la sección `Next action` del body. Criterio: `mark 4` sin haber
+  marcado 3 → rechazado; `mark` con checkbox ausente → rechazado con mensaje.
+  Dependencia: Paso 5. Gate: unit_tests (invalid transitions).
+- [ ] **Paso 7 (E):** `complete` verificado: exige todos los checkboxes `[x]`,
+  `currentStep === totalSteps` y manifest governance aprobado (via
+  `assertGovernance`); falla con mensaje explícito si falta algo. Criterio: `complete`
+  prematuro (paso sin tickear) → rechazado. Dependencia: Paso 6. Gate: unit_tests.
+- [ ] **Paso 8 (F+K):** `revive` completo: (a) validar legibilidad del checkpoint
+  (fail seguro si el frontmatter está corrupto/ilegible, explicando qué falta);
+  (b) inspeccionar el repo (`git status`, `git log`, commits sin pushear);
+  (c) drift detection: working tree sucio, cambios posteriores al último commit
+  `subaru:`, commit checkpoint sin sincronizar → `DRIFT DETECTED` + explicación
+  (qué esperaba / qué encontró / qué commit / qué archivo / qué decisión requiere
+  validación) + `BLOCKED — HUMAN/COUNCIL INPUT REQUIRED`; (d) informe operativo
+  `SUBARU REVIVE` con Mission, Task ID, Governance, Branch, State, Completed,
+  Next, Next action, Files expected, Constraints, Required verification, DO NOT,
+  Recovery status (SAFE TO CONTINUE). Criterio: revive produce el informe completo
+  y detecta drift real. Dependencia: Paso 7. Gate: unit_tests (integración).
+- [ ] **Paso 9 (tests):** Extender `lib.test.ts` (helpers) y crear `cli.test.ts`
+  (integración en repo git temporal con git init + remote local): happy path
+  (freeze→mark→mark→complete), death simulation (freeze→mark→"muerte"→revive→
+  continuar), multi-máquina (repo A push → repo B pull revive → continuar), invalid
+  transitions (mark antes de freeze, saltar pasos, complete incompleto, freeze sobre
+  misión activa sin --force, freeze sin governance/no aprobado), push failure
+  (remoto inalcanzable: distingue LOCAL CHECKPOINT vs REMOTE CHECKPOINT, exit≠0),
+  drift (cambio no commiteado tras el checkpoint → DRIFT DETECTED), corrupto/missing
+  (fail seguro explicando qué falta). Criterio: `npx vitest run --project workshop`
+  verde (suite subaru completa). Dependencia: Paso 8. Gate: unit_tests.
+- [ ] **Paso 10 (gates):** `npm run lint`, `npm run build`, security_review
+  (grep secretos/API keys en el checkpoint y el CLI: solo referencias por nombre),
+  `unit_tests`. e2e_tests y chrome_devtools declarados N/A (CLI sin UI) — justificado
+  en el manifest. Criterio: 0 errores lint, build OK, sin secretos en archivos
+  committeados. Dependencia: Paso 9. Gate: lint, build, security_review.
+- [ ] **Paso 11 (docs+complete):** Actualizar `.agents/subaru.md` y AGENTS.md §24;
+  regenerar MASTER.md (`npm run docs:generate`); commit+push de implementación y
+  docs; `subaru complete` → commit `subaru: checkpoint subaru-return-by-death-hardening
+  - completado` + push + reporte. Criterio: working tree limpio, remoto sincronizado,
+  checkpoint completed, gates pasados. Dependencia: Paso 10. Gate: git status limpio
+  + push + status subaru.
 
-### 2.3 Comandos de validación obligatorios
-```
-npm run lint
-npm run build
-npm run test:unit
-npm test
-# Chrome DevTools MCP: abrir dashboard → clic derecho en rail/chip/ember →
-# menús glass visibles, posicionados, sin desbordes; Escape cierra; sin errores de consola.
-```
+## Current state
 
-## 3. Evidencia de Ejecución (se llena al cierre)
-- Gates, commits, manifest y verificación de interacciones.
+- Governance: aprobado (TASK-20260811-031812147, 8/8). El checkpoint de la misión
+  anterior (dashboard-quiet-chrome, completed) queda en el historial de git.
+- Paso 1 (governance) completado. Pasos 2-11 pendientes.
+- Working tree (ajeno a esta misión): cambios sin commitear de
+  TASK-20260811-024549288 (ConnectionsManager + test + manifest + script de
+  clasificación). NO tocarlos en esta misión; el freeze solo committea el checkpoint.
 
-## 4. Comando de Resurrección (una línea)
-```
-git -C C:\Users\david\mia pull origin main && npx tsx workshop/subaru/cli.ts revive
-```
+## Next action
+
+Ejecutar el Paso 3 (refactor testable H) después del freeze: exportar handlers con
+config inyectable en `cli.ts` y agregar helpers de body en `lib.ts`. Los Pasos 1-2
+están completos una vez el checkpoint esté en remoto.
+
+## Constraints
+
+- Comandos CLI sin cambios (`freeze/mark/complete/revive/status/bootstrap`).
+- Frontmatter YAML sin cambios (mismos campos).
+- Formato de commits: `subaru: checkpoint <id> - listo|en-progreso|completado|bloqueado`.
+- `git add` solo del archivo del checkpoint (nunca `git add -A`).
+- No secretos en el checkpoint (referencias por nombre de env var).
+- Reusar `WorkflowEngine` de `workshop/governance/workflow.ts` (no duplicar lógica).
+- ADRs aplicables: AGENTS.md §24 (protocolo Subaru), §23 (governance), §22 (Evidence
+  First). No introducir ADR nuevo (cambio interno de tooling).
+- Estado `blueprint_ready` se mantiene (cambio A excluido por el Council).
+
+## Verification
+
+- `npx vitest run --project workshop` — suite subaru (unit + integración) verde.
+- `npm run lint` — 0 errores.
+- `npm run build` — sin errores.
+- security_review — sin secretos en archivos committeados.
+- e2e_tests / chrome_devtools: N/A (CLI sin UI), justificado en el manifest.
+- `git status` limpio + remoto sincronizado al cierre.
+
+## Recovery instructions
+
+Tras un `revive` en cualquier máquina:
+
+1. `git pull --rebase origin main`
+2. `npx tsx workshop/subaru/cli.ts revive`
+3. Leer el informe: misión, último paso completado, siguiente paso exacto.
+4. Si `DRIFT DETECTED` aparece: NO continuar. Resolver la contradicción
+   (revisar qué commit/archivo cambió) antes de cualquier `mark`.
+5. Continuar implementando el paso indicado y ejecutar
+   `npx tsx workshop/subaru/cli.ts mark subaru-return-by-death-hardening <n>`.
+6. Al final: `npx tsx workshop/subaru/cli.ts complete subaru-return-by-death-hardening`.
