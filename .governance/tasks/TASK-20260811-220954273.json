@@ -1,0 +1,73 @@
+{
+  "id": "TASK-20260811-220954273",
+  "title": "Protocolo de modos de trabajo MIA: 5 modos de interaccion agente-concilio",
+  "description": "Formalizar los 5 modos de trabajo del agente con el concilio: (1) exploracion/entendimiento de codigo desconocido, (2) diseno de soluciones con comparativa de opciones y analisis de impacto, (3) inspeccion/code review (seguridad y RLS, deuda tecnica), (4) debugging quirurgico de causa raiz, (5) automatizacion de rutinas y git workflow con mensajes de commit estructurados. Documentar como protocolo de operacion para todas las sesiones de desarrollo.",
+  "scope": {
+    "categories": [
+      "documentation",
+      "other"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "database",
+      "ai",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, cross-cutting (multi-domain). Required agents (4): architect, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: los 5 modos separan exploracion (sin riesgo de cambio), diseno (comparativa y analisis de impacto antes de codear), revision (seguridad RLS y deuda tecnica), debugging de causa raiz y git workflow. Respetan el dominio de ventas y la arquitectura multi-tenant; no introducen complejidad innecesaria, formalizan buenas practicas ya existentes.",
+      "timestamp": "2026-08-11T22:10:01.916Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: el modo 3 (code review estricto) y el modo 4 (debugging de causa raiz) alinean con los gates de calidad y el Evidence First. Los modos no rompen la secuencia de governance ni los gates de lint/build/test.",
+      "timestamp": "2026-08-11T22:10:03.004Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: el modo 5 (mensajes de commit estructurados y rutinas git) respeta las convenciones de commit, atomicidad y el Protocolo Subaru. No introduce flujo de commit paralelo.",
+      "timestamp": "2026-08-11T22:10:04.169Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: los modos se documentaran como protocolo de operacion (AGENTS.md / docs), registrando decisiones y evidencias segun el Evidence First Protocol. Se actualizara la memoria de ingenieria con los hallazgos.",
+      "timestamp": "2026-08-11T22:10:05.398Z"
+    }
+  ],
+  "createdAt": "2026-08-11T22:09:54.067Z",
+  "classifiedAt": "2026-08-11T22:09:54.067Z",
+  "approvedAt": "2026-08-11T22:10:05.399Z",
+  "startedAt": "2026-08-11T22:10:18.012Z",
+  "completedAt": "2026-08-11T22:10:47.262Z"
+}

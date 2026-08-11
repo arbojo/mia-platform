@@ -1082,3 +1082,50 @@ Regla de oro: **nunca un commit de implementación sin su blueprint previo en re
 6. **Soporte si el push falla**: el CLI commit local y reporta `LOCAL CHECKPOINT` vs `REMOTE CHECKPOINT` para decidir (re-try, `git pull --rebase`, o escalar).
 7. **Verificación**: tras `mark`/`complete`/`revive`, confirmar con `status`.
 
+---
+
+## 25. Modos de Trabajo MIA (Protocolo del Concilio)
+
+Formalizado por el concilio (TASK-20260811-220954273). Son los **modos de operación estándar** que el agente debe usar en todas las sesiones de desarrollo. El usuario los invoca de forma explícita o implícita; cada modo define alcance, restricciones y entregables.
+
+### 25.1 Modo 1 — Explorar y Entender Código Desconocido (sin romper nada)
+
+Solo lectura. No se propone ni se escribe ningún cambio.
+
+- **Explicación Arquitectónica**: detallar la arquitectura y el flujo de datos de un módulo/archivo — interacción con el resto del sistema, dependencias críticas y límites de dominio — sin proponer cambios.
+- **Mapa Mental Rápido**: desglose paso a paso de cómo se procesa una petición desde el endpoint/webhook hasta su impacto en Supabase, traducido a un modelo mental claro.
+
+### 25.2 Modo 2 — Diseñar Soluciones (antes de programar)
+
+Rigor técnico MIA: comparar opciones y ver consecuencias antes de codear.
+
+- **Comparativa de Opciones**: 3 alternativas (A/B/C). Para cada una: qué resuelve, ventajas, riesgos, impacto en rendimiento/costos y qué se sacrifica. Terminar con recomendación argumentada.
+- **Análisis de Impacto ("¿Qué pasa si...?")**: dependencias, qué podría romper, qué problema resuelve, qué NO resuelve y si existe una alternativa más simple.
+
+### 25.3 Modo 3 — Inspeccionar Código y Code Review
+
+Auditoría del propio código o de librerías externas antes de commit o merge.
+
+- **Auditoría de Seguridad y RLS**: vulnerabilidades, problemas de multi-tenancy, brechas en Row Level Security de Supabase, fugas de memoria. Estricto.
+- **Caza de Deuda Técnica**: código redundante, malas prácticas, qué refactorizar ahora versus qué dejar como deuda técnica sin afectar estabilidad.
+
+### 25.4 Modo 4 — Depurar Errores (Debugging Quirúrgico)
+
+Ante fallos en producción o local (p. ej. bridge, WebSockets).
+
+- **Diagnóstico de Causa Raíz**: dado un error/log, analizar los archivos relevantes del repo, clasificar el origen (configuración, contrato de datos o lógica) y proponer la modificación mínima necesaria — sin parches temporales.
+
+### 25.5 Modo 5 — Automatizar Rutinas y Git Workflow
+
+Aprovechar la terminal disponible.
+
+- **Generación de Mensajes de Commit Estructurados**: a partir del `git diff` actual, generar un mensaje de commit según el estándar convencional (tipo, alcance, descripción clara), destacando los puntos clave modificados.
+
+### 25.6 Reglas Transversales
+
+1. **Todo cambio de código pasa por el Governance Gate** (Sección 23) — los modos no lo reemplazan.
+2. **El concilio se convoca** para tareas complejas o cuando el usuario lo solicite explícitamente: clasificar → aprobaciones en secuencia → implementar.
+3. **Evidence First** (Sección 22) aplica a todos los modos de análisis y revisión: no hay conclusión sin evidencia (file:line, snippet, HEAD).
+4. **Los modos 1 y 2 no modifican código.** Los modos 3 y 4 pueden derivar en tareas governance nuevas.
+5. **Modo 5 respeta las convenciones de commit** (Sección 15) y el Protocolo Subaru (Sección 24): nunca un commit de implementación sin su blueprint previo en remoto.
+
