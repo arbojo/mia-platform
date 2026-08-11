@@ -1,14 +1,14 @@
 ---
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
-state: blueprint_ready
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:22:34.578Z
+updated: 2026-08-11T22:23:27.902Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -41,7 +41,7 @@ Endurecimiento del agente Subaru (auditoría v2): el guardián de continuidad de
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** Fix harness de tests multi-máquina
+- [x] **Paso 1:** Fix harness de tests multi-máquina
   - Objetivo: el test "survives death across machines" pasa en cualquier máquina, incluso sin identidad git global.
   - Archivos: `workshop/subaru/cli.test.ts`.
   - Acción: en `cloneRepo()`, tras `git clone`, configurar `user.email` y `user.name` en el clon.
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1: fix del harness de tests (identidad git en cloneRepo) y ejecutar `npx vitest run workshop/subaru`.
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 2`.
 
 ## Constraints
 
