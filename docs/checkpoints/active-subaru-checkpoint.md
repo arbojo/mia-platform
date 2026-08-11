@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 10
+current_step: 11
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:58:10.711Z
+updated: 2026-08-11T03:58:16.313Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -112,7 +112,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
   `unit_tests`. e2e_tests y chrome_devtools declarados N/A (CLI sin UI) — justificado
   en el manifest. Criterio: 0 errores lint, build OK, sin secretos en archivos
   committeados. Dependencia: Paso 9. Gate: lint, build, security_review.
-- [ ] **Paso 11 (docs+complete):** Actualizar `.agents/subaru.md` y AGENTS.md §24;
+- [x] **Paso 11 (docs+complete):** Actualizar `.agents/subaru.md` y AGENTS.md §24;
   regenerar MASTER.md (`npm run docs:generate`); commit+push de implementación y
   docs; `subaru complete` → commit `subaru: checkpoint subaru-return-by-death-hardening
   - completado` + push + reporte. Criterio: working tree limpio, remoto sincronizado,
@@ -130,7 +130,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
 
 ## Next action
 
-Implementar el Paso 11 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 11`.
+Todos los pasos marcados. Ejecutar `subaru complete subaru-return-by-death-hardening` cuando pasen los gates de verificación.
 
 ## Constraints
 
