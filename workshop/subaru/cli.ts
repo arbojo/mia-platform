@@ -22,6 +22,7 @@ import {
   updateNextAction,
   listStepCheckboxes,
   missingFrontmatterFields,
+  secretScan,
   type CheckpointData,
   type ParsedCheckpoint,
   type SubaruState,
@@ -173,6 +174,15 @@ export class Subaru {
     }
   }
 
+  scanSecrets(body: string, action: string): void {
+    const found = secretScan(body)
+    if (found.length > 0) {
+      this.fail(
+        `${action} bloqueado: el checkpoint contiene posibles secretos (${found.join(', ')}). No escribas secretos en el checkpoint: usa variables de entorno.`
+      )
+    }
+  }
+
   commitAndPush(state: SubaruState, taskId: string): void {
     const message = buildCommitMessage(taskId, state)
     const branch = this.currentBranch()
@@ -272,6 +282,7 @@ export class Subaru {
       updated: now,
     }
 
+    this.scanSecrets(body, 'freeze')
     writeFileSync(this.checkpointPath, serializeCheckpoint(data, body), 'utf8')
     console.log(`✓ Blueprint congelado: ${taskId} (${totalSteps} pasos)`)
     this.commitAndPush('frozen', taskId)
@@ -319,6 +330,7 @@ export class Subaru {
         : `Todos los pasos marcados. Ejecutar \`subaru complete ${taskId}\` cuando pasen los gates de verificación.`
     body = updateNextAction(body, nextAction)
 
+    this.scanSecrets(body, 'mark')
     writeFileSync(this.checkpointPath, serializeCheckpoint(updated, body), 'utf8')
     console.log(`✓ Paso ${step}/${data.totalSteps} marcado`)
     this.commitAndPush('in_progress', taskId)
@@ -372,6 +384,7 @@ export class Subaru {
       lastMachine: os.hostname(),
       updated: now,
     }
+    this.scanSecrets(resultBody, 'complete')
     writeFileSync(this.checkpointPath, serializeCheckpoint(updated, resultBody), 'utf8')
     console.log(`✓ Misión ${taskId} completada (${gates.length} gates confirmados)`)
     this.commitAndPush('completed', taskId)
@@ -434,6 +447,17 @@ export class Subaru {
       if (localLast && remoteLast && localLast !== remoteLast) {
         issues.push(
           `REMOTE CHECKPOINT desactualizado: el último checkpoint local (${localLast}) no está en ${this.remote}/${branch} (${remoteLast}). Los marks no se pushearon.`
+        )
+      }
+    }
+
+    const remoteCommits = this.git(['log', '--oneline', `HEAD..${this.remote}/${branch}`], true)
+    if (remoteCommits) {
+      const commits = remoteCommits.split(/\r?\n/).filter((line) => line.trim() !== '')
+      if (commits.length > 0) {
+        const preview = commits.slice(0, 5).join(' | ')
+        issues.push(
+          `El remoto avanzó ${commits.length} commit/s que el local no tiene (ejecuta \`git pull --rebase ${this.remote} ${branch}\` antes de continuar): ${preview}${commits.length > 5 ? ' …' : ''}`
         )
       }
     }

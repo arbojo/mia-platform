@@ -17,6 +17,7 @@ import {
   updateNextAction,
   missingFrontmatterFields,
   parseStepAttributes,
+  secretScan,
   type CheckpointData,
   normalizeState,
 } from './lib'
@@ -278,6 +279,33 @@ describe('parseStepAttributes', () => {
   it('returns undefined for a step that does not exist', () => {
     expect(parseStepAttributes(blueprintBody, 9)).toBeUndefined()
     expect(parseStepAttributes('sin checkboxes', 1)).toBeUndefined()
+  })
+})
+
+describe('secretScan', () => {
+  it('detects common secret patterns', () => {
+    const hits = secretScan(
+      'usa sk-ABCDEF123456 y AKIAIOSFODNN7EXAMPLE, password=supersecret y token=abc12345 y client_secret=xyzabc123'
+    )
+    expect(hits).toContain('clave API sk-')
+    expect(hits).toContain('clave AWS AKIA')
+    expect(hits).toContain('password=')
+    expect(hits).toContain('token=')
+    expect(hits).toContain('client_secret')
+  })
+
+  it('detects private keys', () => {
+    expect(secretScan('-----BEGIN RSA PRIVATE KEY-----')).toContain('clave privada')
+    expect(secretScan('-----BEGIN OPENSSH PRIVATE KEY-----')).toContain('clave privada')
+    expect(secretScan('-----BEGIN EC PRIVATE KEY-----')).toContain('clave privada')
+  })
+
+  it('returns empty for clean text', () => {
+    expect(secretScan('no secretos aqui; usa variables de entorno para las credenciales')).toEqual([])
+  })
+
+  it('does not flag placeholders or bare key names', () => {
+    expect(secretScan('password= y token= y client_secret y sk- y AKIA y BEGIN RSA PRIVATE KEY')).toEqual([])
   })
 })
 

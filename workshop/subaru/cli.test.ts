@@ -147,6 +147,23 @@ describe('freeze (governance + scaffold)', () => {
     expect(readCheckpoint(repo).data.totalSteps).toBe(7)
   })
 
+  it('blocks freeze when the blueprint contains a secret', () => {
+    const { repo } = makeRepo('freeze-secret')
+    const res = subaru(repo, 'freeze', [
+      'mia-x',
+      '--title',
+      'Misión sk-ABC123456789',
+      '--steps',
+      '2',
+      '--governance',
+      GOVERNANCE_OK,
+    ])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('posibles secretos')
+    expect(res.out).toContain('clave API sk-')
+    expect(fs.existsSync(path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md'))).toBe(false)
+  })
+
   it('connects to the real governance wiring and blocks unknown manifests', () => {
     const { repo } = makeRepo('freeze-real-gov')
     const res = subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', 'TASK-NOT-REAL-000000'], {
@@ -368,6 +385,30 @@ Misión legacy
     const res = subaru(repo, 'revive', ['--no-pull'])
     expect(res.code).toBe(1)
     expect(res.out).toContain('DRIFT DETECTED')
+  })
+
+  it('reports the commits the remote advanced when the local is behind', () => {
+    const a = makeRepo('revive-drift-behind')
+    subaru(a.repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    subaru(a.repo, 'mark', ['mia-x', '1'])
+    const b = cloneRepo(a.remote)
+    subaru(a.repo, 'mark', ['mia-x', '2'])
+    run('git', ['fetch', 'origin'], b)
+    const res = subaru(b, 'revive', ['--no-pull'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('El remoto avanzó')
+    expect(res.out).toContain('subaru: checkpoint mia-x - en-progreso')
+    expect(res.out).toContain('DRIFT DETECTED')
+  })
+
+  it('blocks mark when the body contains a secret', () => {
+    const { repo } = makeRepo('revive-mark-secret')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const cpPath = path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md')
+    fs.appendFileSync(cpPath, '\nsk-ABC123456789\n', 'utf8')
+    const res = subaru(repo, 'mark', ['mia-x', '1'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('posibles secretos')
   })
 
   it('detects incoherence between frontmatter and body', () => {
