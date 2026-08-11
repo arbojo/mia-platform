@@ -32,6 +32,49 @@ export interface StepCheckbox {
   text: string
 }
 
+export interface StepAttributes {
+  step: number
+  objective: string
+  files: string
+  action: string
+  dependency: string
+  criterion: string
+  gate: string
+}
+
+const STEP_ATTR_RE = /^  - (Objetivo|Archivos|Acción|Dependencia|Criterio de terminación|Gate\/verificación): ?(.*)$/
+
+export function parseStepAttributes(body: string, step: number): StepAttributes | undefined {
+  const lines = body.split(/\r?\n/)
+  let start = -1
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^- \[([ x])\] \*\*Paso (\d+):/.exec(lines[i])
+    if (m && Number(m[2]) === step) {
+      start = i
+      break
+    }
+  }
+  if (start === -1) return undefined
+
+  const attrs: Record<string, string> = {}
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (/^- \[[ x]\] \*\*Paso /.test(line)) break
+    const m = STEP_ATTR_RE.exec(line)
+    if (m) attrs[m[1]] = m[2].trim()
+  }
+
+  return {
+    step,
+    objective: attrs['Objetivo'] ?? '',
+    files: attrs['Archivos'] ?? '',
+    action: attrs['Acción'] ?? '',
+    dependency: attrs['Dependencia'] ?? '',
+    criterion: attrs['Criterio de terminación'] ?? '',
+    gate: attrs['Gate/verificación'] ?? '',
+  }
+}
+
 export const REQUIRED_FIELDS: (keyof CheckpointData)[] = [
   'taskId',
   'title',
@@ -163,6 +206,13 @@ export function scaffoldBlueprint(input: {
   const stepsLines: string[] = []
   for (let i = 1; i <= input.steps; i++) {
     stepsLines.push(`- [ ] **Paso ${i}:** (objetivo del paso ${i} — completar antes de implementar)`)
+    stepsLines.push(`  - Objetivo: (qué logra el paso ${i})`)
+    stepsLines.push('  - Archivos: (archivos afectados)')
+    stepsLines.push('  - Acción: (acción esperada)')
+    stepsLines.push('  - Dependencia: (paso previo que debe estar terminado, o "ninguna")')
+    stepsLines.push('  - Criterio de terminación: (qué debe cumplirse para marcar el paso)')
+    stepsLines.push('  - Gate/verificación: (gate que valida el paso)')
+    stepsLines.push('')
   }
 
   const governance = input.governanceId ? `\n\nAprobación: ${input.governanceId}.` : ''

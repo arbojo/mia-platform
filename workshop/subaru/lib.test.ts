@@ -16,6 +16,7 @@ import {
   readNextAction,
   updateNextAction,
   missingFrontmatterFields,
+  parseStepAttributes,
   type CheckpointData,
   normalizeState,
 } from './lib'
@@ -199,6 +200,20 @@ describe('scaffoldBlueprint', () => {
     expect(countCheckedSteps(blueprint)).toBe(0)
   })
 
+  it('enriches each step with the 7 attributes', () => {
+    for (const step of [1, 2, 3]) {
+      const attrs = parseStepAttributes(blueprint, step)
+      expect(attrs).toBeDefined()
+      expect(attrs!.step).toBe(step)
+      expect(attrs!.objective).toContain('qué logra el paso')
+      expect(attrs!.files).toContain('archivos afectados')
+      expect(attrs!.action).toContain('acción esperada')
+      expect(attrs!.dependency).toContain('paso previo')
+      expect(attrs!.criterion).toContain('debe cumplirse')
+      expect(attrs!.gate).toContain('gate que valida')
+    }
+  })
+
   it('can be parsed back via parseFrontmatter round-trip', () => {
     const data: CheckpointData = {
       taskId: 'mia-x',
@@ -215,6 +230,54 @@ describe('scaffoldBlueprint', () => {
     const parsed = parseFrontmatter(serializeCheckpoint(data, blueprint))
     expect(parsed.data.taskId).toBe('mia-x')
     expect(countCheckboxSteps(parsed.body)).toBe(3)
+  })
+})
+
+describe('parseStepAttributes', () => {
+  const blueprintBody = [
+    '- [x] **Paso 1:** Fix harness de tests multi-máquina',
+    '  - Objetivo: el test revive pasa en cualquier máquina.',
+    '  - Archivos: workshop/subaru/cli.test.ts.',
+    '  - Acción: configurar identidad git en cloneRepo.',
+    '  - Dependencia: ninguna.',
+    '  - Criterio de terminación: 48/48 tests verdes.',
+    '  - Gate/verificación: unit_tests.',
+    '- [ ] **Paso 2:** Bootstrap con validación de entorno completa',
+    '  - Objetivo: bootstrap comprueba node, git y checkpoint.',
+    '  - Archivos: workshop/subaru/cli.ts.',
+    '  - Acción: detectar identidad git.',
+    '  - Dependencia: Paso 1.',
+    '  - Criterio de terminación: bootstrap reporta cada check.',
+    '  - Gate/verificación: unit_tests.',
+    '',
+    '## Constraints',
+    'sin secretos',
+  ].join('\n')
+
+  it('parses the 7 attributes per step from a real blueprint', () => {
+    const step1 = parseStepAttributes(blueprintBody, 1)
+    expect(step1).toBeDefined()
+    expect(step1!.step).toBe(1)
+    expect(step1!.objective).toBe('el test revive pasa en cualquier máquina.')
+    expect(step1!.files).toBe('workshop/subaru/cli.test.ts.')
+    expect(step1!.action).toBe('configurar identidad git en cloneRepo.')
+    expect(step1!.dependency).toBe('ninguna.')
+    expect(step1!.criterion).toBe('48/48 tests verdes.')
+    expect(step1!.gate).toBe('unit_tests.')
+
+    const step2 = parseStepAttributes(blueprintBody, 2)
+    expect(step2!.dependency).toBe('Paso 1.')
+    expect(step2!.gate).toBe('unit_tests.')
+  })
+
+  it('does not bleed attributes into later sections', () => {
+    const step2 = parseStepAttributes(blueprintBody, 2)
+    expect(step2!.criterion).toBe('bootstrap reporta cada check.')
+  })
+
+  it('returns undefined for a step that does not exist', () => {
+    expect(parseStepAttributes(blueprintBody, 9)).toBeUndefined()
+    expect(parseStepAttributes('sin checkboxes', 1)).toBeUndefined()
   })
 })
 
