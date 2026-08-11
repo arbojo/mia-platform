@@ -2,13 +2,13 @@
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:27:51.172Z
+updated: 2026-08-11T22:30:34.284Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -65,7 +65,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: freeze escribe `frozen`; revive sobre checkpoint legacy `blueprint_ready` no dispara drift.
   - Gate/verificación: `unit_tests`.
 
-- [ ] **Paso 4:** Scaffold enriquecido (pasos con 7 atributos)
+- [x] **Paso 4:** Scaffold enriquecido (pasos con 7 atributos)
   - Objetivo: cada paso del blueprint lleva número, objetivo, archivos afectados, acción esperada, dependencia previa, criterio de terminación y gate/verificación.
   - Archivos: `workshop/subaru/lib.ts` (scaffoldBlueprint), `workshop/subaru/lib.test.ts`.
   - Acción: ampliar el scaffold a bloques estructurados por paso manteniendo intacta la regex `- [ ] **Paso N:**` (los checkboxes deben seguir parseándose).
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 5`.
 
 ## Constraints
 
