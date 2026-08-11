@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:55:08.085Z
+updated: 2026-08-11T03:57:34.282Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -67,7 +67,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
   `allStepsChecked`, `readNextAction`. Los comandos CLI y el frontmatter quedan
   idénticos. Criterio: handlers llamables en proceso (tests) sin spawnear tsx.
   Dependencia: Paso 1, 2. Gate: unit_tests.
-- [ ] **Paso 4 (B):** `freeze` valida governance: exige `--governance <id>` y llama
+- [x] **Paso 4 (B):** `freeze` valida governance: exige `--governance <id>` y llama
   `WorkflowEngine.assertGovernance(id)`; falla con mensaje claro si el id falta o el
   manifest no está aprobado. Criterio: freeze rechazado sin governance aprobado.
   Dependencia: Paso 3. Gate: unit_tests (invalid).
@@ -130,7 +130,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 5`.
 
 ## Constraints
 
