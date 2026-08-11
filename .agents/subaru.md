@@ -22,7 +22,8 @@ El checkpoint es **un plan de misión, no una bitácora**. Su estado es máquina
 |------|--------|---------|
 | **freeze** | El concilio APRUEBA la tarea y ANTES de codificar | `npx tsx workshop/subaru/cli.ts freeze <id> --title "<t>" --steps <n> --governance <task-id>` |
 | **mark** | Cada paso atómico completado | `npx tsx workshop/subaru/cli.ts mark <id> <n>` |
-| **complete** | Misión terminada (gates pasados) | `npx tsx workshop/subaru/cli.ts complete <id>` |
+| **complete** | Misión terminada (gates pasados) | `npx tsx workshop/subaru/cli.ts complete <id> --confirm-gates` |
+| **block** | Un gate falla por causa fuera del scope | `npx tsx workshop/subaru/cli.ts block <id> --reason "<motivo>"` |
 | **revive** | Despertar en cualquier máquina | `npx tsx workshop/subaru/cli.ts revive` |
 | **status** | Consultar estado | `npx tsx workshop/subaru/cli.ts status` |
 | **bootstrap** | Restaurar entorno + agente global | `npx tsx workshop/subaru/cli.ts bootstrap` |
@@ -30,10 +31,14 @@ El checkpoint es **un plan de misión, no una bitácora**. Su estado es máquina
 ## Garantías del CLI (desde hardening)
 
 - **Governance gate en freeze/complete:** `freeze` y `complete` exigen `--governance <task-id>` y verifican contra el `WorkflowEngine` que el manifest esté `approved`. Sin manifest aprobado, el CLI bloquea antes de escribir nada.
-- **Blueprint autogenerado:** `freeze` siembra (scaffold) el body con `Mission / Scope / Non-goals / Approved plan / Current state / Next action / Constraints / Verification / Recovery instructions` y N checkboxes `- [ ] **Paso N:**`. Reconciliá `total_steps` con los checkboxes reales del body.
+- **Estado `frozen` retrocompatible:** `freeze` escribe `state: frozen` (commit `- listo`); los checkpoints legacy con `blueprint_ready` se normalizan a `frozen` al leerse, sin disparar drift.
+- **Blueprint autogenerado y enriquecido:** `freeze` siembra el body con `Mission / Scope / Non-goals / Approved plan / Current state / Next action / Constraints / Verification / Recovery instructions` y N pasos con 7 atributos cada uno (número, objetivo, archivos, acción, dependencia, criterio de terminación, gate). Reconciliá `total_steps` con los checkboxes reales del body.
 - **Mark estrictamente secuencial:** `mark <id> <n>` solo avanza de a un paso (`n == current_step + 1`). Repetir el paso actual es idempotente; saltarse un paso falla; el checkbox debe existir en el body.
-- **Complete verificado:** exige todos los checkboxes `[x]`, `current_step == total_steps` y `governance_id` aprobado. Nada se cierra a medias.
-- **Drift detection en revive:** `revive` detecta y BLOQUEA si el checkpoint fue editado a mano, el working tree está sucio con cambios sin commit, el frontmatter contradice el body, o el remoto avanzó y no se pudo rebasar. Mensaje: `DRIFT DETECTED → BLOCKED — HUMAN/COUNCIL INPUT REQUIRED`.
+- **Complete con gates:** exige todos los checkboxes `[x]`, `current_step == total_steps`, `governance_id` aprobado y `--confirm-gates`. Sin el flag, lista los gates obligatorios del manifest governance y bloquea. Con el flag, escribe el resultado final en "Current state" y cierra con `- completado`.
+- **Block explícito:** si un gate falla por causas fuera del scope (p. ej. test pre-existente dependiente del entorno), `block <id> --reason "<motivo>"` registra el estado `blocked` y el motivo en el checkpoint (commit `- bloqueado`). La misión queda resumible: al resolverse el bloqueo se continúa con `mark`/`complete`.
+- **Secret scan:** `freeze`/`mark`/`complete`/`block` rechazan el checkpoint si el body contiene posibles secretos (`sk-`, `AKIA`, `BEGIN * PRIVATE KEY`, `password=`, `token=`, `client_secret`). No escribas secretos: usá variables de entorno.
+- **Bootstrap completo:** `bootstrap` valida Node, git, repo git, remote `origin`, espejo del agente, checkpoint e identidad git (`user.name`/`user.email`), y restaura el agente global desde `.agents/subaru.md` si falta.
+- **Drift detection detallado en revive:** `revive` detecta y BLOQUEA si el checkpoint fue editado a mano, el working tree está sucio con cambios sin commit, el frontmatter contradice el body, o el remoto avanzó (reporta qué commits faltan por rebasar). Mensaje: `DRIFT DETECTED → BLOCKED — HUMAN/COUNCIL INPUT REQUIRED`.
 - **Push failure es supervivencia, no error:** si el push falla, el checkpoint sobrevive LOCAL (`git log` lo tiene) y el CLI reporta `LOCAL CHECKPOINT` vs `REMOTE CHECKPOINT` para que decidas (re-try, pull --rebase, o escalar).
 - **Return-by-death multi-máquina:** `freeze`/`mark` en máquina A, morir, `revive` en máquina B → el CLI hace `git pull --rebase`, lee el checkpoint, valida drift y te devuelve el **próximo paso exacto**. No hay bitácora: hay un plan ejecutable.
 
@@ -56,4 +61,5 @@ Regla de oro: **nunca un commit de implementación sin su blueprint previo en re
 - **Git Limpio:** No hagas `git add/commit/push` manuales del checkpoint. El CLI lo hace (formato `subaru: checkpoint <id> - listo|en-progreso|completado|bloqueado`). Los archivos de implementación sí usan commits de feature normales.
 - **Velocidad:** Al activar un checkpoint, entrega el comando exacto de continuidad (`revive` → `mark <id> <n>`).
 - **Guard del freeze:** No sobrescribas una misión activa distinta sin `--force`.
-- **Verificación:** Después de `mark`/`complete`/`revive`, confirma el estado con `status`.
+- **Verificación:** Después de `mark`/`complete`/`block`/`revive`, confirma el estado con `status`.
+- **Autoría del blueprint:** el body del plan se autoriza por el Council ANTES del freeze; después del freeze el CLI solo estampa el frontmatter y committea. No lo edites a mano.

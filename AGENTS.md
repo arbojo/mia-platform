@@ -1050,12 +1050,13 @@ npx tsx workshop/subaru/cli.ts <command> [options]
 |---------|--------|--------|
 | `freeze <id> --title "<t>" --steps <n> --governance <id> [--force]` | El concilio APRUEBA la tarea y ANTES de codificar | Verifica governance aprobado, scaffold del blueprint (Mission/Scope/Non-goals/Approved plan/Current state/Next action/Constraints/Verification/Recovery instructions + N checkboxes), escribe frontmatter, commit `subaru: checkpoint <id> - listo` + push |
 | `mark <id> <n>` | Cada paso atómico completado | Secuencial (`n == current_step + 1`), idempotente, State `in_progress`, tick del checkbox, commit `- en-progreso` + push |
-| `complete <id>` | Misión terminada (gates pasados) | Verificado: todos los checkboxes `[x]`, `current_step == total_steps`, governance aprobado. State `completed`, commit `- completado` + push |
-| `revive [--no-pull]` | Al despertar en cualquier máquina | `git pull --rebase` + drift detection (BLOQUEA si el checkpoint fue editado a mano, working tree sucio, frontmatter contradice el body, o el remoto avanzó) + resumen + siguiente paso exacto |
+| `complete <id> --confirm-gates` | Misión terminada (gates pasados) | Verificado: todos los checkboxes `[x]`, `current_step == total_steps`, governance aprobado y `--confirm-gates` (lista los gates obligatorios del manifest governance). State `completed`, commit `- completado` + push |
+| `block <id> --reason "<motivo>"` | Un gate falla por causa FUERA del scope de la misión | Registra `state: blocked` + motivo en Current state, commit `- bloqueado` + push. La misión queda resumible sin forzar `completed` |
+| `revive [--no-pull]` | Al despertar en cualquier máquina | `git pull --rebase` + drift detection (BLOQUEA si el checkpoint fue editado a mano, working tree sucio, frontmatter contradice el body, o el remoto avanzó — reporta `git log HEAD..origin/<branch> --oneline`) + resumen + siguiente paso exacto |
 | `status` | Consultar estado | Resumen del checkpoint |
-| `bootstrap` | Entorno nuevo | Valida node/git remote y restaura el agente global desde `.agents/subaru.md` |
+| `bootstrap` | Entorno nuevo | Valida Node, git, repo, remote `origin`, checkpoint, identidad git (`user.name`/`user.email`) y espejo del agente; restaura `.agents/subaru.md` en `~/.config/opencode/agent/subaru.md` si falta |
 
-El frontmatter del checkpoint contiene: `task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated`.
+El frontmatter del checkpoint contiene: `task_id, title, state, current_step, total_steps, branch, last_machine, governance_id, created, updated`. Estados: `frozen`, `in_progress`, `blocked`, `completed` (los checkpoints legacy `blueprint_ready` se normalizan a `frozen`).
 
 **Guarantee `subaru: checkpoint <id> - completado` sin governance no existe**: `freeze` y `complete` son bloqueados por el `WorkflowEngine` si el manifest de governance no está `approved`.
 
@@ -1080,7 +1081,10 @@ Regla de oro: **nunca un commit de implementación sin su blueprint previo en re
 4. **Mark secuencial**: `mark` solo avanza `current_step + 1`; repetir es idempotente, saltarse un paso falla.
 5. **Agente espejo**: `.agents/subaru.md` es la fuente canónica del agente Subaru; `bootstrap` lo restaura en `~/.config/opencode/agent/subaru.md` si falta.
 6. **Soporte si el push falla**: el CLI commit local y reporta `LOCAL CHECKPOINT` vs `REMOTE CHECKPOINT` para decidir (re-try, `git pull --rebase`, o escalar).
-7. **Verificación**: tras `mark`/`complete`/`revive`, confirmar con `status`.
+7. **Verificación**: tras `mark`/`complete`/`revive`/`block`, confirmar con `status`.
+8. **Gates en complete**: sin `--confirm-gates` el cierre se bloquea y lista los gates del manifest governance; si un gate falla por causa fuera del scope, se usa `block` (nunca forzar `completed`).
+9. **Secret scan**: `freeze`/`mark`/`complete`/`block` rechazan el checkpoint si el body contiene secretos (`sk-`, `AKIA…`, claves privadas, `password=`/`token=`/`client_secret` con valor). Referir secretos por variable de entorno, nunca en línea.
+10. **Bootstrap mínimo**: una máquina nueva debe pasar `bootstrap` (identidad git + remote + agente espejo) antes de `revive`.
 
 ---
 
