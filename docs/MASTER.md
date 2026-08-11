@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2456b89`.
+> Fuente de verdad: este repositorio en `1264794`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2456b89` |
+| **Commit HEAD** | `1264794` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T00:09:03-06:00 |
+| **Generado** | 2026-08-11T01:24:56-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (73)**:
+**Tareas registradas (74)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -645,6 +645,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260811-013644736 | Conectar boton WhatsApp (Conectar/Reconectar/Estado) con el bridge de produccion | completed |
 | TASK-20260811-024549288 | Pulir UI/UX de la tarjeta de WhatsApp y filas de conexiones (textos amigables y estilos estandarizados) | completed |
 | TASK-20260811-031812147 | Endurecer protocolo Return-by-Death (Subaru): governance validado, mark secuencial, complete verificado, revive con drift detection | approved |
+| TASK-20260811-072155412 | Edicion por negocio (tenant): capabilities premier para Vitanova con resolucion por businessId y fallback al env global | approved |
 
 ---
 
@@ -689,6 +690,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1264794 chore: governance manifest y script de clasificacion para edicion por negocio (tenant)
+f494834 subaru: checkpoint tenant-edition-premier - listo
+0d96862 docs: regenerate MASTER.md at 2456b89
 2456b89 feat: pulir UI/UX de la tarjeta de WhatsApp y filas de conexiones
 415fe68 docs: regenerate MASTER.md at 7419831
 7419831 subaru: checkpoint subaru-return-by-death-hardening - completado
@@ -706,9 +710,6 @@ fdd6abc subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 277cd8d subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 f1c7ec0 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 d5b26fe subaru: checkpoint subaru-return-by-death-hardening - listo
-f805ee7 docs: regenerate MASTER.md at 944e5ff
-944e5ff chore: marcar TASK-20260811-013644736 como completada
-842e51d feat: conectar boton WhatsApp al bridge con estado en vivo y reconexion
 ```
 
 ---
