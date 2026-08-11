@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:21:53.705Z
+updated: 2026-08-11T03:22:00.028Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
