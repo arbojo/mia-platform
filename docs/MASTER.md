@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b062c12`.
+> Fuente de verdad: este repositorio en `babb166`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b062c12` |
+| **Commit HEAD** | `babb166` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T16:32:40-06:00 |
+| **Generado** | 2026-08-11T16:35:17-06:00 |
 
 ---
 
@@ -690,6 +690,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+babb166 subaru: checkpoint subaru-audit-v2 - en-progreso
+4f8c39f feat(subaru): secret scan (bloquea freeze/mark/complete) + drift con commits remotos
+53aad0f docs: regenerate MASTER.md at b062c12
 b062c12 subaru: checkpoint subaru-audit-v2 - en-progreso
 50f780a feat(subaru): complete exige --confirm-gates y escribe resultado final en Current state
 708209d docs: regenerate MASTER.md at 1a51258
@@ -707,9 +710,6 @@ ffa03b0 docs: regenerate MASTER.md at 245fde9
 222ce84 fix(subaru): configurar identidad git en cloneRepo de tests multi-maquina
 dac0322 subaru: checkpoint subaru-audit-v2 - listo
 34b1771 docs: regenerate MASTER.md at 9ae58b5
-9ae58b5 subaru: blueprint tenant-edition-premier - completar plan atómico
-f1f7ff9 docs: regenerate MASTER.md at 1264794
-1264794 chore: governance manifest y script de clasificacion para edicion por negocio (tenant)
 ```
 
 ---
