@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d03625f`.
+> Fuente de verdad: este repositorio en `41da164`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d03625f` |
+| **Commit HEAD** | `41da164` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-09T23:16:56-06:00 |
+| **Generado** | 2026-08-10T18:57:48-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (68)**:
+**Tareas registradas (69)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -639,6 +639,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-020352435 | Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu | completed |
 | TASK-20260810-044135422 | Sidebar refine: posicion Settings, hover intent con grace period, purga verde legacy + Quiet Chrome | completed |
 | TASK-20260810-051218566 | Canales: boton reconectar, anti-estado-zombie connecting y Quiet Chrome en ConnectionsManager | completed |
+| TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | in_progress |
 
 ---
 
@@ -683,6 +684,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+41da164 feat: dockerizar bridge WhatsApp, desplegar en Fly.io y sincronizar env Vercel
+f4def95 docs: regenerate MASTER.md at d03625f
 d03625f fix: reconexion WhatsApp, anti-estado-zombie connecting y Quiet Chrome en canales
 adfa081 docs: regenerate MASTER.md at 30485ab
 30485ab fix: refinar sidebar ActivityRail (settings, hover grace period, Quiet Chrome)
@@ -701,8 +704,6 @@ eb61e2b subaru: checkpoint dashboard-quiet-chrome - en-progreso
 acba597 docs: regenerate MASTER.md at 3f8bad3
 3f8bad3 chore: governance artifacts dashboard-quiet-chrome
 9e7b0ff subaru: checkpoint dashboard-quiet-chrome - listo
-b4c413e docs: regenerate MASTER.md at 09e29be
-09e29be fix: hydration mismatch en AppLayout por lectura de localStorage en estado inicial
 ```
 
 ---
