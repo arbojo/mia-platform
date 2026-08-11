@@ -1,14 +1,14 @@
 ---
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
-state: in_progress
+state: blocked
 current_step: 6
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:35:17.180Z
+updated: 2026-08-11T22:51:03.238Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -99,7 +99,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada. Pasos pendientes: 1..7.
+- Misión subaru-audit-v2 BLOQUEADA (state: blocked).
+- Motivo: Gates unit_tests y build BLOCKED por causa PRE-EXISTENTE fuera de scope (detalle en ADR-021): UsageBar usa toLocaleString sin locale (test espera 12,000 en-US; entorno renderiza 12.000 es) y build con errores de tipo en 13 archivos de tests de producto previos a esta mision. Trabajo propio completado: 69/69 tests, lint OK, docs (AGENTS.md 24, .agents/subaru.md, ADR-021). No se fuerza PASS artificial; la tarea futura 'UsageBar deterministico' tiene su propio manifest TASK-20260811-225003841..
+- Bloqueado: 2026-08-11T22:51:03.238Z.
 
 ## Next action
 
