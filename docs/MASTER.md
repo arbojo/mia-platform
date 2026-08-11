@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1d351c4`.
+> Fuente de verdad: este repositorio en `7419831`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1d351c4` |
+| **Commit HEAD** | `7419831` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-10T21:56:15-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-10T21:58:22-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (73)**:
+**Tareas registradas (72)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -643,7 +643,6 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | completed |
 | TASK-20260811-012128636 | Sidebar estable: Configuracion en la nav principal y sin colapso por hover | completed |
 | TASK-20260811-013644736 | Conectar boton WhatsApp (Conectar/Reconectar/Estado) con el bridge de produccion | completed |
-| TASK-20260811-024549288 | Pulir UI/UX de la tarjeta de WhatsApp y filas de conexiones (textos amigables y estilos estandarizados) | completed |
 | TASK-20260811-031812147 | Endurecer protocolo Return-by-Death (Subaru): governance validado, mark secuencial, complete verificado, revive con drift detection | approved |
 
 ---
@@ -689,6 +688,16 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7419831 subaru: checkpoint subaru-return-by-death-hardening - completado
+fdd6abc subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+0012f6f subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+350370f subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+2ddb1ee subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+6a67afc subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+4c32560 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+6f3b09a subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+1596cbf subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+6bd73dc feat: endurecer protocolo Subaru (governance gate, mark secuencial, complete verificado, revive con drift detection)
 1d351c4 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 96a745b docs: regenerate MASTER.md at 277cd8d
 277cd8d subaru: checkpoint subaru-return-by-death-hardening - en-progreso
@@ -699,16 +708,6 @@ f805ee7 docs: regenerate MASTER.md at 944e5ff
 842e51d feat: conectar boton WhatsApp al bridge con estado en vivo y reconexion
 f257820 docs: regenerate MASTER.md at ed9d0d0
 ed9d0d0 feat: sidebar estatico con Configuracion en la nav principal
-6546ef9 docs: regenerate MASTER.md at 262c253
-262c253 chore: marcar TASK-20260810-070426014 como completada
-c5cbb31 docs: regenerate MASTER.md at 3cf3fc6
-3cf3fc6 fix: categorias TaskCategory validas en script de clasificacion del bridge
-db5dac5 docs: regenerate MASTER.md at 41da164
-41da164 feat: dockerizar bridge WhatsApp, desplegar en Fly.io y sincronizar env Vercel
-f4def95 docs: regenerate MASTER.md at d03625f
-d03625f fix: reconexion WhatsApp, anti-estado-zombie connecting y Quiet Chrome en canales
-adfa081 docs: regenerate MASTER.md at 30485ab
-30485ab fix: refinar sidebar ActivityRail (settings, hover grace period, Quiet Chrome)
 ```
 
 ---
