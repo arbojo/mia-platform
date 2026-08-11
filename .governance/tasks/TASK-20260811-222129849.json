@@ -1,0 +1,97 @@
+{
+  "id": "TASK-20260811-222129849",
+  "title": "Auditoria y endurecimiento Subaru v2: fix multi-maquina, bootstrap, estado frozen, gates en complete, drift detallado + secret scan, docs",
+  "description": "A partir de la auditoria de workshop/subaru/* (checkpoint activo reemplazado): (1) fix del harness de tests multi-maquina en cli.test.ts: cloneRepo() debe configurar identidad git (user.email/user.name) en el clon para que el test \"survives death across machines\" pase en maquinas sin identidad global; (2) bootstrap valida el entorno completo: Node, git, remote, repo, agente espejo, existencia del checkpoint y configuracion git (user.email/user.name), reportando faltantes sin modificar config; (3) estado frozen en vez de blueprint_ready en freeze, con lectura retrocompatible (blueprint_ready sigue aceptado) para no romper checkpoints legacy; commit \"- listo\" intacto; (4) scaffold enriquecido: cada paso del blueprint lleva los 7 atributos (numero, objetivo, archivos afectados, accion esperada, dependencia previa, criterio de terminacion, gate/verificacion) manteniendo intacta la regex `- [ ] **Paso N:**`; (5) complete con confirmacion de gates (opcion B): el CLI lista los gates obligatorios del manifest governance y exige --confirm-gates para cerrar, ademas escribe el resultado final en Current state; (6) revive con drift detallado (reporta `git log HEAD..origin/<branch> --oneline` cuando el remoto avanzo) y secret scan antes de commitear (patrones sk-, AKIA, BEGIN RSA PRIVATE KEY, password=, token=, client_secret) bloqueando el checkpoint si detecta secretos; (7) gates de calidad (lint, build, unit_tests) y documentacion: AGENTS.md seccion 24, .agents/subaru.md y ADR-021 formalizando el protocolo y resolviendo la contradiccion \"no editar a mano\" (el blueprint se autoriza ANTES del freeze; el CLI solo estampa frontmatter + commit). NO es reescritura: es endurecimiento incremental de la CLI existente.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "refactor",
+      "infrastructure"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "engineering-process"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, cross-cutting (multi-domain), category requires council. Required agents (8): architect, backend, frontend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Endurecimiento incremental validado por auditoria: fix de harness, bootstrap, frozen retrocompatible, scaffold, gates en complete, drift+secretos. No es reescritura.",
+      "timestamp": "2026-08-11T22:21:37.390Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Cambios confinados a workshop/subaru/* (tooling), sin impacto en API ni en el flujo de datos del producto.",
+      "timestamp": "2026-08-11T22:21:38.674Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI. El scaffold enriquecido solo afecta el formato del checkpoint markdown.",
+      "timestamp": "2026-08-11T22:21:39.990Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Tests de integracion sobre repos git temporales cubren happy path, death, multi-maquina, transiciones invalidas, push failure, drift y checkpoint corrupto.",
+      "timestamp": "2026-08-11T22:21:41.246Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Los commits del protocolo usan el formato subaru y los de implementacion usan conventional commits; el freeze se ejecuta antes de codificar y se sincroniza a remoto.",
+      "timestamp": "2026-08-11T22:21:42.394Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "bootstrap ampliado para validar identidad git, checkpoint y entorno completo sin modificar configuracion.",
+      "timestamp": "2026-08-11T22:21:43.518Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Drift detection reforzado (remoto avanzado, secretos, contradicciones frontmatter/body).",
+      "timestamp": "2026-08-11T22:21:44.729Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "El ADR-021 y AGENTS.md seccion 24 documentaran el ciclo de vida completo; evidencias quedan en el checkpoint y el manifest.",
+      "timestamp": "2026-08-11T22:21:45.933Z"
+    }
+  ],
+  "createdAt": "2026-08-11T22:21:29.072Z",
+  "classifiedAt": "2026-08-11T22:21:29.072Z",
+  "approvedAt": "2026-08-11T22:21:45.934Z"
+}
