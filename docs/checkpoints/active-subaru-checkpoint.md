@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 7
+current_step: 8
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:57:51.782Z
+updated: 2026-08-11T03:57:58.757Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -86,7 +86,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
   `currentStep === totalSteps` y manifest governance aprobado (via
   `assertGovernance`); falla con mensaje explícito si falta algo. Criterio: `complete`
   prematuro (paso sin tickear) → rechazado. Dependencia: Paso 6. Gate: unit_tests.
-- [ ] **Paso 8 (F+K):** `revive` completo: (a) validar legibilidad del checkpoint
+- [x] **Paso 8 (F+K):** `revive` completo: (a) validar legibilidad del checkpoint
   (fail seguro si el frontmatter está corrupto/ilegible, explicando qué falta);
   (b) inspeccionar el repo (`git status`, `git log`, commits sin pushear);
   (c) drift detection: working tree sucio, cambios posteriores al último commit
@@ -130,7 +130,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
 
 ## Next action
 
-Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 8`.
+Implementar el Paso 9 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 9`.
 
 ## Constraints
 
