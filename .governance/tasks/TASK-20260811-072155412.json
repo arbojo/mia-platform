@@ -1,0 +1,101 @@
+{
+  "id": "TASK-20260811-072155412",
+  "title": "Edicion por negocio (tenant): capabilities premier para Vitanova con resolucion por businessId y fallback al env global",
+  "description": "Resolver el desalineamiento donde MIA_EDITION=evaluation global en Vercel oculta WhatsApp (tarjeta QR de ConnectionsManager) incluso para el tenant premier Vitanova, mientras el bridge opera una sesion real conectada. Diseno: las atribuciones son por NEGOCIO (tenant), no por persona: un email nuevo recibe su propio business auto-provisionado (migracion 018) con edicion vacia -> cae al env global (evaluation) y queda gateado. (1) Migracion 037: ALTER TABLE businesses ADD COLUMN edition text NULL CHECK IN (evaluation, professional, enterprise, cloud); NULL = usar env global. (2) edition.ts: resolver edicion efectiva por negocio (getEffectiveEdition(businessId), server-only, DB primero con fallback a getEdition()). (3) connections/page.tsx (y delivery/inventory para consistencia de interfaz completa del tenant premier) resuelven por negocio. (4) Enforcement server-side en rutas baileys (session, reconnect, ws-token): validar capacidad whatsapp por businessId. (5) Backfill Vitanova (4fb7418d-6c98-4a09-9094-4e4e4b2006a6) edition=professional. (6) Fix de desfase: sincronizar channel_connections.status al recibir evento connected del bridge (anti-zombie connecting).",
+  "scope": {
+    "categories": [
+      "schema_change",
+      "feature",
+      "api_change",
+      "security",
+      "bugfix"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.230Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.236Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.239Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.241Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.244Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.246Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.248Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: las atribuciones premier pertenecen al tenant (business Vitanova), no a la persona; edicion por negocio con fallback al env global respeta la arquitectura multi-tenant, la resolucion DB-primero no rompe RLS, y el enforcement server-side cierra la asimetria UI-only. Sin conflictos con el dominio de ventas.",
+      "timestamp": "2026-08-11T07:22:30.251Z"
+    }
+  ],
+  "createdAt": "2026-08-11T07:21:55.746Z",
+  "classifiedAt": "2026-08-11T07:21:55.746Z",
+  "approvedAt": "2026-08-11T07:22:30.251Z"
+}
