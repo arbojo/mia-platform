@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2f92393`.
+> Fuente de verdad: este repositorio en `4073bac`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2f92393` |
+| **Commit HEAD** | `4073bac` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T16:40:42-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-11T16:51:26-06:00 |
 
 ---
 
@@ -568,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (75)**:
+**Tareas registradas (77)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -647,12 +647,14 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260811-031812147 | Endurecer protocolo Return-by-Death (Subaru): governance validado, mark secuencial, complete verificado, revive con drift detection | approved |
 | TASK-20260811-072155412 | Edicion por negocio (tenant): capabilities premier para Vitanova con resolucion por businessId y fallback al env global | approved |
 | TASK-20260811-220954273 | Protocolo de modos de trabajo MIA: 5 modos de interaccion agente-concilio | completed |
+| TASK-20260811-222129849 | Auditoria y endurecimiento Subaru v2: fix multi-maquina, bootstrap, estado frozen, gates en complete, drift detallado + secret scan, docs | approved |
+| TASK-20260811-225003841 | UsageBar deterministico: locale explicito es-MX en el formato numerico (test + componente) | approved |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-21 ADRs en `docs/adr/`:
+22 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -677,6 +679,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 018-import-engine | 018: Motor de Importación Multipropósito para el Hub de Catálogo |
 | 019-delivery-hub | 019: Delivery Hub — Módulo Logístico Aislado (Schema `delivery`) + Portal del Repartidor |
 | 020-inventory-hub | 020: Inventory Hub — Módulo de Inventario, Catálogo y Probabilidad/Demanda (Schema `inventory`) |
+| 021-subaru-checkpoint | 021: Protocolo Subaru — Checkpoint de Misión Multi-máquina |
 
 ---
 
@@ -691,6 +694,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+4073bac subaru: checkpoint subaru-audit-v2 - bloqueado
+ec37061 chore(governance): manifiestos y scripts de clasificacion (audit v2 + recomendacion UsageBar deterministico)
+b05bc0d docs(subaru): AGENTS.md seccion 24, espejo del agente y ADR-021 del protocolo
+0d7cc4a feat(subaru): comando block para registrar misiones bloqueadas con --reason
+54e1d86 docs: regenerate MASTER.md at 2f92393
 2f92393 docs: modos de trabajo MIA (protocolo del concilio) TASK-20260811-220954273
 fa4ae56 docs: regenerate MASTER.md at babb166
 babb166 subaru: checkpoint subaru-audit-v2 - en-progreso
@@ -706,11 +714,6 @@ b08fe5d feat(subaru): scaffold enriquecido con 7 atributos por paso + parser
 e7c6b34 subaru: checkpoint subaru-audit-v2 - en-progreso
 6630c8f feat(subaru): estado frozen retrocompatible (blueprint_ready -> frozen)
 8ee6846 docs: regenerate MASTER.md at 0b93a86
-0b93a86 subaru: checkpoint subaru-audit-v2 - en-progreso
-fcc2db8 feat(subaru): bootstrap valida entorno completo (node, git, remote, checkpoint, identidad)
-ffa03b0 docs: regenerate MASTER.md at 245fde9
-245fde9 subaru: checkpoint subaru-audit-v2 - en-progreso
-222ce84 fix(subaru): configurar identidad git en cloneRepo de tests multi-maquina
 ```
 
 ---
