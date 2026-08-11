@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4073bac`.
+> Fuente de verdad: este repositorio en `87207d7`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4073bac` |
+| **Commit HEAD** | `87207d7` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-11T16:51:26-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-11T16:51:33-06:00 |
 
 ---
 
@@ -694,6 +694,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+87207d7 docs: regenerate MASTER.md at 4073bac
 4073bac subaru: checkpoint subaru-audit-v2 - bloqueado
 ec37061 chore(governance): manifiestos y scripts de clasificacion (audit v2 + recomendacion UsageBar deterministico)
 b05bc0d docs(subaru): AGENTS.md seccion 24, espejo del agente y ADR-021 del protocolo
@@ -713,7 +714,6 @@ b08fe5d feat(subaru): scaffold enriquecido con 7 atributos por paso + parser
 185c5af docs: regenerate MASTER.md at e7c6b34
 e7c6b34 subaru: checkpoint subaru-audit-v2 - en-progreso
 6630c8f feat(subaru): estado frozen retrocompatible (blueprint_ready -> frozen)
-8ee6846 docs: regenerate MASTER.md at 0b93a86
 ```
 
 ---
