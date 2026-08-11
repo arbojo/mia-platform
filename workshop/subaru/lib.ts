@@ -278,16 +278,20 @@ export function readNextAction(body: string): string {
   return readSection(body, 'Next action')
 }
 
-export function updateNextAction(body: string, action: string): string {
-  const marker = '## Next action'
+export function updateSection(body: string, heading: string, content: string): string {
+  const marker = `## ${heading}`
   const idx = body.indexOf(marker)
   if (idx === -1) return body
   const sectionEnd = body.indexOf('\n## ', idx + marker.length)
   const end = sectionEnd === -1 ? body.length : sectionEnd
   const section = body.slice(idx, end)
   const headerLine = section.slice(0, section.indexOf('\n'))
-  const newSection = `${headerLine}\n\n${action}\n`
+  const newSection = `${headerLine}\n\n${content}\n`
   return body.slice(0, idx) + newSection + body.slice(end)
+}
+
+export function updateNextAction(body: string, action: string): string {
+  return updateSection(body, 'Next action', action)
 }
 
 export function missingFrontmatterFields(data: Partial<CheckpointData>): string[] {

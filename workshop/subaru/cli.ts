@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import os from 'node:os'
 import path from 'node:path'
 import { WorkflowEngine } from '../governance/workflow'
+import { QUALITY_GATE_LABELS } from '../governance/types'
 import {
   parseFrontmatter,
   serializeCheckpoint,
@@ -17,6 +18,7 @@ import {
   missingSteps,
   readNextAction,
   readSection,
+  updateSection,
   updateNextAction,
   listStepCheckboxes,
   missingFrontmatterFields,
@@ -32,6 +34,7 @@ export interface SubaruConfig {
   agentRel: string
   globalAgentPath: string
   assertGovernance?: (governanceId: string) => void
+  requiredGates?: (governanceId: string) => string[]
 }
 
 export class SubaruError extends Error {
@@ -52,6 +55,7 @@ export class Subaru {
   globalAgentPath: string
   governance: WorkflowEngine
   assertGovernanceFn: (governanceId: string) => void
+  requiredGatesFn: (governanceId: string) => string[]
 
   constructor(config: Partial<SubaruConfig> = {}) {
     this.cwd = config.cwd ?? process.cwd()
@@ -62,6 +66,12 @@ export class Subaru {
       config.globalAgentPath ?? path.join(os.homedir(), '.config', 'opencode', 'agent', 'subaru.md')
     this.governance = new WorkflowEngine()
     this.assertGovernanceFn = config.assertGovernance ?? ((id: string) => this.assertGovernanceApproved(id))
+    this.requiredGatesFn =
+      config.requiredGates ??
+      ((id: string) => {
+        const manifest = this.governance.assertGovernance(id)
+        return manifest.classification.qualityGates.map((gate) => QUALITY_GATE_LABELS[gate] ?? gate)
+      })
   }
 
   get checkpointPath(): string {
@@ -105,6 +115,9 @@ export class Subaru {
           break
         case '--force':
           flags.force = true
+          break
+        case '--confirm-gates':
+          flags.confirmGates = true
           break
         case '--no-pull':
           flags.noPull = true
@@ -314,8 +327,8 @@ export class Subaru {
 
   cmdComplete(args: string[]): void {
     const taskId = args[0]
-    this.parseFlags(args.slice(1))
-    if (!taskId) this.fail('Usage: subaru complete <task-id>')
+    const flags = this.parseFlags(args.slice(1))
+    if (!taskId) this.fail('Usage: subaru complete <task-id> [--confirm-gates]')
 
     const checkpoint = this.mustCheckpoint(taskId)
     const data = this.requireData(checkpoint.data)
@@ -336,15 +349,31 @@ export class Subaru {
     }
     this.assertGovernanceFn(data.governanceId)
 
+    const gates = this.requiredGatesFn(data.governanceId)
+    if (!flags.confirmGates) {
+      console.log('complete bloqueado: confirma los gates de verificación con --confirm-gates.')
+      console.log('  Gates requeridos por el manifest governance:')
+      for (const gate of gates) console.log(`    - ${gate}`)
+      this.fail(
+        'Ejecuta `subaru complete <id> --confirm-gates` solo cuando todos los gates hayan pasado (lint, build, unit_tests, e2e_tests, chrome_devtools, security_review).'
+      )
+    }
+
+    const now = new Date().toISOString()
+    const resultBody = updateSection(
+      checkpoint.body,
+      'Current state',
+      `- Misión ${taskId} completada (${data.totalSteps}/${data.totalSteps} pasos).\n- Gates confirmados: ${gates.join(', ')}.\n- Finalizado: ${now}.`
+    )
     const updated: CheckpointData = {
       ...data,
       state: 'completed',
       currentStep: data.totalSteps,
       lastMachine: os.hostname(),
-      updated: new Date().toISOString(),
+      updated: now,
     }
-    writeFileSync(this.checkpointPath, serializeCheckpoint(updated, checkpoint.body), 'utf8')
-    console.log(`✓ Misión ${taskId} completada`)
+    writeFileSync(this.checkpointPath, serializeCheckpoint(updated, resultBody), 'utf8')
+    console.log(`✓ Misión ${taskId} completada (${gates.length} gates confirmados)`)
     this.commitAndPush('completed', taskId)
   }
 
@@ -579,9 +608,11 @@ COMMANDS:
   mark <id> <step>
       Marca un paso completado EN SECUENCIA (solo current_step + 1).
       State in_progress, tick del checkbox, actualiza "Next action" + commit/push.
-  complete <id>
+  complete <id> [--confirm-gates]
       Cierra la misión SOLO si: todos los checkboxes [x], current_step ==
-      total_steps y governance aprobado. State completed + commit/push.
+      total_steps, governance aprobado y --confirm-gates (lista los gates
+      obligatorios del manifest governance y escribe el resultado final).
+      State completed + commit/push.
   revive [--no-pull]
       git pull --rebase + validación de legibilidad + drift detection +
       informe operativo (SUBARU REVIVE). DRIFT DETECTED + BLOCKED si el

@@ -69,7 +69,7 @@ function subaru(
   cwd: string,
   command: string,
   args: string[],
-  opts: { realGovernance?: boolean } = {}
+  opts: { realGovernance?: boolean; requiredGates?: () => string[] } = {}
 ): { code: number; out: string } {
   const chunks: string[] = []
   const origLog = console.log
@@ -79,7 +79,10 @@ function subaru(
   let code: number
   try {
     const config: Partial<SubaruConfig> = { cwd }
-    if (!opts.realGovernance) config.assertGovernance = approvedStub
+    if (!opts.realGovernance) {
+      config.assertGovernance = approvedStub
+      config.requiredGates = opts.requiredGates ?? (() => ['lint', 'build', 'unit_tests', 'e2e_tests', 'chrome_devtools', 'security_review'])
+    }
     code = runSubaruCommand(command, args, config)
   } finally {
     console.log = origLog
@@ -215,7 +218,7 @@ describe('mark (secuencial)', () => {
     const { repo } = makeRepo('mark-completed')
     subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '1', '--governance', GOVERNANCE_OK])
     subaru(repo, 'mark', ['mia-x', '1'])
-    subaru(repo, 'complete', ['mia-x'])
+    subaru(repo, 'complete', ['mia-x', '--confirm-gates'])
     const res = subaru(repo, 'mark', ['mia-x', '1'])
     expect(res.code).toBe(1)
     expect(res.out).toContain('ya está completada')
@@ -244,17 +247,32 @@ describe('complete (verificado)', () => {
     expect(res.out).toContain('governance_id')
   })
 
-  it('completes a fully-marked mission, commits and pushes the final state', () => {
+  it('blocks complete without --confirm-gates and lists the required gates', () => {
+    const { repo } = makeRepo('complete-gates')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '1', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const res = subaru(repo, 'complete', ['mia-x'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('--confirm-gates')
+    expect(res.out).toContain('lint')
+    expect(res.out).toContain('security_review')
+    expect(readCheckpoint(repo).data.state).toBe('in_progress')
+  })
+
+  it('completes a fully-marked mission with --confirm-gates, commits and pushes the final state', () => {
     const { repo } = makeRepo('complete-ok')
     subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
     subaru(repo, 'mark', ['mia-x', '1'])
     subaru(repo, 'mark', ['mia-x', '2'])
-    const res = subaru(repo, 'complete', ['mia-x'])
+    const res = subaru(repo, 'complete', ['mia-x', '--confirm-gates'])
     expect(res.code).toBe(0)
 
     const cp = readCheckpoint(repo)
     expect(cp.data.state).toBe('completed')
     expect(cp.data.currentStep).toBe(2)
+    expect(cp.body).toContain('## Current state')
+    expect(cp.body).toMatch(/Misión mia-x completada/)
+    expect(cp.body).toMatch(/Gates confirmados/)
     const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], repo).stdout.trim()
     expect(remoteHead).toBe('subaru: checkpoint mia-x - completado')
   })
@@ -377,7 +395,7 @@ Misión legacy
 
     expect(subaru(b, 'mark', ['mia-x', '2']).code).toBe(0)
     expect(subaru(b, 'mark', ['mia-x', '3']).code).toBe(0)
-    expect(subaru(b, 'complete', ['mia-x']).code).toBe(0)
+    expect(subaru(b, 'complete', ['mia-x', '--confirm-gates']).code).toBe(0)
 
     const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], b).stdout.trim()
     expect(remoteHead).toBe('subaru: checkpoint mia-x - completado')
