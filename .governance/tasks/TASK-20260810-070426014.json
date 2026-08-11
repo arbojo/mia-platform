@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260810-070426014",
+  "title": "Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel",
+  "description": "El intento de migrar el bridge de WhatsApp a Cloudflare Workers fallo: el servicio en services/whatsapp-bridge usa @whiskeysockets/baileys + node:http + ws, lo que requiere runtime Node.js persistente con conexiones TCP estables (incompatible con Workers serverless). El worker desplegado en mia-whatsapp-bridge.arbojo.workers.dev es un stub que responde \"Hello world\" en todas las rutas sin auth. Plan aprobado por el concilio: (1) crear Dockerfile para services/whatsapp-bridge que empaquete el entorno Node completo, (2) probar el contenedor localmente identico a produccion, (3) desplegar en un hosting compatible con contenedores persistente (Fly.io o Railway), (4) SOLO entonces configurar en Vercel las env vars WHATSAPP_BRIDGE_URL (apuntando a la URL real de produccion) y WHATSAPP_BRIDGE_SECRET (sincronizado con el bridge), verificando que el endpoint real responda 401 sin secreto y JSON con secreto. No tocar Vercel hasta tener URL real de produccion. Riesgo: credenciales (service role key de Supabase) en env del servicio; requiere revision de seguridad.",
+  "scope": {
+    "categories": [
+      "infrastructure",
+      "configuration",
+      "devops"
+    ],
+    "filesAffected": 4,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "infrastructure",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, security implications, cross-cutting (multi-domain), category requires council. Required agents (8): architect, backend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Docker empaqueta el runtime Node.js completo; mantiene sockets TCP persistentes de Baileys incompatibles con serverless. Correcto para Fly.io/Railway.",
+      "timestamp": "2026-08-10T07:04:40.288Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "El bridge es un servicio Node ESM; Dockerfile multi-stage con tsc build + node dist. Sin cambios de codigo del bridge necesario.",
+      "timestamp": "2026-08-10T07:05:09.633Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Credenciales via env del hosting, nunca en imagen. Service role key solo en secretos del servicio. Verificar 401 sin secreto.",
+      "timestamp": "2026-08-10T07:05:12.158Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Docker 29.6.2 disponible local para prueba identica a produccion. Hosting persistente (Fly/Railway) compatible con contenedores.",
+      "timestamp": "2026-08-10T07:05:14.382Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Docker 29.6.2 instalado. No se requieren instalaciones adicionales; flyctl/railway se instalan en fase de deploy si se elige ese hosting.",
+      "timestamp": "2026-08-10T07:05:32.378Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit_tests, e2e_tests, chrome_devtools. El bridge se verifica con curl (401 sin secreto, JSON con secreto).",
+      "timestamp": "2026-08-10T07:05:35.782Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sincronizacion Vercel solo tras URL real de produccion verificada. Commit de Dockerfile + config de deploy.",
+      "timestamp": "2026-08-10T07:05:38.101Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar en memoria: fallo de Cloudflare Workers para sockets persistentes; leccion: hosting contenedor persistente.",
+      "timestamp": "2026-08-10T07:05:40.401Z"
+    }
+  ],
+  "createdAt": "2026-08-10T07:04:26.530Z",
+  "classifiedAt": "2026-08-10T07:04:26.530Z",
+  "approvedAt": "2026-08-10T07:05:40.403Z",
+  "startedAt": "2026-08-10T07:05:49.114Z"
+}

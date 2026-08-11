@@ -45,6 +45,12 @@ export function startBridgeServer(
   const server = createServer(async (req, res) => {
     try {
       const url = new URL(req.url ?? '/', `http://${req.headers.host}`)
+
+      if (req.method === 'GET' && url.pathname === '/healthz') {
+        json(res, 200, { status: 'ok' })
+        return
+      }
+
       const match = url.pathname.match(/^\/v1\/sessions\/([^/]+)\/([a-z]+)$/)
       const matchSend = url.pathname.match(/^\/v1\/sessions\/([^/]+)\/send$/)
 

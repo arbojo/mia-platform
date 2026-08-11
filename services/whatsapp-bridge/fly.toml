@@ -1,0 +1,35 @@
+# fly.toml — MIA WhatsApp Bridge
+# Despliegue: desde services/whatsapp-bridge → fly deploy
+# Secretos (NUNCA en este archivo): NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+# WHATSAPP_BRIDGE_SECRET, MIA_APP_URL (URL de Vercel al sincronizar). Ver workshop/deploy/bridge-fly.ps1
+
+app = "mia-whatsapp-bridge"
+primary_region = "dfw"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  BRIDGE_PORT = "3001"
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  # "off" + autostart true: la máquina inicia cuando hace falta y NUNCA se
+  # detiene al quedar sin tráfico. Mantiene las sesiones TCP de Baileys con
+  # WhatsApp vivas 24/7 (requisito del bridge).
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "30s"
+    method = "GET"
+    path = "/healthz"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
