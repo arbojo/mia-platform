@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:22:00.028Z
+updated: 2026-08-11T03:55:08.085Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -56,10 +56,10 @@ Pasos atómicos aprobados por el Council (orden estricto):
 - [x] **Paso 1:** Governance: clasificar (COMPLEX) + concilio aprobar 8/8
   (TASK-20260811-031812147) + `governance validate` PASSED. Criterio: manifest con
   status `approved`. Gate: governance validate.
-- [ ] **Paso 2 (SUBARU):** Escribir blueprint + `freeze` + commit `subaru: checkpoint
+- [x] **Paso 2 (SUBARU):** Escribir blueprint + `freeze` + commit `subaru: checkpoint
   subaru-return-by-death-hardening - listo` + push. Criterio: checkpoint en remoto
   (GitHub) con frontmatter y plan atómico. Gate: `git log` + remoto sincronizado.
-- [ ] **Paso 3 (H):** Refactor testable de la CLI. Exportar handlers con config
+- [x] **Paso 3 (H):** Refactor testable de la CLI. Exportar handlers con config
   inyectable (`cwd`, `remote`, `checkpointPath`) desde `cli.ts`; agregar en `lib.ts`
   helpers de body: `scaffoldBlueprint` (secciones Mission/Scope/Non-goals/Approved
   plan/Current state/Next action/Constraints/Verification/Recovery instructions con
@@ -130,9 +130,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
 
 ## Next action
 
-Ejecutar el Paso 3 (refactor testable H) después del freeze: exportar handlers con
-config inyectable en `cli.ts` y agregar helpers de body en `lib.ts`. Los Pasos 1-2
-están completos una vez el checkpoint esté en remoto.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 4`.
 
 ## Constraints
 
