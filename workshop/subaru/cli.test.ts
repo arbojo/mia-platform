@@ -96,7 +96,7 @@ describe('freeze (governance + scaffold)', () => {
 
     const cp = readCheckpoint(repo)
     expect(cp.data.taskId).toBe('mia-x')
-    expect(cp.data.state).toBe('blueprint_ready')
+    expect(cp.data.state).toBe('frozen')
     expect(cp.data.currentStep).toBe(0)
     expect(cp.data.totalSteps).toBe(3)
     expect(cp.data.governanceId).toBe(GOVERNANCE_OK)
@@ -294,6 +294,41 @@ describe('revive (return-by-death)', () => {
     expect(res.out).toMatch(/\[x\] Step 1/)
     expect(res.out).toMatch(/\[ \] Step 2/)
     expect(res.out).toMatch(/subaru mark mia-x 2/)
+  })
+
+  it('accepts legacy bluepready_ready checkpoints without drift', () => {
+    const { repo } = makeRepo('revive-legacy')
+    const legacy = `---
+task_id: legacy-x
+title: Misión legacy
+state: blueprint_ready
+current_step: 0
+total_steps: 2
+branch: main
+last_machine: oldbox
+governance_id: TASK-APPROVED
+created: 2026-01-01T00:00:00.000Z
+updated: 2026-01-01T00:00:00.000Z
+---
+
+# ⛩️ PROTOCOL SUBARU: Checkpoint Activo
+
+## Mission
+
+Misión legacy
+
+## Approved plan
+
+- [ ] **Paso 1:** a
+- [ ] **Paso 2:** b
+`
+    fs.writeFileSync(path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md'), legacy, 'utf8')
+    run('git', ['add', '.'], repo)
+    run('git', ['commit', '-m', 'legacy cp'], repo)
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('SAFE TO CONTINUE')
+    expect(res.out).toContain('FROZEN')
   })
 
   it('detects drift from uncommitted changes and blocks', () => {

@@ -17,12 +17,13 @@ import {
   updateNextAction,
   missingFrontmatterFields,
   type CheckpointData,
+  normalizeState,
 } from './lib'
 
 const base: CheckpointData = {
   taskId: 'subaru-cli',
   title: 'Test mission',
-  state: 'blueprint_ready',
+  state: 'frozen',
   currentStep: 0,
   totalSteps: 5,
   branch: 'main',
@@ -67,6 +68,23 @@ describe('parseFrontmatter', () => {
     const { data } = parseFrontmatter(content)
     expect(data.taskId).toBe('mia-x')
   })
+
+  it('normalizes legacy blueprint_ready to frozen on read', () => {
+    const content = ['---', 'task_id: mia-x', 'state: blueprint_ready', 'total_steps: 2', '---', 'body'].join('\n')
+    const { data } = parseFrontmatter(content)
+    expect(data.state).toBe('frozen')
+  })
+})
+
+describe('normalizeState', () => {
+  it('treats blueprint_ready as frozen and maps the rest', () => {
+    expect(normalizeState('blueprint_ready')).toBe('frozen')
+    expect(normalizeState('frozen')).toBe('frozen')
+    expect(normalizeState('in_progress')).toBe('in_progress')
+    expect(normalizeState('completed')).toBe('completed')
+    expect(normalizeState('blocked')).toBe('blocked')
+    expect(normalizeState('unknown')).toBeUndefined()
+  })
 })
 
 describe('serializeCheckpoint', () => {
@@ -74,7 +92,7 @@ describe('serializeCheckpoint', () => {
     const serialized = serializeCheckpoint(base, '## Plan\n- [ ] **Paso 1:** hacer')
     const { data, body } = parseFrontmatter(serialized)
     expect(data.taskId).toBe('subaru-cli')
-    expect(data.state).toBe('blueprint_ready')
+    expect(data.state).toBe('frozen')
     expect(data.currentStep).toBe(0)
     expect(data.totalSteps).toBe(5)
     expect(data.governanceId).toBe('TASK-123')
@@ -90,7 +108,7 @@ describe('serializeCheckpoint', () => {
 
 describe('buildCommitMessage', () => {
   it('maps every state to its Spanish suffix', () => {
-    expect(buildCommitMessage('mia-x', 'blueprint_ready')).toBe('subaru: checkpoint mia-x - listo')
+    expect(buildCommitMessage('mia-x', 'frozen')).toBe('subaru: checkpoint mia-x - listo')
     expect(buildCommitMessage('mia-x', 'in_progress')).toBe('subaru: checkpoint mia-x - en-progreso')
     expect(buildCommitMessage('mia-x', 'completed')).toBe('subaru: checkpoint mia-x - completado')
     expect(buildCommitMessage('mia-x', 'blocked')).toBe('subaru: checkpoint mia-x - bloqueado')
@@ -185,7 +203,7 @@ describe('scaffoldBlueprint', () => {
     const data: CheckpointData = {
       taskId: 'mia-x',
       title: 'Misión X',
-      state: 'blueprint_ready',
+      state: 'frozen',
       currentStep: 0,
       totalSteps: 3,
       branch: 'main',

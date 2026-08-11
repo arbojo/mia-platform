@@ -1,4 +1,12 @@
-export type SubaruState = 'blueprint_ready' | 'in_progress' | 'completed' | 'blocked'
+export type SubaruState = 'frozen' | 'in_progress' | 'completed' | 'blocked'
+
+export const LEGACY_STATE_BLUEPRINT_READY = 'blueprint_ready'
+
+export function normalizeState(state: unknown): SubaruState | undefined {
+  if (state === LEGACY_STATE_BLUEPRINT_READY || state === 'frozen') return 'frozen'
+  if (state === 'in_progress' || state === 'completed' || state === 'blocked') return state
+  return undefined
+}
 
 export interface CheckpointData {
   taskId: string
@@ -50,7 +58,7 @@ const KEY_MAP: Record<string, keyof CheckpointData> = {
 }
 
 const STATE_SUFFIX: Record<SubaruState, string> = {
-  blueprint_ready: 'listo',
+  frozen: 'listo',
   in_progress: 'en-progreso',
   completed: 'completado',
   blocked: 'bloqueado',
@@ -70,7 +78,12 @@ export function parseFrontmatter(content: string): ParsedCheckpoint {
     const field = KEY_MAP[key]
     if (!field) continue
     const record = data as unknown as Record<string, unknown>
-    record[field] = field === 'currentStep' || field === 'totalSteps' ? Number(value) : value
+    record[field] =
+      field === 'state'
+        ? normalizeState(value) ?? value
+        : field === 'currentStep' || field === 'totalSteps'
+          ? Number(value)
+          : value
   }
 
   return { data, body: content.slice(match[0].length) }
@@ -175,7 +188,7 @@ ${stepsLines.join('\n')}
 
 ## Current state
 
-- Misión congelada (state: blueprint_ready). Pasos pendientes: 1..${input.steps}.
+- Misión congelada (state: frozen). Pasos pendientes: 1..${input.steps}.
 
 ## Next action
 

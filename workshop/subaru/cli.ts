@@ -249,7 +249,7 @@ export class Subaru {
     const data: CheckpointData = {
       taskId,
       title: flags.title as string,
-      state: 'blueprint_ready',
+      state: 'frozen',
       currentStep: 0,
       totalSteps,
       branch: this.currentBranch(),
@@ -261,7 +261,7 @@ export class Subaru {
 
     writeFileSync(this.checkpointPath, serializeCheckpoint(data, body), 'utf8')
     console.log(`✓ Blueprint congelado: ${taskId} (${totalSteps} pasos)`)
-    this.commitAndPush('blueprint_ready', taskId)
+    this.commitAndPush('frozen', taskId)
     console.log('  → Ahora implementa los pasos y marca avance con `subaru mark <id> <n>`.')
   }
 
@@ -443,8 +443,7 @@ export class Subaru {
     const data = this.requireData(checkpoint.data)
     const drift = this.detectDrift(checkpoint, data, branch)
 
-    const stateLabel =
-      data.state === 'completed' ? 'COMPLETED' : data.state === 'blueprint_ready' ? 'BLUEPRINT_READY' : 'IN_PROGRESS'
+    const stateLabel = data.state === 'completed' ? 'COMPLETED' : data.state === 'frozen' ? 'FROZEN' : 'IN_PROGRESS'
 
     const boxes = listStepCheckboxes(checkpoint.body)
     const done = boxes.filter((b) => b.checked)
