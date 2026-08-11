@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ed9d0d0`.
+> Fuente de verdad: este repositorio en `944e5ff`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ed9d0d0` |
+| **Commit HEAD** | `944e5ff` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-10T19:25:17-06:00 |
+| **Generado** | 2026-08-10T19:57:05-06:00 |
 
 ---
 
@@ -209,7 +209,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-80 rutas en `src/app/api/`:
+81 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -240,6 +240,7 @@ business/weekly-report
 catalog/import/file
 catalog/import/source
 channels/baileys/followup
+channels/baileys/reconnect
 channels/baileys/session
 channels/baileys/webhook
 channels/baileys/ws-token
@@ -567,7 +568,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (70)**:
+**Tareas registradas (71)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -641,6 +642,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-051218566 | Canales: boton reconectar, anti-estado-zombie connecting y Quiet Chrome en ConnectionsManager | completed |
 | TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | completed |
 | TASK-20260811-012128636 | Sidebar estable: Configuracion en la nav principal y sin colapso por hover | completed |
+| TASK-20260811-013644736 | Conectar boton WhatsApp (Conectar/Reconectar/Estado) con el bridge de produccion | completed |
 
 ---
 
@@ -685,6 +687,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+944e5ff chore: marcar TASK-20260811-013644736 como completada
+842e51d feat: conectar boton WhatsApp al bridge con estado en vivo y reconexion
+f257820 docs: regenerate MASTER.md at ed9d0d0
 ed9d0d0 feat: sidebar estatico con Configuracion en la nav principal
 6546ef9 docs: regenerate MASTER.md at 262c253
 262c253 chore: marcar TASK-20260810-070426014 como completada
@@ -702,9 +707,6 @@ fed7342 docs: regenerate MASTER.md at 90e5a2f
 90e5a2f chore: governance artifacts dashboard-quiet-chrome completed
 9cbb6be docs: regenerate MASTER.md at 02638a6
 02638a6 subaru: checkpoint dashboard-quiet-chrome - completado
-f65e491 subaru: checkpoint dashboard-quiet-chrome - en-progreso
-218a119 subaru: checkpoint dashboard-quiet-chrome - en-progreso
-cf0b1e5 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 ```
 
 ---
