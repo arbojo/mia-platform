@@ -2,13 +2,13 @@
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:30:34.284Z
+updated: 2026-08-11T22:32:40.335Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -73,7 +73,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: los tests parsean los 7 atributos por paso; `countCheckboxSteps` y `mark` siguen funcionando.
   - Gate/verificación: `unit_tests`.
 
-- [ ] **Paso 5:** `complete` con confirmación de gates + resultado final
+- [x] **Paso 5:** `complete` con confirmación de gates + resultado final
   - Objetivo: `complete` lista los gates obligatorios del manifest governance y exige `--confirm-gates` para cerrar; además escribe el resultado final en "Current state".
   - Archivos: `workshop/subaru/cli.ts`, `workshop/subaru/cli.test.ts`, `workshop/subaru/lib.ts` (helper de sección).
   - Acción: `complete <id> --confirm-gates`; sin el flag bloquea y lista los gates; antes del commit escribe resumen final en la sección "Current state".
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 6`.
 
 ## Constraints
 
