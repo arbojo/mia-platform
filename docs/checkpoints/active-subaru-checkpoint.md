@@ -21,23 +21,34 @@ Aprobación: TASK-20260811-072155412.
 
 ## Scope
 
-- (archivos/módulos/dominios involucrados — completar)
+- Migración `supabase/migrations/037_business_edition.sql`: columna `edition` en `businesses` (nullable, CHECK en las 4 ediciones, NULL = env global).
+- `src/lib/system/edition.ts`: resolución de edición efectiva por negocio (`getEffectiveEdition(businessId)`, server-only, DB primero, fallback a `getEdition()`).
+- `src/app/dashboard/connections/page.tsx`: `whatsAppEnabled` por negocio (no global).
+- Consistencia de interfaz completa del tenant premier: `delivery/page.tsx` e `inventory/page.tsx` resuelven por negocio.
+- Rutas baileys server-side (`session`, `reconnect`, `ws-token`): enforcement de capacidad whatsapp por `businessId`.
+- Backfill Vitanova `4fb7418d-6c98-4a09-9094-4e4e4b2006a6` → `edition='professional'`.
+- Fix anti-zombie: sincronizar `channel_connections.status` cuando la sesión del bridge conecta/desconecta.
 
 ## Non-goals
 
-- (qué NO tocar — completar)
+- NO tocar el bridge Fly.io ni sus credenciales.
+- NO implementar Meta Cloud API.
+- NO cambiar el modelo de `profiles` (role demo/user/admin se mantiene).
+- NO cambiar el default global `MIA_EDITION=evaluation` en Vercel (queda como fallback).
+- NO introducir licensing/facturación.
+- NO tocar el dominio de ventas (ADR-010), RLS ni la resolución síncrona existente.
 
 ## Approved plan
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
-- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
-- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
-- [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
-- [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
+- [ ] **Paso 1:** Migración 037: `ALTER TABLE public.businesses ADD COLUMN edition text` CHECK (evaluation, professional, enterprise, cloud), NULL por defecto; backfill Vitanova → 'professional'.
+- [ ] **Paso 2:** `edition.ts`: añadir `getEffectiveEdition(businessId)` async (admin client, DB-first, fallback a `getEdition()`); mantener helpers síncronos intactos.
+- [ ] **Paso 3:** UI por negocio: `connections/page.tsx` (whatsAppEnabled), `delivery/page.tsx` e `inventory/page.tsx` resuelven la edición efectiva del negocio.
+- [ ] **Paso 4:** Enforcement server-side: rutas baileys (`session`, `reconnect`, `ws-token`) validan capacidad whatsapp por `businessId` (403 si no).
+- [ ] **Paso 5:** Fix desfase: sincronizar `channel_connections.status` (connected/disconnected) según el estado real del bridge.
+- [ ] **Paso 6:** QA: lint, build, typecheck, unit tests, Playwright, verificación Chrome DevTools en dev.
+- [ ] **Paso 7:** Commit + push origin main + deploy Vercel + verificación en producción (tarjeta WhatsApp visible para Vitanova; perfil nuevo gateado).
 
 ## Current state
 
@@ -49,11 +60,18 @@ Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
-- (decisiones arquitectónicas, ADRs, reglas de governance, restricciones de seguridad — completar)
+- Migraciones inmutables: solo migración nueva (037), nunca tocar las aplicadas.
+- Edición por negocio leída SOLO con admin client server-side; nunca exponer capacidad al bundle del cliente ni a la Data API pública.
+- El gate de demo (`isDemoLead`) se mantiene: leads demo/trial no ven WhatsApp aunque el negocio sea premier.
+- WhatsApp session credentials (whatsapp_sessions) jamás por la Data API (RLS forced, service role only — ADR-013).
+- Vercel sigue en `MIA_EDITION=evaluation` como fallback global para negocios sin `edition`.
+- TASK-20260811-072155412 aprobado por el Council.
 
 ## Verification
 
-- (gates obligatorios y estado de ejecución — completar)
+- Gates: lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, typecheck.
+- Funcional: en producción, arbojo/Vitanova ven la tarjeta WhatsApp (y QR si reconecta); un business sin `edition` queda con capacidades de evaluation.
+- Estado de canal: `channel_connections.status` refleja `connected` cuando el bridge lo reporta.
 
 ## Recovery instructions
 
