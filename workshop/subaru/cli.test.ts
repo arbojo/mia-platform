@@ -40,7 +40,7 @@ function makeRepo(label: string): { repo: string; remote: string } {
   const remote = path.join(base, 'remote.git')
   fs.mkdirSync(path.join(repo, 'docs', 'checkpoints'), { recursive: true })
   run('git', ['init', '-b', 'main'], repo)
-  run('git', ['init', '--bare', '-b', 'main', remote])
+  run('git', ['init', '--bare', '-b', 'main', remote], repo)
   run('git', ['config', 'user.email', 'test@mia.local'], repo)
   run('git', ['config', 'user.name', 'Subaru Test'], repo)
   run('git', ['remote', 'add', 'origin', remote], repo)
@@ -54,7 +54,7 @@ function cloneRepo(remotePath: string): string {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'subaru-clone-'))
   tmpDirs.push(base)
   const clone = path.join(base, 'work')
-  run('git', ['clone', remotePath, clone])
+  run('git', ['clone', remotePath, clone], base)
   run('git', ['config', 'user.email', 'test@mia.local'], clone)
   run('git', ['config', 'user.name', 'Subaru Test'], clone)
   return clone
@@ -440,6 +440,44 @@ Misión legacy
 
     const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], b).stdout.trim()
     expect(remoteHead).toBe('subaru: checkpoint mia-x - completado')
+  })
+})
+
+describe('block (misiones bloqueadas)', () => {
+  it('blocks a mission, records the reason and commits the blocked state', () => {
+    const { repo } = makeRepo('block-ok')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'mark', ['mia-x', '1'])
+    const res = subaru(repo, 'block', ['mia-x', '--reason', 'Gate unit_tests bloqueado por fallo pre-existente'])
+    expect(res.code).toBe(0)
+
+    const cp = readCheckpoint(repo)
+    expect(cp.data.state).toBe('blocked')
+    expect(cp.body).toContain('BLOQUEADA')
+    expect(cp.body).toContain('fallo pre-existente')
+    const remoteHead = run('git', ['log', '-1', '--format=%s', 'origin/main'], repo).stdout.trim()
+    expect(remoteHead).toBe('subaru: checkpoint mia-x - bloqueado')
+  })
+
+  it('rejects block without --reason', () => {
+    const { repo } = makeRepo('block-noreason')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'block', ['mia-x'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('--reason')
+    expect(readCheckpoint(repo).data.state).toBe('frozen')
+  })
+
+  it('is idempotent on an already blocked mission', () => {
+    const { repo } = makeRepo('block-idem')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'block', ['mia-x', '--reason', 'motivo'])
+    const logBefore = run('git', ['log', '--oneline'], repo).stdout.split('\n').filter(Boolean).length
+    const again = subaru(repo, 'block', ['mia-x', '--reason', 'otro'])
+    expect(again.code).toBe(0)
+    expect(again.out).toContain('ya estaba bloqueada')
+    const logAfter = run('git', ['log', '--oneline'], repo).stdout.split('\n').filter(Boolean).length
+    expect(logAfter).toBe(logBefore)
   })
 })
 

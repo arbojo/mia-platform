@@ -120,6 +120,9 @@ export class Subaru {
         case '--confirm-gates':
           flags.confirmGates = true
           break
+        case '--reason':
+          flags.reason = args[++i]
+          break
         case '--no-pull':
           flags.noPull = true
           break
@@ -390,6 +393,40 @@ export class Subaru {
     this.commitAndPush('completed', taskId)
   }
 
+  cmdBlock(args: string[]): void {
+    const taskId = args[0]
+    const flags = this.parseFlags(args.slice(1))
+    if (!taskId || !flags.reason) {
+      this.fail('Usage: subaru block <task-id> --reason "<motivo del bloqueo>"')
+    }
+    const checkpoint = this.mustCheckpoint(taskId)
+    const data = this.requireData(checkpoint.data)
+    if (data.state === 'completed') this.fail(`La misión ${taskId} ya está completada.`)
+    if (data.state === 'blocked') {
+      console.log(`✓ La misión ${taskId} ya estaba bloqueada.`)
+      return
+    }
+
+    const reason = String(flags.reason)
+    this.scanSecrets(reason, 'block')
+
+    const now = new Date().toISOString()
+    const updated: CheckpointData = {
+      ...data,
+      state: 'blocked',
+      lastMachine: os.hostname(),
+      updated: now,
+    }
+    const body = updateSection(
+      checkpoint.body,
+      'Current state',
+      `- Misión ${taskId} BLOQUEADA (state: blocked).\n- Motivo: ${reason}.\n- Bloqueado: ${now}.`
+    )
+    writeFileSync(this.checkpointPath, serializeCheckpoint(updated, body), 'utf8')
+    console.log(`✓ Misión ${taskId} bloqueada`)
+    this.commitAndPush('blocked', taskId)
+  }
+
   cmdStatus(): void {
     const checkpoint = this.readCheckpoint()
     if (!checkpoint) {
@@ -496,7 +533,14 @@ export class Subaru {
     const data = this.requireData(checkpoint.data)
     const drift = this.detectDrift(checkpoint, data, branch)
 
-    const stateLabel = data.state === 'completed' ? 'COMPLETED' : data.state === 'frozen' ? 'FROZEN' : 'IN_PROGRESS'
+    const stateLabel =
+      data.state === 'completed'
+        ? 'COMPLETED'
+        : data.state === 'frozen'
+          ? 'FROZEN'
+          : data.state === 'blocked'
+            ? 'BLOCKED'
+            : 'IN_PROGRESS'
 
     const boxes = listStepCheckboxes(checkpoint.body)
     const done = boxes.filter((b) => b.checked)
@@ -637,6 +681,11 @@ COMMANDS:
       total_steps, governance aprobado y --confirm-gates (lista los gates
       obligatorios del manifest governance y escribe el resultado final).
       State completed + commit/push.
+  block <id> --reason "<motivo>"
+      Bloquea la misión (state blocked, commit "subaru: checkpoint <id> -
+      bloqueado"). Usado cuando un gate de verificación falla por causas
+      fuera del scope de la misión. El motivo queda registrado en el
+      checkpoint.
   revive [--no-pull]
       git pull --rebase + validación de legibilidad + drift detection +
       informe operativo (SUBARU REVIVE). DRIFT DETECTED + BLOCKED si el
@@ -664,6 +713,9 @@ COMMIT FORMAT:
           break
         case 'complete':
           this.cmdComplete(args)
+          break
+        case 'block':
+          this.cmdBlock(args)
           break
         case 'revive':
           this.cmdRevive(args)
