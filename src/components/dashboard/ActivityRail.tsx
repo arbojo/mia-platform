@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -10,7 +9,6 @@ import {
   BookOpen,
   Brain,
   FlaskConical,
-  Settings,
   Users,
   Cable,
   HeartPulse,
@@ -24,10 +22,8 @@ import {
 import { useI18n } from '@/components/dashboard/I18nProvider'
 import { useModule, MODULES, type ModuleKey } from '@/components/layout/AppLayout'
 import { useContextMenu, type ContextMenuItemDef, type ContextMenuItems } from '@/components/ui/context-menu'
-import { useHoverIntent } from '@/lib/hooks/use-hover-intent'
 
-const RAIL_WIDTH = 68
-const RAIL_WIDTH_EXPANDED = 260
+const RAIL_WIDTH = 260
 
 interface NavItem {
   href: string
@@ -42,9 +38,6 @@ export function ActivityRail() {
   const { t } = useI18n()
   const { activeModule, setModule } = useModule()
   const { openMenu } = useContextMenu()
-  const { intent, hoverProps } = useHoverIntent(140, 300)
-  const [settingsHovered, setSettingsHovered] = useState(false)
-  const expanded = intent
 
   const nav: Array<{ name: string; items: NavItem[] }> = [
     {
@@ -110,6 +103,35 @@ export function ActivityRail() {
         },
       ],
     },
+    {
+      name: t.nav.settings,
+      items: [
+        {
+          href: '/dashboard/connections',
+          label: t.nav.connections,
+          question: t.nav.connectionsTitle,
+          icon: Cable,
+        },
+        {
+          href: '/dashboard/assistants',
+          label: t.nav.council,
+          question: t.nav.councilTitle,
+          icon: Users,
+        },
+        {
+          href: '/dashboard/health',
+          label: t.nav.health,
+          question: t.nav.healthTitle,
+          icon: HeartPulse,
+        },
+        {
+          href: '/dashboard/accessibility',
+          label: t.nav.accessibility,
+          question: t.nav.accessibilityTitle,
+          icon: Accessibility,
+        },
+      ],
+    },
   ]
 
   const moduleKeys = Object.keys(MODULES) as ModuleKey[]
@@ -126,30 +148,6 @@ export function ActivityRail() {
     onSelect: () => setModule(key),
   }))
 
-  const settingsMenu: ContextMenuItems = [
-    { label: t.nav.adjustments, heading: true },
-    {
-      label: t.nav.connections,
-      icon: Cable,
-      onSelect: () => router.push('/dashboard/connections'),
-    },
-    {
-      label: t.nav.council,
-      icon: Users,
-      onSelect: () => router.push('/dashboard/assistants'),
-    },
-    {
-      label: t.nav.health,
-      icon: HeartPulse,
-      onSelect: () => router.push('/dashboard/health'),
-    },
-    {
-      label: t.nav.accessibility,
-      icon: Accessibility,
-      onSelect: () => router.push('/dashboard/accessibility'),
-    },
-  ]
-
   const powerMenu: ContextMenuItems = [
     ...nav.flatMap((group) => [
       { label: group.name, heading: true } as ContextMenuItemDef,
@@ -161,24 +159,20 @@ export function ActivityRail() {
       })),
     ]),
     'separator',
-    ...settingsMenu,
-    'separator',
     { label: MODULES[activeModule].label, heading: true },
     ...moduleMenu,
   ]
 
   return (
     <aside
-      {...hoverProps}
       onContextMenu={(e) => openMenu(e, powerMenu)}
       aria-label="Navegación"
       className="relative flex h-screen shrink-0 flex-col overflow-hidden border-r"
       style={{
-        width: expanded ? RAIL_WIDTH_EXPANDED : RAIL_WIDTH,
+        width: RAIL_WIDTH,
         borderColor: 'var(--atmosphere-border)',
         backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
         backdropFilter: 'blur(24px) saturate(1.4)',
-        transition: 'width var(--mod-duration-medium) var(--mod-ease-premium)',
       }}
     >
       <div
@@ -196,23 +190,19 @@ export function ActivityRail() {
             className="h-4 w-4"
             style={{ color: 'var(--module-accent)', filter: 'drop-shadow(0 0 6px var(--module-glow-soft))' }}
           />
-          {expanded && (
-            <span className="text-sm font-semibold tracking-tight">{expanded ? 'MIA' : ''}</span>
-          )}
+          <span className="text-sm font-semibold tracking-tight">MIA</span>
         </button>
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-2.5 py-2">
         {nav.map((group) => (
           <div key={group.name}>
-            {expanded && (
-              <p
-                className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.14em]"
-                style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.5 }}
-              >
-                {group.name}
-              </p>
-            )}
+            <p
+              className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.5 }}
+            >
+              {group.name}
+            </p>
             <div className="space-y-0.5">
               {group.items.map((item) => {
                 const active = isActive(item.href)
@@ -223,8 +213,7 @@ export function ActivityRail() {
                     href={item.href}
                     title={item.question}
                     className={cn(
-                      'relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
-                      !expanded && 'justify-center px-0'
+                      'relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150'
                     )}
                     style={{
                       color: active
@@ -243,7 +232,7 @@ export function ActivityRail() {
                       />
                     )}
                     <Icon className="h-4 w-4 shrink-0" />
-                    {expanded && <span className="whitespace-nowrap">{item.label}</span>}
+                    <span className="whitespace-nowrap">{item.label}</span>
                   </Link>
                 )
               })}
@@ -251,33 +240,6 @@ export function ActivityRail() {
           </div>
         ))}
       </nav>
-
-      <div
-        className="shrink-0 border-t px-2.5 py-3"
-        style={{ borderColor: 'var(--atmosphere-border)' }}
-      >
-        <button
-          type="button"
-          onClick={(e) => openMenu(e, settingsMenu)}
-          onContextMenu={(e) => openMenu(e, settingsMenu)}
-          onPointerEnter={() => setSettingsHovered(true)}
-          onPointerLeave={() => setSettingsHovered(false)}
-          title={t.nav.settings}
-          className={cn(
-            'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
-            !expanded && 'justify-center px-0'
-          )}
-          style={{
-            color: settingsHovered
-              ? 'var(--atmosphere-text)'
-              : 'var(--atmosphere-text-secondary)',
-            backgroundColor: settingsHovered ? 'var(--module-accent-soft)' : 'transparent',
-          }}
-        >
-          <Settings className="h-4 w-4 shrink-0" />
-          {expanded && <span className="whitespace-nowrap">{t.nav.settings}</span>}
-        </button>
-      </div>
     </aside>
   )
 }

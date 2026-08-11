@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260811-012128636",
+  "title": "Sidebar estable: Configuracion en la nav principal y sin colapso por hover",
+  "description": "Redisenar la sidebar ActivityRail: (1) mover la opcion Configuracion (hoy un boton al pie que abre dropdown flotante con Conexiones, Concilio, Salud y Accesibilidad) a la lista principal de navegacion como grupo con enlaces estaticos normales, siempre visibles; (2) hacer el sidebar completamente estable eliminando el colapso/expansion por hover-intent (zonas muertas y precision quirurgica del mouse) y dejando un ancho fijo siempre expandido; (3) quitar el estado settingsHovered y el uso de useHoverIntent en el rail (el hook queda intacto para MIAIndicator). Solo 2 archivos (ActivityRail.tsx y un test de componente nuevo), sin props inventadas, sin dependencias externas, sin cambios de schema, AI ni seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-11T01:21:28.974Z",
+  "classifiedAt": "2026-08-11T01:21:28.974Z",
+  "approvedAt": "2026-08-11T01:21:28.974Z",
+  "startedAt": "2026-08-11T01:21:41.164Z",
+  "completedAt": "2026-08-11T01:24:45.836Z"
+}
