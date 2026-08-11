@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:57:40.151Z
+updated: 2026-08-11T03:57:45.819Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -77,7 +77,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
   conteo del body y se actualiza el frontmatter). Criterio: freeze genera un
   checkpoint con body ejecutable y total_steps consistente. Dependencia: Paso 3, 4.
   Gate: unit_tests (round-trip).
-- [ ] **Paso 6 (D):** `mark` secuencial: solo permite marcar `currentStep + 1`;
+- [x] **Paso 6 (D):** `mark` secuencial: solo permite marcar `currentStep + 1`;
   idempotente si ya está marcado; fail duro si el checkbox `Paso N:` no existe en el
   body; actualiza la sección `Next action` del body. Criterio: `mark 4` sin haber
   marcado 3 → rechazado; `mark` con checkbox ausente → rechazado con mensaje.
@@ -130,7 +130,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 7`.
 
 ## Constraints
 
