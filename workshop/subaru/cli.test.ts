@@ -55,6 +55,8 @@ function cloneRepo(remotePath: string): string {
   tmpDirs.push(base)
   const clone = path.join(base, 'work')
   run('git', ['clone', remotePath, clone])
+  run('git', ['config', 'user.email', 'test@mia.local'], clone)
+  run('git', ['config', 'user.name', 'Subaru Test'], clone)
   return clone
 }
 
