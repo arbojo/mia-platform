@@ -373,3 +373,44 @@ describe('push failures', () => {
     expect(localHead).toBe('subaru: checkpoint mia-x - listo')
   })
 })
+
+describe('bootstrap (entorno)', () => {
+  it('reports all environment checks on a valid repo', () => {
+    const { repo } = makeRepo('bootstrap-ok')
+    const res = subaru(repo, 'bootstrap', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('Node.js')
+    expect(res.out).toContain('Git:')
+    expect(res.out).toContain('Repositorio')
+    expect(res.out).toContain('Remote:')
+    expect(res.out).toContain('Checkpoint:')
+    expect(res.out).toContain('Identidad git')
+    expect(res.out).toContain('test@mia.local')
+  })
+
+  it('detects a missing git identity and suggests the fix', () => {
+    const { repo } = makeRepo('bootstrap-noidentity')
+    run('git', ['config', '--unset', 'user.email'], repo)
+    run('git', ['config', '--unset', 'user.name'], repo)
+    const prevGlobal = process.env.GIT_CONFIG_GLOBAL
+    process.env.GIT_CONFIG_GLOBAL = '/dev/null'
+    try {
+      const res = subaru(repo, 'bootstrap', [])
+      expect(res.code).toBe(0)
+      expect(res.out).toContain('Identidad git')
+      expect(res.out).toContain('no configurada')
+      expect(res.out).toContain('git config user.email')
+    } finally {
+      if (prevGlobal === undefined) delete process.env.GIT_CONFIG_GLOBAL
+      else process.env.GIT_CONFIG_GLOBAL = prevGlobal
+    }
+  })
+
+  it('fails on a directory that is not a git repository', () => {
+    const base = fs.mkdtempSync(path.join(os.tmpdir(), 'subaru-bootstrap-norepo-'))
+    tmpDirs.push(base)
+    const res = subaru(base, 'bootstrap', [])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('no es un repo git')
+  })
+})

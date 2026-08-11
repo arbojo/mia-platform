@@ -498,29 +498,70 @@ export class Subaru {
     console.log('SAFE TO CONTINUE')
   }
 
+  gitIdentity(): { name: string | null; email: string | null } {
+    const name = this.git(['config', 'user.name'], true)
+    const email = this.git(['config', 'user.email'], true)
+    return { name, email }
+  }
+
   cmdBootstrap(): void {
     console.log('── SUBARU BOOTSTRAP ────────────────────────────────')
+
     const nodeVersion = spawnSync('node', ['--version'], { encoding: 'utf8', cwd: this.cwd })
-    console.log(`  Node:      ${nodeVersion.stdout.trim() || '(no detectado)'}`)
-    console.log(`  Repo:      ${this.cwd}`)
-    try {
-      const remote = (this.git(['remote', '-v']) ?? '').split(/\r?\n/)[0] || '(sin remotes)'
-      console.log(`  Remote:    ${remote}`)
-    } catch {
-      console.log('  Remote:    (sin remotes configurados)')
+    const nodeOk = nodeVersion.status === 0 && (nodeVersion.stdout || '').trim() !== ''
+    console.log(`  ${nodeOk ? '✓' : '✗'} Node.js:      ${nodeOk ? nodeVersion.stdout.trim() : '(no detectado)'}`)
+
+    const gitVersion = spawnSync('git', ['--version'], { encoding: 'utf8', cwd: this.cwd })
+    const gitOk = gitVersion.status === 0
+    console.log(`  ${gitOk ? '✓' : '✗'} Git:          ${gitOk ? gitVersion.stdout.trim() : '(no detectado)'}`)
+
+    const isRepo = this.git(['rev-parse', '--is-inside-work-tree'], true) === 'true'
+    console.log(`  ${isRepo ? '✓' : '✗'} Repositorio:  ${isRepo ? this.cwd : '(no es un repo git)'}`)
+
+    let remoteOk = false
+    let remoteDetail = '(sin remotes)'
+    if (isRepo) {
+      const remotes = this.git(['remote'], true)
+      if (remotes) {
+        const names = remotes.split(/\r?\n/)
+        remoteDetail = names.join(', ')
+        remoteOk = names.includes(this.remote)
+      }
+    }
+    console.log(`  ${remoteOk ? '✓' : '✗'} Remote:       ${remoteOk ? `${this.remote} (${remoteDetail})` : `${remoteDetail} — falta ${this.remote}`}`)
+
+    const agentOk = existsSync(this.agentPath)
+    console.log(`  ${agentOk ? '✓' : '✗'} Agente espejo: ${agentOk ? this.agentRel : '(faltante: no se puede restaurar el agente)'}`)
+
+    const cpOk = existsSync(this.checkpointPath)
+    console.log(`  ${cpOk ? '✓' : '✗'} Checkpoint:   ${cpOk ? this.checkpointRel : '(sin checkpoint: usa freeze para iniciar una misión)'}`)
+
+    const identity = this.gitIdentity()
+    const identityOk = Boolean(identity.name && identity.email)
+    console.log(
+      `  ${identityOk ? '✓' : '✗'} Identidad git: ${identityOk ? `${identity.name} <${identity.email}>` : '(no configurada — freeze/mark/complete fallarán en el commit)'}`
+    )
+
+    if (!identityOk) {
+      console.log('  → Configura: git config user.email "you@example.com" && git config user.name "Your Name" (o con --global)')
     }
 
-    if (!existsSync(this.agentPath)) {
+    if (!agentOk) {
       console.warn('  ⚠ Falta el espejo .agents/subaru.md en el repo. No se puede restaurar el agente.')
     } else if (existsSync(this.globalAgentPath)) {
       console.log(`  ✓ Agente global ya existe: ${this.globalAgentPath}`)
     } else {
       mkdirSync(path.dirname(this.globalAgentPath), { recursive: true })
       copyFileSync(this.agentPath, this.globalAgentPath)
-      console.log(`  ✓ Agente global restaurado desde .agents/subaru.md`)
+      console.log(`  ✓ Agente global restaurado desde ${this.agentRel}`)
       console.log('  → Reinicia opencode para que cargue el agente restaurado.')
     }
 
+    const broken = !nodeOk || !gitOk || !isRepo || !remoteOk
+    if (broken) {
+      console.log('  ✗ Bootstrap INCOMPLETO: el entorno no está listo.')
+      this.fail('bootstrap: el entorno no está listo (revisa los checks con ✗)')
+    }
     console.log('  → Listo. Ejecuta: npx tsx workshop/subaru/cli.ts revive')
   }
 
