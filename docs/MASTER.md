@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3cf3fc6`.
+> Fuente de verdad: este repositorio en `262c253`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3cf3fc6` |
+| **Commit HEAD** | `262c253` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-10T19:01:25-06:00 |
+| **Generado** | 2026-08-10T19:05:45-06:00 |
 
 ---
 
@@ -639,7 +639,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-020352435 | Dashboard Quiet Chrome: migrar tarjetas legacy a glass atmosferico + ghost UI context menu | completed |
 | TASK-20260810-044135422 | Sidebar refine: posicion Settings, hover intent con grace period, purga verde legacy + Quiet Chrome | completed |
 | TASK-20260810-051218566 | Canales: boton reconectar, anti-estado-zombie connecting y Quiet Chrome en ConnectionsManager | completed |
-| TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | in_progress |
+| TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | completed |
 
 ---
 
@@ -684,6 +684,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+262c253 chore: marcar TASK-20260810-070426014 como completada
+c5cbb31 docs: regenerate MASTER.md at 3cf3fc6
 3cf3fc6 fix: categorias TaskCategory validas en script de clasificacion del bridge
 db5dac5 docs: regenerate MASTER.md at 41da164
 41da164 feat: dockerizar bridge WhatsApp, desplegar en Fly.io y sincronizar env Vercel
@@ -702,8 +704,6 @@ f65e491 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 cf0b1e5 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 0164ec9 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 eb61e2b subaru: checkpoint dashboard-quiet-chrome - en-progreso
-098f17b feat: migrar Dashboard a Quiet Chrome glass atmosferico + ghost UI
-acba597 docs: regenerate MASTER.md at 3f8bad3
 ```
 
 ---
