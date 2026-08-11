@@ -2,13 +2,13 @@
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:25:58.995Z
+updated: 2026-08-11T22:27:51.172Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -57,7 +57,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: bootstrap reporta cada check; identidad ausente produce advertencia accionable.
   - Gate/verificación: `unit_tests`.
 
-- [ ] **Paso 3:** Estado `frozen` retrocompatible
+- [x] **Paso 3:** Estado `frozen` retrocompatible
   - Objetivo: `freeze` escribe `state: frozen`; checkpoints legacy con `blueprint_ready` se siguen aceptando sin drift.
   - Archivos: `workshop/subaru/lib.ts` (SubaruState, normalización), `workshop/subaru/cli.ts` (escrituras), tests.
   - Acción: añadir `frozen` a `SubaruState`; `freeze` escribe `frozen`; helper de lectura que trata `blueprint_ready` como `frozen`; el commit sigue siendo `- listo`.
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 4`.
 
 ## Constraints
 
