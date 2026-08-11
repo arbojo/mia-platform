@@ -2,13 +2,13 @@
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 7
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:32:40.335Z
+updated: 2026-08-11T22:35:17.180Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -81,7 +81,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: complete sin flag → bloqueo con lista de gates; con flag y pasos completos → `completed` + commit `- completado`.
   - Gate/verificación: `unit_tests`.
 
-- [ ] **Paso 6:** Drift detallado + secret scan
+- [x] **Paso 6:** Drift detallado + secret scan
   - Objetivo: revive reporta qué commits/archivos avanzó el remoto; el CLI rechaza checkpoints con secretos antes de commitear.
   - Archivos: `workshop/subaru/cli.ts`, `workshop/subaru/lib.ts`, tests.
   - Acción: en `detectDrift`, si el remoto avanzó, incluir `git log HEAD..origin/<branch> --oneline`; nuevo `secretScan(body)` con patrones (sk-, AKIA, BEGIN RSA PRIVATE KEY, password=, token=, client_secret) que bloquea freeze/mark/complete.
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 7`.
 
 ## Constraints
 
