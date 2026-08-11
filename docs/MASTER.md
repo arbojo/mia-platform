@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1a51258`.
+> Fuente de verdad: este repositorio en `b062c12`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1a51258` |
+| **Commit HEAD** | `b062c12` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T16:30:41-06:00 |
+| **Generado** | 2026-08-11T16:32:40-06:00 |
 
 ---
 
@@ -690,6 +690,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b062c12 subaru: checkpoint subaru-audit-v2 - en-progreso
+50f780a feat(subaru): complete exige --confirm-gates y escribe resultado final en Current state
+708209d docs: regenerate MASTER.md at 1a51258
 1a51258 subaru: checkpoint subaru-audit-v2 - en-progreso
 3e30bad docs: regenerate MASTER.md at b08fe5d
 b08fe5d feat(subaru): scaffold enriquecido con 7 atributos por paso + parser
@@ -707,9 +710,6 @@ dac0322 subaru: checkpoint subaru-audit-v2 - listo
 9ae58b5 subaru: blueprint tenant-edition-premier - completar plan atómico
 f1f7ff9 docs: regenerate MASTER.md at 1264794
 1264794 chore: governance manifest y script de clasificacion para edicion por negocio (tenant)
-f494834 subaru: checkpoint tenant-edition-premier - listo
-0d96862 docs: regenerate MASTER.md at 2456b89
-2456b89 feat: pulir UI/UX de la tarjeta de WhatsApp y filas de conexiones
 ```
 
 ---
