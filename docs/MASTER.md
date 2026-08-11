@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `944e5ff`.
+> Fuente de verdad: este repositorio en `277cd8d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `944e5ff` |
+| **Commit HEAD** | `277cd8d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-10T19:57:05-06:00 |
+| **Generado** | 2026-08-10T21:22:00-06:00 |
 
 ---
 
@@ -687,6 +687,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+277cd8d subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+f1c7ec0 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
+d5b26fe subaru: checkpoint subaru-return-by-death-hardening - listo
+f805ee7 docs: regenerate MASTER.md at 944e5ff
 944e5ff chore: marcar TASK-20260811-013644736 como completada
 842e51d feat: conectar boton WhatsApp al bridge con estado en vivo y reconexion
 f257820 docs: regenerate MASTER.md at ed9d0d0
@@ -703,10 +707,6 @@ adfa081 docs: regenerate MASTER.md at 30485ab
 30485ab fix: refinar sidebar ActivityRail (settings, hover grace period, Quiet Chrome)
 d9d1ad5 docs: regenerate MASTER.md at 5c66ce2
 5c66ce2 fix: hydration mismatch timezone en WeeklyReportCard (timeZone UTC)
-fed7342 docs: regenerate MASTER.md at 90e5a2f
-90e5a2f chore: governance artifacts dashboard-quiet-chrome completed
-9cbb6be docs: regenerate MASTER.md at 02638a6
-02638a6 subaru: checkpoint dashboard-quiet-chrome - completado
 ```
 
 ---
