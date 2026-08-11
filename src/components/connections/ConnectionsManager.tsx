@@ -48,6 +48,29 @@ type WaStatus = 'idle' | 'connecting' | 'generating' | 'connected' | 'error'
 const WA_CONNECT_TIMEOUT_MS = 60000
 const WA_FETCH_TIMEOUT_MS = 20000
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isUuidLike(value: string): boolean {
+  return UUID_PATTERN.test(value)
+}
+
+function friendlyAssistantName(name: string | null | undefined, index: number): string {
+  if (name && !isUuidLike(name)) return name
+  return index === 0 ? 'Asistente Principal' : `Asistente ${index + 1}`
+}
+
+function connectionStatusLabel(status: string): string {
+  if (status === 'connected') return 'Conectado'
+  if (status === 'connecting') return 'Conectando...'
+  return 'Desconectado'
+}
+
+function connectionStatusColor(status: string): string {
+  if (status === 'connected') return 'var(--mia-green)'
+  if (status === 'connecting') return 'var(--mia-gold)'
+  return 'var(--mia-orange)'
+}
+
 const channelCardStyle: React.CSSProperties = {
   borderRadius: 'var(--mod-radius-lg)',
   border: '1px solid var(--atmosphere-border)',
@@ -461,7 +484,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   const waStatusMeta: Record<WaStatus, { label: string; color: string }> = {
     idle: {
       label: waSessionPersisted ? 'Desconectado' : 'No conectado',
-      color: 'var(--atmosphere-text-secondary)',
+      color: waSessionPersisted ? 'var(--mia-orange)' : 'var(--atmosphere-text-secondary)',
     },
     connecting: { label: 'Conectando...', color: 'var(--mia-gold)' },
     generating: { label: 'Generando codigo QR...', color: 'var(--mia-gold)' },
@@ -506,9 +529,9 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                   <SelectValue placeholder="Seleccionar asistente" />
                 </SelectTrigger>
                 <SelectContent>
-                  {assistants.map((a) => (
+                  {assistants.map((a, i) => (
                     <SelectItem key={a.id} value={a.id}>
-                      {a.name}
+                      {friendlyAssistantName(a.name, i)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -524,7 +547,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
       {whatsAppEnabled && (
         <Card style={channelCardStyle}>
           <CardHeader>
-            <CardTitle style={{ color: 'var(--atmosphere-text)' }}>WhatsApp (Baileys)</CardTitle>
+            <CardTitle style={{ color: 'var(--atmosphere-text)' }}>WhatsApp</CardTitle>
             <CardDescription style={{ color: 'var(--atmosphere-text-secondary)' }}>
               Conecta el WhatsApp de tu negocio escaneando el codigo QR desde la app de WhatsApp.
             </CardDescription>
@@ -545,7 +568,15 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                   }}
                 />
               )}
-              <span className="text-sm font-medium" style={{ color: 'var(--atmosphere-text)' }}>
+              <span
+                className="text-sm font-medium"
+                style={{
+                  color:
+                    waStatus === 'idle' || waStatus === 'error'
+                      ? waStatusMeta[waStatus].color
+                      : 'var(--atmosphere-text)',
+                }}
+              >
                 {waStatusMeta[waStatus].label}
               </span>
             </div>
@@ -558,9 +589,9 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                     <SelectValue placeholder="Seleccionar asistente" />
                   </SelectTrigger>
                   <SelectContent>
-                    {assistants.map((a) => (
+                    {assistants.map((a, i) => (
                       <SelectItem key={a.id} value={a.id}>
-                        {a.name}
+                        {friendlyAssistantName(a.name, i)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -651,17 +682,17 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                       <div className="font-medium" style={{ color: 'var(--atmosphere-text)' }}>
                         {channelMap[conn.channel as ChannelType]?.label ?? conn.channel}
                       </div>
-                      <div className="text-sm" style={{ color: conn.status === 'connected' ? 'var(--module-accent-strong)' : 'var(--atmosphere-text-secondary)' }}>
-                        {conn.status === 'connected' ? 'Conectado' : 'Desconectado'}
+                      <div
+                        className="text-sm font-medium"
+                        style={{ color: connectionStatusColor(conn.status) }}
+                      >
+                        {connectionStatusLabel(conn.status)}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {conn.channel === 'whatsapp' && conn.status !== 'connected' && (
                       <Button
-                        variant="outline"
-                        size="sm"
-                        style={{ borderColor: 'var(--atmosphere-border)' }}
                         onClick={() => handleWhatsAppReconnect()}
                         disabled={waStatus === 'connecting' || waStatus === 'generating'}
                       >
@@ -685,8 +716,8 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                         <SelectItem value="paused">Pausado</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Badge variant={conn.status === 'connected' ? 'default' : 'secondary'}>
-                      {conn.status}
+                    <Badge variant={conn.status === 'connected' ? 'default' : conn.status === 'connecting' ? 'outline' : 'secondary'}>
+                      {connectionStatusLabel(conn.status)}
                     </Badge>
                     <Button variant="ghost" size="sm" onClick={() => setDeleteId(conn.id)}>
                       Eliminar

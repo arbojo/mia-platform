@@ -58,6 +58,7 @@ function renderManager() {
 describe('ConnectionsManager WhatsApp flow', () => {
   beforeEach(() => {
     h.connections.length = 0
+    h.assistants = [{ id: 'a1', name: 'Vendedor' }]
     MockWebSocket.instances.length = 0
     vi.stubGlobal('WebSocket', MockWebSocket)
   })
@@ -210,5 +211,51 @@ describe('ConnectionsManager WhatsApp flow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Estado' }))
 
     expect(await screen.findByText('Conectado')).toBeInTheDocument()
+  })
+
+  it('muestra un nombre amigable para asistentes cuyo nombre es un UUID', async () => {
+    h.assistants = [{ id: 'a1', name: '2f57c8b0-9d3e-4f1a-8c2b-7e5d4a3b2c10' }]
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/session') ? ok({ success: true, status: 'disconnected', phone: null, bridgeEnabled: true }) : ok({})
+      )
+    )
+
+    renderManager()
+
+    await screen.findByText('No conectado')
+    const assistantSelects = screen.getAllByRole('combobox')
+    fireEvent.click(assistantSelects[1])
+
+    expect(await screen.findByText('Asistente Principal')).toBeInTheDocument()
+    expect(screen.queryByText('2f57c8b0-9d3e-4f1a-8c2b-7e5d4a3b2c10')).not.toBeInTheDocument()
+  })
+
+  it('muestra Conectando... en la fila cuando la conexion esta conectando, nunca el estado tecnico', async () => {
+    h.connections.push({
+      id: 'wa-1',
+      business_id: 'b1',
+      assistant_id: 'a1',
+      channel: 'whatsapp',
+      status: 'connecting',
+      mode: 'active',
+      configuration: {},
+      last_sync: null,
+      created_at: '2026-08-10T00:00:00.000Z',
+    })
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/session') ? ok({ success: true, status: 'disconnected', phone: null, bridgeEnabled: true }) : ok({})
+      )
+    )
+
+    renderManager()
+
+    expect((await screen.findAllByText('Conectando...')).length).toBeGreaterThan(0)
+    expect(screen.queryByText('connecting')).not.toBeInTheDocument()
   })
 })
