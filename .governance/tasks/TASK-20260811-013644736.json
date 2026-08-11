@@ -1,0 +1,106 @@
+{
+  "id": "TASK-20260811-013644736",
+  "title": "Conectar boton WhatsApp (Conectar/Reconectar/Estado) con el bridge de produccion",
+  "description": "Arreglar y conectar el control de WhatsApp en ConnectionsManager: (1) agregar al bridge un endpoint POST /v1/sessions/:businessId/reconnect que cierra el socket sin borrar credenciales y reconecta (nuevo QR si hace falta), ya que hoy /start es no-op si la sesion existe y deja al usuario atrapado; (2) exponer reconnectBridgeSession en lib/baileys/bridge.ts y una ruta nueva POST /api/channels/baileys/reconnect con ownership check, usando WHATSAPP_BRIDGE_URL y WHATSAPP_BRIDGE_SECRET (secreto via header x-mia-bridge-secret) apuntando a https://mia-whatsapp-bridge.fly.dev en produccion; (3) en el frontend: consultar GET /api/channels/baileys/session al montar y con un boton Estado/refresh, boton Reconectar que fuerza reconnect + reabre WebSocket de QR/status, y feedback visual claro (Desconectado / Conectando / Generando QR / Conectado con telefono / Error) con spinner y badges, sin comportamientos mudos. Incluye tests de componente y redeploy del bridge en Fly.io (workshop/deploy/bridge-fly.ps1) y de la app en Vercel. 6 archivos, sin cambios de schema ni AI, sin nuevas credenciales.",
+  "scope": {
+    "categories": [
+      "api_change",
+      "ui_change",
+      "infrastructure"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Endpoint /reconnect idempotente, sin cambios de schema; respeta arquitectura del bridge",
+      "timestamp": "2026-08-11T01:37:02.466Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "reconnect cierra socket sin borrar credenciales; ruta API con ownership check",
+      "timestamp": "2026-08-11T01:37:05.312Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Indicadores claros de estado y botones Conectar/Reconectar/Estado en ConnectionsManager",
+      "timestamp": "2026-08-11T01:37:07.872Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Reutiliza x-mia-bridge-secret y validacion de ownership; sin credenciales nuevas",
+      "timestamp": "2026-08-11T01:37:10.181Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se agregaran tests de componente y gates de calidad",
+      "timestamp": "2026-08-11T01:37:12.770Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit + push + deploy Fly y Vercel con verificacion",
+      "timestamp": "2026-08-11T01:37:15.558Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Reusar flyctl existente, sin instalaciones nuevas",
+      "timestamp": "2026-08-11T01:37:17.873Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Baseline sin drift; redeploy del bridge en Fly con imagen nueva",
+      "timestamp": "2026-08-11T01:37:20.376Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentara decision de reconnect en memoria",
+      "timestamp": "2026-08-11T01:37:22.740Z"
+    }
+  ],
+  "createdAt": "2026-08-11T01:36:44.004Z",
+  "classifiedAt": "2026-08-11T01:36:44.004Z",
+  "approvedAt": "2026-08-11T01:37:22.741Z",
+  "startedAt": "2026-08-11T01:37:33.065Z"
+}

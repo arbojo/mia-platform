@@ -152,6 +152,26 @@ export class SessionManager {
     return promise
   }
 
+  /**
+   * Forces a fresh connection attempt without destroying persisted
+   * credentials: tears down the current socket (if any) and reconnects.
+   * If no valid credentials exist, the QR flow fires again.
+   */
+  async reconnect(businessId: string): Promise<void> {
+    const session = this.sessions.get(businessId)
+    if (session) {
+      session.listeners.clear()
+      this.clearReconnectTimer(session)
+      try {
+        session.socket.end(undefined)
+      } catch {
+        // ignore
+      }
+      this.sessions.delete(businessId)
+    }
+    await this.connect(businessId)
+  }
+
   private async doConnect(businessId: string): Promise<void> {
     const { state, saveCreds } = await this.store.load(businessId)
     const { version } = await fetchLatestBaileysVersion()

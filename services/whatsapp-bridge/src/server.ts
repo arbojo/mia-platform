@@ -84,6 +84,17 @@ export function startBridgeServer(
         return
       }
 
+      if (req.method === 'POST' && match && match[2] === 'reconnect') {
+        if (!businessId) {
+          json(res, 400, { error: 'Missing businessId' })
+          return
+        }
+        await manager.reconnect(businessId)
+        const status = manager.getStatus(businessId)
+        json(res, 200, { success: true, ...status })
+        return
+      }
+
       if (req.method === 'GET' && match && match[2] === 'health') {
         if (!businessId) {
           json(res, 400, { error: 'Missing businessId' })

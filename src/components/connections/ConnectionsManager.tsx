@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select'
 import type { ChannelType } from '@/lib/channels/types'
 import { ConnectionFollowUpConfig } from '@/components/connections/ConnectionFollowUpConfig'
+import { Loader2, RefreshCw } from 'lucide-react'
 
 interface Connection {
   id: string
@@ -42,7 +43,7 @@ interface Assistant {
   name: string
 }
 
-type WaStatus = 'idle' | 'connecting' | 'connected' | 'error'
+type WaStatus = 'idle' | 'connecting' | 'generating' | 'connected' | 'error'
 
 const WA_CONNECT_TIMEOUT_MS = 60000
 const WA_FETCH_TIMEOUT_MS = 20000
@@ -71,6 +72,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   const [waQr, setWaQr] = useState<string | null>(null)
   const [waPhone, setWaPhone] = useState<string | null>(null)
   const [waError, setWaError] = useState<string | null>(null)
+  const [waRefreshing, setWaRefreshing] = useState(false)
   const [waAssistantId, setWaAssistantId] = useState('')
   const wsRef = useRef<WebSocket | null>(null)
   const waTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -122,9 +124,11 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
       setConnections(connResult.data ?? [])
       setAssistants(asstResult.data ?? [])
       setLoading(false)
+      refreshWaStatus(bid)
     }
 
     load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const closeWs = useCallback(() => {
@@ -231,9 +235,9 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     }
   }
 
-  async function handleWhatsAppConnect(assistantIdOverride?: string) {
+  async function handleWhatsAppConnect() {
     if (!businessId) return
-    const assistantId = assistantIdOverride ?? waAssistantId
+    const assistantId = waAssistantId
     if (!assistantId) return
 
     setWaStatus('connecting')
@@ -252,69 +256,169 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         throw new Error(err?.error ?? 'No se pudo iniciar la sesión de WhatsApp')
       }
 
-      const tokenRes = await fetchWithTimeout(
-        `/api/channels/baileys/ws-token?businessId=${businessId}`
-      )
-      if (!tokenRes.ok) {
-        throw new Error('No se pudo obtener el token de conexión')
-      }
-      const tokenData = (await tokenRes.json()) as { token: string; wsUrl: string }
-
-      closeWs()
-      const ws = new WebSocket(`${tokenData.wsUrl}?businessId=${businessId}&token=${tokenData.token}`)
-      wsRef.current = ws
-      armWaTimeout()
-
-      ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data) as {
-          type: 'qr' | 'status' | 'error'
-          qr?: string
-          dataUrl?: string
-          status?: string
-          phone?: string
-          message?: string
-        }
-
-        if (msg.type === 'qr') {
-          setWaQr(msg.dataUrl ?? msg.qr ?? null)
-          setWaStatus('connecting')
-          armWaTimeout()
-        } else if (msg.type === 'status') {
-          if (msg.status === 'connected') {
-            clearWaTimeout()
-            setWaStatus('connected')
-            setWaPhone(msg.phone ?? null)
-            setWaQr(null)
-            refreshConnections()
-          } else if (msg.status === 'disconnected') {
-            clearWaTimeout()
-            setWaStatus('idle')
-            setWaQr(null)
-          }
-        } else if (msg.type === 'error') {
-          clearWaTimeout()
-          setWaError(msg.message ?? 'Error de conexión')
-          setWaStatus('error')
-        }
-      }
-
-      ws.onerror = () => {
-        clearWaTimeout()
-        setWaError('No se pudo conectar con el servicio de WhatsApp')
-        setWaStatus('error')
-      }
-
-      ws.onclose = () => {
-        clearWaTimeout()
-        if (waStatusRef.current !== 'connected') {
-          setWaError('Se perdió la conexión con el servicio de WhatsApp')
-          setWaStatus('error')
-        }
-      }
+      await openWaSocket()
     } catch (error) {
       clearWaTimeout()
       setWaError(error instanceof Error ? error.message : 'Error desconocido')
       setWaStatus('error')
+    }
+  }
+
+  async function handleWhatsAppReconnect() {
+    if (!businessId) return
+
+    setWaStatus('connecting')
+    setWaQr(null)
+    setWaError(null)
+    closeWs()
+
+    try {
+      const res = await fetchWithTimeout('/api/channels/baileys/reconnect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId }),
+      })
+
+      if (!res.ok) {
+        const err = (await res.json().catch(() => null)) as { error?: string } | null
+        throw new Error(err?.error ?? 'No se pudo reconectar WhatsApp')
+      }
+
+      await openWaSocket()
+    } catch (error) {
+      clearWaTimeout()
+      setWaError(error instanceof Error ? error.message : 'Error desconocido')
+      setWaStatus('error')
+    }
+  }
+
+  async function openWaSocket() {
+    if (!businessId) return
+
+    const tokenRes = await fetchWithTimeout(
+      `/api/channels/baileys/ws-token?businessId=${businessId}`
+    )
+    if (!tokenRes.ok) {
+      throw new Error('No se pudo obtener el token de conexión')
+    }
+    const tokenData = (await tokenRes.json()) as { token: string; wsUrl: string }
+
+    closeWs()
+    const ws = new WebSocket(`${tokenData.wsUrl}?businessId=${businessId}&token=${tokenData.token}`)
+    wsRef.current = ws
+    armWaTimeout()
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data) as {
+        type: 'qr' | 'status' | 'error'
+        qr?: string
+        dataUrl?: string
+        status?: string
+        phone?: string
+        message?: string
+      }
+
+      if (msg.type === 'qr') {
+        setWaQr(msg.dataUrl ?? msg.qr ?? null)
+        setWaStatus('generating')
+        armWaTimeout()
+      } else if (msg.type === 'status') {
+        if (msg.status === 'connected') {
+          clearWaTimeout()
+          setWaStatus('connected')
+          setWaPhone(msg.phone ?? null)
+          setWaQr(null)
+          refreshConnections()
+        } else if (msg.status === 'connecting') {
+          setWaStatus('connecting')
+        } else if (msg.status === 'disconnected') {
+          clearWaTimeout()
+          setWaStatus('idle')
+          setWaQr(null)
+        } else if (msg.status === 'error') {
+          clearWaTimeout()
+          setWaStatus('error')
+        }
+      } else if (msg.type === 'error') {
+        clearWaTimeout()
+        setWaError(msg.message ?? 'Error de conexión')
+        setWaStatus('error')
+      }
+    }
+
+    ws.onerror = () => {
+      if (wsRef.current !== ws) return
+      clearWaTimeout()
+      setWaError('No se pudo conectar con el servicio de WhatsApp')
+      setWaStatus('error')
+    }
+
+    ws.onclose = () => {
+      if (wsRef.current !== ws) return
+      clearWaTimeout()
+      if (waStatusRef.current !== 'connected' && waStatusRef.current !== 'idle') {
+        setWaError('Se perdió la conexión con el servicio de WhatsApp')
+        setWaStatus('error')
+      }
+    }
+  }
+
+  async function refreshWaStatus(bid?: string) {
+    const targetId = bid ?? businessId
+    if (!targetId) return
+
+    setWaRefreshing(true)
+    try {
+      const res = await fetchWithTimeout(`/api/channels/baileys/session?businessId=${targetId}`)
+      if (!res.ok) {
+        const err = (await res.json().catch(() => null)) as { error?: string } | null
+        setWaError(err?.error ?? 'No se pudo consultar el estado')
+        setWaStatus('error')
+        return
+      }
+
+      const data = (await res.json()) as {
+        status?: string
+        phone?: string | null
+        bridgeEnabled?: boolean
+      }
+
+      if (data.bridgeEnabled === false) {
+        setWaError('El puente de WhatsApp no está configurado en este entorno.')
+        setWaStatus('error')
+        return
+      }
+
+      setWaError(null)
+      setWaPhone(data.phone ?? null)
+
+      if (data.status === 'connected') {
+        clearWaTimeout()
+        setWaStatus('connected')
+        setWaQr(null)
+      } else if (data.status === 'connecting') {
+        setWaStatus('connecting')
+        openWaSocket().catch((err: unknown) => {
+          setWaError(err instanceof Error ? err.message : 'No se pudo abrir la conexión')
+          setWaStatus('error')
+        })
+      } else if (data.status === 'error') {
+        clearWaTimeout()
+        setWaStatus('error')
+      } else {
+        clearWaTimeout()
+        setWaStatus('idle')
+        setWaQr(null)
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        setWaError('La consulta de estado tardó demasiado.')
+      } else {
+        setWaError('No se pudo contactar el puente de WhatsApp.')
+      }
+      setWaStatus('error')
+    } finally {
+      setWaRefreshing(false)
     }
   }
 
@@ -353,6 +457,17 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   }
 
   const waSessionPersisted = connections.some((c) => c.channel === 'whatsapp')
+
+  const waStatusMeta: Record<WaStatus, { label: string; color: string }> = {
+    idle: {
+      label: waSessionPersisted ? 'Desconectado' : 'No conectado',
+      color: 'var(--atmosphere-text-secondary)',
+    },
+    connecting: { label: 'Conectando...', color: 'var(--mia-gold)' },
+    generating: { label: 'Generando codigo QR...', color: 'var(--mia-gold)' },
+    connected: { label: waPhone ? `Conectado (${waPhone})` : 'Conectado', color: 'var(--mia-green)' },
+    error: { label: 'Error', color: 'var(--mia-red)' },
+  }
 
   if (loading) {
     return <div className="py-8 text-center text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>Cargando conexiones...</div>
@@ -415,6 +530,26 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              {waStatus === 'connecting' || waStatus === 'generating' ? (
+                <Loader2 className="h-4 w-4 animate-spin" style={{ color: waStatusMeta[waStatus].color }} />
+              ) : (
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{
+                    backgroundColor: waStatusMeta[waStatus].color,
+                    boxShadow:
+                      waStatus === 'connected'
+                        ? '0 0 8px var(--module-glow)'
+                        : 'none',
+                  }}
+                />
+              )}
+              <span className="text-sm font-medium" style={{ color: 'var(--atmosphere-text)' }}>
+                {waStatusMeta[waStatus].label}
+              </span>
+            </div>
+
             <div className="flex gap-3 items-end">
               <div className="flex-1">
                 <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>Asistente</label>
@@ -431,54 +566,52 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                   </SelectContent>
                 </Select>
               </div>
-              {waStatus !== 'connected' ? (
-                <>
-                  <Button
-                    onClick={() => handleWhatsAppConnect()}
-                    disabled={!waAssistantId || waStatus === 'connecting'}
-                  >
-                    {waStatus === 'connecting' ? 'Conectando...' : 'Conectar WhatsApp'}
-                  </Button>
-                  {waStatus === 'connecting' && (
-                    <Button variant="ghost" onClick={cancelWhatsAppConnect}>
-                      Cancelar
-                    </Button>
-                  )}
-                </>
-              ) : (
+              <Button
+                variant="outline"
+                onClick={() => refreshWaStatus()}
+                disabled={waRefreshing || waStatus === 'connecting' || waStatus === 'generating'}
+              >
+                {waRefreshing ? (
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-1 h-4 w-4" />
+                )}
+                Estado
+              </Button>
+              {waStatus === 'connected' ? (
                 <Button variant="destructive" onClick={handleWhatsAppLogout}>
                   Desconectar
                 </Button>
+              ) : waStatus === 'connecting' || waStatus === 'generating' ? (
+                <Button variant="ghost" onClick={cancelWhatsAppConnect}>
+                  Cancelar
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => (waSessionPersisted ? handleWhatsAppReconnect() : handleWhatsAppConnect())}
+                  disabled={!waSessionPersisted && !waAssistantId}
+                >
+                  {waStatus === 'error'
+                    ? 'Reintentar'
+                    : waSessionPersisted
+                      ? 'Reconectar'
+                      : 'Conectar WhatsApp'}
+                </Button>
               )}
-              {(waStatus === 'error' || (waStatus === 'idle' && waSessionPersisted)) && (
+              {(waStatus === 'error' || waStatus === 'idle') && waSessionPersisted && (
                 <Button variant="outline" onClick={handleWhatsAppLogout}>
                   Limpiar sesion
                 </Button>
               )}
             </div>
 
-            {waStatus === 'connecting' && waQr && (
+            {waStatus === 'generating' && waQr && (
               <div className="flex flex-col items-center gap-2 py-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={waQr} alt="Código QR de WhatsApp" className="rounded-lg" width={320} height={320} />
                 <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
                   Escanea este codigo con WhatsApp: Ajustes → Dispositivos vinculados
                 </p>
-              </div>
-            )}
-
-            {waStatus === 'connected' && (
-              <div className="flex items-center gap-2">
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{
-                    backgroundColor: 'var(--module-accent)',
-                    boxShadow: '0 0 8px var(--module-glow)',
-                  }}
-                />
-                <span className="text-sm" style={{ color: 'var(--atmosphere-text)' }}>
-                  WhatsApp conectado{waPhone ? ` (${waPhone})` : ''}
-                </span>
               </div>
             )}
 
@@ -529,10 +662,12 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                         variant="outline"
                         size="sm"
                         style={{ borderColor: 'var(--atmosphere-border)' }}
-                        onClick={() => handleWhatsAppConnect(conn.assistant_id)}
-                        disabled={waStatus === 'connecting'}
+                        onClick={() => handleWhatsAppReconnect()}
+                        disabled={waStatus === 'connecting' || waStatus === 'generating'}
                       >
-                        {waStatus === 'connecting' ? 'Conectando...' : 'Reconectar'}
+                        {waStatus === 'connecting' || waStatus === 'generating'
+                          ? 'Conectando...'
+                          : 'Reconectar'}
                       </Button>
                     )}
                     <Select

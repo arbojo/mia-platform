@@ -57,4 +57,16 @@ export async function logoutBridgeSession(businessId: string): Promise<void> {
   }
 }
 
+export async function reconnectBridgeSession(businessId: string): Promise<BridgeSessionStatus> {
+  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/reconnect`, {
+    method: 'POST',
+  })
+  if (!res.ok) {
+    const err = (await res.json().catch(() => null)) as { error?: string } | null
+    throw new BridgeClientError(err?.error ?? `Bridge error HTTP ${res.status}`, res.status)
+  }
+  const data = (await res.json()) as BridgeSessionStatus
+  return data
+}
+
 export { isWhatsAppBridgeEnabled }

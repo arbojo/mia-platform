@@ -37,9 +37,14 @@ $miaAppUrl = $env:MIA_APP_URL
 if (-not $miaAppUrl) { $miaAppUrl = Get-EnvVal 'MIA_APP_URL' }
 
 Write-Host "[3/5] Creando app '$appName' (si no existe)..."
-flyctl apps create $appName 2>&1 | Out-Host
+$createOut = flyctl apps create $appName 2>&1
+$createOut | Out-Host
 if ($LASTEXITCODE -ne 0) {
-  throw "No se pudo crear la app '$appName' en Fly.io. Revisa billing o errores arriba."
+  $alreadyExists = ($createOut -join "`n") -match 'already been taken|already exists'
+  if (-not $alreadyExists) {
+    throw "No se pudo crear la app '$appName' en Fly.io. Revisa billing o errores arriba."
+  }
+  Write-Host "      App '$appName' ya existia. Continuando con el deploy..." -ForegroundColor Yellow
 }
 
 Write-Host '[4/5] Subiendo secretos a Fly...'
