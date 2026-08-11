@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `262c253`.
+> Fuente de verdad: este repositorio en `ed9d0d0`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `262c253` |
+| **Commit HEAD** | `ed9d0d0` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-10T19:05:45-06:00 |
+| **Generado** | 2026-08-10T19:25:17-06:00 |
 
 ---
 
@@ -567,7 +567,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (69)**:
+**Tareas registradas (70)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -640,6 +640,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260810-044135422 | Sidebar refine: posicion Settings, hover intent con grace period, purga verde legacy + Quiet Chrome | completed |
 | TASK-20260810-051218566 | Canales: boton reconectar, anti-estado-zombie connecting y Quiet Chrome en ConnectionsManager | completed |
 | TASK-20260810-070426014 | Bridge WhatsApp: dockerizar, desplegar en hosting de contenedores y sincronizar Vercel | completed |
+| TASK-20260811-012128636 | Sidebar estable: Configuracion en la nav principal y sin colapso por hover | completed |
 
 ---
 
@@ -684,6 +685,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ed9d0d0 feat: sidebar estatico con Configuracion en la nav principal
+6546ef9 docs: regenerate MASTER.md at 262c253
 262c253 chore: marcar TASK-20260810-070426014 como completada
 c5cbb31 docs: regenerate MASTER.md at 3cf3fc6
 3cf3fc6 fix: categorias TaskCategory validas en script de clasificacion del bridge
@@ -702,8 +705,6 @@ fed7342 docs: regenerate MASTER.md at 90e5a2f
 f65e491 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 218a119 subaru: checkpoint dashboard-quiet-chrome - en-progreso
 cf0b1e5 subaru: checkpoint dashboard-quiet-chrome - en-progreso
-0164ec9 subaru: checkpoint dashboard-quiet-chrome - en-progreso
-eb61e2b subaru: checkpoint dashboard-quiet-chrome - en-progreso
 ```
 
 ---
