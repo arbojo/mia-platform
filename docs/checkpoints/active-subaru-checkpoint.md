@@ -2,13 +2,13 @@
 task_id: subaru-return-by-death-hardening
 title: Endurecer protocolo Return-by-Death (Subaru)
 state: in_progress
-current_step: 8
+current_step: 9
 total_steps: 11
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260811-031812147
 created: 2026-08-11T03:20:00.000Z
-updated: 2026-08-11T03:57:58.757Z
+updated: 2026-08-11T03:58:05.011Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -97,7 +97,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
   Next, Next action, Files expected, Constraints, Required verification, DO NOT,
   Recovery status (SAFE TO CONTINUE). Criterio: revive produce el informe completo
   y detecta drift real. Dependencia: Paso 7. Gate: unit_tests (integración).
-- [ ] **Paso 9 (tests):** Extender `lib.test.ts` (helpers) y crear `cli.test.ts`
+- [x] **Paso 9 (tests):** Extender `lib.test.ts` (helpers) y crear `cli.test.ts`
   (integración en repo git temporal con git init + remote local): happy path
   (freeze→mark→mark→complete), death simulation (freeze→mark→"muerte"→revive→
   continuar), multi-máquina (repo A push → repo B pull revive → continuar), invalid
@@ -130,7 +130,7 @@ Pasos atómicos aprobados por el Council (orden estricto):
 
 ## Next action
 
-Implementar el Paso 9 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 9`.
+Implementar el Paso 10 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-return-by-death-hardening 10`.
 
 ## Constraints
 
