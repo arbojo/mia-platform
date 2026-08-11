@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1264794`.
+> Fuente de verdad: este repositorio en `9ae58b5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1264794` |
+| **Commit HEAD** | `9ae58b5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T01:24:56-06:00 |
+| **Generado** | 2026-08-11T01:28:55-06:00 |
 
 ---
 
@@ -690,6 +690,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9ae58b5 subaru: blueprint tenant-edition-premier - completar plan atómico
+f1f7ff9 docs: regenerate MASTER.md at 1264794
 1264794 chore: governance manifest y script de clasificacion para edicion por negocio (tenant)
 f494834 subaru: checkpoint tenant-edition-premier - listo
 0d96862 docs: regenerate MASTER.md at 2456b89
@@ -708,8 +710,6 @@ fdd6abc subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 1d351c4 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
 96a745b docs: regenerate MASTER.md at 277cd8d
 277cd8d subaru: checkpoint subaru-return-by-death-hardening - en-progreso
-f1c7ec0 subaru: checkpoint subaru-return-by-death-hardening - en-progreso
-d5b26fe subaru: checkpoint subaru-return-by-death-hardening - listo
 ```
 
 ---
