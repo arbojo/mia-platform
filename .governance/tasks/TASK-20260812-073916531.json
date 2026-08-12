@@ -1,0 +1,105 @@
+{
+  "id": "TASK-20260812-073916531",
+  "title": "Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash",
+  "description": "Tras cambio de maquina (Dell Precision) se detecto conflicto critico de sesiones Baileys (stream:error conflict type: replaced) entre la instancia local (PID 10332) y la maquina en Fly.io compitiendo por el mismo socket. Fly.io ademas sufre cold-start/crash-loop intermitente (~21s por request, auto_stop off) y tiene MIA_APP_URL=http://localhost:3000 (heredado del .env de la maquina vieja), por lo que los webhooks no llegan a Vercel en produccion. Plan: (1) detener la instancia local del bridge en la Dell, (2) fijar en Fly.io MIA_APP_URL=https://mia-platform-psi.vercel.app y verificar alineacion de WHATSAPP_BRIDGE_URL/secret en Vercel (ya verificados), (3) corregir discrepancia de puertos (Dockerfile EXPOSE 8787 vs fly.toml internal_port 3001) estandarizando en 3001, (4) endurecer handlers del bridge (try/catch en saveCreds y handlers de eventos Baileys) para evitar unhandled rejections que matan el proceso Node 22, (5) verificar que la maquina Fly se mantenga arriba (healthz <1s) sin bucles de reconexion, (6) actualizar ADR-013 (Baileys 7.0.0-rc14) y documentar la regla de host unico. Riesgo: credenciales de sesion (service role) y estabilidad de produccion; requiere revision de seguridad.",
+  "scope": {
+    "categories": [
+      "infrastructure",
+      "bugfix",
+      "security"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected, security implications, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Host unico en Fly.io elimina el conflicto Baileys 'replaced'. Estandarizar puertos en 3001 y endurecer handlers del bridge son cambios minimos y correctos.",
+      "timestamp": "2026-08-12T07:39:35.326Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "saveCreds y handlers de eventos Baileys deben capturar errores (unhandled rejection mata Node 22). MIA_APP_URL debe apuntar a Vercel en produccion.",
+      "timestamp": "2026-08-12T07:39:37.100Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI. El dashboard ya reconcilia estado via GET session; la estabilizacion del bridge lo beneficia sin romper contrato.",
+      "timestamp": "2026-08-12T07:39:38.696Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "El secreto de Vercel ya coincide con el bridge (SHA256). Fijar MIA_APP_URL a produccion evita fugas de datos a localhost. Revisar credenciales via env del hosting.",
+      "timestamp": "2026-08-12T07:39:40.097Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit_tests, e2e_tests, chrome_devtools. Bridge se verifica con healthz <1s, status de sesion y webhook 200.",
+      "timestamp": "2026-08-12T07:39:58.009Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commits atomicos: hardening bridge + puertos + ADR. Deploy flyctl + vercel --prod con verificacion de healthz y webhook.",
+      "timestamp": "2026-08-12T07:40:00.188Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Requerimiento: instalar flyctl (confirmado por el usuario). Docker Desktop opcional para prueba local del contenedor.",
+      "timestamp": "2026-08-12T07:40:01.609Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Baseline: flyctl ausente se detecta y se instala; drift de env (MIA_APP_URL localhost) corregido a produccion. Machine Fly en crash-loop requiere flyctl logs.",
+      "timestamp": "2026-08-12T07:40:02.524Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar en memoria: leccion de host unico para Baileys (una instancia por credenciales) y el caso de unhandled rejection en saveCreds como causa de crash.",
+      "timestamp": "2026-08-12T07:40:16.505Z"
+    }
+  ],
+  "createdAt": "2026-08-12T07:39:16.131Z",
+  "classifiedAt": "2026-08-12T07:39:16.131Z",
+  "approvedAt": "2026-08-12T07:40:16.507Z",
+  "startedAt": "2026-08-12T07:40:31.976Z"
+}

@@ -8,3 +8,14 @@
 [2026-08-12T04:00:16.113Z] DECISION: TASK-20260812-035924427 — release → approve
 [2026-08-12T04:00:25.918Z] DECISION: TASK-20260812-035924427 — memory_engineer → approve
 [2026-08-12T06:42:35.432Z] CREATED: TASK-20260812-064235021 — SIMPLE — Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019)
+[2026-08-12T07:39:16.132Z] CREATED: TASK-20260812-073916531 — COMPLEX — Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash
+[2026-08-12T07:39:35.334Z] DECISION: TASK-20260812-073916531 — architect → approve
+[2026-08-12T07:39:37.107Z] DECISION: TASK-20260812-073916531 — backend → approve
+[2026-08-12T07:39:38.700Z] DECISION: TASK-20260812-073916531 — frontend → approve
+[2026-08-12T07:39:40.100Z] DECISION: TASK-20260812-073916531 — security → approve
+[2026-08-12T07:39:58.013Z] DECISION: TASK-20260812-073916531 — qa → approve
+[2026-08-12T07:40:00.192Z] DECISION: TASK-20260812-073916531 — release → approve
+[2026-08-12T07:40:01.618Z] DECISION: TASK-20260812-073916531 — infrastructure_bootstrap → approve
+[2026-08-12T07:40:02.528Z] DECISION: TASK-20260812-073916531 — infrastructure_guardian → approve
+[2026-08-12T07:40:16.509Z] DECISION: TASK-20260812-073916531 — memory_engineer → approve
+[2026-08-12T07:40:31.984Z] TRANSITION: TASK-20260812-073916531 → in_progress
