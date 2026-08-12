@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `feadf77`.
+> Fuente de verdad: este repositorio en `d15dde4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `feadf77` |
+| **Commit HEAD** | `d15dde4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T23:40:21-06:00 |
+| **Generado** | 2026-08-12T00:43:18-06:00 |
 
 ---
 
@@ -696,6 +696,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d15dde4 subaru: checkpoint delivery-paywall - listo
+a6889e3 docs: regenerate MASTER.md at feadf77
 feadf77 subaru: checkpoint whatsapp-edition-sync - completado
 b6dac48 subaru: checkpoint whatsapp-edition-sync - en-progreso
 9f4e5fd docs: regenerate MASTER.md at 8b69e9f
@@ -714,8 +716,6 @@ c835f16 subaru: checkpoint whatsapp-edition-sync - en-progreso
 22225da docs: regenerate MASTER.md at 141ad77
 141ad77 subaru: checkpoint subaru-audit-v2 - completado
 277129f subaru: checkpoint subaru-audit-v2 - en-progreso
-30fc2a2 docs: regenerate MASTER.md at 87207d7
-87207d7 docs: regenerate MASTER.md at 4073bac
 ```
 
 ---
