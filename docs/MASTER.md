@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0739324`.
+> Fuente de verdad: este repositorio en `458a810`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0739324` |
+| **Commit HEAD** | `458a810` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T00:49:09-06:00 |
+| **Generado** | 2026-08-12T01:46:53-06:00 |
 
 ---
 
@@ -698,6 +698,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+458a810 subaru: checkpoint delivery-paywall - completado
+d83671d docs: regenerate MASTER.md at 0739324
 0739324 subaru: checkpoint delivery-paywall - en-progreso
 a46e096 chore(governance): clasificar paywall delivery tenant (TASK-20260812-064235021)
 2380b58 feat(delivery): paywall de Delivery Hub gateado por edition del negocio
@@ -716,8 +718,6 @@ b6dac48 subaru: checkpoint whatsapp-edition-sync - en-progreso
 b8c4756 feat(edition): habilitar capacidades por negocio via businesses.edition
 5e6790f docs: regenerate MASTER.md at ac2314f
 ac2314f subaru: checkpoint whatsapp-edition-sync - en-progreso
-257203b subaru: checkpoint whatsapp-edition-sync - en-progreso
-18cd99e docs: regenerate MASTER.md at c835f16
 ```
 
 ---
