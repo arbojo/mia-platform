@@ -1,14 +1,14 @@
 ---
 task_id: delivery-paywall
 title: Delivery Hub paywall por tenant (ADR-019): gate con edition del negocio
-state: in_progress
+state: completed
 current_step: 4
 total_steps: 4
 branch: main
-last_machine: Deivis-Desktop
+last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260812-064235021
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T06:49:08.688Z
+updated: 2026-08-12T07:46:53.005Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -72,10 +72,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..4.
-- Previo: misión whatsapp-edition-sync completada (edition por tenant + reconciliación read-path desplegados).
-- Los 3 archivos del paywall ya existen en el working tree como cambios sin commitear; esta misión los formaliza.
-- Dependencia de base: `getEffectiveEdition`/`canBusinessUseDeliveryHub`/`canBusinessUseInventoryHub` commiteados (b8c4756).
+- Misión delivery-paywall completada (4/4 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors).
+- Finalizado: 2026-08-12T07:46:53.005Z.
 
 ## Next action
 
