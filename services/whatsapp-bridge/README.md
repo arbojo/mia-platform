@@ -30,7 +30,7 @@ npm install
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (solo server) |
 | `MIA_APP_URL` | URL base de la app Next.js (ej. `http://localhost:3000`) |
 | `WHATSAPP_BRIDGE_SECRET` | Secreto compartido con `WHATSAPP_BRIDGE_SECRET` de Next.js |
-| `BRIDGE_PORT` | Puerto del bridge (default `8787`) |
+| `BRIDGE_PORT` | Puerto del bridge (default `3001`) |
 
 ## Ejecutar
 
