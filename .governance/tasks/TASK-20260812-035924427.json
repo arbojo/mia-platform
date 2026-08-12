@@ -1,0 +1,100 @@
+{
+  "id": "TASK-20260812-035924427",
+  "title": "WhatsApp en produccion: edition por tenant (migracion 037 + deploy) y reconciliacion read-path del estado channel_connections",
+  "description": "Resolver dos problemas de produccion en el canal WhatsApp (Baileys). (1) GATE DE EDICION: la tarjeta WhatsApp no se renderiza en Vercel prod porque canUseWhatsApp() solo lee MIA_EDITION. Fix tenant-scoped ya preparado localmente: getEffectiveEdition() DB-first (businesses.edition con fallback a MIA_EDITION), canBusinessUseWhatsApp() como guard 403 en POST session, page.tsx de connections resuelve la edition del negocio del usuario, y la migracion 037 agrega columna edition a businesses con backfill de Vitanova -> enterprise. Aplicar migracion 037 en Supabase prod y desplegar los cambios. (2) SINCRONIZACION DE ESTADO: channel_connections.status queda atrapado en \"connecting\" (estado fantasma) porque solo POST session/reconnect lo escriben y jamas transiciona a connected; el bridge persiste su estado real solo en whatsapp_sessions. Fix read-path: en GET /api/channels/baileys/session, tras getBridgeSessionStatus, reconciliar channel_connections.status (admin client) cuando difiera, y en ConnectionsManager refrescar refreshConnections() tras un refreshWaStatus con estado resuelto para que la fila de la lista refleje el estado real del bridge. Sin cambios de AI, sin nuevos endpoints, sin puente redeploy.",
+  "scope": {
+    "categories": [
+      "schema_change",
+      "bugfix",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected, schema changes required, cross-cutting (multi-domain). Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Fix gate de edicion tenant-scoped + reconciliacion read-path del estado. Minimal, sin nuevos endpoints, sin AI, sin redeploy del bridge. Correcto.",
+      "timestamp": "2026-08-12T03:59:46.614Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migration 037 inmutable new-only: ADD COLUMN edition + backfill Vitanova. RLS intacto, multi-tenant respetado.",
+      "timestamp": "2026-08-12T03:59:56.506Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "GET session reconciles channel_connections.status con admin client (patron DELETE). Idempotente.",
+      "timestamp": "2026-08-12T03:59:57.506Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "refreshConnections tras sync mantiene la fila consistente. Sin props inventadas, componente estable.",
+      "timestamp": "2026-08-12T04:00:05.542Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin exposicion de secretos; admin client server-side; ownership verificado en GET/POST. Sin riesgo cross-tenant.",
+      "timestamp": "2026-08-12T04:00:06.631Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, typecheck. Tests existentes no se rompen.",
+      "timestamp": "2026-08-12T04:00:15.019Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commits atomicos separados del paywall delivery. Push + vercel --prod al final.",
+      "timestamp": "2026-08-12T04:00:16.111Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se documentara evidencia del fix y resultados en el checkpoint; sin memorizar estado futuro.",
+      "timestamp": "2026-08-12T04:00:25.916Z"
+    }
+  ],
+  "createdAt": "2026-08-12T03:59:24.294Z",
+  "classifiedAt": "2026-08-12T03:59:24.294Z",
+  "approvedAt": "2026-08-12T04:00:25.917Z"
+}
