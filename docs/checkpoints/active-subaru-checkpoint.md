@@ -2,13 +2,13 @@
 task_id: bridge-stability
 title: Estabilizar conectividad bridge WhatsApp: host unico Fly.io, MIA_APP_URL prod, puertos 3001, anti-crash
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 4
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260812-073916531
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T08:29:08.526Z
+updated: 2026-08-12T22:56:38.029Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -58,7 +58,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: todos los handlers protegidos; `sendToMia` no propaga errores de fetch al socket
   - Gate/verificación: `tsc --noEmit` del bridge + revisión de código
 
-- [ ] **Paso 3:** Corregir MIA_APP_URL en Fly.io y verificar estabilidad de producción
+- [x] **Paso 3:** Corregir MIA_APP_URL en Fly.io y verificar estabilidad de producción
   - Objetivo: los webhooks del bridge llegan a Vercel (prod) y la máquina no entra en crash-loop
   - Archivos: infra Fly.io (secrets/env), `.infrastructure` (fingerprint), instancia local
   - Acción: instalar `flyctl` (con confirmación del usuario); `fly secrets set MIA_APP_URL=https://mia-platform-psi.vercel.app`; redeploy con puerto/handlers corregidos; detener bridge local (PID 10332) para eliminar conflicto de sesión
@@ -80,7 +80,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark bridge-stability 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark bridge-stability 4`.
 
 ## Constraints
 
