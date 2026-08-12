@@ -2,13 +2,13 @@
 task_id: delivery-paywall
 title: Delivery Hub paywall por tenant (ADR-019): gate con edition del negocio
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 4
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-064235021
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T06:47:38.917Z
+updated: 2026-08-12T06:47:50.705Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -54,7 +54,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `DeliveryAdmin` solo se renderiza si el negocio tiene deliveryHub; si no, se muestra el paywall.
   - Gate/verificación: `lint`, `build`.
 
-- [ ] **Paso 3:** Gate tenant-scoped en inventory/page.tsx
+- [x] **Paso 3:** Gate tenant-scoped en inventory/page.tsx
   - Objetivo: el gate de inventario pasa del env global a la edition del negocio.
   - Archivos: `src/app/dashboard/inventory/page.tsx`.
   - Acción: reemplazar `canUseInventoryHub()` por `await canBusinessUseInventoryHub(business.id)`; el paywall de Inventory ya existe y no se toca.
@@ -79,7 +79,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark delivery-paywall 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark delivery-paywall 4`.
 
 ## Constraints
 
