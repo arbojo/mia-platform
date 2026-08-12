@@ -351,7 +351,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
           setWaStatus('connected')
           setWaPhone(msg.phone ?? null)
           setWaQr(null)
-          refreshConnections()
+          void reconcileBridgeStatus()
         } else if (msg.status === 'connecting') {
           setWaStatus('connecting')
         } else if (msg.status === 'disconnected') {
@@ -419,19 +419,22 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         clearWaTimeout()
         setWaStatus('connected')
         setWaQr(null)
+        void refreshConnections(targetId)
       } else if (data.status === 'connecting') {
         setWaStatus('connecting')
         openWaSocket().catch((err: unknown) => {
-          setWaError(err instanceof Error ? err.message : 'No se pudo abrir la conexión')
+          setWaError(err instanceof Error ? err.message : 'No se pudo abrir la conexi�n')
           setWaStatus('error')
         })
       } else if (data.status === 'error') {
         clearWaTimeout()
         setWaStatus('error')
+        void refreshConnections(targetId)
       } else {
         clearWaTimeout()
         setWaStatus('idle')
         setWaQr(null)
+        void refreshConnections(targetId)
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
@@ -445,15 +448,26 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     }
   }
 
-  async function refreshConnections() {
-    if (!businessId) return
+  async function refreshConnections(bid?: string) {
+    const targetId = bid ?? businessId
+    if (!targetId) return
     const supabase = createClient()
     const { data } = await supabase
       .from('channel_connections')
       .select('*')
-      .eq('business_id', businessId)
+      .eq('business_id', targetId)
       .order('created_at', { ascending: false })
     setConnections(data ?? [])
+  }
+
+  async function reconcileBridgeStatus() {
+    if (!businessId) return
+    try {
+      await fetchWithTimeout(`/api/channels/baileys/session?businessId=${businessId}`)
+    } catch {
+      // reconciliation is best-effort: the GET persists the bridge status server-side
+    }
+    await refreshConnections()
   }
 
   async function handleWhatsAppLogout() {

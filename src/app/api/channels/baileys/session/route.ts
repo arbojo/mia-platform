@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { canBusinessUseWhatsApp } from '@/lib/system/edition'
 import {
   startBridgeSession,
   getBridgeSessionStatus,
@@ -89,6 +90,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    if (!(await canBusinessUseWhatsApp(body.businessId))) {
+      return NextResponse.json(
+        { error: 'WhatsApp is not available for this business edition' },
+        { status: 403 }
+      )
+    }
+
     const connection = await findOrCreateConnection(body.businessId, body.assistantId)
     if (!connection) {
       return NextResponse.json({ error: 'Failed to create connection' }, { status: 500 })
@@ -148,6 +156,23 @@ export async function GET(request: Request) {
     }
 
     const status = await getBridgeSessionStatus(businessId)
+
+    const admin = createAdminClient()
+    const { data: connection } = await admin
+      .from('channel_connections')
+      .select('status')
+      .eq('business_id', businessId)
+      .eq('channel', 'whatsapp')
+      .maybeSingle()
+
+    if (connection && connection.status !== status.status) {
+      await admin
+        .from('channel_connections')
+        .update({ status: status.status, updated_at: new Date().toISOString() })
+        .eq('business_id', businessId)
+        .eq('channel', 'whatsapp')
+    }
+
     return NextResponse.json({ success: true, ...status, bridgeEnabled: true })
   } catch (error) {
     if (error instanceof BridgeClientError) {
