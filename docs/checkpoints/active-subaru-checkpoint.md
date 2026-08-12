@@ -2,13 +2,13 @@
 task_id: whatsapp-edition-sync
 title: WhatsApp en produccion: edition por tenant + reconciliacion read-path del estado
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-035924427
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T04:10:03.079Z
+updated: 2026-08-12T04:10:45.672Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -48,7 +48,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: GET devuelve el estado del bridge y, si difiere, persiste el nuevo estado en channel_connections.
   - Gate/verificación: `lint`, `build`, `unit_tests`.
 
-- [ ] **Paso 2:** Frontend refresca la fila tras el sync de estado
+- [x] **Paso 2:** Frontend refresca la fila tras el sync de estado
   - Objetivo: la fila de la lista de conexiones muestra el mismo estado que la tarjeta WhatsApp.
   - Archivos: `src/components/connections/ConnectionsManager.tsx`.
   - Acción: tras `refreshWaStatus()` con estado resuelto (connected/disconnected/idle), llamar `refreshConnections()` para que la fila relea el estado reconciliado.
@@ -97,7 +97,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 3`.
 
 ## Constraints
 
