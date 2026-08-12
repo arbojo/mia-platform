@@ -2,13 +2,13 @@
 task_id: whatsapp-edition-sync
 title: WhatsApp en produccion: edition por tenant + reconciliacion read-path del estado
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-035924427
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T05:33:43.418Z
+updated: 2026-08-12T05:34:17.967Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -64,7 +64,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `SELECT edition FROM businesses WHERE id='4fb7418d-...'` retorna `enterprise`; columnas sin edition quedan NULL (fallback env).
   - Gate/verificación: `security_review`.
 
-- [ ] **Paso 4:** Gates de calidad
+- [x] **Paso 4:** Gates de calidad
   - Objetivo: lint/build/unit/component/e2e verdes.
   - Archivos: repo (sin cambios de producto).
   - Acción: `npm run lint`, `npm run build`, `npm run test:unit`, `npm run test:component`, `npm test`.
@@ -97,7 +97,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 5`.
 
 ## Constraints
 
