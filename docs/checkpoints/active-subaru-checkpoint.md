@@ -1,99 +1,84 @@
 ---
-task_id: delivery-paywall
-title: Delivery Hub paywall por tenant (ADR-019): gate con edition del negocio
-state: completed
-current_step: 4
+task_id: bridge-stability
+title: Estabilizar conectividad bridge WhatsApp: host unico Fly.io, MIA_APP_URL prod, puertos 3001, anti-crash
+state: frozen
+current_step: 0
 total_steps: 4
 branch: main
 last_machine: DESKTOP-VN2R21O
-governance_id: TASK-20260812-064235021
+governance_id: TASK-20260812-073916531
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T07:46:53.005Z
+updated: 2026-08-12T08:23:49.408Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Delivery Hub paywall por tenant (ADR-019): gate con edition del negocio
+Estabilizar conectividad bridge WhatsApp: host unico Fly.io, MIA_APP_URL prod, puertos 3001, anti-crash
 
-Aprobación: TASK-20260812-064235021.
+Aprobación: TASK-20260812-073916531.
 
 ## Scope
 
-- `src/components/delivery/DeliveryPaywall.tsx` — pantalla de upgrade de Delivery Hub (nuevo componente, ADR-019).
-- `src/app/dashboard/delivery/page.tsx` — gate del módulo logístico con `canBusinessUseDeliveryHub(business.id)`; renderiza `<DeliveryPaywall/>` si el negocio no tiene la capacidad.
-- `src/app/dashboard/inventory/page.tsx` — migrar el gate de `canUseInventoryHub()` (env global) a `canBusinessUseInventoryHub(business.id)`, coherente con la edition por tenant ya desplegada.
-- Governance: `workshop/governance/classify-delivery-paywall.script.ts` + `.governance/tasks/TASK-20260812-064235021.json`.
+- (archivos/módulos/dominios involucrados — completar)
 
 ## Non-goals
 
-- NO tocar la lógica del Delivery Hub (`src/features/delivery-hub/`, `src/lib/delivery/`, schema `delivery`, portal `/driver`).
-- NO cambios de schema, de AI, ni nuevos endpoints.
-- NO alterar la edición global `MIA_EDITION` ni su fallback.
-- NO modificar el paywall de Inventory (`InventoryPaywall.tsx`), solo su gate de página.
-- NO reabrir la misión whatsapp-edition-sync (completada).
+- (qué NO tocar — completar)
 
 ## Approved plan
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** Verificar DeliveryPaywall.tsx como componente aislado
-  - Objetivo: el componente de upgrade de Delivery Hub existe y es autónomo (solo botones + copy, sin lógica de negocio).
-  - Archivos: `src/components/delivery/DeliveryPaywall.tsx`.
-  - Acción: revisar que el componente ya materializado use solo primitivas shadcn/ui (`Button`, `Card`) y navegue a `/dashboard/billing/upgrade`; sin dependencias de estado global ni lógica de negocio.
-  - Dependencia: ninguna.
-  - Criterio de terminación: componente <150 líneas, sin imports de datos/API, accesible (botones con texto descriptivo).
-  - Gate/verificación: `lint`, `build`.
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 1)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** Gate tenant-scoped en delivery/page.tsx
-  - Objetivo: el módulo logístico se activa por negocio (`canBusinessUseDeliveryHub`), no por env global.
-  - Archivos: `src/app/dashboard/delivery/page.tsx`.
-  - Acción: usar `await canBusinessUseDeliveryHub(business.id)` como gate de página; renderizar `<DeliveryPaywall/>` cuando la capacidad sea falsa; conservar `redirect` a onboarding y auth previos.
-  - Dependencia: Paso 1.
-  - Criterio de terminación: `DeliveryAdmin` solo se renderiza si el negocio tiene deliveryHub; si no, se muestra el paywall.
-  - Gate/verificación: `lint`, `build`.
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 2)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 3:** Gate tenant-scoped en inventory/page.tsx
-  - Objetivo: el gate de inventario pasa del env global a la edition del negocio.
-  - Archivos: `src/app/dashboard/inventory/page.tsx`.
-  - Acción: reemplazar `canUseInventoryHub()` por `await canBusinessUseInventoryHub(business.id)`; el paywall de Inventory ya existe y no se toca.
-  - Dependencia: Paso 2.
-  - Criterio de terminación: `InventoryAdmin` solo se renderiza si el negocio tiene inventoryHub; `InventoryPaywall` mantiene su comportamiento.
-  - Gate/verificación: `lint`, `build`.
+- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 3)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 4:** Gates de calidad + commit atómico + push + deploy
-  - Objetivo: entregar el paywall sin dejar deuda de proceso en el working tree.
-  - Archivos: repo (delivery/page.tsx, inventory/page.tsx, DeliveryPaywall.tsx, classify script, governance log).
-  - Acción: `npm run lint`, `npm run build`, `npm run test:component`; commits separados (feat + chore(governance)); push a origin/main; `vercel --prod`; verificar HTTP 200 y paywall renderizado en un negocio sin enterprise.
-  - Dependencia: Pasos 1-3.
-  - Criterio de terminación: working tree limpio, remoto sincronizado, deploy vivo, sin errores de consola.
-  - Gate/verificación: `lint`, `build`, `chrome_devtools`.
+- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 4)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
 
 ## Current state
 
-- Misión delivery-paywall completada (4/4 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors).
-- Finalizado: 2026-08-12T07:46:53.005Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..4.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete delivery-paywall` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
-- Governance aprobado: TASK-20260812-064235021 (SIMPLE, 3 agentes: frontend, qa, memory_engineer; gates: lint, build).
-- Capability por tenant (businesses.edition), nunca por identidad; negocios con edition NULL caen a MIA_EDITION (gated).
-- El CLI es la única autoridad del frontmatter del checkpoint; el body se autoriza antes del freeze.
-- No escribir secretos en el checkpoint; secret scan bloquea freeze/mark/complete.
-- ADR-019: el Delivery Hub es un módulo aislado; el paywall es solo la puerta de entrada al dashboard admin.
+- (decisiones arquitectónicas, ADRs, reglas de governance, restricciones de seguridad — completar)
 
 ## Verification
 
-- Gates: lint, build (obligatorios); chrome_devtools (deploy).
-- Component: `npm run test:component` debe seguir verde (30/30).
-- Funcional: negocio sin enterprise ve `<DeliveryPaywall/>` en /dashboard/delivery; Vitanova (enterprise) sigue viendo `DeliveryAdmin`.
-- Deploy: `vercel --prod` responde HTTP 200 sin errores de consola.
+- (gates obligatorios y estado de ejecución — completar)
 
 ## Recovery instructions
 
@@ -102,5 +87,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark delivery-paywall <n>`.
-6. Al final: `subaru complete delivery-paywall`.
+5. Continuar el paso indicado y ejecutar `subaru mark bridge-stability <n>`.
+6. Al final: `subaru complete bridge-stability`.
