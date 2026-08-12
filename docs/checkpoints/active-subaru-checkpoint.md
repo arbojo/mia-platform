@@ -2,13 +2,13 @@
 task_id: whatsapp-edition-sync
 title: WhatsApp en produccion: edition por tenant + reconciliacion read-path del estado
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-035924427
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T05:35:40.399Z
+updated: 2026-08-12T05:39:36.109Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -80,7 +80,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: remoto sincronizado, working tree limpio (excepto paywall excluido a proposito).
   - Gate/verificación: `security_review`.
 
-- [ ] **Paso 6:** Deploy Vercel prod + verificacion final
+- [x] **Paso 6:** Deploy Vercel prod + verificacion final
   - Objetivo: la tarjeta WhatsApp visible para Vitanova y el estado sincronizado en produccion.
   - Archivos: deploy (sin codigo).
   - Acción: `vercel --prod`, verificar HTTP 200, tarjeta WhatsApp renderizada para Vitanova, fila de conexion con estado real, sin errores de consola.
@@ -97,7 +97,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 6`.
+Todos los pasos marcados. Ejecutar `subaru complete whatsapp-edition-sync` cuando pasen los gates de verificación.
 
 ## Constraints
 
