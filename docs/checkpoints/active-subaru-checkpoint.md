@@ -2,13 +2,13 @@
 task_id: delivery-paywall
 title: Delivery Hub paywall por tenant (ADR-019): gate con edition del negocio
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 4
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-064235021
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T06:47:50.705Z
+updated: 2026-08-12T06:49:08.688Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -62,7 +62,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `InventoryAdmin` solo se renderiza si el negocio tiene inventoryHub; `InventoryPaywall` mantiene su comportamiento.
   - Gate/verificación: `lint`, `build`.
 
-- [ ] **Paso 4:** Gates de calidad + commit atómico + push + deploy
+- [x] **Paso 4:** Gates de calidad + commit atómico + push + deploy
   - Objetivo: entregar el paywall sin dejar deuda de proceso en el working tree.
   - Archivos: repo (delivery/page.tsx, inventory/page.tsx, DeliveryPaywall.tsx, classify script, governance log).
   - Acción: `npm run lint`, `npm run build`, `npm run test:component`; commits separados (feat + chore(governance)); push a origin/main; `vercel --prod`; verificar HTTP 200 y paywall renderizado en un negocio sin enterprise.
@@ -79,7 +79,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark delivery-paywall 4`.
+Todos los pasos marcados. Ejecutar `subaru complete delivery-paywall` cuando pasen los gates de verificación.
 
 ## Constraints
 
