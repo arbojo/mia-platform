@@ -1,5 +1,5 @@
 import { ConnectionsManager } from '@/components/connections/ConnectionsManager'
-import { canUseWhatsApp } from '@/lib/system/edition'
+import { canUseWhatsApp, getEffectiveEdition } from '@/lib/system/edition'
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile, isDemoLead } from '@/lib/system/demo'
 
@@ -12,7 +12,19 @@ export default async function ConnectionsPage() {
   let whatsAppEnabled = canUseWhatsApp()
   if (user) {
     const profile = await getUserProfile(user.id)
-    if (profile && isDemoLead(profile)) whatsAppEnabled = false
+    if (profile && isDemoLead(profile)) {
+      whatsAppEnabled = false
+    } else {
+      const { data: businesses } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user.id)
+        .limit(1)
+      const business = businesses?.[0]
+      if (business) {
+        whatsAppEnabled = (await getEffectiveEdition(business.id)).capabilities.whatsapp
+      }
+    }
   }
 
   return (

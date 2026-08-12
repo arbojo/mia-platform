@@ -1,3 +1,5 @@
+import { createAdminClient } from '@/lib/supabase/admin'
+
 export type EditionName = 'evaluation' | 'professional' | 'enterprise' | 'cloud'
 
 export interface EditionLimits {
@@ -343,4 +345,45 @@ export function getRemainingQuota(
 ): number | null {
   if (limit === null) return null
   return Math.max(0, limit - current)
+}
+
+/**
+ * Resolves the effective edition for a business (tenant), DB-first with a
+ * fallback to the global MIA_EDITION environment variable.
+ *
+ * Capabilities belong to the BUSINESS, never to the person: a new email gets
+ * its own auto-provisioned business (migration 018) with a NULL edition, so it
+ * falls back to the global env and stays gated. Only the service-role admin
+ * client reads the column (server-side); it is never exposed to the client
+ * bundle or the public Data API.
+ */
+export async function getEffectiveEdition(businessId: string): Promise<Edition> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('businesses')
+      .select('edition')
+      .eq('id', businessId)
+      .maybeSingle()
+
+    const editionName = data?.edition as EditionName | null | undefined
+    if (editionName && editionName in EDITIONS) {
+      return EDITIONS[editionName]
+    }
+  } catch {
+    // DB unavailable should never break capability resolution; fall back.
+  }
+  return getEdition()
+}
+
+export async function canBusinessUseWhatsApp(businessId: string): Promise<boolean> {
+  return (await getEffectiveEdition(businessId)).capabilities.whatsapp
+}
+
+export async function canBusinessUseDeliveryHub(businessId: string): Promise<boolean> {
+  return (await getEffectiveEdition(businessId)).capabilities.deliveryHub
+}
+
+export async function canBusinessUseInventoryHub(businessId: string): Promise<boolean> {
+  return (await getEffectiveEdition(businessId)).capabilities.inventoryHub
 }
