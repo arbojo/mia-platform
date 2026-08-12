@@ -2,13 +2,13 @@
 task_id: delivery-paywall
 title: Delivery Hub paywall por tenant (ADR-019): gate con edition del negocio
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 4
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-064235021
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T06:47:28.423Z
+updated: 2026-08-12T06:47:38.917Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -46,7 +46,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: componente <150 líneas, sin imports de datos/API, accesible (botones con texto descriptivo).
   - Gate/verificación: `lint`, `build`.
 
-- [ ] **Paso 2:** Gate tenant-scoped en delivery/page.tsx
+- [x] **Paso 2:** Gate tenant-scoped en delivery/page.tsx
   - Objetivo: el módulo logístico se activa por negocio (`canBusinessUseDeliveryHub`), no por env global.
   - Archivos: `src/app/dashboard/delivery/page.tsx`.
   - Acción: usar `await canBusinessUseDeliveryHub(business.id)` como gate de página; renderizar `<DeliveryPaywall/>` cuando la capacidad sea falsa; conservar `redirect` a onboarding y auth previos.
@@ -79,7 +79,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark delivery-paywall 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark delivery-paywall 3`.
 
 ## Constraints
 
