@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c835f16`.
+> Fuente de verdad: este repositorio en `ac2314f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c835f16` |
+| **Commit HEAD** | `ac2314f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T22:10:45-06:00 |
+| **Generado** | 2026-08-11T23:34:18-06:00 |
 
 ---
 
@@ -694,6 +694,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ac2314f subaru: checkpoint whatsapp-edition-sync - en-progreso
+257203b subaru: checkpoint whatsapp-edition-sync - en-progreso
+18cd99e docs: regenerate MASTER.md at c835f16
 c835f16 subaru: checkpoint whatsapp-edition-sync - en-progreso
 0293276 subaru: checkpoint whatsapp-edition-sync - en-progreso
 9b845c5 docs: regenerate MASTER.md at 46d6192
@@ -711,9 +714,6 @@ b05bc0d docs(subaru): AGENTS.md seccion 24, espejo del agente y ADR-021 del prot
 2f92393 docs: modos de trabajo MIA (protocolo del concilio) TASK-20260811-220954273
 fa4ae56 docs: regenerate MASTER.md at babb166
 babb166 subaru: checkpoint subaru-audit-v2 - en-progreso
-4f8c39f feat(subaru): secret scan (bloquea freeze/mark/complete) + drift con commits remotos
-53aad0f docs: regenerate MASTER.md at b062c12
-b062c12 subaru: checkpoint subaru-audit-v2 - en-progreso
 ```
 
 ---
