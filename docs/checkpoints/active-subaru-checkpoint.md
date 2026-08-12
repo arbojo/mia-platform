@@ -2,13 +2,13 @@
 task_id: bridge-stability
 title: Estabilizar conectividad bridge WhatsApp: host unico Fly.io, MIA_APP_URL prod, puertos 3001, anti-crash
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 4
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260812-073916531
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T08:27:06.167Z
+updated: 2026-08-12T08:29:08.526Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -50,7 +50,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `BRIDGE_PORT` default 3001, Dockerfile EXPOSE 3001, fly.toml internal_port 3001
   - Gate/verificación: revisión de archivos + `tsc --noEmit` del bridge
 
-- [ ] **Paso 2:** Endurecer handlers del bridge (anti unhandled rejection)
+- [x] **Paso 2:** Endurecer handlers del bridge (anti unhandled rejection)
   - Objetivo: ningún evento Baileys ni `fetch()` puede lanzar una promesa no manejada que derribe el proceso Node 22
   - Archivos: `services/whatsapp-bridge/src/session-manager.ts`, `services/whatsapp-bridge/src/mia-client.ts`
   - Acción: envolver `socket.ev.on('creds.update', saveCreds)` y todos los `ev.on` en try/catch; `sendToMia` con `try/catch` sobre `fetch` y log de error sin rethrow
@@ -80,7 +80,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark bridge-stability 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark bridge-stability 3`.
 
 ## Constraints
 
