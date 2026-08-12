@@ -1,14 +1,14 @@
 ---
 task_id: subaru-audit-v2
 title: Auditoria y endurecimiento Subaru v2
-state: blocked
-current_step: 6
+state: in_progress
+current_step: 7
 total_steps: 7
 branch: main
-last_machine: archlinux
+last_machine: Deivis-Desktop
 governance_id: TASK-20260811-222129849
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-11T22:51:03.238Z
+updated: 2026-08-12T03:58:29.143Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -89,7 +89,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: tests de drift con commits remotos (reporta el commit) y de secret scan (bloquea `sk-...`).
   - Gate/verificación: `unit_tests`.
 
-- [ ] **Paso 7:** Gates de calidad + documentación
+- [x] **Paso 7:** Gates de calidad + documentación
   - Objetivo: lint/build/unit verdes; documentar el protocolo completo.
   - Archivos: `AGENTS.md` §24, `.agents/subaru.md`, `docs/adr/021-subaru-checkpoint.md`.
   - Acción: actualizar AGENTS.md §24 y el espejo del agente; crear ADR-021; resolver la contradicción "no editar a mano" (el blueprint se autoriza ANTES del freeze; el CLI solo estampa frontmatter + commit).
@@ -105,7 +105,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark subaru-audit-v2 7`.
+Todos los pasos marcados. Ejecutar `subaru complete subaru-audit-v2` cuando pasen los gates de verificación.
 
 ## Constraints
 
