@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `141ad77`.
+> Fuente de verdad: este repositorio en `46d6192`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `141ad77` |
+| **Commit HEAD** | `46d6192` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T21:58:40-06:00 |
+| **Generado** | 2026-08-11T22:01:19-06:00 |
 
 ---
 
@@ -694,6 +694,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+46d6192 subaru: checkpoint whatsapp-edition-sync - listo
+22225da docs: regenerate MASTER.md at 141ad77
 141ad77 subaru: checkpoint subaru-audit-v2 - completado
 277129f subaru: checkpoint subaru-audit-v2 - en-progreso
 30fc2a2 docs: regenerate MASTER.md at 87207d7
@@ -712,8 +714,6 @@ b062c12 subaru: checkpoint subaru-audit-v2 - en-progreso
 50f780a feat(subaru): complete exige --confirm-gates y escribe resultado final en Current state
 708209d docs: regenerate MASTER.md at 1a51258
 1a51258 subaru: checkpoint subaru-audit-v2 - en-progreso
-3e30bad docs: regenerate MASTER.md at b08fe5d
-b08fe5d feat(subaru): scaffold enriquecido con 7 atributos por paso + parser
 ```
 
 ---
