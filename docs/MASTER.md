@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `458a810`.
+> Fuente de verdad: este repositorio en `d1c2eff`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `458a810` |
+| **Commit HEAD** | `d1c2eff` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T01:46:53-06:00 |
+| **Generado** | 2026-08-12T02:24:48-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (79)**:
+**Tareas registradas (80)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -653,6 +653,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260811-225003841 | UsageBar deterministico: locale explicito es-MX en el formato numerico (test + componente) | approved |
 | TASK-20260812-035924427 | WhatsApp en produccion: edition por tenant (migracion 037 + deploy) y reconciliacion read-path del estado channel_connections | approved |
 | TASK-20260812-064235021 | Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019) | approved |
+| TASK-20260812-073916531 | Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash | in_progress |
 
 ---
 
@@ -698,6 +699,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d1c2eff fix: subaru freeze accepts in_progress governance per WorkflowEngine
+5278828 chore: commit governance artifacts for bridge-stability task
+3ce22e5 subaru: checkpoint bridge-stability - listo
+f4c142a docs: regenerate MASTER.md at 458a810
 458a810 subaru: checkpoint delivery-paywall - completado
 d83671d docs: regenerate MASTER.md at 0739324
 0739324 subaru: checkpoint delivery-paywall - en-progreso
@@ -714,10 +719,6 @@ b6dac48 subaru: checkpoint whatsapp-edition-sync - en-progreso
 9f4e5fd docs: regenerate MASTER.md at 8b69e9f
 8b69e9f subaru: checkpoint whatsapp-edition-sync - en-progreso
 9a128c1 chore(governance): clasificar y aprobar whatsapp-edition-sync (TASK-20260812-035924427)
-3f1e683 fix(whatsapp): reconciliar estado de conexion en read-path GET session
-b8c4756 feat(edition): habilitar capacidades por negocio via businesses.edition
-5e6790f docs: regenerate MASTER.md at ac2314f
-ac2314f subaru: checkpoint whatsapp-edition-sync - en-progreso
 ```
 
 ---
