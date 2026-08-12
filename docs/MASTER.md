@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ac2314f`.
+> Fuente de verdad: este repositorio en `8b69e9f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ac2314f` |
+| **Commit HEAD** | `8b69e9f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T23:34:18-06:00 |
+| **Generado** | 2026-08-11T23:35:40-06:00 |
 
 ---
 
@@ -172,6 +172,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 34 | 034_inventory_hub.sql |
 | 35 | 035_inventory_schema_expose.sql |
 | 36 | 036_inventory_grants.sql |
+| 37 | 037_business_edition.sql |
 
 ---
 
@@ -568,7 +569,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (77)**:
+**Tareas registradas (78)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -649,6 +650,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260811-220954273 | Protocolo de modos de trabajo MIA: 5 modos de interaccion agente-concilio | completed |
 | TASK-20260811-222129849 | Auditoria y endurecimiento Subaru v2: fix multi-maquina, bootstrap, estado frozen, gates en complete, drift detallado + secret scan, docs | approved |
 | TASK-20260811-225003841 | UsageBar deterministico: locale explicito es-MX en el formato numerico (test + componente) | approved |
+| TASK-20260812-035924427 | WhatsApp en produccion: edition por tenant (migracion 037 + deploy) y reconciliacion read-path del estado channel_connections | approved |
 
 ---
 
@@ -694,6 +696,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+8b69e9f subaru: checkpoint whatsapp-edition-sync - en-progreso
+9a128c1 chore(governance): clasificar y aprobar whatsapp-edition-sync (TASK-20260812-035924427)
+3f1e683 fix(whatsapp): reconciliar estado de conexion en read-path GET session
+b8c4756 feat(edition): habilitar capacidades por negocio via businesses.edition
+5e6790f docs: regenerate MASTER.md at ac2314f
 ac2314f subaru: checkpoint whatsapp-edition-sync - en-progreso
 257203b subaru: checkpoint whatsapp-edition-sync - en-progreso
 18cd99e docs: regenerate MASTER.md at c835f16
@@ -709,11 +716,6 @@ c835f16 subaru: checkpoint whatsapp-edition-sync - en-progreso
 4073bac subaru: checkpoint subaru-audit-v2 - bloqueado
 ec37061 chore(governance): manifiestos y scripts de clasificacion (audit v2 + recomendacion UsageBar deterministico)
 b05bc0d docs(subaru): AGENTS.md seccion 24, espejo del agente y ADR-021 del protocolo
-0d7cc4a feat(subaru): comando block para registrar misiones bloqueadas con --reason
-54e1d86 docs: regenerate MASTER.md at 2f92393
-2f92393 docs: modos de trabajo MIA (protocolo del concilio) TASK-20260811-220954273
-fa4ae56 docs: regenerate MASTER.md at babb166
-babb166 subaru: checkpoint subaru-audit-v2 - en-progreso
 ```
 
 ---
