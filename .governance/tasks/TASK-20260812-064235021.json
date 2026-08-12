@@ -1,0 +1,36 @@
+{
+  "id": "TASK-20260812-064235021",
+  "title": "Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019)",
+  "description": "Proteger el trabajo ya desarrollado del paywall del Delivery Hub (ADR-019) que quedo sin commitear en el working tree tras la mision whatsapp-edition-sync. Los cambios: (1) src/components/delivery/DeliveryPaywall.tsx (nuevo) - pantalla de upgrade con la marca Delivery Hub para negocios sin edition enterprise/cloud; (2) src/app/dashboard/delivery/page.tsx - gate del modulo logistico con canBusinessUseDeliveryHub(business.id) en vez del env global, renderizando <DeliveryPaywall/> cuando el negocio no tiene la capacidad; (3) src/app/dashboard/inventory/page.tsx - migrar el gate de canUseInventoryHub() (env global) a canBusinessUseInventoryHub(business.id), coherente con la edition por tenant ya desplegada. Depende de getEffectiveEdition/canBusinessUseDeliveryHub/canBusinessUseInventoryHub ya commiteados (b8c4756). Sin cambios de schema, sin cambios de AI, sin nuevos endpoints.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [],
+  "createdAt": "2026-08-12T06:42:35.431Z",
+  "classifiedAt": "2026-08-12T06:42:35.431Z",
+  "approvedAt": "2026-08-12T06:42:35.431Z"
+}

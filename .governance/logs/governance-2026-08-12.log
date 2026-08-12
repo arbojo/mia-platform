@@ -7,3 +7,4 @@
 [2026-08-12T04:00:15.022Z] DECISION: TASK-20260812-035924427 — qa → approve
 [2026-08-12T04:00:16.113Z] DECISION: TASK-20260812-035924427 — release → approve
 [2026-08-12T04:00:25.918Z] DECISION: TASK-20260812-035924427 — memory_engineer → approve
+[2026-08-12T06:42:35.432Z] CREATED: TASK-20260812-064235021 — SIMPLE — Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019)
