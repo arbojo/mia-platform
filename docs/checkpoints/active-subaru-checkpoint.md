@@ -2,13 +2,13 @@
 task_id: whatsapp-edition-sync
 title: WhatsApp en produccion: edition por tenant + reconciliacion read-path del estado
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-035924427
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T04:10:45.672Z
+updated: 2026-08-12T05:33:43.418Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -56,7 +56,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: la fila de whatsapp ya no queda en "Conectando..." cuando el bridge reporta otro estado; tests de componente siguen verdes.
   - Gate/verificación: `lint`, `build`, `unit_tests`, `e2e_tests`.
 
-- [ ] **Paso 3:** Migracion 037 aplicada en Supabase prod
+- [x] **Paso 3:** Migracion 037 aplicada en Supabase prod
   - Objetivo: la columna `edition` existe en prod y Vitanova es `enterprise`.
   - Archivos: `supabase/migrations/037_business_edition.sql` (aplicar en la DB remota).
   - Acción: ejecutar el SQL de la migracion 037 contra la instancia Supabase de produccion (columna edition + backfill Vitanova).
@@ -97,7 +97,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 4`.
 
 ## Constraints
 
