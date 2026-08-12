@@ -2,13 +2,13 @@
 task_id: whatsapp-edition-sync
 title: WhatsApp en produccion: edition por tenant + reconciliacion read-path del estado
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-035924427
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T05:34:17.967Z
+updated: 2026-08-12T05:35:40.399Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -72,7 +72,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: lint 0/0, build sin errores, tests verdes.
   - Gate/verificación: `lint`, `build`, `unit_tests`, `e2e_tests`, `chrome_devtools`, `typecheck`.
 
-- [ ] **Paso 5:** Commits atomicos + push
+- [x] **Paso 5:** Commits atomicos + push
   - Objetivo: entregar el fix con commits separados del paywall delivery.
   - Archivos: edition (edition.ts, page.tsx, migration, session route) + reconciliation (session route, ConnectionsManager) + governance artifacts.
   - Acción: commits convencionales separados (`feat`, `fix`, `chore(governance)`), SIN incluir DeliveryPaywall ni delivery/inventory pages; push a origin/main.
@@ -97,7 +97,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark whatsapp-edition-sync 6`.
 
 ## Constraints
 
