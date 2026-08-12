@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d15dde4`.
+> Fuente de verdad: este repositorio en `0739324`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d15dde4` |
+| **Commit HEAD** | `0739324` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T00:43:18-06:00 |
+| **Generado** | 2026-08-12T00:49:09-06:00 |
 
 ---
 
@@ -336,7 +336,7 @@ widget
 
 ## 9. Componentes
 
-109 componentes en `src/components/`:
+110 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -392,6 +392,7 @@ delivery/DeliveryAdmin.tsx
 delivery/DeliveryClosuresPanel.tsx
 delivery/DeliveryDriversPanel.tsx
 delivery/DeliveryOrdersPanel.tsx
+delivery/DeliveryPaywall.tsx
 delivery/DeliveryRoutesPanel.tsx
 delivery/DeliverySettingsPanel.tsx
 delivery/admin-api.ts
@@ -569,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (78)**:
+**Tareas registradas (79)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -651,6 +652,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260811-222129849 | Auditoria y endurecimiento Subaru v2: fix multi-maquina, bootstrap, estado frozen, gates en complete, drift detallado + secret scan, docs | approved |
 | TASK-20260811-225003841 | UsageBar deterministico: locale explicito es-MX en el formato numerico (test + componente) | approved |
 | TASK-20260812-035924427 | WhatsApp en produccion: edition por tenant (migracion 037 + deploy) y reconciliacion read-path del estado channel_connections | approved |
+| TASK-20260812-064235021 | Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019) | approved |
 
 ---
 
@@ -696,6 +698,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+0739324 subaru: checkpoint delivery-paywall - en-progreso
+a46e096 chore(governance): clasificar paywall delivery tenant (TASK-20260812-064235021)
+2380b58 feat(delivery): paywall de Delivery Hub gateado por edition del negocio
+ad2593e subaru: checkpoint delivery-paywall - en-progreso
+e5b8a99 subaru: checkpoint delivery-paywall - en-progreso
+8b0bc21 subaru: checkpoint delivery-paywall - en-progreso
+5d5914b docs: regenerate MASTER.md at d15dde4
 d15dde4 subaru: checkpoint delivery-paywall - listo
 a6889e3 docs: regenerate MASTER.md at feadf77
 feadf77 subaru: checkpoint whatsapp-edition-sync - completado
@@ -709,13 +718,6 @@ b8c4756 feat(edition): habilitar capacidades por negocio via businesses.edition
 ac2314f subaru: checkpoint whatsapp-edition-sync - en-progreso
 257203b subaru: checkpoint whatsapp-edition-sync - en-progreso
 18cd99e docs: regenerate MASTER.md at c835f16
-c835f16 subaru: checkpoint whatsapp-edition-sync - en-progreso
-0293276 subaru: checkpoint whatsapp-edition-sync - en-progreso
-9b845c5 docs: regenerate MASTER.md at 46d6192
-46d6192 subaru: checkpoint whatsapp-edition-sync - listo
-22225da docs: regenerate MASTER.md at 141ad77
-141ad77 subaru: checkpoint subaru-audit-v2 - completado
-277129f subaru: checkpoint subaru-audit-v2 - en-progreso
 ```
 
 ---
