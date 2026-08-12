@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8b69e9f`.
+> Fuente de verdad: este repositorio en `feadf77`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8b69e9f` |
+| **Commit HEAD** | `feadf77` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T23:35:40-06:00 |
+| **Generado** | 2026-08-11T23:40:21-06:00 |
 
 ---
 
@@ -696,6 +696,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+feadf77 subaru: checkpoint whatsapp-edition-sync - completado
+b6dac48 subaru: checkpoint whatsapp-edition-sync - en-progreso
+9f4e5fd docs: regenerate MASTER.md at 8b69e9f
 8b69e9f subaru: checkpoint whatsapp-edition-sync - en-progreso
 9a128c1 chore(governance): clasificar y aprobar whatsapp-edition-sync (TASK-20260812-035924427)
 3f1e683 fix(whatsapp): reconciliar estado de conexion en read-path GET session
@@ -713,9 +716,6 @@ c835f16 subaru: checkpoint whatsapp-edition-sync - en-progreso
 277129f subaru: checkpoint subaru-audit-v2 - en-progreso
 30fc2a2 docs: regenerate MASTER.md at 87207d7
 87207d7 docs: regenerate MASTER.md at 4073bac
-4073bac subaru: checkpoint subaru-audit-v2 - bloqueado
-ec37061 chore(governance): manifiestos y scripts de clasificacion (audit v2 + recomendacion UsageBar deterministico)
-b05bc0d docs(subaru): AGENTS.md seccion 24, espejo del agente y ADR-021 del protocolo
 ```
 
 ---
