@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `87207d7`.
+> Fuente de verdad: este repositorio en `141ad77`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `87207d7` |
+| **Commit HEAD** | `141ad77` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-11T16:51:33-06:00 |
+| **Generado** | 2026-08-11T21:58:40-06:00 |
 
 ---
 
@@ -694,6 +694,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+141ad77 subaru: checkpoint subaru-audit-v2 - completado
+277129f subaru: checkpoint subaru-audit-v2 - en-progreso
+30fc2a2 docs: regenerate MASTER.md at 87207d7
 87207d7 docs: regenerate MASTER.md at 4073bac
 4073bac subaru: checkpoint subaru-audit-v2 - bloqueado
 ec37061 chore(governance): manifiestos y scripts de clasificacion (audit v2 + recomendacion UsageBar deterministico)
@@ -711,9 +714,6 @@ b062c12 subaru: checkpoint subaru-audit-v2 - en-progreso
 1a51258 subaru: checkpoint subaru-audit-v2 - en-progreso
 3e30bad docs: regenerate MASTER.md at b08fe5d
 b08fe5d feat(subaru): scaffold enriquecido con 7 atributos por paso + parser
-185c5af docs: regenerate MASTER.md at e7c6b34
-e7c6b34 subaru: checkpoint subaru-audit-v2 - en-progreso
-6630c8f feat(subaru): estado frozen retrocompatible (blueprint_ready -> frozen)
 ```
 
 ---
