@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { requirePageAuth } from '@/lib/auth'
-import { canUseInventoryHub } from '@/lib/system/edition'
+import { canBusinessUseInventoryHub } from '@/lib/system/edition'
 import { InventoryAdmin } from '@/components/inventory/InventoryAdmin'
 import { InventoryPaywall } from '@/components/inventory/InventoryPaywall'
 
@@ -21,7 +21,7 @@ export default async function InventoryAdminPage() {
     redirect('/dashboard/onboarding')
   }
 
-  if (!canUseInventoryHub()) {
+  if (!(await canBusinessUseInventoryHub(business.id))) {
     return <InventoryPaywall />
   }
 
