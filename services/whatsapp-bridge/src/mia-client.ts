@@ -58,17 +58,19 @@ export async function sendToMia(
     return null
   }
 
-  const data = (await res.json()) as {
-    success: boolean
-    response: string
-    customerId: string
-    conversationId: string
-    imageUrl?: string
-    mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
-    interactive?: InteractiveComponent
-    deliver?: boolean
-  }
-  if (!data.success) return null
+  const data = (await res.json().catch(() => null)) as
+    | {
+        success: boolean
+        response: string
+        customerId: string
+        conversationId: string
+        imageUrl?: string
+        mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+        interactive?: InteractiveComponent
+        deliver?: boolean
+      }
+    | null
+  if (!data || !data.success) return null
 
   return {
     response: data.response,

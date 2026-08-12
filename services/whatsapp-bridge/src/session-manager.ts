@@ -122,7 +122,9 @@ export class SessionManager {
       const pending = this.pendingListeners.get(businessId) ?? new Set<SessionListener>()
       pending.add(listener)
       this.pendingListeners.set(businessId, pending)
-      void this.connect(businessId)
+      void this.connect(businessId).catch((err) => {
+        logger.error(err, 'connect failed')
+      })
       return () => {
         pending.delete(listener)
         if (pending.size === 0) {
@@ -218,14 +220,22 @@ export class SessionManager {
     this.emit(session, { type: 'status', status: 'connecting' })
     await this.store.updateStatus(businessId, { status: 'connecting' })
 
-    socket.ev.on('creds.update', saveCreds)
-
-    socket.ev.on('connection.update', (update: Partial<ConnectionState>) => {
-      void this.handleConnectionUpdate(session, update, saveCreds)
+    socket.ev.on('creds.update', () => {
+      saveCreds().catch((err) => {
+        logger.error(err, 'saveCreds failed')
+      })
     })
 
-    socket.ev.on('messages.upsert', async ({ messages, type }) => {
-      void this.handleMessages(session, messages, type)
+    socket.ev.on('connection.update', (update: Partial<ConnectionState>) => {
+      void this.handleConnectionUpdate(session, update, saveCreds).catch((err) => {
+        logger.error(err, 'connection.update handler failed')
+      })
+    })
+
+    socket.ev.on('messages.upsert', ({ messages, type }) => {
+      void this.handleMessages(session, messages, type).catch((err) => {
+        logger.error(err, 'messages.upsert handler failed')
+      })
     })
   }
 
