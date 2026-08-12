@@ -1,14 +1,14 @@
 ---
 task_id: whatsapp-edition-sync
 title: WhatsApp en produccion: edition por tenant + reconciliacion read-path del estado
-state: in_progress
+state: completed
 current_step: 6
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260812-035924427
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T05:39:36.109Z
+updated: 2026-08-12T05:40:21.114Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -90,10 +90,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..6.
-- Previo: misión subaru-audit-v2 completada (gates resueltos: lint OK, build OK, test:unit 576/576, e2e 66 passed).
-- Secret scan previo al freeze: OK (solo referencias descriptivas de patrones, sin valores reales).
-- Drift: remoto sincronizado en HEAD (46d6192).
+- Misión whatsapp-edition-sync completada (6/6 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, TypeScript strict check.
+- Finalizado: 2026-08-12T05:40:21.114Z.
 
 ## Next action
 
