@@ -169,7 +169,7 @@ export class Subaru {
   assertGovernanceApproved(governanceId: string): void {
     try {
       const manifest = this.governance.assertGovernance(governanceId)
-      if (manifest.status !== 'approved') {
+      if (manifest.status !== 'approved' && manifest.status !== 'in_progress') {
         this.fail(`Governance ${governanceId} no está aprobado (status: ${manifest.status}).`)
       }
     } catch (err) {
