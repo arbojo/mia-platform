@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d1c2eff`.
+> Fuente de verdad: este repositorio en `bd16fee`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d1c2eff` |
+| **Commit HEAD** | `bd16fee` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T02:24:48-06:00 |
+| **Generado** | 2026-08-12T02:27:41-06:00 |
 
 ---
 
@@ -699,6 +699,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+bd16fee subaru: checkpoint bridge-stability - en-progreso
+223dd01 fix: standardize whatsapp-bridge port to 3001 (Dockerfile, config, docs)
+3e54923 docs: regenerate MASTER.md at d1c2eff
 d1c2eff fix: subaru freeze accepts in_progress governance per WorkflowEngine
 5278828 chore: commit governance artifacts for bridge-stability task
 3ce22e5 subaru: checkpoint bridge-stability - listo
@@ -716,9 +719,6 @@ d15dde4 subaru: checkpoint delivery-paywall - listo
 a6889e3 docs: regenerate MASTER.md at feadf77
 feadf77 subaru: checkpoint whatsapp-edition-sync - completado
 b6dac48 subaru: checkpoint whatsapp-edition-sync - en-progreso
-9f4e5fd docs: regenerate MASTER.md at 8b69e9f
-8b69e9f subaru: checkpoint whatsapp-edition-sync - en-progreso
-9a128c1 chore(governance): clasificar y aprobar whatsapp-edition-sync (TASK-20260812-035924427)
 ```
 
 ---
