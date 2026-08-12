@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bd16fee`.
+> Fuente de verdad: este repositorio en `d76afb8`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bd16fee` |
+| **Commit HEAD** | `d76afb8` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T02:27:41-06:00 |
+| **Generado** | 2026-08-12T02:29:21-06:00 |
 
 ---
 
@@ -699,6 +699,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d76afb8 subaru: checkpoint bridge-stability - en-progreso
+8728fe7 fix: harden bridge event handlers against unhandled rejections
+cfd5359 docs: regenerate MASTER.md at bd16fee
 bd16fee subaru: checkpoint bridge-stability - en-progreso
 223dd01 fix: standardize whatsapp-bridge port to 3001 (Dockerfile, config, docs)
 3e54923 docs: regenerate MASTER.md at d1c2eff
@@ -716,9 +719,6 @@ e5b8a99 subaru: checkpoint delivery-paywall - en-progreso
 8b0bc21 subaru: checkpoint delivery-paywall - en-progreso
 5d5914b docs: regenerate MASTER.md at d15dde4
 d15dde4 subaru: checkpoint delivery-paywall - listo
-a6889e3 docs: regenerate MASTER.md at feadf77
-feadf77 subaru: checkpoint whatsapp-edition-sync - completado
-b6dac48 subaru: checkpoint whatsapp-edition-sync - en-progreso
 ```
 
 ---
