@@ -38,8 +38,53 @@
     ],
     "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
   },
-  "status": "awaiting_council",
-  "decisions": [],
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:24.076Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:25.114Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:26.173Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:27.262Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:28.452Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:29.501Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Ratificado por el Concilio: P3 wscat como devDependency raiz + scripts/ws-diagnose.mjs (respaldo ws del bridge, sin shims) + core.longpaths=true documentado para Windows; P5 gitignore bruno/environments/*.local.bru + push protection en GitHub + secrets-check en CI. ADR-023 pasa a Accepted.",
+      "timestamp": "2026-08-13T07:05:30.690Z"
+    }
+  ],
   "createdAt": "2026-08-13T06:30:09.057Z",
-  "classifiedAt": "2026-08-13T06:30:09.057Z"
+  "classifiedAt": "2026-08-13T06:30:09.057Z",
+  "approvedAt": "2026-08-13T07:05:30.690Z",
+  "startedAt": "2026-08-13T07:05:34.252Z"
 }
