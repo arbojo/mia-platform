@@ -2,13 +2,13 @@
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:31:30.157Z
+updated: 2026-08-13T08:31:59.706Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -48,7 +48,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `config.loadConfig()` expone los 5 campos con defaults/env
   - Gate/verificación: npm run typecheck (bridge)
 
-- [ ] **Paso 2:** Módulo guards.ts — cooldown store con TTL + cap + poda
+- [x] **Paso 2:** Módulo guards.ts — cooldown store con TTL + cap + poda
   - Objetivo: antirrebote síncrono sin fuga de memoria
   - Archivos: services/whatsapp-bridge/src/guards.ts (NUEVO)
   - Acción: `createCooldownStore({ maxEntries, windowMs })` → `{ check(jid): boolean }` síncrono; entrada `{ expiresAt }`; poda en inserción (size > cap → borrar expirados, luego los más viejos por orden de inserción del Map); sin timers
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 3`.
 
 ## Constraints
 
