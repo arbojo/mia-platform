@@ -28,7 +28,8 @@ export interface MiaReply {
  */
 export async function sendToMia(
   config: BridgeConfig,
-  message: MiaIncomingMessage
+  message: MiaIncomingMessage,
+  timeoutMs?: number
 ): Promise<MiaReply | null> {
   const url = new URL('/api/channels/baileys/webhook', config.miaAppUrl).toString()
 
@@ -41,7 +42,7 @@ export async function sendToMia(
         'x-mia-webhook-secret': config.bridgeSecret,
       },
       body: JSON.stringify({ message }),
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(timeoutMs ?? 30_000),
     })
   } catch (error) {
     // MIA app unreachable (ECONNREFUSED, timeout, DNS...). Never throw: the

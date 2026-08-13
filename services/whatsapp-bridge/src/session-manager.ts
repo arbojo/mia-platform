@@ -31,11 +31,9 @@ export type SessionEvent =
 
 export type InteractiveType = 'quick_reply' | 'list'
 
-export interface MessagePayload {
-  type: InteractiveType
-  id: string
-  title: string
-}
+export type MessagePayload =
+  | { type: InteractiveType; id: string; title: string }
+  | { type: 'audio' }
 
 export interface InteractiveButton {
   id: string
@@ -567,17 +565,23 @@ export class SessionManager {
 
       try {
         // Forward to the MIA engine. A failed webhook (e.g. MIA app down)
-        // must never crash the bridge or drop the connection.
-        const miaReply = await sendToMia(this.config, {
-          businessId: session.businessId,
-          externalId,
-          customerExternalId: waId,
-          customerName: msg.pushName ?? null,
-          customerPhone: waId,
-          content: extracted.content,
-          payload: extracted.payload,
-          receivedAt: timestamp,
-        })
+        // must never crash the bridge or drop the connection. Audio uses a
+        // shorter timeout so the defensive fallback stays near-instant.
+        const isAudio = extracted.payload?.type === 'audio'
+        const miaReply = await sendToMia(
+          this.config,
+          {
+            businessId: session.businessId,
+            externalId,
+            customerExternalId: waId,
+            customerName: msg.pushName ?? null,
+            customerPhone: waId,
+            content: extracted.content,
+            payload: extracted.payload,
+            receivedAt: timestamp,
+          },
+          isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
+        )
 
         // Shadow mode (deliver: false): MIA processed and stored the reply
         // for learning but must NOT send it to the customer.
@@ -598,6 +602,17 @@ export class SessionManager {
             })
           } else {
             await session.socket.sendMessage(remoteJid, { text: miaReply.response })
+          }
+        }
+
+        // Defensive fallback: when MIA is unreachable for an audio message the
+        // bridge answers locally so the customer is never left hanging. At most
+        // once per jid per window to avoid a flood of identical texts.
+        if (!miaReply?.response && isAudio && session.socket.user?.id) {
+          if (this.getAudioCooldown(session.businessId).check(waId)) {
+            await session.socket.sendMessage(remoteJid, {
+              text: this.config.defensive.audioFallbackText,
+            })
           }
         }
       } catch (error) {
@@ -702,7 +717,7 @@ function extractMessage(message: Record<string, unknown>): ExtractedMessage {
 
   const audio = message.audioMessage
   const video = message.videoMessage as { caption?: string } | undefined
-  if (audio) return { content: '[Audio recibido]' }
+  if (audio) return { content: '[Audio recibido]', payload: { type: 'audio' } }
   if (video?.caption) return { content: video.caption }
 
   return { content: null }
