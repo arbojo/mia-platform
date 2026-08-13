@@ -2,13 +2,13 @@
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:34:51.914Z
+updated: 2026-08-13T08:37:43.802Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -80,7 +80,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: 3 audios con MIA caída → 1 fallback/30s; con MIA arriba → responde MIA, sin fallback
   - Gate/verificación: npm run typecheck + build (bridge)
 
-- [ ] **Paso 6:** Webhook MIA — distinguir payload.type === 'audio'
+- [x] **Paso 6:** Webhook MIA — distinguir payload.type === 'audio'
   - Objetivo: que la IA redacte la respuesta a notas de voz con su estilo
   - Archivos: src/app/api/channels/baileys/webhook (y donde processIncomingMessage consume payload)
   - Acción: detectar `payload.type === 'audio'` y redactar respuesta natural (sin el literal crudo '[Audio recibido]'); `deliver` sigue controlado por MIA
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 7`.
 
 ## Constraints
 
