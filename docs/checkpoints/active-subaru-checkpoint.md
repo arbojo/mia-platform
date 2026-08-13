@@ -1,135 +1,145 @@
 ---
-task_id: TASK-20260813-074636033
-title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
-state: completed
-current_step: 8
+task_id: TASK-20260813-235511359
+title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
+state: frozen
+current_step: 0
 total_steps: 8
 branch: main
 last_machine: archlinux
-governance_id: TASK-20260813-074636033
-created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T21:13:05.561Z
+governance_id: TASK-20260813-235511359
+created: 2026-08-13T23:56:05.761Z
+updated: 2026-08-13T23:56:05.761Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Bridge WhatsApp: defensa de llamadas (reject + texto con cooldown) y notas de voz (payload audio → cerebro MIA, fallback local acotado)
+Tarjetas de producto enriquecidas en el chat web: adjuntar el producto recomendado por MIA al mensaje del asistente (ProductMessageCard).
 
-Aprobación: TASK-20260813-074636033.
+Aprobación: TASK-20260813-235511359 (governance, complejo, 7 agentes: architect, backend, frontend, security, qa, release, memory_engineer).
 
 ## Scope
 
-- `services/whatsapp-bridge/src/config.ts` — nueva sección `defensive`
-- `services/whatsapp-bridge/src/guards.ts` — NUEVO módulo: cooldown store (TTL + cap + poda en inserción)
-- `services/whatsapp-bridge/src/session-manager.ts` — estado a nivel manager, handler `call`, fallback de audio
-- Webhook MIA: manejo de `payload.type === 'audio'` (`src/app/api/channels/baileys/webhook`)
-- `docs/adr/024-whatsapp-bridge-defensive-block.md` — ADR de la decisión (memory_engineer)
+- `src/lib/channels/types.ts` — nuevo tipo compartido `ProductReference` (web + whatsapp).
+- `src/lib/runtime/` — nuevo resolver determinista `resolveRecommendedProduct` (reusa `conditional-media.ts` / `intents.ts`), sin llamadas extra de OpenAI.
+- `src/lib/runtime/runtime.ts` — `processStreaming`: resolver producto, persistir `metadata.product_id` en `onFinish`.
+- `src/app/api/chat/route.ts` — cambiar de `toTextStreamResponse()` a `toDataStreamResponse()` (protocolo AI SDK: partes `text-delta` + `data`); mantener headers `X-MIA-Conversation-Id` y `X-MIA-Sales-Intent`.
+- `src/components/chat/ChatWindow.tsx` — parser del data stream (texto + data part) y render de la tarjeta bajo la burbuja.
+- `src/components/chat/ProductMessageCard.tsx` — NUEVO componente de tarjeta de producto (<150 líneas, shadcn/ui, `'use client'`).
+- `src/components/laboratorio/LabChatWindow.tsx` — tolerar el nuevo protocolo (consume las partes `text-delta`; ignora las `data`).
+- `src/app/api/conversations/[id]/messages/route.ts` — incluir `metadata` en el select para restaurar la tarjeta al recargar.
+- Tests: unit (resolver + parser) y e2e (widget y laboratorio).
 
 ## Non-goals
 
-- NO transcripción de audio (whisper/OpenAI) — dependencias binarias en Windows y latencia
-- NO persistencia de cooldowns a Supabase/disco — antispam ≠ rate-limit de seguridad
-- NO manejo de llamadas de grupo (`isGroup: true` → ignorar)
-- NO fallback de texto para mensajes NO-audio cuando MIA está caída
-- NO cambio del loop secuencial de `handleMessages` (deuda pre-existente anotada, no se toca)
-- NO cambios de schema
+- NO tarjetas en WhatsApp ni en otros canales (WhatsApp ya entrega imagen vía bridge; esta tarea es solo web).
+- NO carrusel / multi-producto por mensaje: una sola tarjeta por respuesta (límite explícito para expansión futura).
+- NO cambios en `src/lib/ai/prompts.ts` ni en el comportamiento de la IA; el texto recomendado ya se genera. CERO llamadas extra de OpenAI.
+- NO migraciones SQL (`messages.metadata` JSONB ya existe).
+- NO tocar landings ni el checkout.
+- NO alterar el flujo de correcciones/entrenamiento más allá del parser del stream.
 
 ## Approved plan
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** Configuración del bloque de defensa en config.ts
-  - Objetivo: exponer textos y ventanas de cooldown configurables
-  - Archivos: services/whatsapp-bridge/src/config.ts
-  - Acción: agregar sección `defensive` a `BridgeConfig` y a `loadConfig()`: callRejectText, callRejectCooldownMs (default 60000), audioFallbackText, audioFallbackCooldownMs (default 30000), audioWebhookTimeoutMs (default 10000); sobrecarga por env con defaults
-  - Dependencia: ninguna
-  - Criterio de terminación: `config.loadConfig()` expone los 5 campos con defaults/env
-  - Gate/verificación: npm run typecheck (bridge)
+- [ ] **Paso 1:** Definir el tipo compartido `ProductReference` y ampliar el modelo de mensaje del cliente.
+  - Objetivo: contrato tipado y opcional de la tarjeta de producto.
+  - Archivos: `src/lib/channels/types.ts`, `src/components/chat/ChatWindow.tsx` (interface `Message` local).
+  - Acción: agregar `export interface ProductReference { productId: string; name: string; price: number | null; imageUrl?: string | null; description?: string | null; benefits?: string | null }`. En `ChatWindow.tsx`, añadir `product?: ProductReference | null` a la interface local `Message` (solo assistant).
+  - Dependencia: ninguna.
+  - Criterio de terminación: el tipo se exporta y el estado del mensaje admite `product` sin errores de tipos.
+  - Gate/verificación: lint + build.
 
-- [x] **Paso 2:** Módulo guards.ts — cooldown store con TTL + cap + poda
-  - Objetivo: antirrebote síncrono sin fuga de memoria
-  - Archivos: services/whatsapp-bridge/src/guards.ts (NUEVO)
-  - Acción: `createCooldownStore({ maxEntries, windowMs })` → `{ check(jid): boolean }` síncrono; entrada `{ expiresAt }`; poda en inserción (size > cap → borrar expirados, luego los más viejos por orden de inserción del Map); sin timers
-  - Dependencia: ninguna (lógica pura, sin I/O)
-  - Criterio de terminación: burst del mismo jid → solo 1 `true` por ventana; cap respetado; entradas expiradas no bloquean
-  - Gate/verificación: npm run typecheck (bridge)
+- [ ] **Paso 2:** Implementar el resolver determinista `resolveRecommendedProduct`.
+  - Objetivo: decidir QUÉ producto se adjunta a la respuesta, con las señales existentes y sin IA extra.
+  - Archivos: `src/lib/runtime/product-recommendation.ts` (NUEVO), reutiliza `triggerMatches`/`intentMatchesTrigger` de `conditional-media.ts` y el matcheo de `intents.ts`; `tests/runtime/product-recommendation.test.ts` (NUEVO).
+  - Acción: (1) si hay `productId` de landing → fetch de `products` + primera `product_media.image_url`; (2) si no, matchear `knowledge_items` activos con `product_id` y `trigger_condition` por `userMessage`/`intentTag`; (3) fallback a keywords de `intents.ts` sobre productos activos; (4) devolver `ProductReference | null` (null si ambiguo). Sin `any`, con admin client scoped a `business_id`.
+  - Dependencia: Paso 1 (usa `ProductReference`).
+  - Criterio de terminación: tests unitarios cubren landing→producto, trigger→producto, ambiguo→null y sin coincidencia→null.
+  - Gate/verificación: `npm run test:unit` (577 + nuevas, 0 fallos) + build.
 
-- [x] **Paso 3:** Estado a nivel SessionManager (cooldowns + timers pendientes)
-  - Objetivo: que el cooldown sobreviva a 'close' transitorios (microcortes)
-  - Archivos: services/whatsapp-bridge/src/session-manager.ts
-  - Acción: `cooldownCalls` y `cooldownAudio` = Map<businessId, CooldownStore> a nivel de instancia (NO en ActiveSession); `pendingReplyTimers` = Map<businessId, Set<NodeJS.Timeout>>; limpiar timers en disconnect() y en 'close' con logout; NO borrar cooldowns en 'close' transitorio (session-manager.ts:400 borra el objeto sesión → el estado del manager sobrevive)
-  - Dependencia: Paso 2
-  - Criterio de terminación: desconexión transitoria no resetea cooldowns; logout/disconnect limpia timers
-  - Gate/verificación: npm run typecheck (bridge)
+- [ ] **Paso 3:** Extender `processStreaming` para resolver el producto y devolver el stream estructurado.
+  - Objetivo: llevar el producto resuelto hasta la respuesta sin cambiar el texto generado.
+  - Archivos: `src/lib/runtime/runtime.ts`, `src/lib/runtime/execute-ai.ts` (si hace falta exponer la respuesta del stream).
+  - Acción: tras `executeAI`, invocar `resolveRecommendedProduct` (con `landingContext.productId`, `intentTag`, `userMessage`); en `onFinish` persistir `metadata: { used_context, product_id }`; construir la respuesta con el data part final `{ type: 'product', product }` (protocolo AI SDK, `mergeIntoDataStream`/data parts). `shadow` (`deliver=false`) sigue generando y persistiendo sin entregar.
+  - Dependencia: Pasos 1 y 2.
+  - Criterio de terminación: la respuesta contiene texto idéntico al actual + data part opcional `product`; mensaje persistido con `product_id` cuando aplica.
+  - Gate/verificación: build + unit.
 
-- [x] **Paso 4:** Handler del evento 'call' (reject + texto defensivo)
-  - Objetivo: cortar la llamada de protocolo y avisar 1x/ventana/llamante
-  - Archivos: services/whatsapp-bridge/src/session-manager.ts
-  - Acción: `socket.ev.on('call', calls => void handleCallEvent(...).catch(log))`; filtrar `status === 'offer' && !isGroup`; `cooldownCalls.get(businessId).check(from)` síncrono; `rejectCall(call.id, call.from).catch()`; timer ~1s que captura businessId y re-resuelve `this.sessions.get(businessId)` (status connected + socket.user?.id) antes de enviar `callRejectText` a `call.from`
-  - Dependencia: Pasos 2 y 3
-  - Criterio de terminación: llamada entrante → rechazo inmediato + 1 texto/ventana; spam no duplica texto; microcorte no resetea
-  - Gate/verificación: npm run typecheck + build (bridge)
+- [ ] **Paso 4:** Cambiar `/api/chat` al protocolo data stream.
+  - Objetivo: transportar texto y metadatos en un solo flujo.
+  - Archivos: `src/app/api/chat/route.ts`.
+  - Acción: devolver `toDataStreamResponse()` (o el wrapper con data parts) en lugar de `toTextStreamResponse()`. Mantener los headers `X-MIA-Conversation-Id` y `X-MIA-Sales-Intent` y los códigos de error (`RuntimeError`, 401/403/404/400) intactos.
+  - Dependencia: Paso 3.
+  - Criterio de terminación: el endpoint responde en protocolo data stream; los consumidores aún no parsean (fase de transición) pero el widget no se rompe en headers.
+  - Gate/verificación: build + e2e básico del widget (login + chat).
 
-- [x] **Paso 5:** Audio → payload { type: 'audio' } + fallback local acotado
-  - Objetivo: que el cerebro MIA redacte, y el bridge nunca quede mudo
-  - Archivos: services/whatsapp-bridge/src/session-manager.ts
-  - Acción: extractMessage: audio → `{ content, payload: { type: 'audio' } }`; extender tipo `MessagePayload` con `{ type: 'audio' }`; en handleMessages, si `miaReply === null && payload.type === 'audio' && cooldownAudio.get(businessId).check(waId)` → enviar `audioFallbackText`; usar timeout de webhook reducido (`audioWebhookTimeoutMs`) para el forward de audio
-  - Dependencia: Pasos 1, 2
-  - Criterio de terminación: 3 audios con MIA caída → 1 fallback/30s; con MIA arriba → responde MIA, sin fallback
-  - Gate/verificación: npm run typecheck + build (bridge)
+- [ ] **Paso 5:** Parser del data stream en `ChatWindow.tsx` y estado `message.product`.
+  - Objetivo: consumir `text-delta` y la parte `data` de producto en el lector actual.
+  - Archivos: `src/components/chat/ChatWindow.tsx`.
+  - Acción: en el loop `reader.read()` (ChatWindow.tsx:191-206), parsear cada línea JSON: `{ type: 'text-delta', delta }` → acumular `content`; `{ type: 'data', data: { type: 'product', product } }` → fijar `product` en el mensaje en curso. Mantener el resto (history restore, correcciones, greeting, checkout) intacto.
+  - Dependencia: Pasos 1 y 4.
+  - Criterio de terminación: la burbuja muestra el mismo texto que hoy y el estado del mensaje incluye `product` cuando llega la parte data.
+  - Gate/verificación: e2e del widget (mensaje con producto recomendado).
 
-- [x] **Paso 6:** Webhook MIA — distinguir payload.type === 'audio'
-  - Objetivo: que la IA redacte la respuesta a notas de voz con su estilo
-  - Archivos: src/app/api/channels/baileys/webhook (y donde processIncomingMessage consume payload)
-  - Acción: detectar `payload.type === 'audio'` y redactar respuesta natural (sin el literal crudo '[Audio recibido]'); `deliver` sigue controlado por MIA
-  - Dependencia: Paso 5 (contrato)
-  - Criterio de terminación: un audio produce una respuesta on-brand de MIA; sin cambios de schema
-  - Gate/verificación: npm run lint + build (raíz)
+- [ ] **Paso 6:** Componente `ProductMessageCard` y render bajo la burbuja del asistente.
+  - Objetivo: tarjeta elegante (imagen, precio, beneficios) alineada izquierda.
+  - Archivos: `src/components/chat/ProductMessageCard.tsx` (NUEVO), `src/components/chat/ChatWindow.tsx`.
+  - Acción: componente <150 líneas, `'use client'`, shadcn/ui: imagen `aspect-video object-cover rounded-t-xl` con fallback `Package` sobre `bg-zinc-100` (patrón de `catalog/ProductCard.tsx:51-54`), nombre `font-semibold`, precio `text-olive-600 font-semibold`, beneficios `text-xs` con checks y `line-clamp-2`; `alt={name}`. En `ChatWindow.tsx` renderizar `{message.role === 'assistant' && message.product && <ProductMessageCard product={message.product} />}` bajo el `<p className="whitespace-pre-wrap">`, dentro de la misma fila.
+  - Dependencia: Paso 5.
+  - Criterio de terminación: la tarjeta aparece bajo la burbuja con imagen/precio/beneficios; sin producto la burbuja es solo texto.
+  - Gate/verificación: lint + e2e del widget + DevTools sin errores de consola.
 
-- [x] **Paso 7:** Gates de calidad
-  - Objetivo: verificar que no se rompió nada
-  - Archivos: ninguno (verificación) + ADR-024 si falta
-  - Acción: bridge: `npm run typecheck && npm run build`; raíz: `npm run lint && npm run build`; documentar ADR-024 (decisión del bloque de defensa)
-  - Dependencia: Pasos 1-6
-  - Criterio de terminación: typecheck, build y lint en 0 errores/0 warnings; ADR-024 presente
-  - Gate/verificación: lint, build, typecheck
+- [ ] **Paso 7:** `LabChatWindow.tsx` tolerante al nuevo protocolo.
+  - Objetivo: el laboratorio no se rompe al cambiar el transporte.
+  - Archivos: `src/components/laboratorio/LabChatWindow.tsx`.
+  - Acción: parsear el data stream igual que `ChatWindow` (consumir `text-delta`; ignorar las `data`). No se muestran tarjetas en el lab en esta tarea.
+  - Dependencia: Paso 4 (protocolo) — puede implementarse en paralelo a 5.
+  - Criterio de terminación: simulación/entrenamiento del lab fluyen igual que hoy.
+  - Gate/verificación: e2e del laboratorio (requestType simulation).
 
-- [x] **Paso 8:** Cierre — commit + push + governance complete + subaru complete
-  - Objetivo: entregar la misión (regla: solo local = no entregado)
-  - Archivos: todos los del scope
-  - Acción: Release Manager: git add + commit atómico (convenciones Sección 15) + push origin main; governance complete; subaru complete --confirm-gates
-  - Dependencia: Paso 7
-  - Criterio de terminación: working tree clean, remoto sincronizado, manifest governance completed
-  - Gate/verificación: gates del manifest governance (lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, performance_review)
+- [ ] **Paso 8:** Historial restaura la tarjeta (metadata en GET de mensajes).
+  - Objetivo: la tarjeta sobrevive al recargar la conversación.
+  - Archivos: `src/app/api/conversations/[id]/messages/route.ts`, `src/components/chat/ChatWindow.tsx` (history restore).
+  - Acción: ampliar el select a `id, role, content, created_at, metadata`; mapear `metadata.product` → `message.product` en el restore (ChatWindow.tsx:105-115).
+  - Dependencia: Pasos 1 y 5.
+  - Criterio de terminación: al recargar una conversación con tarjeta, esta se restaura.
+  - Gate/verificación: e2e del dashboard (historial con producto) + build.
 
 ## Current state
 
-- Misión TASK-20260813-074636033 completada (8/8 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Performance Engineer review.
-- Finalizado: 2026-08-13T21:13:05.561Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..8.
+- Governance TASK-20260813-235511359: approved (7/7 agentes, 6 gates).
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete TASK-20260813-074636033` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
-- ADR-013: el bridge es transporte, MIA es el cerebro. Textos defensivos SOLO si MIA no responde (miaReply === null).
-- Rechazar cada oferta de llamada; el TEXTO solo 1x/ventana/llamante (ventanas: 60s llamada, 30s audio).
-- Estado de cooldown a nivel SessionManager keyed por businessId: sobrevive 'close' transitorio; muere solo con el proceso (aceptado por el Council).
-- Timers de reply capturan businessId y re-resuelven la sesión viva al disparar; se limpian en logout/disconnect, NO en 'close' transitorio.
-- Llamadas de grupo: ignorar. Ofertas offline: responder igual (reject es no-op, texto invita a escribir).
-- Sin `any` ni tipos implícitos (TS strict). Sin cambios de schema. Sin secretos en el checkpoint.
-- Textos de cara al cliente en config.ts (aprobados por PM): llamada → 'Hola! Por el volumen de mensajes que tengo no puedo contestar llamadas, escríbeme y con gusto te atenderé.'; audio → 'No puedo escuchar notas de voz por aquí, escríbemelo por favor.'
-- El evento 'call' llega como ARRAY con múltiples status: filtrar `status === 'offer'` (Baileys messages-recv.js:1485 emite `[call]`).
-- Contrato `rejectCall(callId, callFrom)` — firmado así en Baileys (messages-recv.js:366).
+- Governance gate: TASK-20260813-235511359 aprobado; `subaru complete` exige `--confirm-gates` con los 6 gates del manifest (lint, build, unit_tests, e2e_tests, chrome_devtools, security_review).
+- Sin migraciones SQL: `messages.metadata` (JSONB) ya existe y se usa para `used_context`.
+- Sin cambios de prompt (`prompts.ts`) y CERO llamadas extra de OpenAI: la resolución del producto es determinista (lecturas de DB).
+- No romper los 2 consumidores de `/api/chat`: `ChatWindow.tsx` y `LabChatWindow.tsx`; ambos deben parsear el protocolo data stream.
+- Mantener headers `X-MIA-Conversation-Id` y `X-MIA-Sales-Intent` (el widget depende de ellos, ChatWindow.tsx:167-177).
+- Shadow mode (`deliver=false`, runtime.ts:258): sigue sin entregar; la resolución corre igual (solo lecturas scoped a `business_id`).
+- Frontend: Server Components por defecto, componentes <150 líneas, shadcn/ui, accesibles (alt en imágenes), sin lógica de negocio en UI.
+- Seguridad: admin client solo para lecturas scoped al negocio; la tarjeta expone los mismos datos que el negocio ya muestra (catálogo/landing); RLS y auth de `/api/chat` intactos.
+- La tarjeta es OPCIONAL (`ProductReference | null`): burbuja solo texto si no hay producto resuelto o si es ambiguo.
 
 ## Verification
 
-- Gates obligatorios (manifest governance TASK-20260813-074636033): lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, performance_review.
-- Pruebas runtime QA: (1) llamada entrante → rechazo + texto 1x/60s; (2) 3 audios seguidos con MIA caída → 1 fallback/30s; (3) microcorte de red → cooldown sobrevive (sin doble texto); (4) texto a LID jid en llamada (verificación runtime).
+Gates obligatorios del manifest governance TASK-20260813-235511359 (6):
+1. `lint` — `npm run lint` (0 errores, 0 warnings).
+2. `build` — `npm run build` (0 errores).
+3. `unit_tests` — `npm run test:unit` (577 + nuevas del resolver/parser, 0 fallos).
+4. `e2e_tests` — `npm test` (33 + casos de widget/lab, 0 fallos).
+5. `chrome_devtools` — consola 0 errores y requests fallidos en el deploy.
+6. `security_review` — aprobación del agente security (sin exposición cross-tenant, RLS intacta).
+
+Entrega: `git push origin main` + `vercel --prod` + verificación HTTP 200 en `https://mia-platform-psi.vercel.app`.
 
 ## Recovery instructions
 
@@ -138,5 +148,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260813-074636033 <n>`.
-6. Al final: `subaru complete TASK-20260813-074636033`.
+5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260813-235511359 <n>`.
+6. Al final: `subaru complete TASK-20260813-235511359 --confirm-gates`.
