@@ -43,7 +43,7 @@
     ],
     "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
   },
-  "status": "completed",
+  "status": "approved",
   "decisions": [
     {
       "agentRole": "architect",
@@ -108,6 +108,5 @@
   ],
   "createdAt": "2026-08-13T07:46:36.015Z",
   "classifiedAt": "2026-08-13T07:46:36.015Z",
-  "approvedAt": "2026-08-13T08:01:20.247Z",
-  "completedAt": "2026-08-13T21:12:12.334Z"
+  "approvedAt": "2026-08-13T08:01:20.247Z"
 }
