@@ -1,0 +1,112 @@
+{
+  "id": "TASK-20260813-074636033",
+  "title": "Bridge WhatsApp: llamadas (rechazo defensivo) y notas de voz (respuesta del cerebro MIA)",
+  "description": "Bloque de defensa del bridge (visto en Modo 2 y aprobado por el concilio). (1) Evento \"call\" de Baileys: filtro status===\"offer\" y !isGroup, rejectCall(callId, from) de protocolo inmediato + texto defensivo con debounce en memoria (Map<jid, timestamp>, ventana configurable, poda perezosa; rechazar cada oferta pero texto 1x/ventana/llamante). Timers de reply en Set, limpiados en disconnect/restart; reply re-chequea status===\"connected\" y socket.user?.id; todo en try/catch sin re-throw. (2) audioMessage: en lugar de reenviar el literal \"[Audio recibido]\", mapear a payload estructurado { type: \"audio\" } para que MIA (la IA) redacte la respuesta con su estilo; fallback local del bridge (texto configurable) solo si MIA no responde o cae, para nunca dejar mudo al bot. Textos de cara al cliente en config.ts, redaccion aprobada por Product Manager. Archivos: services/whatsapp-bridge/src/session-manager.ts, config.ts, guards.ts (nuevo), y manejo del payload de audio en el webhook MIA (/api/channels/baileys/webhook).",
+  "scope": {
+    "categories": [
+      "feature",
+      "ai_behaviour",
+      "api_change"
+    ],
+    "filesAffected": 4,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "ai",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Cooldown en SessionManager (TTL+cap 1024+poda insercion), timers re-resuelven sesion viva, payload audio {type:audio} con fallback con timeout corto. Diseno robusto y simple.",
+      "timestamp": "2026-08-13T08:01:06.684Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Contrato rejectCall(callId,callFrom) y evento call como array filtrado por offer/!isGroup. Handler defensivo con .catch y try/catch interno.",
+      "timestamp": "2026-08-13T08:01:07.778Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin impacto UI; payload de audio solo extiende contrato del webhook. Sin cambios de interfaz.",
+      "timestamp": "2026-08-13T08:01:08.880Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "MIA distingue payload type:audio y redacta con su estilo; fallback local solo si MIA no responde. Mantiene cerebro en control.",
+      "timestamp": "2026-08-13T08:01:09.959Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "1 texto defensivo x jid x ventana (30s audio, 60s llamada); fallback sin doble envio; timeout audio configurable 10s.",
+      "timestamp": "2026-08-13T08:01:11.048Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Texto defensivo controlado por cooldown (anti-spam), sin secretos, sin cross-tenant: estado keyed por businessId. Sin fugas de memoria (cap).",
+      "timestamp": "2026-08-13T08:01:12.115Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Verificacion runtime: texto a LID jid en llamadas, status offer/!isGroup, fallback audio 1x/ventana, build+lint.",
+      "timestamp": "2026-08-13T08:01:16.952Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "3-4 archivos, sin schema, sin secrets; commit atomico siguiendo convenciones; gates lint+build.",
+      "timestamp": "2026-08-13T08:01:18.036Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar ADR o nota de decision para el bloque de defensa (calls+audio) y sus rendijas resueltas.",
+      "timestamp": "2026-08-13T08:01:19.190Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "Redaccion de textos defensivos de cara al cliente: 'escribeme por favor' y 'no contesto llamadas, escribeme'. Aprobados para config.ts.",
+      "timestamp": "2026-08-13T08:01:20.246Z"
+    }
+  ],
+  "createdAt": "2026-08-13T07:46:36.015Z",
+  "classifiedAt": "2026-08-13T07:46:36.015Z",
+  "approvedAt": "2026-08-13T08:01:20.247Z"
+}
