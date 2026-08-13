@@ -33,3 +33,6 @@
 
 [2026-08-13T21:14:00.000Z] CORRECTION: TASK-20260813-074636033 completada a nivel governance antes de subaru complete (orden incorrecto segun guard del CLI: exige approved/in_progress). Revertido a approved para ejecutar subaru complete --confirm-gates; luego se marcara completed.
 [2026-08-13T21:13:45.973Z] TRANSITION: TASK-20260813-074636033 → completed
+[2026-08-13T21:48:25.058Z] CREATED: TASK-20260813-214825663 — SIMPLE — Login password visibility toggle
+[2026-08-13T21:48:32.334Z] TRANSITION: TASK-20260813-214825663 → in_progress
+[2026-08-13T21:55:06.859Z] TRANSITION: TASK-20260813-214825663 → completed

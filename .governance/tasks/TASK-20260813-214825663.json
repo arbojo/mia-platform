@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260813-214825663",
+  "title": "Login password visibility toggle",
+  "description": "Agregar boton mostrar/ocultar contrasena en el formulario de login con iconos Eye/EyeOff de lucide-react.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-13T21:48:25.058Z",
+  "classifiedAt": "2026-08-13T21:48:25.058Z",
+  "approvedAt": "2026-08-13T21:48:25.058Z",
+  "startedAt": "2026-08-13T21:48:32.333Z",
+  "completedAt": "2026-08-13T21:55:06.858Z"
+}
