@@ -32,7 +32,7 @@ export class BaileysAdapter implements ChannelAdapter {
         customerPhone?: string | null
         content?: string
         contentType?: 'text' | 'image' | 'audio' | 'document'
-        payload?: { type: 'quick_reply' | 'list'; id: string; title: string }
+        payload?: { type: 'quick_reply' | 'list'; id: string; title: string } | { type: 'audio' }
         receivedAt?: string
       }
     }
@@ -42,14 +42,18 @@ export class BaileysAdapter implements ChannelAdapter {
       throw new Error('Invalid Baileys message format')
     }
 
+    // Audio voice notes are normalized into a natural description so the AI
+    // replies in its own voice instead of echoing the raw placeholder.
+    const isAudio = message.payload?.type === 'audio'
+
     return {
       channel: 'whatsapp',
       externalId: message.externalId ?? '',
       customerExternalId: message.customerExternalId ?? '',
       customerName: message.customerName ?? undefined,
       customerPhone: message.customerPhone ?? undefined,
-      content: message.content,
-      contentType: message.contentType ?? 'text',
+      content: isAudio ? 'El cliente envió una nota de voz.' : message.content,
+      contentType: isAudio ? 'audio' : (message.contentType ?? 'text'),
       payload: message.payload,
       metadata: {
         businessId: message.businessId,

@@ -10,11 +10,9 @@ export type MessageStatus = 'received' | 'processing' | 'sent' | 'delivered' | '
 
 export type InteractiveType = 'quick_reply' | 'list'
 
-export interface MessagePayload {
-  type: InteractiveType
-  id: string
-  title: string
-}
+export type MessagePayload =
+  | { type: InteractiveType; id: string; title: string }
+  | { type: 'audio' }
 
 export interface QuickReplyButton {
   id: string
