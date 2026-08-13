@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1f4f178`.
+> Fuente de verdad: este repositorio en `731bec9`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1f4f178` |
+| **Commit HEAD** | `731bec9` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T02:42:59-06:00 |
+| **Generado** | 2026-08-13T15:12:22-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (83)**:
+**Tareas registradas (84)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -656,7 +656,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260812-073916531 | Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash | in_progress |
 | TASK-20260813-063009431 | Environment Runtime Normalization | in_progress |
 | TASK-20260813-063009991 | API & WebSocket Diagnostic Tooling | in_progress |
-| TASK-20260813-074636033 | Bridge WhatsApp: llamadas (rechazo defensivo) y notas de voz (respuesta del cerebro MIA) | approved |
+| TASK-20260813-074636033 | Bridge WhatsApp: llamadas (rechazo defensivo) y notas de voz (respuesta del cerebro MIA) | completed |
+| TASK-20260813-205411903 | Hacer determinista el formato numerico de UsageBar con locale explicito | completed |
 
 ---
 
@@ -705,6 +706,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+731bec9 subaru: checkpoint TASK-20260813-074636033 - en-progreso
+4ef260f chore(governance): complete TASK-20260813-074636033 (bridge defensivo) y TASK-20260813-205411903 (UsageBar locale)
+e9afcf2 fix(laboratorio): UsageBar con locale es-MX determinista - unit_tests 576/576
+ab3c0f7 docs: regenerate MASTER.md at 1f4f178
 1f4f178 subaru: checkpoint TASK-20260813-074636033 - bloqueado
 bf9f104 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 2b4b72b docs: ADR-024 - bloque defensivo del bridge (llamadas reject+cooldown, audio payload a MIA+fallback)
@@ -721,10 +726,6 @@ b904b4c subaru: checkpoint TASK-20260813-074636033 - en-progreso
 dee15d0 feat(whatsapp-bridge): bloque defensivo - config defensive + cooldown store (TTL/cap) + estado anti-spam a nivel manager
 6a81e3b subaru: checkpoint TASK-20260813-074636033 - en-progreso
 f8bf47d docs: regenerate MASTER.md at 3f98af0
-3f98af0 subaru: checkpoint TASK-20260813-074636033 - en-progreso
-807e966 subaru: checkpoint TASK-20260813-074636033 - en-progreso
-6a712bd docs: regenerate MASTER.md at 4b1647e
-4b1647e subaru: checkpoint TASK-20260813-074636033 - listo
 ```
 
 ---
