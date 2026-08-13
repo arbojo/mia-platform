@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3f98af0`.
+> Fuente de verdad: este repositorio en `dee15d0`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3f98af0` |
+| **Commit HEAD** | `dee15d0` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T02:31:59-06:00 |
+| **Generado** | 2026-08-13T02:32:59-06:00 |
 
 ---
 
@@ -704,6 +704,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+dee15d0 feat(whatsapp-bridge): bloque defensivo - config defensive + cooldown store (TTL/cap) + estado anti-spam a nivel manager
+6a81e3b subaru: checkpoint TASK-20260813-074636033 - en-progreso
+f8bf47d docs: regenerate MASTER.md at 3f98af0
 3f98af0 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 807e966 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 6a712bd docs: regenerate MASTER.md at 4b1647e
@@ -721,9 +724,6 @@ b7be807 docs: update ADR-013 to Baileys ^7.0.0-rc14, single-host rule and port 3
 8530516 docs: regenerate MASTER.md at c24513c
 c24513c subaru: checkpoint bridge-stability - en-progreso
 5be33db docs: regenerate MASTER.md at 66ac704
-66ac704 subaru: checkpoint bridge-stability - en-progreso
-5606c29 docs: regenerate MASTER.md at d76afb8
-d76afb8 subaru: checkpoint bridge-stability - en-progreso
 ```
 
 ---
