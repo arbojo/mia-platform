@@ -2,13 +2,13 @@
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:32:39.841Z
+updated: 2026-08-13T08:33:51.389Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -64,7 +64,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: desconexión transitoria no resetea cooldowns; logout/disconnect limpia timers
   - Gate/verificación: npm run typecheck (bridge)
 
-- [ ] **Paso 4:** Handler del evento 'call' (reject + texto defensivo)
+- [x] **Paso 4:** Handler del evento 'call' (reject + texto defensivo)
   - Objetivo: cortar la llamada de protocolo y avisar 1x/ventana/llamante
   - Archivos: services/whatsapp-bridge/src/session-manager.ts
   - Acción: `socket.ev.on('call', calls => void handleCallEvent(...).catch(log))`; filtrar `status === 'offer' && !isGroup`; `cooldownCalls.get(businessId).check(from)` síncrono; `rejectCall(call.id, call.from).catch()`; timer ~1s que captura businessId y re-resuelve `this.sessions.get(businessId)` (status connected + socket.user?.id) antes de enviar `callRejectText` a `call.from`
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 5`.
 
 ## Constraints
 
