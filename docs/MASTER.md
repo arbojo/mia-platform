@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7d91274`.
+> Fuente de verdad: este repositorio en `e2b6a96`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7d91274` |
+| **Commit HEAD** | `e2b6a96` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T15:13:46-06:00 |
+| **Generado** | 2026-08-13T15:58:05-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (84)**:
+**Tareas registradas (85)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -658,6 +658,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-063009991 | API & WebSocket Diagnostic Tooling | in_progress |
 | TASK-20260813-074636033 | Bridge WhatsApp: llamadas (rechazo defensivo) y notas de voz (respuesta del cerebro MIA) | completed |
 | TASK-20260813-205411903 | Hacer determinista el formato numerico de UsageBar con locale explicito | completed |
+| TASK-20260813-214825663 | Login password visibility toggle | completed |
 
 ---
 
@@ -706,6 +707,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e2b6a96 feat(auth): add show/hide password toggle in login form
+839721d docs: regenerate MASTER.md at 7d91274
 7d91274 chore(governance): complete TASK-20260813-074636033 (bridge defensivo) - cierre final tras subaru complete
 b2e0c94 chore(governance): revert TASK-20260813-074636033 a approved - correccion de orden (subaru complete exige approved/in_progress)
 e833a48 subaru: checkpoint TASK-20260813-074636033 - completado
@@ -724,8 +727,6 @@ f2f1654 docs: regenerate MASTER.md at b223855
 b223855 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 f1cdb95 feat(whatsapp-bridge): audio -> payload {type:audio} + fallback local 1x/30s con timeout webhook corto
 0395282 docs: regenerate MASTER.md at b904b4c
-b904b4c subaru: checkpoint TASK-20260813-074636033 - en-progreso
-241654d feat(whatsapp-bridge): handler call defensivo - rejectCall + texto con cooldown 1x/ventana, timers re-resuelven sesion viva
 ```
 
 ---
