@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:03:39.659Z
+updated: 2026-08-13T08:31:30.157Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -40,7 +40,7 @@ Aprobación: TASK-20260813-074636033.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** Configuración del bloque de defensa en config.ts
+- [x] **Paso 1:** Configuración del bloque de defensa en config.ts
   - Objetivo: exponer textos y ventanas de cooldown configurables
   - Archivos: services/whatsapp-bridge/src/config.ts
   - Acción: agregar sección `defensive` a `BridgeConfig` y a `loadConfig()`: callRejectText, callRejectCooldownMs (default 60000), audioFallbackText, audioFallbackCooldownMs (default 30000), audioWebhookTimeoutMs (default 10000); sobrecarga por env con defaults
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 2`.
 
 ## Constraints
 
