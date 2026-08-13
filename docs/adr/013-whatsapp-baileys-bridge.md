@@ -6,7 +6,7 @@ Accepted
 
 ## Date
 
-2026-08-02
+2026-08-02 (updated 2026-08-13)
 
 ## Council
 
@@ -30,7 +30,8 @@ Key constraints discovered during exploration:
 - The existing `ChannelAdapter` abstraction (`src/lib/channels/types.ts`) is the correct seam — Baileys plugs in as a WhatsApp adapter.
 - The runtime (`processIncomingMessage`) already resolves tenant scoping via `metadata.businessId` (`src/lib/conversation/resolver.ts`), which matches Baileys' non-tenant-aware message model.
 - Session state (Baileys `AuthenticationState`: creds + signal keys) must persist across restarts or the business must re-scan the QR on every bridge restart.
-- A zero-day spoofing vulnerability affected Baileys `6.17.16` (GHSA-qvv5-jq5g-4cgg). The safe version is `6.7.22`.
+- A zero-day spoofing vulnerability affected Baileys `6.17.16` (GHSA-qvv5-jq5g-4cgg). The safe version at the time was `6.7.22`; the bridge now pins `^7.0.0-rc14` (see `services/whatsapp-bridge/package.json`).
+- **Host único**: Baileys no permite dos instancias compitiendo por el mismo socket con las mismas credenciales. La segunda instancia provoca `stream:error conflict type: replaced` en la primera. Hay una sola instancia del bridge, desplegada en Fly.io (`mia-whatsapp-bridge`), y ninguna instancia local puede correr en paralelo.
 
 ## 2. Problem
 
@@ -84,7 +85,13 @@ This guarantees WhatsApp session credentials never leak through the Supabase Dat
 
 ### 3.4 Version pinning
 
-Pin `@whiskeysockets/baileys@6.7.22` (the last version not affected by GHSA-qvv5-jq5g-4cgg). Do not auto-upgrade major versions without re-reviewing the advisory.
+Pin `@whiskeysockets/baileys@^7.0.0-rc14` (see `services/whatsapp-bridge/package.json`). Do not auto-upgrade major versions without re-reviewing the advisory and validating the bridge in the Laboratorio/test session.
+
+### 3.5 Single-host rule and port 3001
+
+- The bridge listens on port **3001** consistently: `BRIDGE_PORT=3001` (default in `src/config.ts`), `EXPOSE 3001` (`Dockerfile`), and `internal_port = 3001` (`fly.toml`).
+- **Regla de host único**: exactamente una instancia del bridge por juego de credenciales Baileys. La instancia canónica es la máquina en Fly.io (`mia-whatsapp-bridge`, región `dfw`). Prohibido arrancar el bridge localmente mientras la máquina de Fly esté activa (causa `stream:error conflict type: replaced` y deslogueo de la instancia en producción).
+- `MIA_APP_URL` en Fly.io debe apuntar a la URL de producción de Vercel (`https://mia-platform-psi.vercel.app`), nunca a `localhost`, para que los webhooks del bridge lleguen al core de Next.js.
 
 ## 4. Consequences
 
@@ -99,7 +106,8 @@ Pin `@whiskeysockets/baileys@6.7.22` (the last version not affected by GHSA-qvv5
 
 - **Non-official protocol.** Baileys emulates WhatsApp Web and can break if WhatsApp changes the protocol. This is a known, accepted risk for the first client; a Meta Cloud API transport can be added later behind the same `ChannelAdapter`.
 - **Plaintext at rest.** Session creds are stored as JSONB without encryption. A future migration can add pgcrypto envelope encryption (bridge holds the key).
-- **Dedicated process to operate.** Requires running `services/whatsapp-bridge` in production alongside Next.js (env: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WHATSAPP_BRIDGE_SECRET`, `MIA_APP_URL`).
+- **Dedicated process to operate.** Requires running `services/whatsapp-bridge` in production alongside Next.js (env: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WHATSAPP_BRIDGE_SECRET`, `MIA_APP_URL`). Runs as a single Fly.io machine with `auto_stop_machines = "off"` so the TCP session stays alive 24/7.
+- **Single point of failure / anti-crash hardening.** Event handlers (`creds.update`, `connection.update`, `messages.upsert`) and `sendToMia()` are wrapped so an unhandled rejection never kills the Node process; `healthz` responds under 2s; reconnect uses exponential backoff and a preventive restart on protocol-timeout ("zombie") signals.
 - **One active socket per business.** Memory scales with connected businesses; acceptable for current volume.
 
 ## 5. References
