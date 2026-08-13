@@ -60,7 +60,7 @@ export async function PATCH(
       }
 
       if (resolution.payload.kind === 'knowledge') {
-        const { data: knowledgeItem } = await admin
+        const { data: knowledgeItem, error: insertError } = await admin
           .from('knowledge_items')
           .insert({
             business_id: existing.business_id,
@@ -76,9 +76,12 @@ export async function PATCH(
           })
           .select('id')
           .single()
+        if (insertError) {
+          return NextResponse.json({ error: insertError.message }, { status: 500 })
+        }
         knowledge_item_id = knowledgeItem?.id
       } else {
-        const { data: ruleItem } = await admin
+        const { data: ruleItem, error: insertError } = await admin
           .from('sales_rules')
           .insert({
             business_id: existing.business_id,
@@ -87,10 +90,13 @@ export async function PATCH(
           })
           .select('id')
           .single()
+        if (insertError) {
+          return NextResponse.json({ error: insertError.message }, { status: 500 })
+        }
         knowledge_item_id = ruleItem?.id
       }
     } else if (existing.suggested_question && existing.suggested_answer) {
-      const { data: knowledgeItem } = await admin
+      const { data: knowledgeItem, error: insertError } = await admin
         .from('knowledge_items')
         .insert({
           business_id: existing.business_id,
@@ -102,10 +108,13 @@ export async function PATCH(
         })
         .select('id')
         .single()
+      if (insertError) {
+        return NextResponse.json({ error: insertError.message }, { status: 500 })
+      }
 
       knowledge_item_id = knowledgeItem?.id
     } else if (existing.suggested_rule_content) {
-      const { data: ruleItem } = await admin
+      const { data: ruleItem, error: insertError } = await admin
         .from('sales_rules')
         .insert({
           business_id: existing.business_id,
@@ -114,6 +123,9 @@ export async function PATCH(
         })
         .select('id')
         .single()
+      if (insertError) {
+        return NextResponse.json({ error: insertError.message }, { status: 500 })
+      }
 
       knowledge_item_id = ruleItem?.id
     }

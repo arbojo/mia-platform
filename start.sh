@@ -34,6 +34,11 @@ if [ ! -f ".env.local" ]; then
     fi
 fi
 
+# Preparar el standalone (assets estaticos y public)
+echo "Preparando servidor standalone..."
+cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
+cp -r public .next/standalone/ 2>/dev/null || true
+
 # Start MIA
 echo "Iniciando MIA..."
 echo ""
@@ -42,4 +47,4 @@ echo ""
 echo "Presiona Ctrl+C para detener."
 echo ""
 
-node .next/standalone/server.js
+node --env-file=.env.local .next/standalone/server.js

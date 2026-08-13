@@ -39,6 +39,11 @@ if not exist ".env.local" (
     )
 )
 
+REM Preparar el standalone (assets estaticos y public)
+echo Preparando servidor standalone...
+xcopy ".next\static" ".next\standalone\.next\static" /E /I /Y >nul
+xcopy "public" ".next\standalone\public" /E /I /Y >nul
+
 REM Start MIA
 echo Iniciando MIA...
 echo.
@@ -47,6 +52,6 @@ echo.
 echo Presiona Ctrl+C para detener.
 echo.
 
-node .next/standalone/server.js
+node --env-file=.env.local .next/standalone/server.js
 
 pause

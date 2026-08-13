@@ -1,0 +1,107 @@
+{
+  "id": "TASK-20260813-222347912",
+  "title": "Fix: edición de Problemas Detectados no persiste (env service role + errores silenciosos + feedback UI)",
+  "description": "Corregir el flujo de aprobación/edición de sugerencias del Knowledge Studio: (1) el servidor standalone de producción no cargaba .env.local dejando SUPABASE_SERVICE_ROLE_KEY obsoleto y fallando el insert del knowledge_item con \"Invalid API key\"; (2) la ruta PATCH /api/knowledge/suggestions/[id] no chequea errores del insert y reporta éxito aun sin persistir; (3) el frontend (KnowledgeStudio/SuggestionCard) no muestra errores al fallar el guardado",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "infrastructure",
+      "api_change"
+    ],
+    "filesAffected": 4,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, security, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.114Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.115Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.115Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.117Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.117Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.117Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.117Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.117Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado (Evidence First): causa raiz confirmada empiricamente - standalone sin .env.local deja SUPABASE_SERVICE_ROLE_KEY invalido (500 Invalid API key en admin update); sin cambios de esquema ni RLS; fix en ruta PATCH (chequear errores de insert), frontend (feedback de error) y start.sh (cargar env). Bugfix cross-cutting minimo, sin implicaciones de seguridad nuevas.",
+      "timestamp": "2026-08-13T22:24:03.117Z"
+    }
+  ],
+  "createdAt": "2026-08-13T22:23:47.494Z",
+  "classifiedAt": "2026-08-13T22:23:47.494Z",
+  "approvedAt": "2026-08-13T22:24:03.118Z",
+  "startedAt": "2026-08-13T22:24:09.474Z",
+  "completedAt": "2026-08-13T22:32:16.260Z"
+}

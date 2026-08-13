@@ -50,6 +50,7 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
   const [editingSuggestion, setEditingSuggestion] = useState<Suggestion | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const handleAnalyze = async () => {
     setAnalyzing(true)
@@ -89,22 +90,38 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
   }
 
   const handleSuggestionAction = async (suggestionId: string, status: 'approved' | 'rejected') => {
-    const res = await fetch(`/api/knowledge/suggestions/${suggestionId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
+    setActionError(null)
+    try {
+      const res = await fetch(`/api/knowledge/suggestions/${suggestionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
 
-    if (res.ok) {
-      setSuggestions((prev) =>
-        prev.map((s) => (s.id === suggestionId ? { ...s, status } : s))
-      )
+      if (res.ok) {
+        setSuggestions((prev) =>
+          prev.map((s) => (s.id === suggestionId ? { ...s, status } : s))
+        )
+        return
+      }
+
+      let message = 'No se pudo guardar la sugerencia.'
+      try {
+        const { error } = await res.json()
+        if (error) message = error
+      } catch {
+        // body vacío o no JSON
+      }
+      setActionError(message)
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Error inesperado al guardar la sugerencia.')
     }
   }
 
   const handleSuggestionEdit = async (values: KnowledgeItemFormValues) => {
     if (!editingSuggestion) return
     setSubmitting(true)
+    setActionError(null)
 
     const edits: Record<string, unknown> = { category: values.category }
     if (editingSuggestion.suggested_rule_content) {
@@ -114,20 +131,34 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
       edits.answer = values.answer
     }
 
-    const res = await fetch(`/api/knowledge/suggestions/${editingSuggestion.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'approved', edits }),
-    })
+    try {
+      const res = await fetch(`/api/knowledge/suggestions/${editingSuggestion.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'approved', edits }),
+      })
 
-    if (res.ok) {
-      setSuggestions((prev) =>
-        prev.map((s) => (s.id === editingSuggestion.id ? { ...s, status: 'approved' } : s))
-      )
-      setEditingSuggestion(null)
+      if (res.ok) {
+        setSuggestions((prev) =>
+          prev.map((s) => (s.id === editingSuggestion.id ? { ...s, status: 'approved' } : s))
+        )
+        setEditingSuggestion(null)
+        return
+      }
+
+      let message = 'No se pudo guardar la sugerencia.'
+      try {
+        const { error } = await res.json()
+        if (error) message = error
+      } catch {
+        // body vacío o no JSON
+      }
+      setActionError(message)
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Error inesperado al guardar la sugerencia.')
+    } finally {
+      setSubmitting(false)
     }
-
-    setSubmitting(false)
   }
 
   const filteredSuggestions = suggestions.filter((s) =>
@@ -158,6 +189,12 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
       {analyzeError && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {analyzeError}
+        </div>
+      )}
+
+      {actionError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {actionError}
         </div>
       )}
 
