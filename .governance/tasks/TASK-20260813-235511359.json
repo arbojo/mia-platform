@@ -1,0 +1,91 @@
+{
+  "id": "TASK-20260813-235511359",
+  "title": "Tarjetas de producto enriquecidas en el chat web: adjuntar el producto recomendado por MIA al mensaje del asistente",
+  "description": "Cuando MIA recomienda un articulo en el chat web (widget, dashboard, training), la burbuja del asistente debe incluir una tarjeta de producto con imagen principal, precio y beneficios. DISENO aprobado en Modo 2: (1) Resolucion DETERMINISTA del producto recomendado, sin llamadas extra de OpenAI ni cambios de prompt, reutilizando senales existentes: landingContext.productId si viene de una landing/producto (ya resuelto en loadConversationContext); si no, matcheo por intent/trigger sobre knowledge_items con product_id (reusa triggerMatches/intentMatchesTrigger de conditional-media.ts); fallback a keywords de intents.ts. Devuelve null si ambiguo (burbuja solo texto). (2) Contrato: nuevo tipo compartido ProductReference { productId, name, price, imageUrl, description, benefits } en src/lib/channels/types.ts (compartido web + whatsapp). Persistencia en messages.metadata.product_id (columna JSONB ya existente, SIN migracion). (3) Transporte: /api/chat pasa de toTextStreamResponse() a toDataStreamResponse() (protocolo AI SDK con partes text-delta + data). Los dos consumidores (ChatWindow.tsx y LabChatWindow.tsx) se actualizan para tolerar el nuevo protocolo; LabChatWindow ignora las data parts. (4) UI: nuevo componente src/components/chat/ProductMessageCard.tsx (<150 lineas, shadcn/ui, use client) que renderiza bajo la burbuja de texto, alineado a la izquierda (estilo WhatsApp): imagen aspect-video object-cover con fallback Package, nombre, precio text-olive-600, beneficios con checks y line-clamp-2; accesible con alt={name}. (5) Historial: GET /api/conversations/[id]/messages amplia el select para incluir metadata y restaurar la tarjeta al recargar. SIN cambios de schema (messages.metadata ya existe) y SIN cambios de prompt/comportamiento de IA (el texto recomendado ya se genera; solo se adjunta el dato estructurado).",
+  "scope": {
+    "categories": [
+      "feature",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "frontend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.875Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.876Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.876Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.877Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.877Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.877Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: tarjetas de producto en el chat web. Resolucion determinista sin llamadas extra de IA, sin migracion de schema (messages.metadata existe), datos ya entregados al mismo publico (widget/landing), RLS intacta. Se mantiene el orden del Concilio.",
+      "timestamp": "2026-08-13T23:55:19.877Z"
+    }
+  ],
+  "createdAt": "2026-08-13T23:55:11.548Z",
+  "classifiedAt": "2026-08-13T23:55:11.548Z",
+  "approvedAt": "2026-08-13T23:55:19.877Z"
+}
