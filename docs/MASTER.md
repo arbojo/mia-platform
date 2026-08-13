@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f78365f`.
+> Fuente de verdad: este repositorio en `4b1647e`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f78365f` |
+| **Commit HEAD** | `4b1647e` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T01:11:50-06:00 |
+| **Generado** | 2026-08-13T02:03:39-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (82)**:
+**Tareas registradas (83)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -656,6 +656,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260812-073916531 | Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash | in_progress |
 | TASK-20260813-063009431 | Environment Runtime Normalization | in_progress |
 | TASK-20260813-063009991 | API & WebSocket Diagnostic Tooling | in_progress |
+| TASK-20260813-074636033 | Bridge WhatsApp: llamadas (rechazo defensivo) y notas de voz (respuesta del cerebro MIA) | approved |
 
 ---
 
@@ -703,6 +704,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+4b1647e subaru: checkpoint TASK-20260813-074636033 - listo
+1230fab chore(governance): consejo aprueba bloque defensivo llamadas+audio (TASK-20260813-074636033) - complex
+08a095a docs: regenerate MASTER.md at f78365f
 f78365f feat(tooling): diagnostico API/WS - wscat+ws-diagnose devDeps, coleccion Bruno 0-secretos, secrets-check en CI, ADR-023 Accepted (P3/P5)
 a2a9247 chore(governance): Council ratifica mision B tooling diagnostico (P3/P5) - TASK-20260813-063009991 in_progress
 40ede2e docs: regenerate MASTER.md at 2487402
@@ -720,9 +724,6 @@ d76afb8 subaru: checkpoint bridge-stability - en-progreso
 8728fe7 fix: harden bridge event handlers against unhandled rejections
 cfd5359 docs: regenerate MASTER.md at bd16fee
 bd16fee subaru: checkpoint bridge-stability - en-progreso
-223dd01 fix: standardize whatsapp-bridge port to 3001 (Dockerfile, config, docs)
-3e54923 docs: regenerate MASTER.md at d1c2eff
-d1c2eff fix: subaru freeze accepts in_progress governance per WorkflowEngine
 ```
 
 ---
