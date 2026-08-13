@@ -21,8 +21,8 @@ export function UsageBar({
     <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-t text-xs text-gray-600">
       <div className="flex gap-4">
         <span>
-          Tokens: <strong>{tokensInput.toLocaleString()}</strong> entrada /{' '}
-          <strong>{tokensOutput.toLocaleString()}</strong> salida
+          Tokens: <strong>{tokensInput.toLocaleString('es-MX')}</strong> entrada /{' '}
+          <strong>{tokensOutput.toLocaleString('es-MX')}</strong> salida
         </span>
         <span>
           Costo: <strong>${cost.toFixed(4)}</strong>

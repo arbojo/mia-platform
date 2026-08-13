@@ -1,0 +1,37 @@
+{
+  "id": "TASK-20260813-205411903",
+  "title": "Hacer determinista el formato numerico de UsageBar con locale explicito",
+  "description": "Fix de determinismo del renderizado numerico de UsageBar: usar toLocaleString(\"es-MX\") para tokens de entrada/salida, siguiendo la convencion existente en AIOperationsCard y TodaysActivity, y ajustar el test unitario a 12.000/3.400. Resuelve el fallo pre-existente de unit_tests dependiente del locale del runtime (ADR-021 §6.3).",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (4): backend, frontend, qa, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [],
+  "createdAt": "2026-08-13T20:54:11.318Z",
+  "classifiedAt": "2026-08-13T20:54:11.318Z",
+  "approvedAt": "2026-08-13T20:54:11.318Z"
+}
