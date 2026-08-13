@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b904b4c`.
+> Fuente de verdad: este repositorio en `b223855`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b904b4c` |
+| **Commit HEAD** | `b223855` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T02:33:51-06:00 |
+| **Generado** | 2026-08-13T02:34:51-06:00 |
 
 ---
 
@@ -704,6 +704,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b223855 subaru: checkpoint TASK-20260813-074636033 - en-progreso
+f1cdb95 feat(whatsapp-bridge): audio -> payload {type:audio} + fallback local 1x/30s con timeout webhook corto
+0395282 docs: regenerate MASTER.md at b904b4c
 b904b4c subaru: checkpoint TASK-20260813-074636033 - en-progreso
 241654d feat(whatsapp-bridge): handler call defensivo - rejectCall + texto con cooldown 1x/ventana, timers re-resuelven sesion viva
 18649b0 docs: regenerate MASTER.md at dee15d0
@@ -721,9 +724,6 @@ a2a9247 chore(governance): Council ratifica mision B tooling diagnostico (P3/P5)
 40ede2e docs: regenerate MASTER.md at 2487402
 2487402 chore(governance): contrato runtime Node 22 + engine-strict + CI 20→22 (TASK-20260813-063009431)
 0cb8462 docs: regenerate MASTER.md at ba1dfb4
-ba1dfb4 subaru: checkpoint bridge-stability - completado
-3570426 docs: regenerate MASTER.md at b7be807
-b7be807 docs: update ADR-013 to Baileys ^7.0.0-rc14, single-host rule and port 3001
 ```
 
 ---
