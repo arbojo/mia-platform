@@ -2,13 +2,13 @@
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:33:51.389Z
+updated: 2026-08-13T08:34:51.914Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -72,7 +72,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: llamada entrante → rechazo inmediato + 1 texto/ventana; spam no duplica texto; microcorte no resetea
   - Gate/verificación: npm run typecheck + build (bridge)
 
-- [ ] **Paso 5:** Audio → payload { type: 'audio' } + fallback local acotado
+- [x] **Paso 5:** Audio → payload { type: 'audio' } + fallback local acotado
   - Objetivo: que el cerebro MIA redacte, y el bridge nunca quede mudo
   - Archivos: services/whatsapp-bridge/src/session-manager.ts
   - Acción: extractMessage: audio → `{ content, payload: { type: 'audio' } }`; extender tipo `MessagePayload` con `{ type: 'audio' }`; en handleMessages, si `miaReply === null && payload.type === 'audio' && cooldownAudio.get(businessId).check(waId)` → enviar `audioFallbackText`; usar timeout de webhook reducido (`audioWebhookTimeoutMs`) para el forward de audio
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 6`.
 
 ## Constraints
 
