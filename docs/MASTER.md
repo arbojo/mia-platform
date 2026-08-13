@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `66ac704`.
+> Fuente de verdad: este repositorio en `c24513c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `66ac704` |
+| **Commit HEAD** | `c24513c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T16:57:00-06:00 |
+| **Generado** | 2026-08-12T18:26:49-06:00 |
 
 ---
 
@@ -699,6 +699,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+c24513c subaru: checkpoint bridge-stability - en-progreso
+5be33db docs: regenerate MASTER.md at 66ac704
 66ac704 subaru: checkpoint bridge-stability - en-progreso
 5606c29 docs: regenerate MASTER.md at d76afb8
 d76afb8 subaru: checkpoint bridge-stability - en-progreso
@@ -717,8 +719,6 @@ d83671d docs: regenerate MASTER.md at 0739324
 a46e096 chore(governance): clasificar paywall delivery tenant (TASK-20260812-064235021)
 2380b58 feat(delivery): paywall de Delivery Hub gateado por edition del negocio
 ad2593e subaru: checkpoint delivery-paywall - en-progreso
-e5b8a99 subaru: checkpoint delivery-paywall - en-progreso
-8b0bc21 subaru: checkpoint delivery-paywall - en-progreso
 ```
 
 ---
