@@ -1,14 +1,14 @@
 ---
 task_id: bridge-stability
 title: Estabilizar conectividad bridge WhatsApp: host unico Fly.io, MIA_APP_URL prod, puertos 3001, anti-crash
-state: in_progress
+state: completed
 current_step: 4
 total_steps: 4
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260812-073916531
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-13T00:26:36.656Z
+updated: 2026-08-13T00:42:03.095Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -76,7 +76,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..4.
+- Misión bridge-stability completada (4/4 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review.
+- Finalizado: 2026-08-13T00:42:03.095Z.
 
 ## Next action
 
