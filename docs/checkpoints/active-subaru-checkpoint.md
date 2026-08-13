@@ -2,13 +2,13 @@
 task_id: bridge-stability
 title: Estabilizar conectividad bridge WhatsApp: host unico Fly.io, MIA_APP_URL prod, puertos 3001, anti-crash
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 4
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260812-073916531
 created: 2026-08-11T22:22:34.578Z
-updated: 2026-08-12T22:56:38.029Z
+updated: 2026-08-13T00:26:36.656Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -66,7 +66,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: `MIA_APP_URL` fijado en prod; `/healthz` responde <2s; sin `stream:error conflict/replaced` en logs; instancia local detenida
   - Gate/verificación: `curl /healthz` de Fly, revisión de logs Fly, `git status` sin bridge local corriendo
 
-- [ ] **Paso 4:** Actualizar ADR-013 y verificación final + gates
+- [x] **Paso 4:** Actualizar ADR-013 y verificación final + gates
   - Objetivo: la documentación refleja el estado real y la regla de host único
   - Archivos: `docs/adr/013-whatsapp-baileys-bridge.md`
   - Acción: actualizar versión de Baileys a `^7.0.0-rc14`, documentar host único Fly.io como canónico, puerto 3001 y la regla anti-duplicidad de instancias
@@ -80,7 +80,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark bridge-stability 4`.
+Todos los pasos marcados. Ejecutar `subaru complete bridge-stability` cuando pasen los gates de verificación.
 
 ## Constraints
 
