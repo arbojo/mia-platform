@@ -14,6 +14,7 @@ import QRCode from 'qrcode'
 import P from 'pino'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia } from './mia-client.js'
+import { createCooldownStore, type CooldownStore } from './guards.js'
 import type { BridgeConfig } from './config.js'
 
 export type SessionStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
@@ -94,6 +95,13 @@ export class SessionManager {
   private readonly store: SupabaseAuthStore
   private readonly config: BridgeConfig
   private readonly connecting = new Map<string, Promise<void>>()
+
+  // Manager-level defensive state. Lives across socket reconnects (a transient
+  // 'close' deletes the ActiveSession object, see handleConnectionUpdate) so
+  // anti-spam windows survive microcortes. Cleared only on logout/disconnect.
+  private readonly cooldownCalls = new Map<string, CooldownStore>()
+  private readonly cooldownAudio = new Map<string, CooldownStore>()
+  private readonly pendingReplyTimers = new Map<string, Set<NodeJS.Timeout>>()
 
   constructor(config: BridgeConfig) {
     this.config = config
@@ -327,6 +335,53 @@ export class SessionManager {
     }
   }
 
+  private getCallCooldown(businessId: string): CooldownStore {
+    let store = this.cooldownCalls.get(businessId)
+    if (!store) {
+      store = createCooldownStore({
+        maxEntries: 1024,
+        windowMs: this.config.defensive.callRejectCooldownMs,
+      })
+      this.cooldownCalls.set(businessId, store)
+    }
+    return store
+  }
+
+  private getAudioCooldown(businessId: string): CooldownStore {
+    let store = this.cooldownAudio.get(businessId)
+    if (!store) {
+      store = createCooldownStore({
+        maxEntries: 1024,
+        windowMs: this.config.defensive.audioFallbackCooldownMs,
+      })
+      this.cooldownAudio.set(businessId, store)
+    }
+    return store
+  }
+
+  private trackReplyTimer(businessId: string, timer: NodeJS.Timeout): void {
+    let timers = this.pendingReplyTimers.get(businessId)
+    if (!timers) {
+      timers = new Set()
+      this.pendingReplyTimers.set(businessId, timers)
+    }
+    timers.add(timer)
+  }
+
+  private clearReplyTimers(businessId: string): void {
+    const timers = this.pendingReplyTimers.get(businessId)
+    if (!timers) return
+    for (const timer of timers) clearTimeout(timer)
+    timers.clear()
+    this.pendingReplyTimers.delete(businessId)
+  }
+
+  private clearSessionState(businessId: string): void {
+    this.clearReplyTimers(businessId)
+    this.cooldownCalls.delete(businessId)
+    this.cooldownAudio.delete(businessId)
+  }
+
   private scheduleReconnect(businessId: string, attempt: number): void {
     const { health } = this.config
     const delay = Math.min(
@@ -407,6 +462,7 @@ export class SessionManager {
             `Clearing credentials.`
         )
         this.emit(session, { type: 'status', status: 'disconnected' })
+        this.clearSessionState(session.businessId)
         await this.store.delete(session.businessId)
         return
       }
@@ -534,6 +590,7 @@ export class SessionManager {
       }
       this.sessions.delete(businessId)
     }
+    this.clearSessionState(businessId)
     await this.store.delete(businessId)
   }
 }
