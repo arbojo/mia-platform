@@ -1,0 +1,45 @@
+{
+  "id": "TASK-20260813-063009991",
+  "title": "API & WebSocket Diagnostic Tooling",
+  "description": "Adoptar wscat y Bruno como tooling estandar de diagnostico de API/WebSocket, versionable. Evidencia: el bridge expone WebSocket real en /v1/ws (services/whatsapp-bridge/src/server.ts:150, dependencia ws ^8.18.0) con auth por query params businessId+token (token = HMAC-SHA256 base64url del WHATSAPP_BRIDGE_SECRET sobre businessId; rechazo ws.close(4401) en server.ts:157); el token se obtiene via GET /api/channels/baileys/ws-token. Uso wscat: wscat -c \"wss://<bridge>/v1/ws?businessId=<id>&token=<signed>\". Bruno: colecciones versionadas en bruno/ del repo (repo-ownership, no config local de David), endpoints iniciales /api/system/health, /api/channels/connections, /api/channels/baileys/{ws-token,session,followup,reconnect,webhook}, /api/channels/webhook/[channel]. Auth: las rutas usan sesion Supabase por cookie (supabase.auth.getUser); credenciales (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, WHATSAPP_BRIDGE_URL, WHATSAPP_BRIDGE_SECRET, cookies de sesion) deben representarse como variables de entorno de Bruno y jamas dentro de archivos .bru. ADR-023. Non-goals: no instalar wscat/Bruno ni crear colecciones todavia (esta mision registra la decision para aprobacion del Council), no HTTPie/Postman/Insomnia adicionales, no tocar producto ni bridge. Gates: secret scan, revision de que ningun .bru contenga valores reales, lint/build intactos.",
+  "scope": {
+    "categories": [
+      "infrastructure",
+      "documentation"
+    ],
+    "filesAffected": 4,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 4 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "awaiting_council",
+  "decisions": [],
+  "createdAt": "2026-08-13T06:30:09.057Z",
+  "classifiedAt": "2026-08-13T06:30:09.057Z"
+}

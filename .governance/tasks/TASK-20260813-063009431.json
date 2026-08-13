@@ -1,0 +1,90 @@
+{
+  "id": "TASK-20260813-063009431",
+  "title": "Environment Runtime Normalization",
+  "description": "Declarar Node 22 como runtime contractual de MIA y alinear los 4 entornos divergentes (local 26.7.0 / CI node 20 / validate node 22 / Docker bridge node 22). Evidencia de viabilidad: npm ci, lint, build y 576/576 unit tests + workshop tests pasan bajo Node v22.23.2 + npm 10.9.8 (paridad con actions/setup-node v22). E2E no ejecutado localmente (requiere instalacion de browsers y credenciales reales; validate.yml no lo corre, solo ci.yml en node 20). Hallazgo: tests/component/usage-bar.test.tsx sensible a locale (falla con es_ES en Node 22 y 26, pasa con en_US/CI) — preexistente, no bloquea la decision. Alcance: .nvmrc=22 como unico archivo canonico (evitar .node-version duplicado; fnm/nvm/setup-node leen .nvmrc), engines.node en package.json raiz y bridge, alinear ci.yml node 20->22, verificar validate/council-audit/docs-generate (ya 22), verificar Dockerfile bridge (ya node:22-slim), assert de version en scripts/environment-check, doc onboarding Linux/Windows, ADR-022. Non-goals: no instalar fnm/nvm/Volta (se evaluara despues como consecuencia del contrato), no corregir el test de UsageBar (issue de locale separado), no tocar producto/Fly.io/Vercel/Supabase. Gates: lint, build, unit_tests, workshop tests en 22 (ya pasados), CI completo verde incl. e2e movida a 22.",
+  "scope": {
+    "categories": [
+      "infrastructure",
+      "documentation"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "infrastructure",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, cross-cutting (multi-domain), category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.982Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.983Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.983Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.983Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.983Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.984Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado por el Concilio: contrato Node 22.0.0<23.0.0 + npm >=10 (sin techo) + engine-strict + .nvmrc unico + npm ci exclusivo. Se empaqueta de forma atomica con el bump de ci.yml (20->22) para evitar EBADENGINE en CI.",
+      "timestamp": "2026-08-13T06:44:47.984Z"
+    }
+  ],
+  "createdAt": "2026-08-13T06:30:09.056Z",
+  "classifiedAt": "2026-08-13T06:30:09.056Z",
+  "approvedAt": "2026-08-13T06:44:47.984Z",
+  "startedAt": "2026-08-13T06:47:24.286Z"
+}

@@ -5,7 +5,8 @@
   "description": "MIA WhatsApp Bridge — Baileys session manager for multi-tenant WhatsApp connections",
   "type": "module",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0 <23.0.0",
+    "npm": ">=10.0.0"
   },
   "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",
