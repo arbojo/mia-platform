@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `731bec9`.
+> Fuente de verdad: este repositorio en `7d91274`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `731bec9` |
+| **Commit HEAD** | `7d91274` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T15:12:22-06:00 |
+| **Generado** | 2026-08-13T15:13:46-06:00 |
 
 ---
 
@@ -706,6 +706,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7d91274 chore(governance): complete TASK-20260813-074636033 (bridge defensivo) - cierre final tras subaru complete
+b2e0c94 chore(governance): revert TASK-20260813-074636033 a approved - correccion de orden (subaru complete exige approved/in_progress)
+e833a48 subaru: checkpoint TASK-20260813-074636033 - completado
+8811b0d docs: regenerate MASTER.md at 731bec9
 731bec9 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 4ef260f chore(governance): complete TASK-20260813-074636033 (bridge defensivo) y TASK-20260813-205411903 (UsageBar locale)
 e9afcf2 fix(laboratorio): UsageBar con locale es-MX determinista - unit_tests 576/576
@@ -722,10 +726,6 @@ f1cdb95 feat(whatsapp-bridge): audio -> payload {type:audio} + fallback local 1x
 0395282 docs: regenerate MASTER.md at b904b4c
 b904b4c subaru: checkpoint TASK-20260813-074636033 - en-progreso
 241654d feat(whatsapp-bridge): handler call defensivo - rejectCall + texto con cooldown 1x/ventana, timers re-resuelven sesion viva
-18649b0 docs: regenerate MASTER.md at dee15d0
-dee15d0 feat(whatsapp-bridge): bloque defensivo - config defensive + cooldown store (TTL/cap) + estado anti-spam a nivel manager
-6a81e3b subaru: checkpoint TASK-20260813-074636033 - en-progreso
-f8bf47d docs: regenerate MASTER.md at 3f98af0
 ```
 
 ---
