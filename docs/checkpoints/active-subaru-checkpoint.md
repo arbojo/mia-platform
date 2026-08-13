@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
-state: in_progress
+state: blocked
 current_step: 7
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:42:34.286Z
+updated: 2026-08-13T08:42:59.463Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -106,7 +106,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..8.
+- Misión TASK-20260813-074636033 BLOQUEADA (state: blocked).
+- Motivo: Implementación completa y pusheada. Gates estáticos PASAN en esta máquina: lint 0/0, build raíz 79/79, build bridge, typecheck, unit_tests 575/576 (el fallo usage-bar es pre-existente por locale es_ES: toLocaleString()->'12.000'; pasa con en_US, ajeno a la misión). NO ejecutables aquí: e2e_tests (Playwright), chrome_devtools (MCP) y el QA runtime real (llamada->reject+texto 1x/60s, 3 audios MIA caida->1 fallback/30s, microcorte, texto a LID) porque el .env está cifrado y requieren sesion WhatsApp real + entorno operativo. Ejecutar en la maquina Windows: git pull, revive, gates de runtime + complete..
+- Bloqueado: 2026-08-13T08:42:59.463Z.
 
 ## Next action
 
