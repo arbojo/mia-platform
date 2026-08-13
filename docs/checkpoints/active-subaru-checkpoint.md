@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
-state: blocked
-current_step: 7
+state: in_progress
+current_step: 8
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:42:59.463Z
+updated: 2026-08-13T21:12:22.468Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -96,7 +96,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: typecheck, build y lint en 0 errores/0 warnings; ADR-024 presente
   - Gate/verificación: lint, build, typecheck
 
-- [ ] **Paso 8:** Cierre — commit + push + governance complete + subaru complete
+- [x] **Paso 8:** Cierre — commit + push + governance complete + subaru complete
   - Objetivo: entregar la misión (regla: solo local = no entregado)
   - Archivos: todos los del scope
   - Acción: Release Manager: git add + commit atómico (convenciones Sección 15) + push origin main; governance complete; subaru complete --confirm-gates
@@ -112,7 +112,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 8`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260813-074636033` cuando pasen los gates de verificación.
 
 ## Constraints
 
