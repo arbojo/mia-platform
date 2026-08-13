@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b8e076d`.
+> Fuente de verdad: este repositorio en `58f7c1c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b8e076d` |
+| **Commit HEAD** | `58f7c1c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T16:32:30-06:00 |
+| **Generado** | 2026-08-13T17:30:21-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (86)**:
+**Tareas registradas (87)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -660,6 +660,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-205411903 | Hacer determinista el formato numerico de UsageBar con locale explicito | completed |
 | TASK-20260813-214825663 | Login password visibility toggle | completed |
 | TASK-20260813-222347912 | Fix: edición de Problemas Detectados no persiste (env service role + errores silenciosos + feedback UI) | completed |
+| TASK-20260813-232356688 | Directiva reforzada de reglas fundamentales: dominio estrictamente comercial en el system prompt | completed |
 
 ---
 
@@ -708,6 +709,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+58f7c1c feat(ai): reforzar reglas fundamentales con dominio estrictamente comercial en el system prompt
+1706d56 docs: regenerate MASTER.md at b8e076d
 b8e076d fix: persistencia de sugerencias del Knowledge Studio y arranque del servidor standalone
 b5b91a1 docs: regenerate MASTER.md at e2b6a96
 e2b6a96 feat(auth): add show/hide password toggle in login form
@@ -726,8 +729,6 @@ bf9f104 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 9859f67 docs: regenerate MASTER.md at b648e42
 b648e42 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 421728b feat(channels): webhook MIA normaliza notas de voz - payload {type:audio} -> respuesta on-brand de la IA
-f2f1654 docs: regenerate MASTER.md at b223855
-b223855 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 ```
 
 ---
