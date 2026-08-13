@@ -2,13 +2,13 @@
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:31:59.706Z
+updated: 2026-08-13T08:32:39.841Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -56,7 +56,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: burst del mismo jid → solo 1 `true` por ventana; cap respetado; entradas expiradas no bloquean
   - Gate/verificación: npm run typecheck (bridge)
 
-- [ ] **Paso 3:** Estado a nivel SessionManager (cooldowns + timers pendientes)
+- [x] **Paso 3:** Estado a nivel SessionManager (cooldowns + timers pendientes)
   - Objetivo: que el cooldown sobreviva a 'close' transitorios (microcortes)
   - Archivos: services/whatsapp-bridge/src/session-manager.ts
   - Acción: `cooldownCalls` y `cooldownAudio` = Map<businessId, CooldownStore> a nivel de instancia (NO en ActiveSession); `pendingReplyTimers` = Map<businessId, Set<NodeJS.Timeout>>; limpiar timers en disconnect() y en 'close' con logout; NO borrar cooldowns en 'close' transitorio (session-manager.ts:400 borra el objeto sesión → el estado del manager sobrevive)
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 4`.
 
 ## Constraints
 
