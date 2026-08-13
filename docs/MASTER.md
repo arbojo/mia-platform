@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2487402`.
+> Fuente de verdad: este repositorio en `f78365f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2487402` |
+| **Commit HEAD** | `f78365f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T00:49:06-06:00 |
+| **Generado** | 2026-08-13T01:11:50-06:00 |
 
 ---
 
@@ -45,7 +45,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 
 **Dependencias de producción** (23): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, read-excel-file, shadcn, tailwind-merge, tw-animate-css, zod
 
-**DevDependencies** (16): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest
+**DevDependencies** (18): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest, ws, wscat
 
 ---
 
@@ -655,7 +655,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260812-064235021 | Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019) | approved |
 | TASK-20260812-073916531 | Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash | in_progress |
 | TASK-20260813-063009431 | Environment Runtime Normalization | in_progress |
-| TASK-20260813-063009991 | API & WebSocket Diagnostic Tooling | awaiting_council |
+| TASK-20260813-063009991 | API & WebSocket Diagnostic Tooling | in_progress |
 
 ---
 
@@ -703,6 +703,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+f78365f feat(tooling): diagnostico API/WS - wscat+ws-diagnose devDeps, coleccion Bruno 0-secretos, secrets-check en CI, ADR-023 Accepted (P3/P5)
+a2a9247 chore(governance): Council ratifica mision B tooling diagnostico (P3/P5) - TASK-20260813-063009991 in_progress
+40ede2e docs: regenerate MASTER.md at 2487402
 2487402 chore(governance): contrato runtime Node 22 + engine-strict + CI 20→22 (TASK-20260813-063009431)
 0cb8462 docs: regenerate MASTER.md at ba1dfb4
 ba1dfb4 subaru: checkpoint bridge-stability - completado
@@ -720,9 +723,6 @@ bd16fee subaru: checkpoint bridge-stability - en-progreso
 223dd01 fix: standardize whatsapp-bridge port to 3001 (Dockerfile, config, docs)
 3e54923 docs: regenerate MASTER.md at d1c2eff
 d1c2eff fix: subaru freeze accepts in_progress governance per WorkflowEngine
-5278828 chore: commit governance artifacts for bridge-stability task
-3ce22e5 subaru: checkpoint bridge-stability - listo
-f4c142a docs: regenerate MASTER.md at 458a810
 ```
 
 ---
