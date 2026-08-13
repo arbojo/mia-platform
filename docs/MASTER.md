@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b223855`.
+> Fuente de verdad: este repositorio en `b648e42`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b223855` |
+| **Commit HEAD** | `b648e42` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T02:34:51-06:00 |
+| **Generado** | 2026-08-13T02:37:43-06:00 |
 
 ---
 
@@ -704,6 +704,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b648e42 subaru: checkpoint TASK-20260813-074636033 - en-progreso
+421728b feat(channels): webhook MIA normaliza notas de voz - payload {type:audio} -> respuesta on-brand de la IA
+f2f1654 docs: regenerate MASTER.md at b223855
 b223855 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 f1cdb95 feat(whatsapp-bridge): audio -> payload {type:audio} + fallback local 1x/30s con timeout webhook corto
 0395282 docs: regenerate MASTER.md at b904b4c
@@ -721,9 +724,6 @@ f8bf47d docs: regenerate MASTER.md at 3f98af0
 08a095a docs: regenerate MASTER.md at f78365f
 f78365f feat(tooling): diagnostico API/WS - wscat+ws-diagnose devDeps, coleccion Bruno 0-secretos, secrets-check en CI, ADR-023 Accepted (P3/P5)
 a2a9247 chore(governance): Council ratifica mision B tooling diagnostico (P3/P5) - TASK-20260813-063009991 in_progress
-40ede2e docs: regenerate MASTER.md at 2487402
-2487402 chore(governance): contrato runtime Node 22 + engine-strict + CI 20→22 (TASK-20260813-063009431)
-0cb8462 docs: regenerate MASTER.md at ba1dfb4
 ```
 
 ---
