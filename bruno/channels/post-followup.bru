@@ -1,0 +1,23 @@
+meta {
+  name: Baileys Follow-up Webhook
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{BASE_URL}}/api/channels/baileys/followup
+  body: json
+  auth: none
+}
+
+headers {
+  x-mia-webhook-secret: {{BRIDGE_SECRET}}
+}
+
+body:json {
+  {
+    "businessId": "{{BUSINESS_ID}}",
+    "customerId": "{{CUSTOMER_ID}}",
+    "connectionId": "{{CONNECTION_ID}}"
+  }
+}

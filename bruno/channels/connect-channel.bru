@@ -1,0 +1,23 @@
+meta {
+  name: Connect Channel
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/api/channels/connections
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: {{SESSION_COOKIE}}
+}
+
+body:json {
+  {
+    "businessId": "{{BUSINESS_ID}}",
+    "assistantId": "{{ASSISTANT_ID}}",
+    "channel": "whatsapp"
+  }
+}

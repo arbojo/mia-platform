@@ -1,0 +1,17 @@
+meta {
+  name: Channel Webhook
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{BASE_URL}}/api/channels/webhook/{{CHANNEL_ID}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "type": "ping"
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Baileys Inbound Webhook
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{BASE_URL}}/api/channels/baileys/webhook
+  body: json
+  auth: none
+}
+
+headers {
+  x-mia-webhook-secret: {{BRIDGE_SECRET}}
+}
+
+body:json {
+  {
+    "event": "messages.upsert"
+  }
+}

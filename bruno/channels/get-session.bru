@@ -1,0 +1,22 @@
+meta {
+  name: Get Baileys Session
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}/api/channels/baileys/session
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: {{SESSION_COOKIE}}
+}
+
+body:json {
+  {
+    "businessId": "{{BUSINESS_ID}}",
+    "assistantId": "{{ASSISTANT_ID}}"
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Baileys Reconnect
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{BASE_URL}}/api/channels/baileys/reconnect
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: {{SESSION_COOKIE}}
+}
+
+body:json {
+  {
+    "businessId": "{{BUSINESS_ID}}"
+  }
+}

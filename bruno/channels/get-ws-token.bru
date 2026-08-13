@@ -1,0 +1,15 @@
+meta {
+  name: Get Baileys WS Token
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/api/channels/baileys/ws-token?businessId={{BUSINESS_ID}}
+  body: none
+  auth: none
+}
+
+headers {
+  Cookie: {{SESSION_COOKIE}}
+}

@@ -34,6 +34,8 @@
     "memory-query": "npx tsx workshop/scripts/memory-query.ts",
     "docs:generate": "npx tsx workshop/docs/generate-master-doc.ts",
     "distribute": "build-distribute.bat",
+    "ws-diagnose": "node scripts/ws-diagnose.mjs",
+    "secrets-check": "node scripts/secrets-check.mjs",
     "governance": "npx tsx workshop/governance/cli.ts",
     "governance:validate": "npx tsx workshop/governance/cli.ts validate",
     "governance:classify": "npx tsx workshop/governance/cli.ts classify",
@@ -82,6 +84,8 @@
     "jsdom": "^26.1.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "ws": "^8.18.0",
+    "wscat": "^6.1.0"
   }
 }

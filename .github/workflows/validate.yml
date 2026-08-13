@@ -51,3 +51,6 @@ jobs:
         run: |
           npx tsx workshop/tests/basic-flow.test.ts
           npx tsx workshop/tests/council-flow.test.ts
+
+      - name: Secrets Check (Bruno)
+        run: npm run secrets-check

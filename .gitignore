@@ -39,6 +39,14 @@ dev.log
 # whatsapp bridge local logs (never committed)
 services/whatsapp-bridge/*.log
 
+# Bruno collection: only example/template environments are versioned.
+# Any real local environment (values, session cookies, bridge secret) is ignored.
+bruno/environments/
+!bruno/environments/
+!bruno/environments/*.example.bru
+!bruno/environments/*.template.bru
+bruno/.env
+
 # env files (secrets are git-crypt encrypted; see .gitattributes)
 .env
 .env.*.local
