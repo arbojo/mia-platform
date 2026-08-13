@@ -8,7 +8,12 @@ import makeWASocket, {
   generateWAMessageFromContent,
   proto,
 } from '@whiskeysockets/baileys'
-import type { WASocket, ConnectionState, WAMessage } from '@whiskeysockets/baileys'
+import type {
+  WASocket,
+  ConnectionState,
+  WAMessage,
+  WACallEvent,
+} from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
 import QRCode from 'qrcode'
 import P from 'pino'
@@ -243,6 +248,12 @@ export class SessionManager {
     socket.ev.on('messages.upsert', ({ messages, type }) => {
       void this.handleMessages(session, messages, type).catch((err) => {
         logger.error(err, 'messages.upsert handler failed')
+      })
+    })
+
+    socket.ev.on('call', (calls: WACallEvent[]) => {
+      void this.handleCallEvent(session.businessId, calls).catch((err) => {
+        logger.error(err, 'call handler failed')
       })
     })
   }
@@ -480,6 +491,53 @@ export class SessionManager {
       session.reconnectAttempt += 1
       this.scheduleReconnect(session.businessId, session.reconnectAttempt)
     }
+  }
+
+  /**
+   * Defensive handling of incoming calls. Rejects every new incoming offer
+   * at the protocol level; the customer-facing text is sent at most once per
+   * caller per cooldown window. Group calls and non-offer statuses (ringing,
+   * accept, terminate...) are ignored.
+   */
+  private async handleCallEvent(businessId: string, calls: WACallEvent[]): Promise<void> {
+    const session = this.sessions.get(businessId)
+    if (!session || session.status !== 'connected') return
+
+    for (const call of calls) {
+      if (call.status !== 'offer' || call.isGroup) continue
+      const caller = call.from
+      if (!caller) continue
+
+      try {
+        await session.socket.rejectCall(call.id, caller).catch(() => undefined)
+      } catch (error) {
+        logger.warn({ error, businessId, caller }, 'rejectCall failed')
+        continue
+      }
+
+      if (this.getCallCooldown(businessId).check(caller)) {
+        this.scheduleCallReply(businessId, caller)
+      }
+    }
+  }
+
+  /**
+   * Schedules the defensive call-rejection text. The timer captures the
+   * businessId (not the socket) and re-resolves the live session at fire time,
+   * so a quick reconnect does not lose the reply; it is a no-op if the session
+   * is gone or not connected.
+   */
+  private scheduleCallReply(businessId: string, caller: string): void {
+    const timer = setTimeout(() => {
+      const session = this.sessions.get(businessId)
+      if (!session || session.status !== 'connected' || !session.socket.user?.id) return
+      session.socket
+        .sendMessage(caller, { text: this.config.defensive.callRejectText })
+        .catch((err) => {
+          logger.warn({ err, businessId, caller }, 'call reject text send failed')
+        })
+    }, 1_000)
+    this.trackReplyTimer(businessId, timer)
   }
 
   private async handleMessages(
