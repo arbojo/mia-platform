@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b648e42`.
+> Fuente de verdad: este repositorio en `1f4f178`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b648e42` |
+| **Commit HEAD** | `1f4f178` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T02:37:43-06:00 |
+| **Generado** | 2026-08-13T02:42:59-06:00 |
 
 ---
 
@@ -662,7 +662,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-24 ADRs en `docs/adr/`:
+25 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -688,6 +688,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 019-delivery-hub | 019: Delivery Hub — Módulo Logístico Aislado (Schema `delivery`) + Portal del Repartidor |
 | 020-inventory-hub | 020: Inventory Hub — Módulo de Inventario, Catálogo y Probabilidad/Demanda (Schema `inventory`) |
 | 021-subaru-checkpoint | 021: Protocolo Subaru — Checkpoint de Misión Multi-máquina |
+| 024-whatsapp-bridge-defensive-block | 024: WhatsApp Bridge — Bloque Defensivo (Llamadas y Notas de Voz) |
 | ADR-022 | 022: Environment Runtime Normalization |
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 
@@ -704,6 +705,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1f4f178 subaru: checkpoint TASK-20260813-074636033 - bloqueado
+bf9f104 subaru: checkpoint TASK-20260813-074636033 - en-progreso
+2b4b72b docs: ADR-024 - bloque defensivo del bridge (llamadas reject+cooldown, audio payload a MIA+fallback)
+9859f67 docs: regenerate MASTER.md at b648e42
 b648e42 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 421728b feat(channels): webhook MIA normaliza notas de voz - payload {type:audio} -> respuesta on-brand de la IA
 f2f1654 docs: regenerate MASTER.md at b223855
@@ -720,10 +725,6 @@ f8bf47d docs: regenerate MASTER.md at 3f98af0
 807e966 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 6a712bd docs: regenerate MASTER.md at 4b1647e
 4b1647e subaru: checkpoint TASK-20260813-074636033 - listo
-1230fab chore(governance): consejo aprueba bloque defensivo llamadas+audio (TASK-20260813-074636033) - complex
-08a095a docs: regenerate MASTER.md at f78365f
-f78365f feat(tooling): diagnostico API/WS - wscat+ws-diagnose devDeps, coleccion Bruno 0-secretos, secrets-check en CI, ADR-023 Accepted (P3/P5)
-a2a9247 chore(governance): Council ratifica mision B tooling diagnostico (P3/P5) - TASK-20260813-063009991 in_progress
 ```
 
 ---
