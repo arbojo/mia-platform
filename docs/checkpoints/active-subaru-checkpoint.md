@@ -2,13 +2,13 @@
 task_id: TASK-20260813-074636033
 title: Bridge WhatsApp: defensa de llamadas (reject + cooldown) y notas de voz (payload audio a MIA + fallback acotado)
 state: in_progress
-current_step: 6
+current_step: 7
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-074636033
 created: 2026-08-13T08:03:39.659Z
-updated: 2026-08-13T08:37:43.802Z
+updated: 2026-08-13T08:42:34.286Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -88,7 +88,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: un audio produce una respuesta on-brand de MIA; sin cambios de schema
   - Gate/verificación: npm run lint + build (raíz)
 
-- [ ] **Paso 7:** Gates de calidad
+- [x] **Paso 7:** Gates de calidad
   - Objetivo: verificar que no se rompió nada
   - Archivos: ninguno (verificación) + ADR-024 si falta
   - Acción: bridge: `npm run typecheck && npm run build`; raíz: `npm run lint && npm run build`; documentar ADR-024 (decisión del bloque de defensa)
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 7`.
+Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-074636033 8`.
 
 ## Constraints
 
