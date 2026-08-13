@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4b1647e`.
+> Fuente de verdad: este repositorio en `3f98af0`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4b1647e` |
+| **Commit HEAD** | `3f98af0` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T02:03:39-06:00 |
+| **Generado** | 2026-08-13T02:31:59-06:00 |
 
 ---
 
@@ -704,6 +704,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+3f98af0 subaru: checkpoint TASK-20260813-074636033 - en-progreso
+807e966 subaru: checkpoint TASK-20260813-074636033 - en-progreso
+6a712bd docs: regenerate MASTER.md at 4b1647e
 4b1647e subaru: checkpoint TASK-20260813-074636033 - listo
 1230fab chore(governance): consejo aprueba bloque defensivo llamadas+audio (TASK-20260813-074636033) - complex
 08a095a docs: regenerate MASTER.md at f78365f
@@ -721,9 +724,6 @@ c24513c subaru: checkpoint bridge-stability - en-progreso
 66ac704 subaru: checkpoint bridge-stability - en-progreso
 5606c29 docs: regenerate MASTER.md at d76afb8
 d76afb8 subaru: checkpoint bridge-stability - en-progreso
-8728fe7 fix: harden bridge event handlers against unhandled rejections
-cfd5359 docs: regenerate MASTER.md at bd16fee
-bd16fee subaru: checkpoint bridge-stability - en-progreso
 ```
 
 ---
