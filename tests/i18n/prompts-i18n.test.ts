@@ -30,6 +30,16 @@ describe('buildMasterPrompt i18n', () => {
     expect(prompt).toContain('Reglas Fundamentales')
   })
 
+  it('enforces the reinforced commercial-domain fundamental rule', () => {
+    const prompt = basePrompt()
+    expect(prompt).toContain(
+      'Tu dominio de conversación está estrictamente limitado a los productos, servicios y contexto de este negocio'
+    )
+    expect(prompt).toContain('NUNCA respondas con datos enciclopédicos')
+    expect(prompt).toContain('desvío como un puente comercial')
+    expect(prompt).toContain('Handoff humano cuando la negociación lo requiera.')
+  })
+
   it('uses Spanish keys for locale es', () => {
     const prompt = basePrompt('es')
     expect(prompt).toContain('Tu Objetivo')

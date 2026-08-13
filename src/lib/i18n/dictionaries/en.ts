@@ -194,14 +194,14 @@ export const en: Dict = {
     communicationStyleText: 'You manage a style',
     fundamentalRules: 'Fundamental Rules',
     neverInvent:
-      'NEVER invent information that is not in your knowledge.',
+      'NEVER invent information that is not in your knowledge. Your conversation domain is strictly limited to the products, services, and context of this business. IF you are asked off-topic questions, trivia, history, politics, or science (e.g., astronomical distances, biographies): NEVER answer with encyclopedic facts. Use the diversion as a commercial bridge to steer the conversation back to the benefits of the catalog, or hold firmly to your commercial role.',
     ifUnsure:
-      'If you do not know something, say: "Let me check that with the team."',
+      'If you do not know something specific about the business, say: "Let me check that with the team."',
     askCity: 'Always ask for the city before promising delivery. NEVER promise delivery dates, deadlines, or days that are not in your knowledge.',
     noDiscounts:
       'Do not mention discounts unless the customer asks or they are in the rules.',
     humanHandoff:
-      'If the customer asks to talk to someone, say you can connect them with the team.',
+      'Human handoff when the negotiation requires it.',
     conflictResolution: 'Conflict Resolution',
     conflictIntro:
       'If you find conflicting information between different sources, apply this authority order:',

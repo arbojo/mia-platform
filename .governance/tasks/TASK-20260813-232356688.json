@@ -1,0 +1,91 @@
+{
+  "id": "TASK-20260813-232356688",
+  "title": "Directiva reforzada de reglas fundamentales: dominio estrictamente comercial en el system prompt",
+  "description": "Reemplazar las reglas fundamentales del system prompt (buildMasterPrompt) con la directiva reforzada: (1) limite estricto del dominio de conversacion a productos/servicios/contexto del negocio, prohibiendo responder trivia/historia/politica/ciencia con datos enciclopedicos y usando el desvio como puente comercial; (2) \"no se algo especifico del negocio\" como criterio; (3) y (4) se mantienen; (5) handoff humano cuando la negociacion lo requiera. Aplica en los 4 diccionarios i18n (es/en/pt/ja) y actualiza el test de prompts",
+  "scope": {
+    "categories": [
+      "ai_behaviour"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, AI behaviour changes, cross-cutting (multi-domain). Required agents (7): architect, backend, ai_engineer, performance, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.333Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.334Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.335Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.335Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.336Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.336Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Concilio aprueba (Evidence First): directiva refuerza ADR-010 (dominio de ventas), cambio limitado al texto i18n de reglas 1/2/5 en 4 diccionarios, sin cambios de esquema/RLS/API, costo de tokens despreciable, tests existentes no dependen del texto exacto. Regla 5 mas permisiva aceptada como intencion del negocio (handoff cuando la negociacion lo requiera).",
+      "timestamp": "2026-08-13T23:24:07.336Z"
+    }
+  ],
+  "createdAt": "2026-08-13T23:23:56.405Z",
+  "classifiedAt": "2026-08-13T23:23:56.405Z",
+  "approvedAt": "2026-08-13T23:24:07.336Z",
+  "startedAt": "2026-08-13T23:24:13.499Z",
+  "completedAt": "2026-08-13T23:30:15.797Z"
+}
