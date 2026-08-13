@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ba1dfb4`.
+> Fuente de verdad: este repositorio en `2487402`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ba1dfb4` |
+| **Commit HEAD** | `2487402` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-12T18:42:10-06:00 |
+| **Generado** | 2026-08-13T00:49:06-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (80)**:
+**Tareas registradas (82)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -654,12 +654,14 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260812-035924427 | WhatsApp en produccion: edition por tenant (migracion 037 + deploy) y reconciliacion read-path del estado channel_connections | approved |
 | TASK-20260812-064235021 | Delivery Hub paywall por tenant: enmarcar capacidades delivery/inventory en la edition del negocio (ADR-019) | approved |
 | TASK-20260812-073916531 | Estabilizar conectividad del bridge WhatsApp: host unico en Fly.io, MIA_APP_URL de produccion, puertos consistentes y anti-crash | in_progress |
+| TASK-20260813-063009431 | Environment Runtime Normalization | in_progress |
+| TASK-20260813-063009991 | API & WebSocket Diagnostic Tooling | awaiting_council |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-22 ADRs en `docs/adr/`:
+24 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -685,6 +687,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 019-delivery-hub | 019: Delivery Hub — Módulo Logístico Aislado (Schema `delivery`) + Portal del Repartidor |
 | 020-inventory-hub | 020: Inventory Hub — Módulo de Inventario, Catálogo y Probabilidad/Demanda (Schema `inventory`) |
 | 021-subaru-checkpoint | 021: Protocolo Subaru — Checkpoint de Misión Multi-máquina |
+| ADR-022 | 022: Environment Runtime Normalization |
+| ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 
 ---
 
@@ -699,6 +703,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+2487402 chore(governance): contrato runtime Node 22 + engine-strict + CI 20→22 (TASK-20260813-063009431)
+0cb8462 docs: regenerate MASTER.md at ba1dfb4
 ba1dfb4 subaru: checkpoint bridge-stability - completado
 3570426 docs: regenerate MASTER.md at b7be807
 b7be807 docs: update ADR-013 to Baileys ^7.0.0-rc14, single-host rule and port 3001
@@ -717,8 +723,6 @@ d1c2eff fix: subaru freeze accepts in_progress governance per WorkflowEngine
 5278828 chore: commit governance artifacts for bridge-stability task
 3ce22e5 subaru: checkpoint bridge-stability - listo
 f4c142a docs: regenerate MASTER.md at 458a810
-458a810 subaru: checkpoint delivery-paywall - completado
-d83671d docs: regenerate MASTER.md at 0739324
 ```
 
 ---
