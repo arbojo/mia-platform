@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `58f7c1c`.
+> Fuente de verdad: este repositorio en `7f44e4f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `58f7c1c` |
+| **Commit HEAD** | `7f44e4f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T17:30:21-06:00 |
+| **Generado** | 2026-08-13T17:56:27-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (87)**:
+**Tareas registradas (88)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -661,6 +661,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-214825663 | Login password visibility toggle | completed |
 | TASK-20260813-222347912 | Fix: edición de Problemas Detectados no persiste (env service role + errores silenciosos + feedback UI) | completed |
 | TASK-20260813-232356688 | Directiva reforzada de reglas fundamentales: dominio estrictamente comercial en el system prompt | completed |
+| TASK-20260813-235511359 | Tarjetas de producto enriquecidas en el chat web: adjuntar el producto recomendado por MIA al mensaje del asistente | approved |
 
 ---
 
@@ -709,6 +710,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7f44e4f chore(governance): clasificar TASK-20260813-235511359 - tarjetas de producto en chat web (concilio aprobado)
+e52e3de subaru: checkpoint TASK-20260813-235511359 - listo
+24bd9a0 docs: regenerate MASTER.md at 58f7c1c
 58f7c1c feat(ai): reforzar reglas fundamentales con dominio estrictamente comercial en el system prompt
 1706d56 docs: regenerate MASTER.md at b8e076d
 b8e076d fix: persistencia de sugerencias del Knowledge Studio y arranque del servidor standalone
@@ -726,9 +730,6 @@ ab3c0f7 docs: regenerate MASTER.md at 1f4f178
 1f4f178 subaru: checkpoint TASK-20260813-074636033 - bloqueado
 bf9f104 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 2b4b72b docs: ADR-024 - bloque defensivo del bridge (llamadas reject+cooldown, audio payload a MIA+fallback)
-9859f67 docs: regenerate MASTER.md at b648e42
-b648e42 subaru: checkpoint TASK-20260813-074636033 - en-progreso
-421728b feat(channels): webhook MIA normaliza notas de voz - payload {type:audio} -> respuesta on-brand de la IA
 ```
 
 ---
