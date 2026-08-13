@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e2b6a96`.
+> Fuente de verdad: este repositorio en `b8e076d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e2b6a96` |
+| **Commit HEAD** | `b8e076d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T15:58:05-06:00 |
+| **Generado** | 2026-08-13T16:32:30-06:00 |
 
 ---
 
@@ -570,7 +570,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (85)**:
+**Tareas registradas (86)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -659,6 +659,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-074636033 | Bridge WhatsApp: llamadas (rechazo defensivo) y notas de voz (respuesta del cerebro MIA) | completed |
 | TASK-20260813-205411903 | Hacer determinista el formato numerico de UsageBar con locale explicito | completed |
 | TASK-20260813-214825663 | Login password visibility toggle | completed |
+| TASK-20260813-222347912 | Fix: edición de Problemas Detectados no persiste (env service role + errores silenciosos + feedback UI) | completed |
 
 ---
 
@@ -707,6 +708,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b8e076d fix: persistencia de sugerencias del Knowledge Studio y arranque del servidor standalone
+b5b91a1 docs: regenerate MASTER.md at e2b6a96
 e2b6a96 feat(auth): add show/hide password toggle in login form
 839721d docs: regenerate MASTER.md at 7d91274
 7d91274 chore(governance): complete TASK-20260813-074636033 (bridge defensivo) - cierre final tras subaru complete
@@ -725,8 +728,6 @@ b648e42 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 421728b feat(channels): webhook MIA normaliza notas de voz - payload {type:audio} -> respuesta on-brand de la IA
 f2f1654 docs: regenerate MASTER.md at b223855
 b223855 subaru: checkpoint TASK-20260813-074636033 - en-progreso
-f1cdb95 feat(whatsapp-bridge): audio -> payload {type:audio} + fallback local 1x/30s con timeout webhook corto
-0395282 docs: regenerate MASTER.md at b904b4c
 ```
 
 ---
