@@ -1,0 +1,37 @@
+{
+  "id": "TASK-20260814-234953800",
+  "title": "Separar utilidades del chip de modulo en CommandStrip (tema, idioma, MIA Signals)",
+  "description": "El chip de la barra superior del dashboard muestra el modulo activo (p.ej. \"Ventas\") pero al hacer clic abre un menu contextual mezclado que combina toggle de tema, selector de idioma, switch de modulos y MIA Signals. Confunde al usuario: el chip con nombre de modulo abre utilidades sin relacion. Plan: (1) el chip de modulo solo abre el switch de modulos (Ventas/Inventario/Logistica), (2) el cambio de tema pasa a su propio boton (Sun/Moon, toggle directo), (3) el cambio de idioma pasa a su propio boton (icono Globe, abre menu contextual con los locales), (4) MIA Signals se mantiene solo en la campana (SignalIndicator + MIAInbox) que ya existe. Unico archivo: src/components/dashboard/CommandStrip.tsx. Sin cambios de schema ni de AI ni de seguridad.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-14T23:49:53.733Z",
+  "classifiedAt": "2026-08-14T23:49:53.733Z",
+  "approvedAt": "2026-08-14T23:49:53.733Z",
+  "completedAt": "2026-08-14T23:51:43.993Z"
+}
