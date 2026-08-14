@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bf41aa2`.
+> Fuente de verdad: este repositorio en `e87274c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bf41aa2` |
+| **Commit HEAD** | `e87274c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T15:28:02-06:00 |
+| **Generado** | 2026-08-14T17:03:27-06:00 |
 
 ---
 
@@ -577,7 +577,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (96)**:
+**Tareas registradas (97)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -677,6 +677,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-075127659 | Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README | completed |
 | TASK-20260814-184127939 | Evitar sesiones automaticas/vacias en el Laboratorio (normal test / chat directo) | completed |
 | TASK-20260814-202922311 | Simplificar media_type de knowledge_items a solo image | testimonial | completed |
+| TASK-20260814-225411178 | Run e2e tests against production server (next start) to fix Turbopack dev concurrency flakiness | completed |
 
 ---
 
@@ -725,6 +726,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e87274c fix: run e2e tests against production server to eliminate Turbopack dev flakiness
+bbc2a2c docs: regenerate MASTER.md at bf41aa2
 bf41aa2 refactor: simplify media_type to image | testimonial
 f3b788c docs: regenerate MASTER.md at 04dd0f1
 04dd0f1 fix: set bridge MIA_APP_URL to production for webhooks
@@ -743,8 +746,6 @@ b42e354 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 59d9181 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 d616556 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 d44c7dd subaru: checkpoint TASK-20260814-031446183 - en-progreso
-5599c6d subaru: checkpoint TASK-20260814-031446183 - en-progreso
-7da1f8b subaru: checkpoint TASK-20260814-031446183 - en-progreso
 ```
 
 ---
