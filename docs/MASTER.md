@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `04dd0f1`.
+> Fuente de verdad: este repositorio en `bf41aa2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `04dd0f1` |
+| **Commit HEAD** | `bf41aa2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T12:47:59-06:00 |
+| **Generado** | 2026-08-14T15:28:02-06:00 |
 
 ---
 
@@ -174,6 +174,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 36 | 036_inventory_grants.sql |
 | 37 | 037_business_edition.sql |
 | 38 | 038_media_sent_products.sql |
+| 39 | 039_media_type_simple.sql |
 
 ---
 
@@ -576,7 +577,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (95)**:
+**Tareas registradas (96)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -675,6 +676,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-075051181 | Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README | rejected |
 | TASK-20260814-075127659 | Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README | completed |
 | TASK-20260814-184127939 | Evitar sesiones automaticas/vacias en el Laboratorio (normal test / chat directo) | completed |
+| TASK-20260814-202922311 | Simplificar media_type de knowledge_items a solo image | testimonial | completed |
 
 ---
 
@@ -723,6 +725,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+bf41aa2 refactor: simplify media_type to image | testimonial
+f3b788c docs: regenerate MASTER.md at 04dd0f1
 04dd0f1 fix: set bridge MIA_APP_URL to production for webhooks
 a69269f fix: prevent automatic empty lab sessions on scenario select
 e103cee docs: regenerate MASTER.md at 0252e42
@@ -741,8 +745,6 @@ d616556 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 d44c7dd subaru: checkpoint TASK-20260814-031446183 - en-progreso
 5599c6d subaru: checkpoint TASK-20260814-031446183 - en-progreso
 7da1f8b subaru: checkpoint TASK-20260814-031446183 - en-progreso
-8f6622a feat(media): envio unico de imagen por producto/sesion + hardening URLs media en el bridge WhatsApp
-f75d3ad docs: regenerate MASTER.md at 54b22dc
 ```
 
 ---
