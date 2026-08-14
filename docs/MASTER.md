@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `34ee1a3`.
+> Fuente de verdad: este repositorio en `705b5f4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `34ee1a3` |
+| **Commit HEAD** | `705b5f4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T18:49:34-06:00 |
+| **Generado** | 2026-08-13T19:06:42-06:00 |
 
 ---
 
@@ -455,7 +455,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-96 módulos:
+97 módulos:
 
 ```
 ai/client.ts
@@ -483,6 +483,7 @@ channels/adapters/widget.ts
 channels/gateway.ts
 channels/identity.ts
 channels/types.ts
+chat/sse.ts
 conversation/context.ts
 conversation/resolver.ts
 dashboard/queries.ts
@@ -713,6 +714,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+705b5f4 subaru: checkpoint TASK-20260813-235511359 - en-progreso
+3a6bed0 subaru: checkpoint TASK-20260813-235511359 - en-progreso
+6b6b101 feat(chat): parser SSE compartido y endpoints chat/widget con stream estructurado (product data)
+b6fa7ce docs: regenerate MASTER.md at 34ee1a3
 34ee1a3 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 5534dae feat(chat): processStreaming resuelve producto recomendado, persiste product_id y emite stream estructurado (text-delta + data part product)
 4f8812a docs: regenerate MASTER.md at b75dce5
@@ -729,10 +734,6 @@ ba6dadb docs: regenerate MASTER.md at 94b88f0
 7f44e4f chore(governance): clasificar TASK-20260813-235511359 - tarjetas de producto en chat web (concilio aprobado)
 e52e3de subaru: checkpoint TASK-20260813-235511359 - listo
 24bd9a0 docs: regenerate MASTER.md at 58f7c1c
-58f7c1c feat(ai): reforzar reglas fundamentales con dominio estrictamente comercial en el system prompt
-1706d56 docs: regenerate MASTER.md at b8e076d
-b8e076d fix: persistencia de sugerencias del Knowledge Studio y arranque del servidor standalone
-b5b91a1 docs: regenerate MASTER.md at e2b6a96
 ```
 
 ---
