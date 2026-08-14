@@ -1,0 +1,52 @@
+{
+  "id": "TASK-20260814-075051181",
+  "title": "Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección \"Desarrollo en Windows\" en el README",
+  "description": "EVIDENCIA del estado actual (HEAD 06ed13d, working tree limpio): (1) todos los npm scripts del repo (dev, build, lint, test:unit, test:e2e, governance, subaru, doctor, environment-check) usan solo npx/node/next/vitest/playwright/tsx, sin sintaxis bash-only (verificado leyendo package.json: los 40 scripts no contienen &&, |, cp, rm ni heredocs). (2) Cero shell-outs en código: rg de spawn|execSync|/bin/sh|bash -c|process.platform en src/, scripts/, workshop/ y services/ devuelve 0 resultados -> el toolchain es JS puro y cross-platform. (3) El repo ya incluye soporte Windows nativo para distribución: start.bat y build-distribute.bat (gemelos de start.sh) y README-DISTRIBUTE.md. (4) El .gitattributes actual solo define filtros git-crypt para .env.local y services/whatsapp-bridge/.env; NO define reglas de fin de línea (text/auto, eol). Sin ellas, con core.autocrlf=true (default Windows) los archivos se checkoutean con CRLF y start.sh bajo WSL/Git-Bash puede romperse por \"bad interpreter\" (CRLF en shebang). PLAN: (1) crear .gitattributes con * text=auto, *.sh text eol=lf, *.bat text eol=crlf, y mantener los filtros git-crypt existentes; (2) añadir sección \"## Desarrollo en Windows\" al README.md documentando: requisitos (Node 22 exacto via fnm/nvm-windows, npm >=10), paso de git-crypt unlock para .env.local y bridge .env, comandos idénticos a Linux (npm ci, npm run dev, npm run test:unit, npx playwright install), notas sobre core.autocrlf y la opción WSL2; (3) verificar git status (sin cambios de contenido en otros archivos), npm run lint, commit descriptivo + push a origin/main (pull --rebase antes porque el remoto avanza con regeneración de MASTER.md). No se toca código de producción: solo config de git y documentación.",
+  "scope": {
+    "categories": [
+      "docs",
+      "infrastructure"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "qa",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: category requires council. Required agents (7): architect, backend, qa, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "rejected",
+  "decisions": [
+    {
+      "agentRole": "memory_engineer",
+      "decision": "reject",
+      "rationale": "Reclasificada como documentation/simple (TASK-20260814-075127659): solo .gitattributes + README, sin impacto en producción ni infraestructura runtime",
+      "timestamp": "2026-08-14T07:51:40.438Z"
+    }
+  ],
+  "createdAt": "2026-08-14T07:50:51.798Z",
+  "classifiedAt": "2026-08-14T07:50:51.798Z",
+  "rejectedAt": "2026-08-14T07:51:40.439Z"
+}

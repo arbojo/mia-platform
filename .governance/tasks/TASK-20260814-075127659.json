@@ -1,0 +1,35 @@
+{
+  "id": "TASK-20260814-075127659",
+  "title": "Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección \"Desarrollo en Windows\" en el README",
+  "description": "EVIDENCIA del estado actual (HEAD 06ed13d, working tree limpio): (1) todos los npm scripts del repo (dev, build, lint, test:unit, test:e2e, governance, subaru, doctor, environment-check) usan solo npx/node/next/vitest/playwright/tsx, sin sintaxis bash-only (verificado leyendo package.json: los 40 scripts no contienen &&, |, cp, rm ni heredocs). (2) Cero shell-outs en código: rg de spawn|execSync|/bin/sh|bash -c|process.platform en src/, scripts/, workshop/ y services/ devuelve 0 resultados -> el toolchain es JS puro y cross-platform. (3) El repo ya incluye soporte Windows nativo para distribución: start.bat y build-distribute.bat (gemelos de start.sh) y README-DISTRIBUTE.md. (4) El .gitattributes actual solo define filtros git-crypt para .env.local y services/whatsapp-bridge/.env; NO define reglas de fin de línea (text/auto, eol). Sin ellas, con core.autocrlf=true (default Windows) los archivos se checkoutean con CRLF y start.sh bajo WSL/Git-Bash puede romperse por \"bad interpreter\" (CRLF en shebang). PLAN: (1) crear .gitattributes con * text=auto, *.sh text eol=lf, *.bat text eol=crlf, y mantener los filtros git-crypt existentes; (2) añadir sección \"## Desarrollo en Windows\" al README.md documentando: requisitos (Node 22 exacto via fnm/nvm-windows, npm >=10), paso de git-crypt unlock para .env.local y bridge .env, comandos idénticos a Linux (npm ci, npm run dev, npm run test:unit, npx playwright install), notas sobre core.autocrlf y la opción WSL2; (3) verificar git status (sin cambios de contenido en otros archivos), npm run lint, commit descriptivo + push a origin/main (pull --rebase antes porque el remoto avanza con regeneración de MASTER.md). No se toca código de producción: solo config de git y documentación.",
+  "scope": {
+    "categories": [
+      "documentation"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (1): memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-14T07:51:27.760Z",
+  "classifiedAt": "2026-08-14T07:51:27.760Z",
+  "approvedAt": "2026-08-14T07:51:27.760Z",
+  "completedAt": "2026-08-14T07:53:57.134Z"
+}

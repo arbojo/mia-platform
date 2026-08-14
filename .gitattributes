@@ -1,3 +1,9 @@
-# Encrypted env files (git-crypt)
-.env.local filter=git-crypt diff=git-crypt
-services/whatsapp-bridge/.env filter=git-crypt diff=git-crypt
+# Line endings — enforce cross-platform consistency
+# LF en el repositorio; checkout nativo según el sistema (CRLF en Windows).
+* text=auto
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Encrypted env files (git-crypt) — no normalizar el contenido cifrado
+.env.local filter=git-crypt diff=git-crypt -text
+services/whatsapp-bridge/.env filter=git-crypt diff=git-crypt -text

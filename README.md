@@ -57,6 +57,39 @@ cp .env.example .env.local
 npm run dev
 ```
 
+## Desarrollo en Windows
+
+El repositorio es **100% multiplataforma**: todos los scripts (`dev`, `build`, `lint`, `test:unit`, `test:e2e`, `governance`, `subaru`, `doctor`) usan únicamente `npx`/`node`/`next`/`vitest`/`playwright`/`tsx`, sin dependencia de shell Unix (verificado: cero `spawn`/`bash -c`/`process.platform` en `src/`, `scripts/`, `workshop/` y `services/`). Las reglas de fin de línea están selladas en [`.gitattributes`](.gitattributes): **LF en el repositorio**, checkout nativo según el sistema.
+
+### Requisitos
+
+- **Node.js 22** (`>=22 <23`): usa [fnm](https://github.com/Schniz/fnm) o [nvm-windows](https://github.com/coreybutler/nvm-windows). El instalador genérico de nodejs.org puede darte otra versión.
+- **npm ≥ 10**.
+- **git-crypt** para descifrar `.env.local` y `services/whatsapp-bridge/.env`.
+- **Playwright**: `npx playwright install chromium` (o `npm run test:install`).
+
+### Puesta en marcha (PowerShell / cmd)
+
+```powershell
+# 1. Clonar y descifrar las variables de entorno (requiere la llave git-crypt del equipo)
+git clone https://github.com/arbojo/mia-platform.git
+cd mia-platform
+git-crypt unlock path\to\llave
+
+# 2. Dependencias e inicio — idéntico a Linux
+npm ci
+npm run dev
+```
+
+Los comandos de calidad son los mismos que en Linux: `npm run lint`, `npm run build`, `npm run test:unit`, `npm test` (e2e), `npm run governance`, `npm run subaru`. El bridge (`services/whatsapp-bridge`) corre igual: `npm install && npm run dev`.
+
+### Notas
+
+- **Fin de línea**: no edites `.gitattributes`. `* text=auto` normaliza a LF en el repositorio y hace checkout con CRLF en Windows. `*.sh` queda forzado a LF (un CRLF en el shebang rompería WSL/Git-Bash) y `*.bat` a CRLF.
+- **git-crypt**: `.env.local` y `services/whatsapp-bridge/.env` están cifrados en el repo. Sin `git-crypt unlock`, el login y la IA fallarán en runtime. Nunca los subas en claro.
+- **Alternativa**: si prefieres un clon exacto del entorno Linux (incluye `start.sh`, `doctor`, etc.), usa **WSL2** y trabaja sobre el repo montado.
+- **Distribución**: en Windows, `npm run distribute` genera `mia-evaluation.zip` con `start.bat` y `start.sh` incluidos. Ver [README-DISTRIBUTE.md](README-DISTRIBUTE.md).
+
 ## Database
 
 Run the migrations in `supabase/migrations/` in order:

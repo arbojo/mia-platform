@@ -29,3 +29,7 @@
 [2026-08-14T03:14:52.143Z] DECISION: TASK-20260814-031446183 — memory_engineer → approve
 [2026-08-14T03:53:26.187Z] CREATED: TASK-20260814-035326841 — SIMPLE — Pasada final de limpieza y refactorización: alineación de tipado estricto Supabase, fix de tipos en workshop y verificación completa de calidad
 [2026-08-14T04:07:55.716Z] TRANSITION: TASK-20260814-035326841 → completed
+[2026-08-14T07:50:51.798Z] CREATED: TASK-20260814-075051181 — COMPLEX — Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README
+[2026-08-14T07:51:27.760Z] CREATED: TASK-20260814-075127659 — SIMPLE — Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README
+[2026-08-14T07:51:40.439Z] DECISION: TASK-20260814-075051181 — memory_engineer → reject
+[2026-08-14T07:53:57.135Z] TRANSITION: TASK-20260814-075127659 → completed
