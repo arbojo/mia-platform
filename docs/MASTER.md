@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `03a2490`.
+> Fuente de verdad: este repositorio en `ed82b31`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `03a2490` |
+| **Commit HEAD** | `ed82b31` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T18:27:24-06:00 |
+| **Generado** | 2026-08-13T18:35:57-06:00 |
 
 ---
 
@@ -711,6 +711,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ed82b31 subaru: checkpoint TASK-20260813-235511359 - en-progreso
+960a078 feat(chat): agregar ProductReference y extender Message con producto opcional en el chat web
+3c7dd4a docs: regenerate MASTER.md at 03a2490
 03a2490 chore(governance): complete TASK-20260814-000546518 - directiva del Concilio aplicada y desplegada
 ba6dadb docs: regenerate MASTER.md at 94b88f0
 94b88f0 feat(ai): directiva del Concilio - rol experto y persuasivo, 4 reglas fundamentales del inquilino y formato de respuesta en el system prompt
@@ -728,9 +731,6 @@ e2b6a96 feat(auth): add show/hide password toggle in login form
 b2e0c94 chore(governance): revert TASK-20260813-074636033 a approved - correccion de orden (subaru complete exige approved/in_progress)
 e833a48 subaru: checkpoint TASK-20260813-074636033 - completado
 8811b0d docs: regenerate MASTER.md at 731bec9
-731bec9 subaru: checkpoint TASK-20260813-074636033 - en-progreso
-4ef260f chore(governance): complete TASK-20260813-074636033 (bridge defensivo) y TASK-20260813-205411903 (UsageBar locale)
-e9afcf2 fix(laboratorio): UsageBar con locale es-MX determinista - unit_tests 576/576
 ```
 
 ---
