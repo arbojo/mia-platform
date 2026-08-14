@@ -28,3 +28,4 @@
 [2026-08-14T03:14:52.142Z] DECISION: TASK-20260814-031446183 — release → approve
 [2026-08-14T03:14:52.143Z] DECISION: TASK-20260814-031446183 — memory_engineer → approve
 [2026-08-14T03:53:26.187Z] CREATED: TASK-20260814-035326841 — SIMPLE — Pasada final de limpieza y refactorización: alineación de tipado estricto Supabase, fix de tipos en workshop y verificación completa de calidad
+[2026-08-14T04:07:55.716Z] TRANSITION: TASK-20260814-035326841 → completed
