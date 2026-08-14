@@ -2,13 +2,13 @@
 task_id: TASK-20260813-235511359
 title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-235511359
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T00:35:49.551Z
+updated: 2026-08-14T00:41:45.519Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -52,7 +52,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: el tipo se exporta y el estado del mensaje admite `product` sin errores de tipos.
   - Gate/verificación: lint + build.
 
-- [ ] **Paso 2:** Implementar el resolver determinista `resolveRecommendedProduct`.
+- [x] **Paso 2:** Implementar el resolver determinista `resolveRecommendedProduct`.
   - Objetivo: decidir QUÉ producto se adjunta a la respuesta, con las señales existentes y sin IA extra.
   - Archivos: `src/lib/runtime/product-recommendation.ts` (NUEVO), reutiliza `triggerMatches`/`intentMatchesTrigger` de `conditional-media.ts` y el matcheo de `intents.ts`; `tests/runtime/product-recommendation.test.ts` (NUEVO).
   - Acción: (1) si hay `productId` de landing → fetch de `products` + primera `product_media.image_url`; (2) si no, matchear `knowledge_items` activos con `product_id` y `trigger_condition` por `userMessage`/`intentTag`; (3) fallback a keywords de `intents.ts` sobre productos activos; (4) devolver `ProductReference | null` (null si ambiguo). Sin `any`, con admin client scoped a `business_id`.
@@ -115,7 +115,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 3`.
 
 ## Constraints
 
