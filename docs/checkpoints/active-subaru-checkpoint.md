@@ -2,13 +2,13 @@
 task_id: TASK-20260813-235511359
 title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-235511359
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T00:49:28.664Z
+updated: 2026-08-14T01:06:19.213Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -68,7 +68,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: la respuesta contiene texto idéntico al actual + data part opcional `product`; mensaje persistido con `product_id` cuando aplica.
   - Gate/verificación: build + unit.
 
-- [ ] **Paso 4:** Cambiar `/api/chat` al protocolo data stream.
+- [x] **Paso 4:** Cambiar `/api/chat` al protocolo data stream.
   - Objetivo: transportar texto y metadatos en un solo flujo.
   - Archivos: `src/app/api/chat/route.ts`.
   - Acción: devolver `toDataStreamResponse()` (o el wrapper con data parts) en lugar de `toTextStreamResponse()`. Mantener los headers `X-MIA-Conversation-Id` y `X-MIA-Sales-Intent` y los códigos de error (`RuntimeError`, 401/403/404/400) intactos.
@@ -115,7 +115,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 5`.
 
 ## Constraints
 
