@@ -22,7 +22,7 @@ export async function GET(
 
     const { data: messages, error } = await supabase
       .from('messages')
-      .select('id, role, content, created_at')
+      .select('id, role, content, created_at, metadata')
       .eq('conversation_id', id)
       .order('created_at', { ascending: true })
 

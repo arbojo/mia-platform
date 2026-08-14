@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react'
 import type { ProductReference } from '@/lib/channels/types'
 import { createSseParser } from '@/lib/chat/sse'
+import { ProductMessageCard } from '@/components/chat/ProductMessageCard'
 
 interface Message {
   id: string
@@ -105,17 +106,29 @@ export function ChatWindow({
         if (!res.ok) throw new Error(`Failed to load history: ${res.status}`)
         return res.json()
       })
-      .then((data: { messages?: Array<{ id: string; role: string; content: string }> }) => {
-        if (cancelled || !Array.isArray(data.messages)) return
-        const restored: Message[] = data.messages.map((m) => ({
-          id: m.id,
-          role: m.role === 'user' ? 'user' : 'assistant',
-          content: m.content,
-        }))
-        if (restored.length === 0) return
-        restoredCountRef.current = restored.length
-        setMessages((prev) => (prev.length === 0 ? restored : prev))
-      })
+      .then(
+        (
+          data: {
+            messages?: Array<{
+              id: string
+              role: string
+              content: string
+              metadata?: { product?: ProductReference | null } | null
+            }>
+          }
+        ) => {
+          if (cancelled || !Array.isArray(data.messages)) return
+          const restored: Message[] = data.messages.map((m) => ({
+            id: m.id,
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.content,
+            product: m.metadata?.product ?? null,
+          }))
+          if (restored.length === 0) return
+          restoredCountRef.current = restored.length
+          setMessages((prev) => (prev.length === 0 ? restored : prev))
+        }
+      )
       .catch((err) => {
         console.warn('No se pudo restaurar el historial:', err)
       })
@@ -336,6 +349,9 @@ export function ChatWindow({
               )}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
+              {message.role === 'assistant' && message.product && (
+                <ProductMessageCard product={message.product} />
+              )}
               {message.role === 'assistant' && onCorrection && (
                 <div className="mt-2 flex gap-2">
                   <Button

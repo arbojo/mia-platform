@@ -202,6 +202,14 @@ describe('processStreaming', () => {
     expect(assistantCall.metadata).toEqual({
       used_context: mockUsedContext,
       product_id: FAKE_UUIDS.product1,
+      product: {
+        productId: FAKE_UUIDS.product1,
+        name: 'Clean Nails',
+        price: 45,
+        imageUrl: null,
+        description: null,
+        benefits: null,
+      },
     })
   })
 

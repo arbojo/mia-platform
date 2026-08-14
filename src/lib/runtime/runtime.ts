@@ -112,7 +112,9 @@ export async function processStreaming(params: {
             content: text ?? '',
             metadata: {
               used_context: usedContext,
-              ...(product ? { product_id: product.productId } : {}),
+              ...(product
+                ? { product_id: product.productId, product }
+                : {}),
             },
           })
         } catch (err) {
