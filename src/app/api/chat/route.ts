@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       requestType,
     })
 
-    return result.toTextStreamResponse()
+    return result.toStructuredStreamResponse()
   } catch (error) {
     console.error('Chat error:', error)
 

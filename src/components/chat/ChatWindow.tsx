@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react'
 import type { ProductReference } from '@/lib/channels/types'
+import { createSseParser } from '@/lib/chat/sse'
 
 interface Message {
   id: string
@@ -179,7 +180,6 @@ export function ChatWindow({
       }
 
       const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
       let assistantContent = ''
 
       const assistantMessage: Message = {
@@ -191,20 +191,33 @@ export function ChatWindow({
       setMessages((prev) => [...prev, assistantMessage])
 
       if (reader) {
+        const parser = createSseParser((event) => {
+          if (event.type === 'text-delta') {
+            assistantContent += event.delta
+            setMessages((prev) =>
+              prev.map((msg, i) =>
+                i === prev.length - 1 && msg.role === 'assistant'
+                  ? { ...msg, content: assistantContent }
+                  : msg
+              )
+            )
+          } else if (event.type === 'product') {
+            setMessages((prev) =>
+              prev.map((msg, i) =>
+                i === prev.length - 1 && msg.role === 'assistant'
+                  ? { ...msg, product: event.product }
+                  : msg
+              )
+            )
+          }
+        })
+
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
-
-          const chunk = decoder.decode(value, { stream: true })
-          assistantContent += chunk
-          setMessages((prev) =>
-            prev.map((msg, i) =>
-              i === prev.length - 1 && msg.role === 'assistant'
-                ? { ...msg, content: assistantContent }
-                : msg
-            )
-          )
+          parser.push(value)
         }
+        parser.flush()
       }
     } catch (error) {
       console.error('Chat error:', error)

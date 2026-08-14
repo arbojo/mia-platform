@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       intentTag: intent,
     })
 
-    const streamResponse = result.toTextStreamResponse()
+    const streamResponse = result.toStructuredStreamResponse()
     const headers = new Headers(streamResponse.headers)
     headers.set('X-MIA-Sales-Intent', isSalesIntent(intent) ? '1' : '0')
     if (conversationId) {

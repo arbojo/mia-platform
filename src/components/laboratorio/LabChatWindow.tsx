@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ResponseAnalysis } from '@/components/laboratorio/ResponseAnalysis'
 import { cn } from '@/lib/utils'
+import { createSseParser } from '@/lib/chat/sse'
 
 interface Message {
   id: string
@@ -146,7 +147,6 @@ export function LabChatWindow({
       if (!response.ok) throw new Error('Failed to fetch')
 
       const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
       let assistantContent = ''
 
       const assistantMessage: Message = {
@@ -158,12 +158,9 @@ export function LabChatWindow({
       setMessages((prev) => [...prev, assistantMessage])
 
       if (reader) {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value, { stream: true })
-          assistantContent += chunk
+        const parser = createSseParser((event) => {
+          if (event.type !== 'text-delta') return
+          assistantContent += event.delta
           setMessages((prev) => {
             const updated = [...prev]
             const lastMsg = updated[updated.length - 1]
@@ -172,7 +169,14 @@ export function LabChatWindow({
             }
             return [...updated]
           })
+        })
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          parser.push(value)
         }
+        parser.flush()
       }
 
       if (onTokensUsed && assistantContent) {
