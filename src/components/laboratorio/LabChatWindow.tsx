@@ -21,10 +21,11 @@ interface LabChatWindowProps {
   conversationId?: string
   mode?: string
   simulationSystemMessage?: string
+  sessionTitle?: string
   onTokensUsed?: (tokens: { input: number; output: number }) => void
   onMessageCount?: (count: number) => void
   onCoaching?: (feedback: { tips: string[]; score: number | null }) => void
-  onConversationCreated?: (conversationId: string) => void
+  onConversationCreated?: (conversationId: string, sessionId?: string) => void
 }
 
 export function LabChatWindow({
@@ -34,6 +35,7 @@ export function LabChatWindow({
   conversationId,
   mode,
   simulationSystemMessage,
+  sessionTitle,
   onTokensUsed,
   onMessageCount,
   onCoaching,
@@ -98,7 +100,7 @@ export function LabChatWindow({
             business_id: businessId,
             assistant_id: assistantId,
             mode: mode ?? 'normal',
-            title: 'chat directo',
+            title: sessionTitle ?? 'chat directo',
           }),
         })
         const sessionData = await sessionRes.json()
@@ -107,7 +109,7 @@ export function LabChatWindow({
           throw new Error('No se pudo iniciar una sesión de laboratorio')
         }
         setActiveConversationId(conversation)
-        onConversationCreated?.(conversation)
+        onConversationCreated?.(conversation, sessionData.session?.id)
       }
 
       const chatMessages = [...messages, userMessage].map((m) => ({

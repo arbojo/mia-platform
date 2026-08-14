@@ -33,3 +33,6 @@
 [2026-08-14T07:51:27.760Z] CREATED: TASK-20260814-075127659 — SIMPLE — Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README
 [2026-08-14T07:51:40.439Z] DECISION: TASK-20260814-075051181 — memory_engineer → reject
 [2026-08-14T07:53:57.135Z] TRANSITION: TASK-20260814-075127659 → completed
+[2026-08-14T18:41:27.738Z] CREATED: TASK-20260814-184127939 — SIMPLE — Evitar sesiones automaticas/vacias en el Laboratorio (normal test / chat directo)
+[2026-08-14T18:46:57.204Z] TRANSITION: TASK-20260814-184127939 → in_progress
+[2026-08-14T18:47:00.696Z] TRANSITION: TASK-20260814-184127939 → completed

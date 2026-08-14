@@ -57,6 +57,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   const [activeScenario, setActiveScenario] = useState<Scenario | null>(null)
   const [coachingFeedback, setCoachingFeedback] = useState<string[]>([])
   const [coachingScore, setCoachingScore] = useState<number | null>(null)
+  const [chatKey, setChatKey] = useState(0)
 
   const selectedBusiness = businesses.find((b) => b.id === businessId)
   const assistants = selectedBusiness?.assistants ?? []
@@ -79,25 +80,14 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
     }
   }, [businessId])
 
-  const handleStartSession = async () => {
-    const res = await fetch('/api/laboratorio/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        business_id: businessId,
-        assistant_id: assistantId,
-        mode,
-      }),
-    })
-    const data = await res.json()
-    if (data.session) {
-      setCurrentSessionId(data.session.id)
-      setCurrentConversationId(data.conversationId ?? data.session.conversation_id ?? null)
-      setTokenUsage({ input: 0, output: 0, cost: 0 })
-      setMessageCount(0)
-      setCoachingFeedback([])
-      setCoachingScore(null)
-    }
+  const handleStartSession = () => {
+    setCurrentSessionId(null)
+    setCurrentConversationId(null)
+    setTokenUsage({ input: 0, output: 0, cost: 0 })
+    setMessageCount(0)
+    setCoachingFeedback([])
+    setCoachingScore(null)
+    setChatKey((k) => k + 1)
   }
 
   const handleTeach = (suggestions: string[]) => {
@@ -186,13 +176,18 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
 
         <div className="flex-1 flex flex-col min-h-0">
           <LabChatWindow
+            key={chatKey}
             assistantName={context?.assistant?.name ?? 'MIA'}
             assistantId={assistantId}
             businessId={businessId}
             conversationId={currentConversationId ?? undefined}
             mode={mode}
             simulationSystemMessage={activeScenario?.customerMessage}
-            onConversationCreated={(conversationId) => setCurrentConversationId(conversationId)}
+            sessionTitle={activeScenario ? `Escenario: ${activeScenario.name}` : undefined}
+            onConversationCreated={(conversationId, sessionId) => {
+              setCurrentConversationId(conversationId)
+              if (sessionId) setCurrentSessionId(sessionId)
+            }}
             onTokensUsed={(tokens) => {
               setTokenUsage((prev) => ({
                 input: prev.input + tokens.input,
