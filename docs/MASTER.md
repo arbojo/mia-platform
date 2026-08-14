@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b75dce5`.
+> Fuente de verdad: este repositorio en `34ee1a3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b75dce5` |
+| **Commit HEAD** | `34ee1a3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T18:41:51-06:00 |
+| **Generado** | 2026-08-13T18:49:34-06:00 |
 
 ---
 
@@ -455,7 +455,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-95 módulos:
+96 módulos:
 
 ```
 ai/client.ts
@@ -536,6 +536,7 @@ runtime/intents.ts
 runtime/media.ts
 runtime/product-recommendation.ts
 runtime/runtime.ts
+runtime/stream-response.ts
 runtime/types.ts
 sales/detect.ts
 sales/events.ts
@@ -712,6 +713,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+34ee1a3 subaru: checkpoint TASK-20260813-235511359 - en-progreso
+5534dae feat(chat): processStreaming resuelve producto recomendado, persiste product_id y emite stream estructurado (text-delta + data part product)
+4f8812a docs: regenerate MASTER.md at b75dce5
 b75dce5 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 ab97b40 feat(chat): resolver determinista resolveRecommendedProduct con señales landing/trigger/intención
 9f0f897 docs: regenerate MASTER.md at ed82b31
@@ -729,9 +733,6 @@ e52e3de subaru: checkpoint TASK-20260813-235511359 - listo
 1706d56 docs: regenerate MASTER.md at b8e076d
 b8e076d fix: persistencia de sugerencias del Knowledge Studio y arranque del servidor standalone
 b5b91a1 docs: regenerate MASTER.md at e2b6a96
-e2b6a96 feat(auth): add show/hide password toggle in login form
-839721d docs: regenerate MASTER.md at 7d91274
-7d91274 chore(governance): complete TASK-20260813-074636033 (bridge defensivo) - cierre final tras subaru complete
 ```
 
 ---
