@@ -239,7 +239,7 @@ export function buildMasterPrompt(params: {
       ? `\n\n## Producto activo\nEsta página y esta campaña promocionan **${activeProduct.name}**${activeProduct.price ? ` ($${activeProduct.price})` : ''}. Cuando el cliente pregunte por "precio", "más información", "beneficios" u otras peticiones genéricas sin especificar producto, ancla tu respuesta a **${activeProduct.name}**: prioriza su información y su multimedia sobre el resto del catálogo y no lo confundas con otros productos.`
       : ''
 
-  return `${ai.youAre} ${assistant.name}, ${ai.salesAssistantOf} ${brand?.business_name ?? business.name}.
+  return `${ai.youAre} ${assistant.name}, ${ai.salesAssistantOf} ${brand?.business_name ?? business.name}. ${ai.salesPurpose}
 
 ## ${ai.yourObjective}
 ${ai.objectiveText}
@@ -252,10 +252,16 @@ ${ai.communicationStyleText} ${assistant.communication_style}.${toneNote}${chann
 
 ## ${ai.fundamentalRules}
 1. ${ai.neverInvent}
-2. ${ai.ifUnsure}
-3. ${ai.askCity}
-4. ${ai.noDiscounts}
-5. ${ai.humanHandoff}
+2. ${ai.offTopicBridge}
+3. ${ai.ifUnsure}
+4. ${ai.knowledgeBoundary}
+5. ${ai.askCity}
+6. ${ai.noDiscounts}
+7. ${ai.humanHandoff}
+
+## ${ai.responseFormat}
+${ai.responseFormatText}
+${ai.recommendationFormat}
 
 ## ${ai.conflictResolution}
 ${ai.conflictIntro}

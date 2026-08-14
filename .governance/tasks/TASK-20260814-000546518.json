@@ -1,0 +1,90 @@
+{
+  "id": "TASK-20260814-000546518",
+  "title": "Directiva del Concilio: reformular Rol, Reglas Fundamentales (4 reglas del inquilino) y Formato de Respuesta en el system prompt de MIA",
+  "description": "El usuario (concilio convocado) entrega una nueva directiva para el system prompt de MIA: ROL (\"Eres MIA, un asistente comercial experto y persuasivo... reconducir siempre la conversación hacia la venta o la recomendacion\"), 4 REGLAS FUNDAMENTALES INMUTABLES y FORMATO DE RESPUESTA. DISEÑO de implementacion: (1) Reglas Fundamentales: reemplazar el bloque numerado actual (prompts.ts:253-258) por las 4 reglas de la directiva como reglas 1-4 (nuevos textos en las 4 diccionarios i18n): R1 neverInvent \"NUNCA inventes informacion, precios, caracteristicas ni productos que no esten explicitamente registrados en tu contexto de conocimiento o catalogo\"; R2 offTopicBridge nueva \"temas ajenos al negocio: no des informacion externa, usalos como puente hacia los productos o soluciones del negocio\"; R3 ifUnsure \"si no sabes algo especifico del negocio o un dato exacto no esta disponible en tus fuentes, responde honestamente con la directriz asignada (ej. \"Dejame revisar eso con el equipo\") y mantén firme tu rol comercial\"; R4 knowledgeBoundary nueva \"tu conocimiento comercial esta delimitado unica y exclusivamente por el catalogo, las reglas de venta y la documentacion provista por este inquilino\". Las reglas operativas vigentes SE PRESERVAN como reglas 5-7: askCity (preguntar ciudad/promesas de entrega), noDiscounts (no mencionar descuentos) y humanHandoff (handoff humano), reforzadas en el concilio previo TASK-20260813-232356688 y no revocadas por esta directiva. (2) ROL: ampliar la linea de apertura (prompts.ts:242) con el proposito de la directiva (nueva clave salesPurpose): guiar al cliente, resolver dudas basandose estrictamente en el inventario y las reglas provistas, y reconducir hacia la venta o recomendacion. (3) FORMATO DE RESPUESTA: nueva seccion en prompts.ts despues de Reglas Fundamentales con 2 claves nuevas (responseFormat + texto de tono cercano/profesional/enfocado en el beneficio, y recomendacion con nombre, valor y como resuelve la necesidad usando datos del catalogo). (4) Actualizar tests/i18n/prompts-i18n.test.ts (nuevas claves y numeracion 1-7). Archivos: src/lib/i18n/dictionaries/{es,en,pt,ja}.ts, src/lib/ai/prompts.ts, tests/i18n/prompts-i18n.test.ts. SIN migraciones SQL. SIN llamadas extra de OpenAI. El nombre del asistente se mantiene parametrizado (assistant.name) para no romper negocios con nombres custom.",
+  "scope": {
+    "categories": [
+      "ai_behaviour"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected, AI behaviour changes, cross-cutting (multi-domain). Required agents (7): architect, backend, ai_engineer, performance, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.381Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.382Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.382Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.382Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.383Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.383Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: directiva del Concilio. Reglas 1-4 nuevas del inquilino; reglas operativas (askCity, noDiscounts, humanHandoff) preservadas como 5-7 al ser reforzadas en TASK-20260813-232356688 y no revocadas. Sin SQL, sin llamadas extra de IA, parametrizacion de nombre preservada. Evidencia: es.ts:196-204 y prompts.ts:242-258.",
+      "timestamp": "2026-08-14T00:05:52.383Z"
+    }
+  ],
+  "createdAt": "2026-08-14T00:05:46.804Z",
+  "classifiedAt": "2026-08-14T00:05:46.804Z",
+  "approvedAt": "2026-08-14T00:05:52.383Z",
+  "startedAt": "2026-08-14T00:24:03.865Z"
+}

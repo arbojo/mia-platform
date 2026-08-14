@@ -30,14 +30,35 @@ describe('buildMasterPrompt i18n', () => {
     expect(prompt).toContain('Reglas Fundamentales')
   })
 
-  it('enforces the reinforced commercial-domain fundamental rule', () => {
+  it('enforces the council directive fundamental rules (1-4) and preserved operational rules (5-7)', () => {
     const prompt = basePrompt()
     expect(prompt).toContain(
-      'Tu dominio de conversación está estrictamente limitado a los productos, servicios y contexto de este negocio'
+      'NUNCA inventes información, precios, características ni productos que no estén explícitamente registrados'
     )
-    expect(prompt).toContain('NUNCA respondas con datos enciclopédicos')
-    expect(prompt).toContain('desvío como un puente comercial')
+    expect(prompt).toContain('temas ajenos al negocio')
+    expect(prompt).toContain('úsalo amablemente como un puente')
+    expect(prompt).toContain('no está disponible en tus fuentes')
+    expect(prompt).toContain('Déjame revisar eso con el equipo')
+    expect(prompt).toContain(
+      'Tu conocimiento comercial está delimitado única y exclusivamente por el catálogo, las reglas de venta y la documentación provista por este inquilino.'
+    )
+    expect(prompt).toContain('Siempre pregunta la ciudad antes de prometer envío')
+    expect(prompt).toContain('No menciones descuentos a menos que el cliente pregunte')
     expect(prompt).toContain('Handoff humano cuando la negociación lo requiera.')
+  })
+
+  it('includes the council directive role purpose and response format section', () => {
+    const prompt = basePrompt()
+    expect(prompt).toContain(
+      'Tu propósito principal es guiar al cliente, resolver sus dudas comerciales basándote estrictamente en el inventario y las reglas provistas'
+    )
+    expect(prompt).toContain('Formato de Respuesta')
+    expect(prompt).toContain(
+      'Mantén un tono cercano, profesional y enfocado en el beneficio del cliente.'
+    )
+    expect(prompt).toContain(
+      'Cuando recomiendes un artículo, menciona su nombre, su valor y resalta cómo resuelve su necesidad específica'
+    )
   })
 
   it('uses Spanish keys for locale es', () => {
