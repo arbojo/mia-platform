@@ -2,13 +2,13 @@
 task_id: TASK-20260813-235511359
 title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-235511359
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T01:06:42.036Z
+updated: 2026-08-14T01:09:58.490Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -84,7 +84,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: la burbuja muestra el mismo texto que hoy y el estado del mensaje incluye `product` cuando llega la parte data.
   - Gate/verificación: e2e del widget (mensaje con producto recomendado).
 
-- [ ] **Paso 6:** Componente `ProductMessageCard` y render bajo la burbuja del asistente.
+- [x] **Paso 6:** Componente `ProductMessageCard` y render bajo la burbuja del asistente.
   - Objetivo: tarjeta elegante (imagen, precio, beneficios) alineada izquierda.
   - Archivos: `src/components/chat/ProductMessageCard.tsx` (NUEVO), `src/components/chat/ChatWindow.tsx`.
   - Acción: componente <150 líneas, `'use client'`, shadcn/ui: imagen `aspect-video object-cover rounded-t-xl` con fallback `Package` sobre `bg-zinc-100` (patrón de `catalog/ProductCard.tsx:51-54`), nombre `font-semibold`, precio `text-olive-600 font-semibold`, beneficios `text-xs` con checks y `line-clamp-2`; `alt={name}`. En `ChatWindow.tsx` renderizar `{message.role === 'assistant' && message.product && <ProductMessageCard product={message.product} />}` bajo el `<p className="whitespace-pre-wrap">`, dentro de la misma fila.
@@ -115,7 +115,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 7`.
 
 ## Constraints
 
