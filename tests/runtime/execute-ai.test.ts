@@ -26,7 +26,11 @@ describe('executeAI', () => {
   describe('stream mode', () => {
     const mockStreamResult = {
       toTextStreamResponse: vi.fn(() => new Response()),
-      toDataStreamResponse: vi.fn(),
+      textStream: {
+        [Symbol.asyncIterator]: async function* () {
+          yield 'respuesta'
+        },
+      },
     }
     const onFinishPayload = { text: 'respuesta', usage: { promptTokens: 10, completionTokens: 20 } }
 

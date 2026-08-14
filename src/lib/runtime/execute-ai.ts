@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
+import { streamText, type AsyncIterableStream } from 'ai'
 import { getOpenAIClient, MODEL } from '@/lib/ai/client'
 import { trackAiUsage } from '@/lib/ai/cost'
 
@@ -19,7 +19,7 @@ export interface ExecuteAIParams {
 
 export interface StreamResult {
   toTextStreamResponse(): Response
-  toDataStreamResponse(): Response
+  textStream: AsyncIterableStream<string>
 }
 
 export interface CompleteResult {

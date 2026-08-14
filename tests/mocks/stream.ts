@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 
 interface StreamTextResult {
   toTextStreamResponse: () => Response
-  toDataStreamResponse: () => Response
+  textStream: AsyncIterable<string>
 }
 
 interface StreamTextParams {
@@ -12,6 +12,14 @@ interface StreamTextParams {
   onFinish?: (result: { usage: unknown; text: string }) => Promise<void>
   maxTokens?: number
   temperature?: number
+}
+
+function mockTextStream(text: string): AsyncIterable<string> {
+  return {
+    [Symbol.asyncIterator]: async function* () {
+      yield text
+    },
+  }
 }
 
 export function createMockStreamText(responseText?: string) {
@@ -30,7 +38,7 @@ export function createMockStreamText(responseText?: string) {
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       })
     }),
-    toDataStreamResponse: vi.fn(() => new Response()),
+    textStream: mockTextStream(text),
   }
 
   const streamText = vi.fn()

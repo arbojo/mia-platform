@@ -5,12 +5,16 @@ vi.mock('ai', () => ({ streamText: vi.fn() }))
 vi.mock('@/lib/conversation/context', () => ({ loadConversationContext: vi.fn() }))
 vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
+vi.mock('@/lib/runtime/product-recommendation', () => ({ resolveRecommendedProduct: vi.fn() }))
+vi.mock('@/lib/runtime/stream-response', () => ({ buildStructuredStreamResponse: vi.fn() }))
 
 import { processStreaming } from '@/lib/runtime/runtime'
 import { loadConversationContext } from '@/lib/conversation/context'
 import { streamText } from 'ai'
 import { trackAiUsage } from '@/lib/ai/cost'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { resolveRecommendedProduct } from '@/lib/runtime/product-recommendation'
+import { buildStructuredStreamResponse } from '@/lib/runtime/stream-response'
 import { FAKE_UUIDS, mockMessages } from '../fixtures'
 
 const mockSystemPrompt = 'Eres un asistente de prueba.'
@@ -18,7 +22,11 @@ const mockUsedContext = [{ type: 'product', id: 'p1' }]
 
 const mockStreamTextResult = {
   toTextStreamResponse: vi.fn(() => new Response()),
-  toDataStreamResponse: vi.fn(),
+  textStream: {
+    [Symbol.asyncIterator]: async function* () {
+      yield 'texto'
+    },
+  },
 }
 
 const onFinishPayload = {
@@ -63,6 +71,8 @@ beforeEach(() => {
   })
   vi.mocked(streamText).mockReturnValue(mockStreamTextResult as never)
   vi.mocked(trackAiUsage).mockResolvedValue(undefined)
+  vi.mocked(resolveRecommendedProduct).mockResolvedValue(null)
+  vi.mocked(buildStructuredStreamResponse).mockReturnValue(new Response())
 })
 
 describe('processStreaming', () => {
@@ -95,10 +105,39 @@ describe('processStreaming', () => {
 
   it('returns a result compatible with toTextStreamResponse()', async () => {
     const result = await processStreaming(defaultParams)
-    expect(result).toBe(mockStreamTextResult)
     expect(typeof result.toTextStreamResponse).toBe('function')
+    expect(typeof result.toStructuredStreamResponse).toBe('function')
     const response = result.toTextStreamResponse()
     expect(response).toBeInstanceOf(Response)
+  })
+
+  it('builds the structured stream with the resolved product', async () => {
+    const product = {
+      productId: FAKE_UUIDS.product1,
+      name: 'Clean Nails',
+      price: 45,
+      imageUrl: null,
+      description: null,
+      benefits: null,
+    }
+    vi.mocked(resolveRecommendedProduct).mockResolvedValue(product)
+
+    const result = await processStreaming({
+      ...defaultParams,
+      landingContext: { productId: FAKE_UUIDS.product1 },
+    })
+
+    expect(resolveRecommendedProduct).toHaveBeenCalledWith({
+      businessId: FAKE_UUIDS.business,
+      userMessage: mockMessages[mockMessages.length - 1].content,
+      intentTag: null,
+      productId: FAKE_UUIDS.product1,
+    })
+    result.toStructuredStreamResponse()
+    expect(buildStructuredStreamResponse).toHaveBeenCalledWith({
+      textStream: mockStreamTextResult.textStream,
+      product,
+    })
   })
 
   it('executes trackAiUsage via onFinish', async () => {
@@ -137,6 +176,49 @@ describe('processStreaming', () => {
     const assistantCall = insertMock.mock.calls[1][0] as Record<string, unknown>
     expect(assistantCall.role).toBe('assistant')
     expect(assistantCall.conversation_id).toBe(FAKE_UUIDS.conversation)
+  })
+
+  it('persists metadata.product_id when a product is resolved', async () => {
+    const { supabase, insertMock, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle.mockResolvedValueOnce({
+      data: { customer_id: FAKE_UUIDS.customer },
+      error: null,
+    })
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
+    vi.mocked(resolveRecommendedProduct).mockResolvedValue({
+      productId: FAKE_UUIDS.product1,
+      name: 'Clean Nails',
+      price: 45,
+      imageUrl: null,
+      description: null,
+      benefits: null,
+    })
+
+    await processStreaming({ ...defaultParams, conversationId: FAKE_UUIDS.conversation })
+    const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish!
+    await onFinish(onFinishPayload)
+
+    const assistantCall = insertMock.mock.calls[1][0] as Record<string, unknown>
+    expect(assistantCall.metadata).toEqual({
+      used_context: mockUsedContext,
+      product_id: FAKE_UUIDS.product1,
+    })
+  })
+
+  it('does NOT persist product_id when no product is resolved', async () => {
+    const { supabase, insertMock, mockMaybeSingle } = makeMockSupabase()
+    mockMaybeSingle.mockResolvedValueOnce({
+      data: { customer_id: FAKE_UUIDS.customer },
+      error: null,
+    })
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
+
+    await processStreaming({ ...defaultParams, conversationId: FAKE_UUIDS.conversation })
+    const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish!
+    await onFinish(onFinishPayload)
+
+    const assistantCall = insertMock.mock.calls[1][0] as Record<string, unknown>
+    expect(assistantCall.metadata).toEqual({ used_context: mockUsedContext })
   })
 
   it('does NOT persist messages when conversationId is absent', async () => {

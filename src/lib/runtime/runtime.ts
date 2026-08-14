@@ -5,11 +5,18 @@ import { resolveConnection, resolveConversation } from '@/lib/conversation/resol
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
 import { resolveConditionalMedia } from './conditional-media'
+import { resolveRecommendedProduct } from './product-recommendation'
+import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
 import { processSaleClosing } from '@/lib/sales/process'
 import type { ChannelAdapter, InteractiveComponent } from '@/lib/channels/types'
 import type { WireMessage } from './types'
 import type { LandingContext } from '@/lib/ai/knowledge'
+
+export interface ProcessStreamingResult {
+  toTextStreamResponse(): Response
+  toStructuredStreamResponse(): Response
+}
 
 export async function processStreaming(params: {
   assistantId: string
@@ -19,7 +26,7 @@ export async function processStreaming(params: {
   requestType: string
   landingContext?: LandingContext
   intentTag?: string | null
-}) {
+}): Promise<ProcessStreamingResult> {
   const { assistantId, businessId, conversationId, messages, requestType, landingContext, intentTag } = params
 
   const supabase = createAdminClient()
@@ -75,6 +82,20 @@ export async function processStreaming(params: {
     }
   }
 
+  let product: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
+  if (lastUserMessage) {
+    try {
+      product = await resolveRecommendedProduct({
+        businessId,
+        userMessage: lastUserMessage.content,
+        intentTag: intentTag ?? null,
+        productId: landingContext?.productId ?? null,
+      })
+    } catch (err) {
+      console.error('Failed to resolve recommended product:', err)
+    }
+  }
+
   const result = await executeAI({
     mode: 'stream',
     businessId,
@@ -89,7 +110,10 @@ export async function processStreaming(params: {
             conversation_id: conversationId,
             role: 'assistant',
             content: text ?? '',
-            metadata: { used_context: usedContext },
+            metadata: {
+              used_context: usedContext,
+              ...(product ? { product_id: product.productId } : {}),
+            },
           })
         } catch (err) {
           console.error('Failed to persist assistant message:', err)
@@ -98,7 +122,10 @@ export async function processStreaming(params: {
     },
   })
 
-  return result
+  return {
+    toTextStreamResponse: () => result.toTextStreamResponse(),
+    toStructuredStreamResponse: () => buildStructuredStreamResponse({ textStream: result.textStream, product }),
+  }
 }
 
 export async function processIncomingMessage(
