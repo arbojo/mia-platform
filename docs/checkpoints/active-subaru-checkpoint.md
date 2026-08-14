@@ -2,13 +2,13 @@
 task_id: TASK-20260814-024029576
 title: Cerrar gaps del CRUD de Knowledge Base: reflejo inmediato, activar/desactivar y versionado
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260814-024029576
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T02:51:40.840Z
+updated: 2026-08-14T02:51:44.453Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260814-024029576 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260814-024029576 4`.
 
 ## Constraints
 
