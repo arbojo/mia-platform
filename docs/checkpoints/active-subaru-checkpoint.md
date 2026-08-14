@@ -2,13 +2,13 @@
 task_id: TASK-20260813-235511359
 title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-235511359
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T00:41:45.519Z
+updated: 2026-08-14T00:49:28.664Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -60,7 +60,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: tests unitarios cubren landing→producto, trigger→producto, ambiguo→null y sin coincidencia→null.
   - Gate/verificación: `npm run test:unit` (577 + nuevas, 0 fallos) + build.
 
-- [ ] **Paso 3:** Extender `processStreaming` para resolver el producto y devolver el stream estructurado.
+- [x] **Paso 3:** Extender `processStreaming` para resolver el producto y devolver el stream estructurado.
   - Objetivo: llevar el producto resuelto hasta la respuesta sin cambiar el texto generado.
   - Archivos: `src/lib/runtime/runtime.ts`, `src/lib/runtime/execute-ai.ts` (si hace falta exponer la respuesta del stream).
   - Acción: tras `executeAI`, invocar `resolveRecommendedProduct` (con `landingContext.productId`, `intentTag`, `userMessage`); en `onFinish` persistir `metadata: { used_context, product_id }`; construir la respuesta con el data part final `{ type: 'product', product }` (protocolo AI SDK, `mergeIntoDataStream`/data parts). `shadow` (`deliver=false`) sigue generando y persistiendo sin entregar.
@@ -115,7 +115,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 4`.
 
 ## Constraints
 
