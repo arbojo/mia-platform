@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260814-031446183
 title: Envío único de imagen por producto/sesión + blindaje multimedia WhatsApp
-state: in_progress
+state: completed
 current_step: 8
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260814-031446183
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T03:30:49.519Z
+updated: 2026-08-14T03:35:52.540Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -98,7 +98,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..8.
+- Misión TASK-20260814-031446183 completada (8/8 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, TypeScript strict check.
+- Finalizado: 2026-08-14T03:35:52.540Z.
 
 ## Next action
 
