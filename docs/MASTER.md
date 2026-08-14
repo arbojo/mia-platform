@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `5e420f8`.
+> Fuente de verdad: este repositorio en `06ed13d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `5e420f8` |
+| **Commit HEAD** | `06ed13d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T21:35:59-06:00 |
+| **Generado** | 2026-08-13T22:07:59-06:00 |
 
 ---
 
@@ -576,7 +576,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (91)**:
+**Tareas registradas (92)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -671,6 +671,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-000546518 | Directiva del Concilio: reformular Rol, Reglas Fundamentales (4 reglas del inquilino) y Formato de Respuesta en el system prompt de MIA | completed |
 | TASK-20260814-024029576 | Cerrar gaps del CRUD de Knowledge Base: reflejo inmediato del bot, activar/desactivar y versionado auditable | approved |
 | TASK-20260814-031446183 | Regla de envio unico de imagen por producto/sesion + blindaje del pipeline multimedia del bot de WhatsApp (motor Vercel + bridge Fly.io) | approved |
+| TASK-20260814-035326841 | Pasada final de limpieza y refactorización: alineación de tipado estricto Supabase, fix de tipos en workshop y verificación completa de calidad | completed |
 
 ---
 
@@ -719,6 +720,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+06ed13d chore: complete governance task TASK-20260814-035326841 (cleanup final pass)
+836898d refactor: align strict types across tests and Database schema
+15dfdbe docs: regenerate MASTER.md at 5e420f8
 5e420f8 subaru: checkpoint TASK-20260814-031446183 - completado
 e20e0b7 docs: regenerate MASTER.md at 61f7a81
 61f7a81 subaru: checkpoint TASK-20260814-031446183 - en-progreso
@@ -736,9 +740,6 @@ f75d3ad docs: regenerate MASTER.md at 54b22dc
 4194a92 docs: regenerate MASTER.md at 9990e70
 9990e70 subaru: checkpoint TASK-20260814-024029576 - completado
 3b4f72f subaru: checkpoint TASK-20260814-024029576 - en-progreso
-258195b docs: regenerate MASTER.md at c3e747a
-c3e747a subaru: checkpoint TASK-20260814-024029576 - en-progreso
-a64ae7f subaru: checkpoint TASK-20260814-024029576 - en-progreso
 ```
 
 ---
