@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `61f7a81`.
+> Fuente de verdad: este repositorio en `5e420f8`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `61f7a81` |
+| **Commit HEAD** | `5e420f8` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T21:30:49-06:00 |
+| **Generado** | 2026-08-13T21:35:59-06:00 |
 
 ---
 
@@ -719,6 +719,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+5e420f8 subaru: checkpoint TASK-20260814-031446183 - completado
+e20e0b7 docs: regenerate MASTER.md at 61f7a81
 61f7a81 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 b42e354 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 51b809a subaru: checkpoint TASK-20260814-031446183 - en-progreso
@@ -737,8 +739,6 @@ f75d3ad docs: regenerate MASTER.md at 54b22dc
 258195b docs: regenerate MASTER.md at c3e747a
 c3e747a subaru: checkpoint TASK-20260814-024029576 - en-progreso
 a64ae7f subaru: checkpoint TASK-20260814-024029576 - en-progreso
-7920382 subaru: checkpoint TASK-20260814-024029576 - en-progreso
-dbfbd11 subaru: checkpoint TASK-20260814-024029576 - en-progreso
 ```
 
 ---
