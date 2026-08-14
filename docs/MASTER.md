@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `705b5f4`.
+> Fuente de verdad: este repositorio en `33f0053`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `705b5f4` |
+| **Commit HEAD** | `33f0053` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T19:06:42-06:00 |
+| **Generado** | 2026-08-13T19:10:11-06:00 |
 
 ---
 
@@ -336,7 +336,7 @@ widget
 
 ## 9. Componentes
 
-110 componentes en `src/components/`:
+111 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -352,6 +352,7 @@ catalog/import/ImportResults.tsx
 catalog/import/PreviewTable.tsx
 catalog/import/SourceImportPanel.tsx
 chat/ChatWindow.tsx
+chat/ProductMessageCard.tsx
 chat/TrainingChat.tsx
 connections/ConnectionFollowUpConfig.tsx
 connections/ConnectionsManager.tsx
@@ -714,6 +715,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+33f0053 subaru: checkpoint TASK-20260813-235511359 - en-progreso
+428868e subaru: checkpoint TASK-20260813-235511359 - en-progreso
+5f5c2db subaru: checkpoint TASK-20260813-235511359 - en-progreso
+c85ac33 feat(chat): ProductMessageCard bajo la burbuja y restauración de tarjeta desde metadata del historial
+9436f00 docs: regenerate MASTER.md at 705b5f4
 705b5f4 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 3a6bed0 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 6b6b101 feat(chat): parser SSE compartido y endpoints chat/widget con stream estructurado (product data)
@@ -729,11 +735,6 @@ ed82b31 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 3c7dd4a docs: regenerate MASTER.md at 03a2490
 03a2490 chore(governance): complete TASK-20260814-000546518 - directiva del Concilio aplicada y desplegada
 ba6dadb docs: regenerate MASTER.md at 94b88f0
-94b88f0 feat(ai): directiva del Concilio - rol experto y persuasivo, 4 reglas fundamentales del inquilino y formato de respuesta en el system prompt
-6d1d7b0 docs: regenerate MASTER.md at 7f44e4f
-7f44e4f chore(governance): clasificar TASK-20260813-235511359 - tarjetas de producto en chat web (concilio aprobado)
-e52e3de subaru: checkpoint TASK-20260813-235511359 - listo
-24bd9a0 docs: regenerate MASTER.md at 58f7c1c
 ```
 
 ---
