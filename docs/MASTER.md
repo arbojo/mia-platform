@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `9990e70`.
+> Fuente de verdad: este repositorio en `54b22dc`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `9990e70` |
+| **Commit HEAD** | `54b22dc` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T20:56:58-06:00 |
+| **Generado** | 2026-08-13T21:15:02-06:00 |
 
 ---
 
@@ -574,7 +574,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (90)**:
+**Tareas registradas (91)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -668,6 +668,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-235511359 | Tarjetas de producto enriquecidas en el chat web: adjuntar el producto recomendado por MIA al mensaje del asistente | approved |
 | TASK-20260814-000546518 | Directiva del Concilio: reformular Rol, Reglas Fundamentales (4 reglas del inquilino) y Formato de Respuesta en el system prompt de MIA | completed |
 | TASK-20260814-024029576 | Cerrar gaps del CRUD de Knowledge Base: reflejo inmediato del bot, activar/desactivar y versionado auditable | approved |
+| TASK-20260814-031446183 | Regla de envio unico de imagen por producto/sesion + blindaje del pipeline multimedia del bot de WhatsApp (motor Vercel + bridge Fly.io) | approved |
 
 ---
 
@@ -716,6 +717,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+54b22dc chore(governance): clasificacion + manifest media once-per-session aprobado (8/8)
+9a59a05 subaru: checkpoint TASK-20260814-031446183 - listo
+4194a92 docs: regenerate MASTER.md at 9990e70
 9990e70 subaru: checkpoint TASK-20260814-024029576 - completado
 3b4f72f subaru: checkpoint TASK-20260814-024029576 - en-progreso
 258195b docs: regenerate MASTER.md at c3e747a
@@ -733,9 +737,6 @@ f227243 chore(governance): script de clasificacion Knowledge Base CRUD gaps
 fb7d25d subaru: checkpoint TASK-20260814-024029576 - listo
 0d704e0 docs: regenerate MASTER.md at 0441191
 0441191 fix(laboratorio): botones de modo de prueba con flex-wrap, padding y texto responsive para evitar recortes
-5b46a05 docs: regenerate MASTER.md at 21981f0
-21981f0 subaru: checkpoint TASK-20260813-235511359 - completado
-eb430c5 docs: regenerate MASTER.md at 33f0053
 ```
 
 ---
