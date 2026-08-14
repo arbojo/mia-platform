@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d0c9439`.
+> Fuente de verdad: este repositorio en `c3e747a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d0c9439` |
+| **Commit HEAD** | `c3e747a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T20:41:04-06:00 |
+| **Generado** | 2026-08-13T20:52:00-06:00 |
 
 ---
 
@@ -716,6 +716,15 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+c3e747a subaru: checkpoint TASK-20260814-024029576 - en-progreso
+a64ae7f subaru: checkpoint TASK-20260814-024029576 - en-progreso
+7920382 subaru: checkpoint TASK-20260814-024029576 - en-progreso
+dbfbd11 subaru: checkpoint TASK-20260814-024029576 - en-progreso
+1c43aa0 subaru: checkpoint TASK-20260814-024029576 - en-progreso
+f22fc20 subaru: checkpoint TASK-20260814-024029576 - en-progreso
+58f3934 feat(knowledge): cerrar gaps del CRUD — invalidacion de cache de contexto, status active/inactive/all en GET, toggle is_active en PATCH y versionado en knowledge_versions
+e15a36b subaru: checkpoint TASK-20260814-024029576 - en-progreso
+d6fbb31 docs: regenerate MASTER.md at d0c9439
 d0c9439 chore(governance): manifest TASK-20260814-024029576 aprobado (9/9) + log
 f227243 chore(governance): script de clasificacion Knowledge Base CRUD gaps
 fb7d25d subaru: checkpoint TASK-20260814-024029576 - listo
@@ -727,15 +736,6 @@ eb430c5 docs: regenerate MASTER.md at 33f0053
 33f0053 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 428868e subaru: checkpoint TASK-20260813-235511359 - en-progreso
 5f5c2db subaru: checkpoint TASK-20260813-235511359 - en-progreso
-c85ac33 feat(chat): ProductMessageCard bajo la burbuja y restauración de tarjeta desde metadata del historial
-9436f00 docs: regenerate MASTER.md at 705b5f4
-705b5f4 subaru: checkpoint TASK-20260813-235511359 - en-progreso
-3a6bed0 subaru: checkpoint TASK-20260813-235511359 - en-progreso
-6b6b101 feat(chat): parser SSE compartido y endpoints chat/widget con stream estructurado (product data)
-b6fa7ce docs: regenerate MASTER.md at 34ee1a3
-34ee1a3 subaru: checkpoint TASK-20260813-235511359 - en-progreso
-5534dae feat(chat): processStreaming resuelve producto recomendado, persiste product_id y emite stream estructurado (text-delta + data part product)
-4f8812a docs: regenerate MASTER.md at b75dce5
 ```
 
 ---
