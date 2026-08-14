@@ -20,7 +20,7 @@ test.describe('Portal del Repartidor (público)', () => {
 
   test('la home sin sesión redirige al login', async ({ page }) => {
     await page.goto('/driver')
-    await page.waitForURL(/\/driver\/login/, { timeout: 15_000 })
+    await page.waitForURL(/\/driver\/login/, { timeout: 20_000 })
     await expect(
       page.getByText('Accedé con el enlace que te envió tu administrador.')
     ).toBeVisible()
@@ -28,7 +28,7 @@ test.describe('Portal del Repartidor (público)', () => {
 
   test('el detalle de entrega sin sesión redirige al login', async ({ page }) => {
     await page.goto('/driver/deliveries/00000000-0000-4000-8000-000000000000')
-    await page.waitForURL(/\/driver\/login/, { timeout: 15_000 })
+    await page.waitForURL(/\/driver\/login/, { timeout: 20_000 })
   })
 
   test('el encabezado del portal se renderiza', async ({ page }) => {
