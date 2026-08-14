@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `94b88f0`.
+> Fuente de verdad: este repositorio en `03a2490`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `94b88f0` |
+| **Commit HEAD** | `03a2490` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T18:24:15-06:00 |
+| **Generado** | 2026-08-13T18:27:24-06:00 |
 
 ---
 
@@ -662,7 +662,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-222347912 | Fix: edición de Problemas Detectados no persiste (env service role + errores silenciosos + feedback UI) | completed |
 | TASK-20260813-232356688 | Directiva reforzada de reglas fundamentales: dominio estrictamente comercial en el system prompt | completed |
 | TASK-20260813-235511359 | Tarjetas de producto enriquecidas en el chat web: adjuntar el producto recomendado por MIA al mensaje del asistente | approved |
-| TASK-20260814-000546518 | Directiva del Concilio: reformular Rol, Reglas Fundamentales (4 reglas del inquilino) y Formato de Respuesta en el system prompt de MIA | in_progress |
+| TASK-20260814-000546518 | Directiva del Concilio: reformular Rol, Reglas Fundamentales (4 reglas del inquilino) y Formato de Respuesta en el system prompt de MIA | completed |
 
 ---
 
@@ -711,6 +711,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+03a2490 chore(governance): complete TASK-20260814-000546518 - directiva del Concilio aplicada y desplegada
+ba6dadb docs: regenerate MASTER.md at 94b88f0
 94b88f0 feat(ai): directiva del Concilio - rol experto y persuasivo, 4 reglas fundamentales del inquilino y formato de respuesta en el system prompt
 6d1d7b0 docs: regenerate MASTER.md at 7f44e4f
 7f44e4f chore(governance): clasificar TASK-20260813-235511359 - tarjetas de producto en chat web (concilio aprobado)
@@ -729,8 +731,6 @@ e833a48 subaru: checkpoint TASK-20260813-074636033 - completado
 731bec9 subaru: checkpoint TASK-20260813-074636033 - en-progreso
 4ef260f chore(governance): complete TASK-20260813-074636033 (bridge defensivo) y TASK-20260813-205411903 (UsageBar locale)
 e9afcf2 fix(laboratorio): UsageBar con locale es-MX determinista - unit_tests 576/576
-ab3c0f7 docs: regenerate MASTER.md at 1f4f178
-1f4f178 subaru: checkpoint TASK-20260813-074636033 - bloqueado
 ```
 
 ---
