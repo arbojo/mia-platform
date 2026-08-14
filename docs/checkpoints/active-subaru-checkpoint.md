@@ -2,13 +2,13 @@
 task_id: TASK-20260813-235511359
 title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-235511359
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T01:06:19.213Z
+updated: 2026-08-14T01:06:42.036Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -76,7 +76,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: el endpoint responde en protocolo data stream; los consumidores aún no parsean (fase de transición) pero el widget no se rompe en headers.
   - Gate/verificación: build + e2e básico del widget (login + chat).
 
-- [ ] **Paso 5:** Parser del data stream en `ChatWindow.tsx` y estado `message.product`.
+- [x] **Paso 5:** Parser del data stream en `ChatWindow.tsx` y estado `message.product`.
   - Objetivo: consumir `text-delta` y la parte `data` de producto en el lector actual.
   - Archivos: `src/components/chat/ChatWindow.tsx`.
   - Acción: en el loop `reader.read()` (ChatWindow.tsx:191-206), parsear cada línea JSON: `{ type: 'text-delta', delta }` → acumular `content`; `{ type: 'data', data: { type: 'product', product } }` → fijar `product` en el mensaje en curso. Mantener el resto (history restore, correcciones, greeting, checkout) intacto.
@@ -115,7 +115,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 6`.
 
 ## Constraints
 
