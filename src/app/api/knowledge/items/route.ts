@@ -57,7 +57,7 @@ export async function GET(request: Request) {
   }
 
   if (mediaType) {
-    const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
+    const validMediaTypes = ['image', 'testimonial']
     if (validMediaTypes.includes(mediaType)) {
       query = query.eq('media_type', mediaType)
     }
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     answer: string
     image_url?: string | null
     trigger_condition?: string | null
-    media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+    media_type?: 'image' | 'testimonial'
     product_id?: string | null
   }
 
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
+  const validMediaTypes = ['image', 'testimonial']
   if (media_type !== undefined && !validMediaTypes.includes(media_type)) {
     return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
       answer,
       image_url: image_url ?? null,
       trigger_condition: trigger_condition ?? null,
-      media_type: media_type ?? 'other',
+      media_type: media_type ?? 'image',
       product_id: product_id ?? null,
       source: 'manual',
       confidence: 'medium',

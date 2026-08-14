@@ -18,13 +18,11 @@ import {
 import type { Database } from '@/lib/types'
 
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
-type MediaType = 'image' | 'testimonial' | 'flyer' | 'other'
+type MediaType = 'image' | 'testimonial'
 
 const mediaTypes: Array<{ id: MediaType; label: string }> = [
   { id: 'image', label: 'Imagen' },
   { id: 'testimonial', label: 'Testimonio' },
-  { id: 'flyer', label: 'Flyer' },
-  { id: 'other', label: 'Otro' },
 ]
 
 interface MediaEditDialogProps {
@@ -34,7 +32,7 @@ interface MediaEditDialogProps {
 }
 
 export function MediaEditDialog({ item, onOpenChange, onSaved }: MediaEditDialogProps) {
-  const [type, setType] = useState<MediaType>((item?.media_type as MediaType) ?? 'other')
+  const [type, setType] = useState<MediaType>((item?.media_type as MediaType) ?? 'image')
   const [description, setDescription] = useState(item?.answer ?? '')
   const [trigger, setTrigger] = useState(item?.trigger_condition ?? '')
   const [saving, setSaving] = useState(false)

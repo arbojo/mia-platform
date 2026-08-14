@@ -7,7 +7,7 @@ import type { Database } from '@/lib/types'
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
 
 const mediaTypeLabel = (id: string) =>
-  ({ image: 'Imagen', testimonial: 'Testimonio', flyer: 'Flyer', other: 'Otro' })[id] ?? id
+  ({ image: 'Imagen', testimonial: 'Testimonio' })[id] ?? id
 
 interface MediaGridProps {
   items: KnowledgeItem[]
@@ -33,7 +33,7 @@ export function MediaGrid({ items, emptyMessage, productNames, onEdit, onDelete 
           <div className="space-y-2 p-3">
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">{mediaTypeLabel(item.media_type ?? 'other')}</Badge>
+                <Badge variant="outline">{mediaTypeLabel(item.media_type ?? 'image')}</Badge>
                 {item.product_id && productNames?.[item.product_id] && (
                   <Badge variant="secondary">{productNames[item.product_id]}</Badge>
                 )}

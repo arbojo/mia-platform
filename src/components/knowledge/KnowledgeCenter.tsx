@@ -58,7 +58,7 @@ interface KnowledgeCenterProps {
 
 const tabs = [
   { id: 'knowledge', label: 'Base de Conocimiento', description: 'Hechos y información del negocio que MIA debe conocer' },
-  { id: 'media', label: 'Biblioteca Multimedia', description: 'Imágenes, testimonios y flyers que MIA envía según el contexto' },
+  { id: 'media', label: 'Biblioteca Multimedia', description: 'Imágenes y testimonios que MIA envía según el contexto' },
   { id: 'instructions', label: 'Instrucciones IA', description: 'Reglas de comportamiento y personalidad de MIA' },
   { id: 'files', label: 'Archivos', description: 'Enseña a MIA con tus archivos' },
 ]

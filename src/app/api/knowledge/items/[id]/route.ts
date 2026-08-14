@@ -81,12 +81,12 @@ export async function PATCH(
     confidence?: string
     image_url?: string | null
     trigger_condition?: string | null
-    media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+    media_type?: 'image' | 'testimonial'
     product_id?: string | null
     is_active?: boolean
   }
 
-  const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
+  const validMediaTypes = ['image', 'testimonial']
   if (media_type !== undefined && !validMediaTypes.includes(media_type)) {
     return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }

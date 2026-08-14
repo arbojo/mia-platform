@@ -17,7 +17,7 @@ export interface MiaReply {
   customerId: string
   conversationId: string
   imageUrl?: string
-  mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+  mediaType?: 'image' | 'testimonial'
   interactive?: InteractiveComponent
   deliver?: boolean
 }
@@ -66,7 +66,7 @@ export async function sendToMia(
         customerId: string
         conversationId: string
         imageUrl?: string
-        mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+        mediaType?: 'image' | 'testimonial'
         interactive?: InteractiveComponent
         deliver?: boolean
       }

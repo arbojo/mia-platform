@@ -20,13 +20,11 @@ import { MediaEditDialog } from '@/components/knowledge/MediaEditDialog'
 import type { Database } from '@/lib/types'
 
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
-type MediaType = 'image' | 'testimonial' | 'flyer' | 'other'
+type MediaType = 'image' | 'testimonial'
 
 const mediaTypes: Array<{ id: MediaType; label: string }> = [
   { id: 'image', label: 'Imagen' },
   { id: 'testimonial', label: 'Testimonio' },
-  { id: 'flyer', label: 'Flyer' },
-  { id: 'other', label: 'Otro' },
 ]
 
 interface MediaBrowserProps {

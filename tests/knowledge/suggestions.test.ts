@@ -43,7 +43,7 @@ describe('buildApprovalPayload', () => {
         answer: 'Sí, pedidos mayores a $50.',
         image_url: null,
         trigger_condition: null,
-        media_type: 'other',
+        media_type: 'image',
       })
     })
 

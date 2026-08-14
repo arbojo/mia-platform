@@ -151,7 +151,7 @@ export const mockKnowledgeItems = [
     confidence: 'high' as const,
     image_url: null,
     trigger_condition: null,
-    media_type: 'other' as const,
+    media_type: 'image' as const,
     product_id: null,
     is_active: true,
     created_at: '2026-01-01T00:00:00Z',

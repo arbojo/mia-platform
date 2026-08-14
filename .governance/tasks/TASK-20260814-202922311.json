@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260814-202922311",
+  "title": "Simplificar media_type de knowledge_items a solo image | testimonial",
+  "description": "Los tipos de medio flyer y other no tienen comportamiento diferenciado: el runtime envia todo como imagen+caption (services/whatsapp-bridge/src/media-url.ts:85, sendReply solo recibe imageUrl) y media_type no participa en la seleccion de envio (src/lib/runtime/conditional-media.ts:35-64, seleccion solo por trigger_condition + prioridad de producto). Datos Vitanova: 5 image, 13 other, 0 flyer, 0 testimonial (knowledge_items con imagen en prod). Decidido con el usuario: conservar solo image y testimonial. Plan: (1) migracion nueva supabase/migrations/039_media_type_simple.sql: UPDATE knowledge_items SET media_type=image WHERE media_type IN (flyer,other), DROP CONSTRAINT knowledge_items_media_type_check y agregar CHECK (media_type IN (image,testimonial)), ALTER COLUMN SET DEFAULT image, actualizar COMMENT; (2) acotar la union de tipos a image|testimonial en src/lib/types/index.ts (Row/Insert/Update), src/lib/runtime/runtime.ts:143, src/lib/runtime/conditional-media.ts:11, services/whatsapp-bridge/src/mia-client.ts:20,69; (3) actualizar listas de validacion en src/app/api/knowledge/items/route.ts (L60/L117, default L167 media_type ?? image), src/app/api/knowledge/items/[id]/route.ts (L89), src/lib/knowledge/suggestions.ts:61; (4) UI: quitar flyer/other en MediaEditDialog.tsx:21-27, MediaBrowser.tsx:23-29, MediaGrid.tsx:9-10; (5) test fixture tests/knowledge/suggestions.test.ts:46 other -> testimonial. Sin cambio de comportamiento en envio. Verificacion: lint + build + unit (646) + component (31) + Playwright + Chrome DevTools MCP (Biblioteca Multimedia y media de producto en Catalogo).",
+  "scope": {
+    "categories": [
+      "refactor"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 10 files affected, schema changes required, cross-cutting (multi-domain). Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.329Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.337Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.341Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.344Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.348Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.356Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.362Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado: simplifica media_type a image|testimonial sin cambio de comportamiento en envio; migracion de datos no destructiva (13 other -> image); constraint y default actualizados; sin impacto en RLS ni multi-tenancy.",
+      "timestamp": "2026-08-14T20:29:38.370Z"
+    }
+  ],
+  "createdAt": "2026-08-14T20:29:22.259Z",
+  "classifiedAt": "2026-08-14T20:29:22.259Z",
+  "approvedAt": "2026-08-14T20:29:38.371Z",
+  "startedAt": "2026-08-14T20:29:57.966Z",
+  "completedAt": "2026-08-14T21:26:18.883Z"
+}

@@ -140,7 +140,7 @@ export async function processIncomingMessage(
   customerId: string
   conversationId: string
   imageUrl?: string
-  mediaType?: 'image' | 'testimonial' | 'flyer' | 'other'
+  mediaType?: 'image' | 'testimonial'
   interactive?: InteractiveComponent
   deliver: boolean
 }> {

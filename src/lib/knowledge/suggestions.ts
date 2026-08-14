@@ -58,7 +58,7 @@ const VALID_RULE_CATEGORIES = [
   'escalation',
 ]
 
-const VALID_MEDIA_TYPES = ['image', 'testimonial', 'flyer', 'other']
+const VALID_MEDIA_TYPES = ['image', 'testimonial']
 
 export function resolveSuggestionKind(
   suggestion: SuggestionRecord,
@@ -136,7 +136,7 @@ export function buildApprovalPayload(
       answer: answer.trim(),
       image_url: edits?.image_url ?? null,
       trigger_condition: edits?.trigger_condition ?? null,
-      media_type: edits?.media_type ?? 'other',
+      media_type: edits?.media_type ?? 'image',
       product_id: edits?.product_id ?? null,
     },
   }

@@ -140,7 +140,7 @@ export interface Database {
           confidence: 'high' | 'medium' | 'low'
           image_url: string | null
           trigger_condition: string | null
-          media_type: 'image' | 'testimonial' | 'flyer' | 'other'
+          media_type: 'image' | 'testimonial'
           product_id: string | null
           is_active: boolean
           created_at: string
@@ -156,7 +156,7 @@ export interface Database {
           confidence?: 'high' | 'medium' | 'low'
           image_url?: string | null
           trigger_condition?: string | null
-          media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+          media_type?: 'image' | 'testimonial'
           product_id?: string | null
           is_active?: boolean
           created_at?: string
@@ -172,7 +172,7 @@ export interface Database {
           confidence?: 'high' | 'medium' | 'low'
           image_url?: string | null
           trigger_condition?: string | null
-          media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
+          media_type?: 'image' | 'testimonial'
           product_id?: string | null
           is_active?: boolean
           created_at?: string

@@ -8,7 +8,7 @@ type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
 export interface MediaAttachment {
   knowledgeItemId: string
   imageUrl: string
-  mediaType: 'image' | 'testimonial' | 'flyer' | 'other'
+  mediaType: 'image' | 'testimonial'
 }
 
 export async function resolveConditionalMedia(params: {
@@ -97,6 +97,6 @@ export async function resolveConditionalMedia(params: {
   return {
     knowledgeItemId: selected.id,
     imageUrl: selected.image_url,
-    mediaType: selected.media_type ?? 'other',
+    mediaType: selected.media_type ?? 'image',
   }
 }
