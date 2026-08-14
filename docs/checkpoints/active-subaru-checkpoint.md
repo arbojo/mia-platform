@@ -2,13 +2,13 @@
 task_id: TASK-20260813-235511359
 title: Tarjetas de producto en el chat web: adjuntar producto recomendado al mensaje del asistente
 state: in_progress
-current_step: 7
+current_step: 8
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260813-235511359
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T01:10:05.054Z
+updated: 2026-08-14T01:10:11.714Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -100,7 +100,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: simulación/entrenamiento del lab fluyen igual que hoy.
   - Gate/verificación: e2e del laboratorio (requestType simulation).
 
-- [ ] **Paso 8:** Historial restaura la tarjeta (metadata en GET de mensajes).
+- [x] **Paso 8:** Historial restaura la tarjeta (metadata en GET de mensajes).
   - Objetivo: la tarjeta sobrevive al recargar la conversación.
   - Archivos: `src/app/api/conversations/[id]/messages/route.ts`, `src/components/chat/ChatWindow.tsx` (history restore).
   - Acción: ampliar el select a `id, role, content, created_at, metadata`; mapear `metadata.product` → `message.product` en el restore (ChatWindow.tsx:105-115).
@@ -115,7 +115,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260813-235511359 8`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260813-235511359` cuando pasen los gates de verificación.
 
 ## Constraints
 
