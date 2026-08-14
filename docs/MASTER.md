@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `21981f0`.
+> Fuente de verdad: este repositorio en `0441191`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `21981f0` |
+| **Commit HEAD** | `0441191` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T19:23:03-06:00 |
+| **Generado** | 2026-08-13T20:21:35-06:00 |
 
 ---
 
@@ -715,6 +715,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+0441191 fix(laboratorio): botones de modo de prueba con flex-wrap, padding y texto responsive para evitar recortes
+5b46a05 docs: regenerate MASTER.md at 21981f0
 21981f0 subaru: checkpoint TASK-20260813-235511359 - completado
 eb430c5 docs: regenerate MASTER.md at 33f0053
 33f0053 subaru: checkpoint TASK-20260813-235511359 - en-progreso
@@ -733,8 +735,6 @@ b75dce5 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 ab97b40 feat(chat): resolver determinista resolveRecommendedProduct con señales landing/trigger/intención
 9f0f897 docs: regenerate MASTER.md at ed82b31
 ed82b31 subaru: checkpoint TASK-20260813-235511359 - en-progreso
-960a078 feat(chat): agregar ProductReference y extender Message con producto opcional en el chat web
-3c7dd4a docs: regenerate MASTER.md at 03a2490
 ```
 
 ---
