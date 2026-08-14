@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0441191`.
+> Fuente de verdad: este repositorio en `d0c9439`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0441191` |
+| **Commit HEAD** | `d0c9439` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T20:21:35-06:00 |
+| **Generado** | 2026-08-13T20:41:04-06:00 |
 
 ---
 
@@ -574,7 +574,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (89)**:
+**Tareas registradas (90)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -667,6 +667,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260813-232356688 | Directiva reforzada de reglas fundamentales: dominio estrictamente comercial en el system prompt | completed |
 | TASK-20260813-235511359 | Tarjetas de producto enriquecidas en el chat web: adjuntar el producto recomendado por MIA al mensaje del asistente | approved |
 | TASK-20260814-000546518 | Directiva del Concilio: reformular Rol, Reglas Fundamentales (4 reglas del inquilino) y Formato de Respuesta en el system prompt de MIA | completed |
+| TASK-20260814-024029576 | Cerrar gaps del CRUD de Knowledge Base: reflejo inmediato del bot, activar/desactivar y versionado auditable | approved |
 
 ---
 
@@ -715,6 +716,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d0c9439 chore(governance): manifest TASK-20260814-024029576 aprobado (9/9) + log
+f227243 chore(governance): script de clasificacion Knowledge Base CRUD gaps
+fb7d25d subaru: checkpoint TASK-20260814-024029576 - listo
+0d704e0 docs: regenerate MASTER.md at 0441191
 0441191 fix(laboratorio): botones de modo de prueba con flex-wrap, padding y texto responsive para evitar recortes
 5b46a05 docs: regenerate MASTER.md at 21981f0
 21981f0 subaru: checkpoint TASK-20260813-235511359 - completado
@@ -731,10 +736,6 @@ b6fa7ce docs: regenerate MASTER.md at 34ee1a3
 34ee1a3 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 5534dae feat(chat): processStreaming resuelve producto recomendado, persiste product_id y emite stream estructurado (text-delta + data part product)
 4f8812a docs: regenerate MASTER.md at b75dce5
-b75dce5 subaru: checkpoint TASK-20260813-235511359 - en-progreso
-ab97b40 feat(chat): resolver determinista resolveRecommendedProduct con señales landing/trigger/intención
-9f0f897 docs: regenerate MASTER.md at ed82b31
-ed82b31 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 ```
 
 ---
