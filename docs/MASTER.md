@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ed82b31`.
+> Fuente de verdad: este repositorio en `b75dce5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ed82b31` |
+| **Commit HEAD** | `b75dce5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T18:35:57-06:00 |
+| **Generado** | 2026-08-13T18:41:51-06:00 |
 
 ---
 
@@ -455,7 +455,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-94 módulos:
+95 módulos:
 
 ```
 ai/client.ts
@@ -534,6 +534,7 @@ runtime/conditional-media.ts
 runtime/execute-ai.ts
 runtime/intents.ts
 runtime/media.ts
+runtime/product-recommendation.ts
 runtime/runtime.ts
 runtime/types.ts
 sales/detect.ts
@@ -711,6 +712,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b75dce5 subaru: checkpoint TASK-20260813-235511359 - en-progreso
+ab97b40 feat(chat): resolver determinista resolveRecommendedProduct con señales landing/trigger/intención
+9f0f897 docs: regenerate MASTER.md at ed82b31
 ed82b31 subaru: checkpoint TASK-20260813-235511359 - en-progreso
 960a078 feat(chat): agregar ProductReference y extender Message con producto opcional en el chat web
 3c7dd4a docs: regenerate MASTER.md at 03a2490
@@ -728,9 +732,6 @@ b5b91a1 docs: regenerate MASTER.md at e2b6a96
 e2b6a96 feat(auth): add show/hide password toggle in login form
 839721d docs: regenerate MASTER.md at 7d91274
 7d91274 chore(governance): complete TASK-20260813-074636033 (bridge defensivo) - cierre final tras subaru complete
-b2e0c94 chore(governance): revert TASK-20260813-074636033 a approved - correccion de orden (subaru complete exige approved/in_progress)
-e833a48 subaru: checkpoint TASK-20260813-074636033 - completado
-8811b0d docs: regenerate MASTER.md at 731bec9
 ```
 
 ---
