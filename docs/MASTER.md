@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `54b22dc`.
+> Fuente de verdad: este repositorio en `61f7a81`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `54b22dc` |
+| **Commit HEAD** | `61f7a81` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-13T21:15:02-06:00 |
+| **Generado** | 2026-08-13T21:30:49-06:00 |
 
 ---
 
@@ -173,6 +173,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 35 | 035_inventory_schema_expose.sql |
 | 36 | 036_inventory_grants.sql |
 | 37 | 037_business_edition.sql |
+| 38 | 038_media_sent_products.sql |
 
 ---
 
@@ -456,7 +457,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-97 módulos:
+98 módulos:
 
 ```
 ai/client.ts
@@ -535,6 +536,7 @@ knowledge/suggestions.ts
 runtime/conditional-media.ts
 runtime/execute-ai.ts
 runtime/intents.ts
+runtime/media-guard.ts
 runtime/media.ts
 runtime/product-recommendation.ts
 runtime/runtime.ts
@@ -717,6 +719,16 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+61f7a81 subaru: checkpoint TASK-20260814-031446183 - en-progreso
+b42e354 subaru: checkpoint TASK-20260814-031446183 - en-progreso
+51b809a subaru: checkpoint TASK-20260814-031446183 - en-progreso
+59d9181 subaru: checkpoint TASK-20260814-031446183 - en-progreso
+d616556 subaru: checkpoint TASK-20260814-031446183 - en-progreso
+d44c7dd subaru: checkpoint TASK-20260814-031446183 - en-progreso
+5599c6d subaru: checkpoint TASK-20260814-031446183 - en-progreso
+7da1f8b subaru: checkpoint TASK-20260814-031446183 - en-progreso
+8f6622a feat(media): envio unico de imagen por producto/sesion + hardening URLs media en el bridge WhatsApp
+f75d3ad docs: regenerate MASTER.md at 54b22dc
 54b22dc chore(governance): clasificacion + manifest media once-per-session aprobado (8/8)
 9a59a05 subaru: checkpoint TASK-20260814-031446183 - listo
 4194a92 docs: regenerate MASTER.md at 9990e70
@@ -727,16 +739,6 @@ c3e747a subaru: checkpoint TASK-20260814-024029576 - en-progreso
 a64ae7f subaru: checkpoint TASK-20260814-024029576 - en-progreso
 7920382 subaru: checkpoint TASK-20260814-024029576 - en-progreso
 dbfbd11 subaru: checkpoint TASK-20260814-024029576 - en-progreso
-1c43aa0 subaru: checkpoint TASK-20260814-024029576 - en-progreso
-f22fc20 subaru: checkpoint TASK-20260814-024029576 - en-progreso
-58f3934 feat(knowledge): cerrar gaps del CRUD — invalidacion de cache de contexto, status active/inactive/all en GET, toggle is_active en PATCH y versionado en knowledge_versions
-e15a36b subaru: checkpoint TASK-20260814-024029576 - en-progreso
-d6fbb31 docs: regenerate MASTER.md at d0c9439
-d0c9439 chore(governance): manifest TASK-20260814-024029576 aprobado (9/9) + log
-f227243 chore(governance): script de clasificacion Knowledge Base CRUD gaps
-fb7d25d subaru: checkpoint TASK-20260814-024029576 - listo
-0d704e0 docs: regenerate MASTER.md at 0441191
-0441191 fix(laboratorio): botones de modo de prueba con flex-wrap, padding y texto responsive para evitar recortes
 ```
 
 ---
