@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0252e42`.
+> Fuente de verdad: este repositorio en `04dd0f1`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0252e42` |
+| **Commit HEAD** | `04dd0f1` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T01:54:08-06:00 |
+| **Generado** | 2026-08-14T12:47:59-06:00 |
 
 ---
 
@@ -576,7 +576,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (94)**:
+**Tareas registradas (95)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -674,6 +674,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-035326841 | Pasada final de limpieza y refactorización: alineación de tipado estricto Supabase, fix de tipos en workshop y verificación completa de calidad | completed |
 | TASK-20260814-075051181 | Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README | rejected |
 | TASK-20260814-075127659 | Sellar compatibilidad multiplataforma (Windows): añadir .gitattributes con reglas explícitas de fin de línea y documentar la sección "Desarrollo en Windows" en el README | completed |
+| TASK-20260814-184127939 | Evitar sesiones automaticas/vacias en el Laboratorio (normal test / chat directo) | completed |
 
 ---
 
@@ -722,6 +723,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+04dd0f1 fix: set bridge MIA_APP_URL to production for webhooks
+a69269f fix: prevent automatic empty lab sessions on scenario select
+e103cee docs: regenerate MASTER.md at 0252e42
 0252e42 chore: seal cross-platform dev for Windows (.gitattributes + README section)
 b9a65e4 docs: regenerate MASTER.md at 06ed13d
 06ed13d chore: complete governance task TASK-20260814-035326841 (cleanup final pass)
@@ -739,9 +743,6 @@ d44c7dd subaru: checkpoint TASK-20260814-031446183 - en-progreso
 7da1f8b subaru: checkpoint TASK-20260814-031446183 - en-progreso
 8f6622a feat(media): envio unico de imagen por producto/sesion + hardening URLs media en el bridge WhatsApp
 f75d3ad docs: regenerate MASTER.md at 54b22dc
-54b22dc chore(governance): clasificacion + manifest media once-per-session aprobado (8/8)
-9a59a05 subaru: checkpoint TASK-20260814-031446183 - listo
-4194a92 docs: regenerate MASTER.md at 9990e70
 ```
 
 ---
