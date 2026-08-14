@@ -23,6 +23,23 @@ describe('SimulationModes', () => {
     fireEvent.click(screen.getByText('Cliente Complicado'))
     expect(onSelect).toHaveBeenCalledWith('difficult')
   })
+
+  it('usa un contenedor flexible y botones que permiten wrapping para no recortar etiquetas', () => {
+    const { container } = render(<SimulationModes selected="normal" onSelect={() => {}} />)
+
+    const grid = container.querySelector('div.flex.flex-wrap')
+    expect(grid).not.toBeNull()
+
+    const buttons = container.querySelectorAll('button')
+    expect(buttons.length).toBe(4)
+    buttons.forEach((button) => {
+      const className = button.getAttribute('class') ?? ''
+      expect(className).toContain('whitespace-normal')
+      expect(className).toContain('px-3')
+      expect(className).toContain('py-1.5')
+      expect(className).toContain('text-xs sm:text-sm')
+    })
+  })
 })
 
 describe('simulationSystemMessages', () => {

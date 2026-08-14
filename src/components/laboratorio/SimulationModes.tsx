@@ -41,21 +41,19 @@ export function SimulationModes({ selected, onSelect }: SimulationModesProps) {
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium text-gray-700">Modo de prueba</p>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-wrap gap-2">
         {modes.map((mode) => (
           <Button
             key={mode.id}
             variant={selected === mode.id ? 'default' : 'outline'}
             className={cn(
-              'justify-start h-auto py-2 px-3 text-left',
+              'h-auto min-w-0 shrink whitespace-normal px-3 py-1.5 text-left text-xs sm:text-sm',
               selected === mode.id && 'bg-olive-600 hover:bg-olive-700'
             )}
             onClick={() => onSelect(mode.id)}
           >
-            <div>
-              <span className="mr-1">{mode.icon}</span>
-              <span className="text-sm">{mode.label}</span>
-            </div>
+            <span className="mr-1">{mode.icon}</span>
+            <span>{mode.label}</span>
           </Button>
         ))}
       </div>
