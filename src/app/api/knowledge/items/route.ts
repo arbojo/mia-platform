@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { invalidateConversationContext } from '@/lib/conversation/context'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -17,9 +18,15 @@ export async function GET(request: Request) {
   const mediaType = searchParams.get('media_type')
   const hasMedia = searchParams.get('has_media')
   const productId = searchParams.get('product_id')
+  const status = searchParams.get('status') ?? 'active'
 
   if (!businessId) {
     return NextResponse.json({ error: 'business_id required' }, { status: 400 })
+  }
+
+  const validStatuses = ['active', 'inactive', 'all']
+  if (!validStatuses.includes(status)) {
+    return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
 
   const { data: business } = await supabase
@@ -37,8 +44,13 @@ export async function GET(request: Request) {
     .from('knowledge_items')
     .select('*')
     .eq('business_id', businessId)
-    .eq('is_active', true)
     .order('created_at', { ascending: false })
+
+  if (status === 'active') {
+    query = query.eq('is_active', true)
+  } else if (status === 'inactive') {
+    query = query.eq('is_active', false)
+  }
 
   if (category) {
     query = query.eq('category', category)
@@ -163,6 +175,8 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  invalidateConversationContext(business_id)
 
   return NextResponse.json({ item: data }, { status: 201 })
 }

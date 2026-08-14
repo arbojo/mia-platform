@@ -145,3 +145,12 @@ export async function loadConversationContext(
 export function clearContextCache(): void {
   contextCache.clear()
 }
+
+export function invalidateConversationContext(businessId: string): void {
+  const prefix = `${businessId}:`
+  for (const key of contextCache.keys()) {
+    if (key.startsWith(prefix)) {
+      contextCache.delete(key)
+    }
+  }
+}

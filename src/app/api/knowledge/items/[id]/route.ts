@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { invalidateConversationContext } from '@/lib/conversation/context'
 import { NextResponse } from 'next/server'
 
 export async function GET(
@@ -73,7 +74,7 @@ export async function PATCH(
   }
 
   const body = await request.json()
-  const { category, question, answer, confidence, image_url, trigger_condition, media_type, product_id } = body as {
+  const { category, question, answer, confidence, image_url, trigger_condition, media_type, product_id, is_active } = body as {
     category?: string
     question?: string
     answer?: string
@@ -82,12 +83,23 @@ export async function PATCH(
     trigger_condition?: string | null
     media_type?: 'image' | 'testimonial' | 'flyer' | 'other'
     product_id?: string | null
+    is_active?: boolean
   }
 
   const validMediaTypes = ['image', 'testimonial', 'flyer', 'other']
   if (media_type !== undefined && !validMediaTypes.includes(media_type)) {
     return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }
+
+  if (is_active !== undefined && typeof is_active !== 'boolean') {
+    return NextResponse.json({ error: 'Invalid is_active' }, { status: 400 })
+  }
+
+  const { data: existingRow } = await supabase
+    .from('knowledge_items')
+    .select('*')
+    .eq('id', id)
+    .single()
 
   if (product_id !== undefined && product_id !== null) {
     const { data: product } = await supabase
@@ -116,6 +128,7 @@ export async function PATCH(
   if (trigger_condition !== undefined) updates.trigger_condition = trigger_condition
   if (media_type !== undefined) updates.media_type = media_type
   if (product_id !== undefined) updates.product_id = product_id
+  if (is_active !== undefined) updates.is_active = is_active
 
   const { data, error } = await admin
     .from('knowledge_items')
@@ -127,6 +140,20 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  if (existingRow) {
+    await admin.from('knowledge_versions').insert({
+      business_id: existing.business_id,
+      entity_type: 'knowledge_item',
+      entity_id: id,
+      previous_value: existingRow,
+      new_value: data,
+      changed_by: user.id,
+      change_source: 'manual',
+    })
+  }
+
+  invalidateConversationContext(existing.business_id)
 
   return NextResponse.json({ item: data })
 }
@@ -174,6 +201,8 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  invalidateConversationContext(existing.business_id)
 
   return NextResponse.json({ success: true })
 }

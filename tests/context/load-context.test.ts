@@ -4,7 +4,7 @@ vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/ai/knowledge', () => ({ getBusinessContext: vi.fn(), getRecentLessons: vi.fn() }))
 vi.mock('@/lib/ai/prompts', () => ({ buildMasterPrompt: vi.fn() }))
 
-import { loadConversationContext, clearContextCache, ContextError } from '@/lib/conversation/context'
+import { loadConversationContext, clearContextCache, invalidateConversationContext, ContextError } from '@/lib/conversation/context'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getBusinessContext, getRecentLessons } from '@/lib/ai/knowledge'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
@@ -239,6 +239,27 @@ describe('loadConversationContext', () => {
       vi.mocked(getBusinessContext).mockClear()
 
       clearContextCache()
+
+      await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
+
+      expect(createAdminClient).toHaveBeenCalled()
+      expect(getBusinessContext).toHaveBeenCalled()
+    })
+
+    it('invalidates only the cache for the given business', async () => {
+      await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
+
+      vi.mocked(createAdminClient).mockClear()
+      vi.mocked(getBusinessContext).mockClear()
+
+      invalidateConversationContext('other-business')
+
+      await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
+
+      expect(createAdminClient).not.toHaveBeenCalled()
+      expect(getBusinessContext).not.toHaveBeenCalled()
+
+      invalidateConversationContext(FAKE_UUIDS.business)
 
       await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
 

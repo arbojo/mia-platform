@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+const contextMock = vi.hoisted(() => ({
+  invalidateConversationContext: vi.fn(),
+}))
+
 vi.mock('next/server', () => ({
   NextResponse: {
     json: (body: unknown, init?: { status?: number }) => ({
@@ -18,11 +22,16 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 vi.mock('@/lib/supabase/admin', () => ({
-  createAdminClient: vi.fn(() => ({})),
+  createAdminClient: vi.fn(),
 }))
 
-import { GET } from '@/app/api/knowledge/items/route'
+vi.mock('@/lib/conversation/context', () => ({
+  invalidateConversationContext: contextMock.invalidateConversationContext,
+}))
+
+import { GET, POST } from '@/app/api/knowledge/items/route'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 type ChainCall = { method: string; args: unknown[] }
 
@@ -153,5 +162,96 @@ describe('GET /api/knowledge/items', () => {
     expect(res.status).toBe(400)
     const body = await res.json()
     expect(body.error).toBe('Invalid product_id')
+  })
+
+  it('filtra inactivos con status=inactive', async () => {
+    const { supabase, knowledgeCalls } = mockServerClient([ITEM])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const res = await GET(
+      new Request('http://localhost/api/knowledge/items?business_id=business-1&status=inactive')
+    )
+    expect(res.status).toBe(200)
+    const activeFilter = knowledgeCalls.find(
+      (c) => c.method === 'eq' && c.args[0] === 'is_active'
+    )
+    expect(activeFilter).toBeDefined()
+    expect(activeFilter?.args[1]).toBe(false)
+  })
+
+  it('no filtra por estado con status=all', async () => {
+    const { supabase, knowledgeCalls } = mockServerClient([ITEM])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const res = await GET(
+      new Request('http://localhost/api/knowledge/items?business_id=business-1&status=all')
+    )
+    expect(res.status).toBe(200)
+    const activeFilter = knowledgeCalls.find(
+      (c) => c.method === 'eq' && c.args[0] === 'is_active'
+    )
+    expect(activeFilter).toBeUndefined()
+  })
+
+  it('devuelve 400 con status inválido', async () => {
+    const { supabase } = mockServerClient([ITEM])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const res = await GET(
+      new Request('http://localhost/api/knowledge/items?business_id=business-1&status=bogus')
+    )
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.error).toBe('Invalid status')
+  })
+})
+
+describe('POST /api/knowledge/items', () => {
+  const adminChain = (result: { data: unknown; error: unknown }) => {
+    const chain = {
+      ...result,
+      insert: () => chain,
+      select: () => chain,
+      single: async () => result,
+      eq: () => chain,
+    }
+    return chain
+  }
+
+  it('crea el item e invalida la caché de contexto del negocio', async () => {
+    const { supabase } = mockServerClient([])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const inserted = { id: 'item-new', business_id: 'business-1', question: '¿Precio?', answer: 'Respuesta' }
+    vi.mocked(createAdminClient).mockReturnValue({
+      from: vi.fn(() => adminChain({ data: inserted, error: null })),
+    } as never)
+
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: 'business-1',
+          category: 'faq',
+          question: '¿Precio?',
+          answer: 'Respuesta',
+        }),
+      })
+    )
+
+    expect(res.status).toBe(201)
+    expect(await res.json()).toEqual({ item: inserted })
+    expect(contextMock.invalidateConversationContext).toHaveBeenCalledWith('business-1')
+  })
+
+  it('devuelve 400 si faltan campos requeridos', async () => {
+    const { supabase } = mockServerClient([])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business_id: 'business-1' }),
+      })
+    )
+    expect(res.status).toBe(400)
+    expect(contextMock.invalidateConversationContext).not.toHaveBeenCalled()
   })
 })

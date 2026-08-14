@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -43,8 +43,19 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
   const [answer, setAnswer] = useState('')
   const [search, setSearch] = useState('')
   const [filterCategory, setFilterCategory] = useState<string>('')
+  const [filterStatus, setFilterStatus] = useState<'active' | 'inactive' | 'all'>('active')
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeItem | null>(null)
   const [editTarget, setEditTarget] = useState<KnowledgeItem | null>(null)
+
+  const reloadItems = useCallback(async (status: 'active' | 'inactive' | 'all') => {
+    const params = new URLSearchParams({ business_id: businessId, status })
+    if (filterCategory) params.set('category', filterCategory)
+    const res = await fetch(`/api/knowledge/items?${params.toString()}`)
+    if (res.ok) {
+      const { items: fetched } = await res.json()
+      setItems(fetched)
+    }
+  }, [businessId, filterCategory])
 
   const filteredItems = items.filter((item) => {
     const matchesCategory = !filterCategory || item.category === filterCategory
@@ -115,6 +126,23 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     }
   }
 
+  const handleToggleActive = async (item: KnowledgeItem) => {
+    const res = await fetch(`/api/knowledge/items/${item.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !item.is_active }),
+    })
+
+    if (res.ok) {
+      if (filterStatus === 'all') {
+        const { item: updated } = await res.json()
+        setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
+      } else {
+        setItems((prev) => prev.filter((i) => i.id !== item.id))
+      }
+    }
+  }
+
   const getCategoryLabel = (id: string) =>
     categories.find((c) => c.id === id)?.label ?? id
 
@@ -181,6 +209,20 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
             <option key={cat.id} value={cat.id}>{cat.label}</option>
           ))}
         </select>
+        <select
+          value={filterStatus}
+          onChange={(e) => {
+            const next = e.target.value as 'active' | 'inactive' | 'all'
+            setFilterStatus(next)
+            void reloadItems(next)
+          }}
+          className="px-3 py-2 border rounded-lg text-sm"
+          aria-label="Filtrar por estado"
+        >
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+          <option value="all">Todos</option>
+        </select>
       </div>
 
       <div className="space-y-3">
@@ -191,6 +233,11 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="secondary">{getCategoryLabel(item.category)}</Badge>
                   <Badge variant="outline">{item.source}</Badge>
+                  {item.is_active ? (
+                    <Badge className="bg-green-600">Activo</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-gray-500">Inactivo</Badge>
+                  )}
                 </div>
                 <h3 className="font-medium text-gray-900">{item.question}</h3>
                 <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{item.answer}</p>
@@ -213,6 +260,14 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
               <div className="flex gap-1">
                 <Button variant="ghost" size="sm" onClick={() => setEditTarget(item)}>
                   Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleToggleActive(item)}
+                  className={item.is_active ? 'text-amber-600 hover:text-amber-700' : 'text-green-600 hover:text-green-700'}
+                >
+                  {item.is_active ? 'Desactivar' : 'Activar'}
                 </Button>
                 <Button
                   variant="ghost"
