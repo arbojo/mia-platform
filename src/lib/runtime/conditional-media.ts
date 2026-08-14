@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { triggerMatches, intentMatchesTrigger } from './media'
+import { isSafeMediaUrl, getConversationMediaSentProducts, addConversationMediaSentProduct } from './media-guard'
 import type { Database } from '@/lib/types'
 
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
@@ -63,6 +64,21 @@ export async function resolveConditionalMedia(params: {
   const selected = byProduct ?? pending[0]
   if (!selected?.image_url) return null
 
+  // Envío único por PRODUCTO/sesión: si la imagen de este producto ya se
+  // mostró en esta conversación, se omite la imagen (solo texto).
+  if (selected.product_id) {
+    const sentProducts = await getConversationMediaSentProducts(supabase, conversationId)
+    if (sentProducts.includes(selected.product_id)) return null
+  }
+
+  // Blindaje de URL: solo media absoluta y pública (Supabase Storage/CDN).
+  if (!isSafeMediaUrl(selected.image_url)) {
+    console.warn(
+      `[conditional-media] image_url no segura omitida (knowledge_item=${selected.id}): ${selected.image_url}`
+    )
+    return null
+  }
+
   try {
     await supabase.from('chat_media_dispatched').insert({
       business_id: businessId,
@@ -72,6 +88,10 @@ export async function resolveConditionalMedia(params: {
     })
   } catch (err) {
     console.error('Failed to record dispatched media:', err)
+  }
+
+  if (selected.product_id) {
+    await addConversationMediaSentProduct(supabase, conversationId, selected.product_id)
   }
 
   return {

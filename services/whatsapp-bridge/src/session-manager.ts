@@ -19,6 +19,7 @@ import QRCode from 'qrcode'
 import P from 'pino'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia } from './mia-client.js'
+import { sendReply } from './media-url.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import type { BridgeConfig } from './config.js'
 
@@ -595,13 +596,10 @@ export class SessionManager {
               miaReply.response,
               miaReply.interactive
             )
-          } else if (miaReply.imageUrl) {
-            await session.socket.sendMessage(remoteJid, {
-              image: { url: miaReply.imageUrl },
-              caption: miaReply.response,
-            })
           } else {
-            await session.socket.sendMessage(remoteJid, { text: miaReply.response })
+            // Imagen de producto si aplica (con fallback defensivo a texto si
+            // la descarga de la imagen falla o la URL no es segura).
+            await sendReply(session.socket, remoteJid, miaReply.response, miaReply.imageUrl)
           }
         }
 
@@ -639,10 +637,8 @@ export class SessionManager {
       const jid = jidNormalizedUser(to)
       if (interactive) {
         await sendInteractive(session.socket, jid, content, interactive)
-      } else if (imageUrl) {
-        await session.socket.sendMessage(jid, { image: { url: imageUrl }, caption: content })
       } else {
-        await session.socket.sendMessage(jid, { text: content })
+        await sendReply(session.socket, jid, content, imageUrl)
       }
       return { success: true }
     } catch (error) {

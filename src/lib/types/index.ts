@@ -417,6 +417,7 @@ export interface Database {
           outcome_history: Json
           assigned_to: string | null
           handover_reason: string | null
+          media_sent_products: string[]
           created_at: string
         }
         Insert: {
@@ -432,6 +433,7 @@ export interface Database {
           outcome_history?: Json
           assigned_to?: string | null
           handover_reason?: string | null
+          media_sent_products?: string[]
           created_at?: string
         }
         Update: {
@@ -447,6 +449,7 @@ export interface Database {
           outcome_history?: Json
           assigned_to?: string | null
           handover_reason?: string | null
+          media_sent_products?: string[]
           created_at?: string
         }
       }

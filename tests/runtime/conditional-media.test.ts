@@ -9,7 +9,7 @@ function item(overrides: Record<string, unknown>) {
   return {
     id: overrides.id ?? `item-${Math.random().toString(36).slice(2, 8)}`,
     business_id: 'biz-1',
-    image_url: 'https://example.com/img.jpg',
+    image_url: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/img.jpg',
     trigger_condition: 'precio',
     media_type: 'image',
     product_id: null,
@@ -23,6 +23,8 @@ function makeThenable(data: unknown) {
     eq: vi.fn(),
     not: vi.fn(),
     insert: vi.fn(),
+    update: vi.fn(),
+    maybeSingle: vi.fn(),
     then: (
       onFulfilled: (v: { data: unknown; error: null }) => unknown,
       onRejected?: (e: unknown) => unknown
@@ -31,15 +33,23 @@ function makeThenable(data: unknown) {
   thenable.select.mockReturnValue(thenable)
   thenable.eq.mockReturnValue(thenable)
   thenable.not.mockReturnValue(thenable)
+  thenable.maybeSingle.mockReturnValue(thenable)
   thenable.insert.mockReturnValue(Promise.resolve({ data: null, error: null }))
+  thenable.update.mockReturnValue(thenable)
   return thenable
 }
 
-function mockSupabase(candidates: unknown[], dispatched: unknown[] = []) {
+function mockSupabase(
+  candidates: unknown[],
+  dispatched: unknown[] = [],
+  sentProducts: string[] = []
+) {
   const supabase = {
-    from: vi.fn((table: string) =>
-      table === 'knowledge_items' ? makeThenable(candidates) : makeThenable(dispatched)
-    ),
+    from: vi.fn((table: string) => {
+      if (table === 'knowledge_items') return makeThenable(candidates)
+      if (table === 'conversations') return makeThenable({ media_sent_products: sentProducts })
+      return makeThenable(dispatched)
+    }),
   }
   vi.mocked(createAdminClient).mockReturnValue(supabase as never)
   return supabase
@@ -124,5 +134,70 @@ describe('resolveConditionalMedia product scoping', () => {
   it('returns null without a conversation', async () => {
     const result = await resolveConditionalMedia({ ...baseParams, conversationId: null, productId: null })
     expect(result).toBeNull()
+  })
+})
+
+describe('resolveConditionalMedia once-per-product/session', () => {
+  it('omits the image when the product was already sent in this conversation', async () => {
+    const productMedia = item({ id: 'media-1', product_id: 'prod-x' })
+    mockSupabase([productMedia], [], ['prod-x'])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: 'prod-x' })
+
+    expect(result).toBeNull()
+  })
+
+  it('sends and records the product the first time, then omits it on later turns', async () => {
+    const productMedia = item({ id: 'media-1', product_id: 'prod-x' })
+    const supabase = mockSupabase([productMedia], [], [])
+
+    const first = await resolveConditionalMedia({ ...baseParams, productId: 'prod-x' })
+    expect(first?.knowledgeItemId).toBe('media-1')
+
+    const updateCall = supabase.from.mock.calls.find(([table]) => table === 'conversations')
+    expect(updateCall).toBeDefined()
+
+    // Segundo turno: el producto ya figura como enviado.
+    mockSupabase([productMedia], [], ['prod-x'])
+    const second = await resolveConditionalMedia({ ...baseParams, productId: 'prod-x' })
+    expect(second).toBeNull()
+  })
+
+  it('does not deduplicate generic media by product (only by knowledge item)', async () => {
+    const generic = item({ id: 'generic-1', product_id: null })
+    mockSupabase([generic], [], ['prod-x'])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: 'prod-x' })
+
+    expect(result?.knowledgeItemId).toBe('generic-1')
+  })
+
+  it('rejects a media URL that is not safe (relative path)', async () => {
+    const bad = item({ id: 'bad-1', product_id: null, image_url: '/local/image.jpg' })
+    mockSupabase([bad])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: null })
+
+    expect(result).toBeNull()
+  })
+
+  it('rejects a media URL pointing to localhost', async () => {
+    const bad = item({ id: 'bad-2', product_id: null, image_url: 'http://localhost:3000/img.jpg' })
+    mockSupabase([bad])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: null })
+
+    expect(result).toBeNull()
+  })
+
+  it('accepts a public Supabase Storage URL', async () => {
+    const good = item({ id: 'good-1', product_id: null })
+    mockSupabase([good])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: null })
+
+    expect(result?.imageUrl).toBe(
+      'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/img.jpg'
+    )
   })
 })

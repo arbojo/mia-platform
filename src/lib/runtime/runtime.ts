@@ -5,6 +5,7 @@ import { resolveConnection, resolveConversation } from '@/lib/conversation/resol
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
 import { resolveConditionalMedia } from './conditional-media'
+import { isSafeMediaUrl } from './media-guard'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
@@ -303,7 +304,7 @@ export async function processIncomingMessage(
     response,
     customerId: customer.id,
     conversationId: conversationId ?? '',
-    imageUrl: media?.imageUrl,
+    imageUrl: media?.imageUrl && isSafeMediaUrl(media.imageUrl) ? media.imageUrl : undefined,
     mediaType: media?.mediaType,
     interactive,
     deliver,
