@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react'
+import type { ProductReference } from '@/lib/channels/types'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  product?: ProductReference | null
 }
 
 interface ChatWindowProps {

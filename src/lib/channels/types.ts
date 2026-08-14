@@ -34,6 +34,15 @@ export type InteractiveComponent =
   | { type: 'quick_reply'; text: string; buttons: QuickReplyButton[] }
   | { type: 'list'; text: string; buttonText: string; sections: ListSection[] }
 
+export interface ProductReference {
+  productId: string
+  name: string
+  price: number | null
+  imageUrl?: string | null
+  description?: string | null
+  benefits?: string | null
+}
+
 export interface NormalizedMessage {
   channel: ChannelType
   externalId: string
