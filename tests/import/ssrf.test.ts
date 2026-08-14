@@ -19,6 +19,10 @@ import { lookup } from 'node:dns/promises'
 
 const mockedLookup = vi.mocked(lookup)
 
+function mockLookupResult(addresses: Array<{ address: string; family: number }>) {
+  mockedLookup.mockResolvedValue(addresses as unknown as Awaited<ReturnType<typeof lookup>>)
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   vi.stubGlobal('fetch', vi.fn())
@@ -81,15 +85,12 @@ describe('assertSafeUrl', () => {
   })
 
   it('rechaza hosts que resuelven a IP privada', async () => {
-    mockedLookup.mockResolvedValue([
-      { address: '10.0.0.1', family: 4 },
-      { address: '192.168.1.5', family: 4 },
-    ])
+    mockLookupResult([{ address: '10.0.0.1', family: 4 }, { address: '192.168.1.5', family: 4 }])
     await expect(assertSafeUrl('https://evil.example.com/')).rejects.toThrow(UnsafeHostError)
   })
 
   it('acepta hosts que resuelven a IP pública', async () => {
-    mockedLookup.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+    mockLookupResult([{ address: '93.184.216.34', family: 4 }])
     await expect(assertSafeUrl('https://public.example.com/')).resolves.toBeUndefined()
   })
 
@@ -100,7 +101,7 @@ describe('assertSafeUrl', () => {
 
 describe('fetchWithRedirectSafety', () => {
   it('sigue redirects re-validados y devuelve la respuesta final', async () => {
-    mockedLookup.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+    mockLookupResult([{ address: '93.184.216.34', family: 4 }])
     const fetchMock = vi.fn()
     fetchMock.mockImplementationOnce(() =>
       Promise.resolve(new Response(null, { status: 302, headers: { location: 'https://example.com/2' } }))
@@ -120,7 +121,7 @@ describe('fetchWithRedirectSafety', () => {
   })
 
   it('rechaza más de 5 redirects', async () => {
-    mockedLookup.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+    mockLookupResult([{ address: '93.184.216.34', family: 4 }])
     const fetchMock = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 302, headers: { location: 'https://example.com/next' } }))
     )
@@ -130,7 +131,7 @@ describe('fetchWithRedirectSafety', () => {
   })
 
   it('rechaza redirect a host privado', async () => {
-    mockedLookup.mockResolvedValue([{ address: '10.0.0.1', family: 4 }])
+    mockLookupResult([{ address: '10.0.0.1', family: 4 }])
     const fetchMock = vi.fn(() =>
       Promise.resolve(new Response(null, { status: 302, headers: { location: 'https://internal.example.com/' } }))
     )

@@ -1,0 +1,36 @@
+import { Orchestrator, type OrchestratorInput } from './orchestrator'
+import { WorkflowEngine } from './workflow'
+
+const orchestrator = new Orchestrator()
+const workflow = new WorkflowEngine()
+
+const tasks: OrchestratorInput[] = [
+  {
+    title:
+      'Pasada final de limpieza y refactorización: alineación de tipado estricto Supabase, fix de tipos en workshop y verificación completa de calidad',
+    description:
+      'EVIDENCIA del estado actual (HEAD 5e420f8, working tree limpio): (1) los módulos tocados recientemente (Base de Conocimiento: src/app/api/knowledge/items/route.ts y [id]/route.ts, src/components/dashboard/KnowledgeManager.tsx; motor multimedia: src/lib/runtime/media-guard.ts, conditional-media.ts, runtime.ts; bridge: services/whatsapp-bridge/src/media-url.ts, session-manager.ts) ya están limpios: sin archivos temporales, sin código comentado muerto, sin console.log de depuración, sin trailing whitespace (verificado por rg), ESLint en 0 errores y 0 warnings. (2) AMBIGÜEDAD DE TIPADO confirmada: SupabaseClient<Database> con el Database manual de src/lib/types/index.ts produce data: never en cualquier .select() (reproducido con sonda __type_probe.ts); causa raíz: postgrest-js exige la clave Relationships en cada tabla (node_modules/@supabase/postgrest-js/dist/index.d.mts:3425-3427: Relation$1 extends { Relationships: infer R } ? R : unknown) y el Database manual no la define -> colapsa a never. (3) ERROR DE TIPOS pre-existente en workshop/tests/parallel-execution.test.ts (líneas 134-136, 163, 181, 273): los findings inline omiten recommendation (obligatorio en councilFindingSchema) y evidence: [] infiere never[] (workshop/council/schemas/index.ts:7-20). PLAN aprobado: (1) añadir Relationships: [] a las 21 tablas de src/lib/types/index.ts para alinear el tipo con los genéricos de supabase-js (verificado con sonda: con Relationships: [] el select tipado compila); (2) restaurar SupabaseClient<Database> en src/lib/runtime/media-guard.ts ahora que el tipo funciona; (3) añadir recommendation y tipar evidence como string[] en las fixtures del test de workshop; (4) correr lint, tsc, build, test:unit y e2e; (5) commit descriptivo + push a origin/main. El formateo se valida con ESLint (linter de récord del repo; no hay Prettier configurado y añadirlo reformatearía cientos de archivos sin valor).',
+    categories: ['refactor'],
+    filesAffected: 3,
+    hasSchemaChanges: false,
+    hasAIConsumerChanges: false,
+    hasSecurityImplications: false,
+    affectedDomains: ['backend'],
+  },
+]
+
+for (const input of tasks) {
+  const result = orchestrator.classify(input)
+  console.log()
+  console.log(orchestrator.generatePreFlightSummary(result))
+  const manifest = workflow.createManifest(input.title, input.description, {
+    categories: input.categories,
+    filesAffected: input.filesAffected,
+    hasSchemaChanges: input.hasSchemaChanges,
+    hasAIConsumerChanges: input.hasAIConsumerChanges,
+    hasSecurityImplications: input.hasSecurityImplications,
+    isCrossCutting: input.affectedDomains.length > 1,
+    domains: input.affectedDomains,
+  }, result)
+  console.log(`✓ Manifest created: ${manifest.id} (${manifest.status})`)
+}

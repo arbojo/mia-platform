@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface AdminCall {
   method: string
@@ -50,7 +51,7 @@ export function createAdminMock(options: AdminMockOptions = {}) {
 
   const admin = {
     from: vi.fn(() => wrapper),
-  }
+  } as unknown as SupabaseClient
 
   return { admin, calls }
 }

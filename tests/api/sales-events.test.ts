@@ -36,15 +36,20 @@ const events = [
 let eqMock: ReturnType<typeof vi.fn>
 
 function makeChain() {
-  eqMock = vi.fn(() => chain)
-  const chain = {
+  const chain: {
+    select: ReturnType<typeof vi.fn>
+    eq: ReturnType<typeof vi.fn>
+    order: ReturnType<typeof vi.fn>
+    limit: ReturnType<typeof vi.fn>
+    then: (resolve: (value: unknown) => unknown) => unknown
+  } = {
     select: vi.fn(() => chain),
-    eq: eqMock,
+    eq: vi.fn(() => chain),
     order: vi.fn(() => chain),
     limit: vi.fn(() => chain),
-    then: (resolve: (value: unknown) => unknown) =>
-      resolve(Promise.resolve({ data: events, error: null })),
+    then: (resolve) => resolve(Promise.resolve({ data: events, error: null })),
   }
+  eqMock = chain.eq
   return chain
 }
 
@@ -59,7 +64,7 @@ beforeEach(() => {
 
 describe('GET /api/sales/events', () => {
   it('devuelve 400 cuando falta business_id', async () => {
-    const res = await GET(new Request('http://localhost/api/sales/events'))
+    const res = await GET(new Request('http://localhost/api/sales/events') as never)
     expect(res.status).toBe(400)
     const body = await res.json()
     expect(body.error).toContain('business_id')
@@ -67,7 +72,7 @@ describe('GET /api/sales/events', () => {
 
   it('devuelve eventos cuando business_id existe', async () => {
     const res = await GET(
-      new Request('http://localhost/api/sales/events?business_id=b-1')
+      new Request('http://localhost/api/sales/events?business_id=b-1') as never
     )
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -76,7 +81,7 @@ describe('GET /api/sales/events', () => {
 
   it('aplica filtro por event_type', async () => {
     await GET(
-      new Request('http://localhost/api/sales/events?business_id=b-1&event_type=SALE_WON')
+      new Request('http://localhost/api/sales/events?business_id=b-1&event_type=SALE_WON') as never
     )
 
     expect(eqMock).toHaveBeenCalledWith('business_id', 'b-1')

@@ -19,26 +19,28 @@ const BUSINESS_ID = 'b0000000-0000-4000-8000-000000000002'
 const CONVERSATION_ID = 'd0000000-0000-4000-8000-000000000004'
 const CUSTOMER_ID = 'c0000000-0000-4000-8000-000000000003'
 
+type StubResult = { data: unknown; error: unknown }
+
 function makeTable(name: string) {
   const table = {
     name,
     select: vi.fn(() => table),
-    insert: vi.fn(() => table),
-    update: vi.fn(() => table),
+    insert: vi.fn((_payload: Record<string, unknown>) => table),
+    update: vi.fn((_payload: Record<string, unknown>) => table),
     eq: vi.fn(() => table),
     ilike: vi.fn(() => table),
     in: vi.fn(() => table),
     limit: vi.fn(() => table),
-    maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null } as StubResult)),
     then: (resolve: (value: unknown) => unknown) =>
-      resolve(Promise.resolve({ data: null, error: null })),
+      resolve(Promise.resolve({ data: null, error: null } as StubResult)),
   }
   return table
 }
 
 const tables = new Map<string, ReturnType<typeof makeTable>>()
 
-function stubTable(tableName: string, result: unknown) {
+function stubTable(tableName: string, result: StubResult) {
   let table = tables.get(tableName)
   if (!table) {
     table = makeTable(tableName)
@@ -91,7 +93,7 @@ describe('emitSalesEvent', () => {
     expect(products.ilike).toHaveBeenCalledWith('name', 'Bota de Cuero')
     const [payload] = table.insert.mock.calls[0]
     expect(payload.product_id).toBe('p-1')
-    expect(payload.metadata.product_name).toBe('Bota de Cuero')
+    expect((payload.metadata as { product_name: string }).product_name).toBe('Bota de Cuero')
   })
 
   it('no resuelve product_id cuando el producto no existe', async () => {
@@ -144,7 +146,7 @@ describe('applyConversationOutcome', () => {
     expect(payload.outcome).toBe('sold')
     expect(payload.deal_value).toBe(150)
     expect(payload.outcome_history).toHaveLength(1)
-    expect(payload.outcome_history[0].event_type).toBe('SALE_WON')
+    expect((payload.outcome_history as Array<{ event_type: string }>)[0].event_type).toBe('SALE_WON')
   })
 
   it('no re-escribe outcome cuando ya esta sold', async () => {
@@ -201,7 +203,7 @@ describe('notifySaleToOwner', () => {
     expect(payload.title).toBe('Nuevo pedido confirmado')
     expect(payload.message).toContain('Ana')
     expect(payload.action_available).toBe('open_conversation')
-    expect(payload.action_payload.conversation_id).toBe(CONVERSATION_ID)
+    expect((payload.action_payload as { conversation_id: string }).conversation_id).toBe(CONVERSATION_ID)
   })
 
   it('usa nombre por defecto cuando no hay customerName', async () => {

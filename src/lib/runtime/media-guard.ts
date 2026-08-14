@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/lib/types'
 
 const PUBLIC_CDN_HOSTS = ['cdn.jsdelivr.net']
 const PUBLIC_HOST_SUFFIX = '.supabase.co'
@@ -71,7 +72,7 @@ export function isSafeMediaUrl(url: string): boolean {
 }
 
 export async function getConversationMediaSentProducts(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<Database>,
   conversationId: string
 ): Promise<string[]> {
   if (!conversationId) return []
@@ -84,7 +85,7 @@ export async function getConversationMediaSentProducts(
 }
 
 export async function addConversationMediaSentProduct(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<Database>,
   conversationId: string,
   productId: string
 ): Promise<void> {

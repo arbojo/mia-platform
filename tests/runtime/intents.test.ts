@@ -14,6 +14,7 @@ const product: Product = {
   id: 'p1',
   business_id: 'b1',
   name: 'Bota de Cuero',
+  sku: null,
   price: 150,
   description: 'Bota de cuero genuino',
   benefits: 'Duradera',

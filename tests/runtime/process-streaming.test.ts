@@ -41,11 +41,15 @@ const onFinishPayload = {
   warning: undefined,
   roundtrips: [] as Array<unknown>,
   steps: [] as Array<unknown>,
-}
+} as never
 
 function makeMockSupabase() {
-  const insertMock = vi.fn(() => Promise.resolve({ data: null, error: null }))
-  const mockMaybeSingle = vi.fn(() => Promise.resolve({ data: null, error: null }))
+  const insertMock = vi.fn((_payload: Record<string, unknown>) =>
+    Promise.resolve({ data: null, error: null })
+  )
+  const mockMaybeSingle = vi.fn(() =>
+    Promise.resolve({ data: null, error: null } as { data: unknown; error: unknown })
+  )
   const chain = {
     select: vi.fn(() => chain),
     eq: vi.fn(() => chain),
@@ -124,7 +128,7 @@ describe('processStreaming', () => {
 
     const result = await processStreaming({
       ...defaultParams,
-      landingContext: { productId: FAKE_UUIDS.product1 },
+      landingContext: { landingId: 'landing-0001', productId: FAKE_UUIDS.product1 },
     })
 
     expect(resolveRecommendedProduct).toHaveBeenCalledWith({

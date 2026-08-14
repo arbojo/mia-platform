@@ -13,7 +13,7 @@ function makeMockSupabase() {
     select: vi.fn(() => chain),
     from: vi.fn(() => chain),
     eq: vi.fn(() => chain),
-    insert: vi.fn(() => chain),
+    insert: vi.fn((_row: Record<string, unknown>) => chain),
     limit: vi.fn(() => chain),
     not: vi.fn(() => chain),
     single: mockSingle,

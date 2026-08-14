@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/channels/identity', () => ({ resolveCustomer: vi.fn() }))
@@ -41,7 +41,7 @@ function makeSupabaseMock(opts: {
     return resp
   })
 
-  const mockInsert = vi.fn(() => chain)
+  const mockInsert = vi.fn((_row: Record<string, unknown>) => chain)
   const mockSelect = vi.fn(() => chain)
   const mockEq = vi.fn(() => chain)
   const mockOrder = vi.fn(() => chain)
@@ -50,7 +50,18 @@ function makeSupabaseMock(opts: {
   const mockNot = vi.fn(() => chain)
   const mockUpdate = vi.fn(() => chain)
 
-  const chain = {
+  const chain: {
+    insert: Mock
+    select: Mock
+    eq: Mock
+    order: Mock
+    limit: Mock
+    contains: Mock
+    not: Mock
+    update: Mock
+    single: Mock
+    maybeSingle: Mock
+  } = {
     insert: mockInsert,
     select: mockSelect,
     eq: mockEq,
@@ -61,7 +72,7 @@ function makeSupabaseMock(opts: {
     update: mockUpdate,
     single: mockSingle,
     maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
-  } as never
+  }
 
   const fromMock = vi.fn(() => chain)
   const supabase = { from: fromMock }

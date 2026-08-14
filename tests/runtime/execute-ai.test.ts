@@ -59,7 +59,7 @@ describe('executeAI', () => {
     it('calls trackAiUsage when onFinish fires', async () => {
       await executeAI({ ...BASE_PARAMS, mode: 'stream' })
 
-      const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish as (payload: typeof onFinishPayload) => Promise<void>
+      const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish as unknown as (payload: typeof onFinishPayload) => Promise<void>
       await onFinish(onFinishPayload)
 
       expect(vi.mocked(trackAiUsage)).toHaveBeenCalledOnce()
@@ -76,7 +76,7 @@ describe('executeAI', () => {
       const externalOnFinish = vi.fn()
       await executeAI({ ...BASE_PARAMS, mode: 'stream', onFinish: externalOnFinish })
 
-      const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish as (payload: typeof onFinishPayload) => Promise<void>
+      const onFinish = vi.mocked(streamText).mock.calls[0][0].onFinish as unknown as (payload: typeof onFinishPayload) => Promise<void>
       await onFinish(onFinishPayload)
 
       expect(vi.mocked(trackAiUsage)).toHaveBeenCalledBefore(externalOnFinish)

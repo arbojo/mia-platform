@@ -6,7 +6,7 @@ import { ResultCollector } from '../council/dispatcher/result-collector';
 import { withTimeout, TimeoutError } from '../council/dispatcher/timeout-wrapper';
 import { ArchitectRole } from '../council/roles/architect';
 import { QARole } from '../council/roles/qa';
-import type { CouncilContext, CouncilRole } from '../council/types';
+import type { CouncilContext, CouncilFinding, CouncilRole } from '../council/types';
 
 async function main() {
 
@@ -35,6 +35,20 @@ const baseContext: CouncilContext = {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function finding(id: string, role: string, category: string): CouncilFinding {
+  return {
+    id,
+    role,
+    severity: 'low',
+    category,
+    title: 't',
+    description: 'd',
+    evidence: [] as string[],
+    affectedArea: 'test',
+    recommendation: 'r',
+  };
 }
 
 // ───── 1. Real parallel execution ─────
@@ -131,9 +145,9 @@ function sleep(ms: number): Promise<void> {
   const dispatcher = new ParallelDispatcher({ timeoutMs: 5000 });
 
   const roles: CouncilRole[] = [
-    { id: 'first', name: 'First', responsibility: '', audit: async () => { await sleep(100); return [{ id: 'f1', role: 'First', severity: 'low' as const, category: 'order', title: 't', description: 'd', evidence: [], affectedArea: 'test' }]; } },
-    { id: 'second', name: 'Second', responsibility: '', audit: async () => { await sleep(300); return [{ id: 'f2', role: 'Second', severity: 'low' as const, category: 'order', title: 't', description: 'd', evidence: [], affectedArea: 'test' }]; } },
-    { id: 'third', name: 'Third', responsibility: '', audit: async () => { await sleep(200); return [{ id: 'f3', role: 'Third', severity: 'low' as const, category: 'order', title: 't', description: 'd', evidence: [], affectedArea: 'test' }]; } },
+    { id: 'first', name: 'First', responsibility: '', audit: async () => { await sleep(100); return [finding('f1', 'First', 'order')]; } },
+    { id: 'second', name: 'Second', responsibility: '', audit: async () => { await sleep(300); return [finding('f2', 'Second', 'order')]; } },
+    { id: 'third', name: 'Third', responsibility: '', audit: async () => { await sleep(200); return [finding('f3', 'Third', 'order')]; } },
   ];
 
   const { results, wallClockMs } = await dispatcher.dispatch(roles, baseContext);
@@ -160,7 +174,7 @@ function sleep(ms: number): Promise<void> {
   const dispatcher = new ParallelDispatcher();
   const role: CouncilRole = {
     id: 'sync', name: 'Sync', responsibility: '',
-    audit: () => [{ id: 's1', role: 'Sync', severity: 'low' as const, category: 'compat', title: 't', description: 'd', evidence: [], affectedArea: 'test' }],
+    audit: () => [finding('s1', 'Sync', 'compat')],
   };
 
   const { results } = await dispatcher.dispatch([role], baseContext);
@@ -178,7 +192,7 @@ function sleep(ms: number): Promise<void> {
   const dispatcher = new ParallelDispatcher();
   const role: CouncilRole = {
     id: 'async', name: 'Async', responsibility: '',
-    audit: async () => [{ id: 'a1', role: 'Async', severity: 'low' as const, category: 'compat', title: 't', description: 'd', evidence: [], affectedArea: 'test' }],
+    audit: async () => [finding('a1', 'Async', 'compat')],
   };
 
   const { results } = await dispatcher.dispatch([role], baseContext);
@@ -270,7 +284,7 @@ function sleep(ms: number): Promise<void> {
 {
   const collector = new ResultCollector();
   const workerResults = [
-    { roleId: 'architect', roleName: 'Architect', findings: [{ id: 'f1', role: 'Architect', severity: 'low' as const, category: 'test', title: 't', description: 'd', evidence: [], affectedArea: 'arch' }], durationMs: 5, error: null },
+    { roleId: 'architect', roleName: 'Architect', findings: [finding('f1', 'Architect', 'test')], durationMs: 5, error: null },
     { roleId: 'qa', roleName: 'QA', findings: [], durationMs: 3, error: null },
   ];
   const collected = collector.collect(workerResults, 300);

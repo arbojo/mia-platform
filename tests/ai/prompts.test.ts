@@ -50,7 +50,7 @@ const KNOWLEDGE = {
   source: 'document',
 } as never
 
-function build(overrides?: Parameters<typeof buildMasterPrompt>[0]) {
+function build(overrides?: Partial<Parameters<typeof buildMasterPrompt>[0]>) {
   return buildMasterPrompt({
     business: BUSINESS,
     brand: BRAND,
@@ -144,7 +144,13 @@ describe('buildMasterPrompt', () => {
 
   it('promete una imagen solo en canales que despachan media', () => {
     const knowledgeWithImage = [
-      { ...KNOWLEDGE, image_url: 'https://example.com/img.jpg', trigger_condition: 'envio' },
+      {
+        question: '¿Envían a todo el país?',
+        answer: 'Sí.',
+        source: 'document',
+        image_url: 'https://example.com/img.jpg',
+        trigger_condition: 'envio',
+      },
     ] as never
 
     const whatsapp = build({ channel: 'whatsapp', knowledge: knowledgeWithImage })

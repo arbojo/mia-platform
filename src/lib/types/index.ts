@@ -34,6 +34,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       brand_identities: {
         Row: {
@@ -75,6 +76,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -125,6 +127,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       knowledge_items: {
         Row: {
@@ -175,6 +178,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       chat_media_dispatched: {
         Row: {
@@ -201,6 +205,7 @@ export interface Database {
           knowledge_item_id?: string
           created_at?: string
         }
+        Relationships: []
       }
       sales_rules: {
         Row: {
@@ -233,6 +238,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       ai_instructions: {
         Row: {
@@ -262,6 +268,7 @@ export interface Database {
           is_active?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       assistants: {
         Row: {
@@ -297,6 +304,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       assistant_channels: {
         Row: {
@@ -323,6 +331,7 @@ export interface Database {
           is_active?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       customers: {
         Row: {
@@ -373,6 +382,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       assistant_memories: {
         Row: {
@@ -402,6 +412,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       conversations: {
         Row: {
@@ -452,6 +463,7 @@ export interface Database {
           media_sent_products?: string[]
           created_at?: string
         }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -478,6 +490,7 @@ export interface Database {
           metadata?: Json
           created_at?: string
         }
+        Relationships: []
       }
       learning_events: {
         Row: {
@@ -519,6 +532,7 @@ export interface Database {
           created_at?: string
           resolved_at?: string | null
         }
+        Relationships: []
       }
       knowledge_versions: {
         Row: {
@@ -554,6 +568,7 @@ export interface Database {
           change_source?: 'onboarding' | 'correction' | 'manual' | 'system'
           created_at?: string
         }
+        Relationships: []
       }
       ai_usage: {
         Row: {
@@ -586,6 +601,7 @@ export interface Database {
           cost?: number
           created_at?: string
         }
+        Relationships: []
       }
       knowledge_analysis_reports: {
         Row: {
@@ -639,6 +655,7 @@ export interface Database {
           created_at?: string
           completed_at?: string | null
         }
+        Relationships: []
       }
       knowledge_suggestions: {
         Row: {
@@ -716,6 +733,7 @@ export interface Database {
           applied_at?: string | null
           rejection_reason?: string | null
         }
+        Relationships: []
       }
       channel_connections: {
         Row: {
@@ -760,6 +778,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       sales_events: {
         Row: {
@@ -834,6 +853,7 @@ export interface Database {
           metadata?: Json
           created_at?: string
         }
+        Relationships: []
       }
       channel_messages: {
         Row: {
@@ -887,6 +907,7 @@ export interface Database {
           sent_at?: string | null
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>

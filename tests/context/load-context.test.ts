@@ -169,9 +169,9 @@ describe('loadConversationContext', () => {
       makeSupabase({ data: null, error: null })
     )
 
-    const err = await loadConversationContext(FAKE_UUIDS.business, 'nonexistent-id').catch(
-      (e: ContextError) => e
-    )
+    const err = (await loadConversationContext(FAKE_UUIDS.business, 'nonexistent-id').catch(
+      (e: unknown) => e
+    )) as ContextError
     expect(err.code).toBe('ASSISTANT_NOT_FOUND')
     expect(err.statusCode).toBe(404)
   })

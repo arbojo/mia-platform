@@ -48,7 +48,7 @@ describe('BaileysAdapter', () => {
       })
 
       expect(result.payload?.type).toBe('list')
-      expect(result.payload?.id).toBe('p1')
+      expect((result.payload as { id?: string }).id).toBe('p1')
     })
 
     it('leaves payload undefined when absent', async () => {
