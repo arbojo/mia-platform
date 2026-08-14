@@ -2,13 +2,13 @@
 task_id: TASK-20260814-031446183
 title: Envío único de imagen por producto/sesión + blindaje multimedia WhatsApp
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 8
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260814-031446183
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T03:30:08.481Z
+updated: 2026-08-14T03:30:17.229Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: (qué logra el paso 4)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260814-031446183 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260814-031446183 5`.
 
 ## Constraints
 
