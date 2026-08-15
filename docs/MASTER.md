@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e973874`.
+> Fuente de verdad: este repositorio en `d34f916`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e973874` |
+| **Commit HEAD** | `d34f916` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T19:53:40-06:00 |
+| **Generado** | 2026-08-14T20:39:13-06:00 |
 
 ---
 
@@ -581,7 +581,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (100)**:
+**Tareas registradas (101)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -685,6 +685,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-234953800 | Separar utilidades del chip de modulo en CommandStrip (tema, idioma, MIA Signals) | completed |
 | TASK-20260815-001504327 | Tutorial interactivo contextual del dashboard (spotlight tour, activable desde sidebar) | completed |
 | TASK-20260815-014157047 | Ajustes al tutorial interactivo: shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio | completed |
+| TASK-20260815-022944607 | Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova | completed |
 
 ---
 
@@ -733,6 +734,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d34f916 fix(ai): regla anti-bucle de confirmacion en prompts y corolario en regla de pedido de Vitanova
+d79c280 docs: regenerate MASTER.md at e973874
 e973874 feat(tour): shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio
 db16ec3 docs: regenerate MASTER.md at 0cc454a
 0cc454a fix(subaru): governance complete acepta status completed en freeze/complete
@@ -751,8 +754,6 @@ b5a86ff subaru: checkpoint MISSION-20260815-001 - en-progreso
 5006b69 subaru: checkpoint MISSION-20260815-001 - en-progreso
 205237f subaru: checkpoint MISSION-20260815-001 - en-progreso
 c6b2f72 docs: regenerate MASTER.md at 2980906
-2980906 subaru: checkpoint MISSION-20260815-001 - listo
-e750a5d docs: regenerate MASTER.md at b5f16da
 ```
 
 ---
