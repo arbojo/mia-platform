@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0cc454a`.
+> Fuente de verdad: este repositorio en `e973874`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0cc454a` |
+| **Commit HEAD** | `e973874` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T19:13:25-06:00 |
+| **Generado** | 2026-08-14T19:53:40-06:00 |
 
 ---
 
@@ -581,7 +581,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (99)**:
+**Tareas registradas (100)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -684,6 +684,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-225411178 | Run e2e tests against production server (next start) to fix Turbopack dev concurrency flakiness | completed |
 | TASK-20260814-234953800 | Separar utilidades del chip de modulo en CommandStrip (tema, idioma, MIA Signals) | completed |
 | TASK-20260815-001504327 | Tutorial interactivo contextual del dashboard (spotlight tour, activable desde sidebar) | completed |
+| TASK-20260815-014157047 | Ajustes al tutorial interactivo: shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio | completed |
 
 ---
 
@@ -732,6 +733,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e973874 feat(tour): shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio
+db16ec3 docs: regenerate MASTER.md at 0cc454a
 0cc454a fix(subaru): governance complete acepta status completed en freeze/complete
 c53c1b2 subaru: checkpoint MISSION-20260815-001 - completado
 0819f25 subaru: checkpoint MISSION-20260815-001 - en-progreso
@@ -750,8 +753,6 @@ b5a86ff subaru: checkpoint MISSION-20260815-001 - en-progreso
 c6b2f72 docs: regenerate MASTER.md at 2980906
 2980906 subaru: checkpoint MISSION-20260815-001 - listo
 e750a5d docs: regenerate MASTER.md at b5f16da
-b5f16da fix: separate theme, language and signals from the module chip menu in CommandStrip
-8a404ab docs: regenerate MASTER.md at e87274c
 ```
 
 ---
