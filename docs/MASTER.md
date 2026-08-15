@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ab0b3ec`.
+> Fuente de verdad: este repositorio en `47f50cd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ab0b3ec` |
+| **Commit HEAD** | `47f50cd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T18:26:16-06:00 |
+| **Generado** | 2026-08-14T18:27:34-06:00 |
 
 ---
 
@@ -727,6 +727,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+47f50cd subaru: checkpoint MISSION-20260815-001 - en-progreso
+6adf7fe docs: regenerate MASTER.md at ab0b3ec
 ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
 4b49d37 subaru: checkpoint MISSION-20260815-001 - en-progreso
 09073b1 subaru: checkpoint MISSION-20260815-001 - en-progreso
@@ -745,8 +747,6 @@ f3b788c docs: regenerate MASTER.md at 04dd0f1
 04dd0f1 fix: set bridge MIA_APP_URL to production for webhooks
 a69269f fix: prevent automatic empty lab sessions on scenario select
 e103cee docs: regenerate MASTER.md at 0252e42
-0252e42 chore: seal cross-platform dev for Windows (.gitattributes + README section)
-b9a65e4 docs: regenerate MASTER.md at 06ed13d
 ```
 
 ---
