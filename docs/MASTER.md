@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b5f16da`.
+> Fuente de verdad: este repositorio en `2980906`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b5f16da` |
+| **Commit HEAD** | `2980906` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T17:52:05-06:00 |
+| **Generado** | 2026-08-14T18:17:06-06:00 |
 
 ---
 
@@ -727,6 +727,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+2980906 subaru: checkpoint MISSION-20260815-001 - listo
+e750a5d docs: regenerate MASTER.md at b5f16da
 b5f16da fix: separate theme, language and signals from the module chip menu in CommandStrip
 8a404ab docs: regenerate MASTER.md at e87274c
 e87274c fix: run e2e tests against production server to eliminate Turbopack dev flakiness
@@ -745,8 +747,6 @@ b9a65e4 docs: regenerate MASTER.md at 06ed13d
 e20e0b7 docs: regenerate MASTER.md at 61f7a81
 61f7a81 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 b42e354 subaru: checkpoint TASK-20260814-031446183 - en-progreso
-51b809a subaru: checkpoint TASK-20260814-031446183 - en-progreso
-59d9181 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 ```
 
 ---
