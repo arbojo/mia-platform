@@ -56,6 +56,45 @@ describe('Tour interactivo', () => {
     expect(screen.getByText('Paso 1 de 9')).toBeInTheDocument()
   })
 
+  it('las páginas contextuales fuera del Centro de Mando no repiten el shell', () => {
+    renderTour('/dashboard/conversations')
+    fireEvent.click(screen.getByRole('button', { name: 'Ver tutorial' }))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText('Buscar conversaciones')).toBeInTheDocument()
+    expect(screen.getByText('Paso 1 de 4')).toBeInTheDocument()
+    expect(screen.queryByText('Tu navegación')).not.toBeInTheDocument()
+  })
+
+  it('el tour de Knowledge Studio tiene 4 pasos propios', () => {
+    renderTour('/dashboard/knowledge-studio')
+    fireEvent.click(screen.getByRole('button', { name: 'Ver tutorial' }))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText('Ejecutar Análisis')).toBeInTheDocument()
+    expect(screen.getByText('Paso 1 de 4')).toBeInTheDocument()
+    expect(screen.queryByText('Tu navegación')).not.toBeInTheDocument()
+  })
+
+  it('el tour de Catálogo tiene 2 pasos propios', () => {
+    renderTour('/dashboard/catalog')
+    fireEvent.click(screen.getByRole('button', { name: 'Ver tutorial' }))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText('Acciones del catálogo')).toBeInTheDocument()
+    expect(screen.getByText('Paso 1 de 2')).toBeInTheDocument()
+    expect(screen.queryByText('Tu navegación')).not.toBeInTheDocument()
+  })
+
+  it('el botón Tutorial en una página sin tour contextual reproduce el shell', () => {
+    renderTour('/dashboard/health')
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar tutorial' }))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText('Tu navegación')).toBeInTheDocument()
+    expect(screen.getByText('Paso 1 de 6')).toBeInTheDocument()
+  })
+
   it('avanza de paso con el botón Siguiente', () => {
     renderTour()
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar tutorial' }))

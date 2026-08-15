@@ -408,5 +408,23 @@ export const en: Dict = {
         desc: 'Each card is a product. Click one to manage its media, edit or delete it.',
       },
     },
+    studio: {
+      analyze: {
+        title: 'Run Analysis',
+        desc: "Analyzes MIA's knowledge base and scores how ready she is to serve your customers.",
+      },
+      score: {
+        title: 'Readiness score',
+        desc: "MIA's overall readiness score, broken down into completeness, consistency, and readiness.",
+      },
+      stats: {
+        title: 'Analysis results',
+        desc: 'A quick summary of the analysis: detected issues and approved or pending suggestions.',
+      },
+      suggestions: {
+        title: 'MIA suggestions',
+        desc: 'MIA proposes concrete knowledge improvements. Filter, review, and approve the ones you like.',
+      },
+    },
   },
 }

@@ -73,10 +73,15 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const startForPath = useCallback(
     (nextPath: string) => {
       const pageTour = getPageTour(nextPath)
-      const def: TourDef = pageTour
-        ? { key: `${pageTour.key}-tour`, steps: [...SHELL_TOUR.steps, ...pageTour.steps] }
-        : SHELL_TOUR
-      begin(def, nextPath)
+      if (!pageTour) {
+        begin(SHELL_TOUR, nextPath)
+        return
+      }
+      const steps =
+        nextPath === '/dashboard'
+          ? [...SHELL_TOUR.steps, ...pageTour.steps]
+          : pageTour.steps
+      begin({ key: `${pageTour.key}-tour`, steps }, nextPath)
     },
     [begin]
   )

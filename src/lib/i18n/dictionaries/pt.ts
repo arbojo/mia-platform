@@ -408,5 +408,23 @@ export const pt: Dict = {
         desc: 'Cada cartão é um produto. Clique em um para gerenciar suas mídias, editar ou excluir.',
       },
     },
+    studio: {
+      analyze: {
+        title: 'Executar Análise',
+        desc: 'Analisa a base de conhecimento da MIA e calcula o quão preparada ela está para atender seus clientes.',
+      },
+      score: {
+        title: 'Pontuação de prontidão',
+        desc: 'A pontuação geral de prontidão da MIA, dividida em completude, consistência e prontidão.',
+      },
+      stats: {
+        title: 'Resultados da análise',
+        desc: 'Um resumo rápido da análise: problemas detectados e sugestões aprovadas ou pendentes.',
+      },
+      suggestions: {
+        title: 'Sugestões da MIA',
+        desc: 'A MIA propõe melhorias concretas de conhecimento. Filtre, revise e aprove as que servir.',
+      },
+    },
   },
 }

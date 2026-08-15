@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260815-014157047",
+  "title": "Ajustes al tutorial interactivo: shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio",
+  "description": "Refinamiento de UX del tour interactivo del dashboard. (1) El shell (6 pasos: navegacion, modulo, tema, idioma, campana, MIA) solo se ensena en /dashboard; las demas paginas contextuales (conversations, knowledge, catalog, knowledge-studio) muestran solo sus pasos de pagina; en paginas sin tour contextual el boton Tutorial sigue reproduciendo el shell. (2) El boton Tutorial se mueve del footer del sidebar a la lista de navegacion, como ultimo item del grupo Configuracion justo debajo de Accesibilidad, para que no quede separado de los temas. (3) Nuevo tour para /dashboard/knowledge-studio (Pensamiento): 4 pasos (studio-analyze el boton Ejecutar Analisis siempre visible; studio-score la puntuacion; studio-stats la fila de 3 tarjetas; studio-suggestions el bloque de sugerencias y filtros), con anclas data-tour anadidas en KnowledgeStudio y seccion tour.studio en los 4 diccionarios i18n. Sin cambios de schema ni de AI ni de seguridad.",
+  "scope": {
+    "categories": [
+      "feature"
+    ],
+    "filesAffected": 9,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "i18n",
+      "ux"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 9 files affected, cross-cutting (multi-domain), category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Cambio acotado al sistema de tour existente: shell condicionado a /dashboard, boton reubicado dentro del nav, y nueva entrada pageTours para knowledge-studio con anclas data-tour e i18n. Sin nueva arquitectura. Aprobado.",
+      "timestamp": "2026-08-15T01:42:09.498Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin cambios de backend ni API; el tour es UI pura y config de i18n. Aprobado.",
+      "timestamp": "2026-08-15T01:42:19.160Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "startForPath condiciona el shell a /dashboard, boton Tutorial como item del grupo Configuracion y tour de Knowledge Studio con 4 pasos + anclas. Aprobado.",
+      "timestamp": "2026-08-15T01:42:29.132Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Tests de componente actualizados (composicion de pasos por pagina) + verificacion visual DevTools MCP. Aprobado.",
+      "timestamp": "2026-08-15T01:42:38.510Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit+push con rebase y redeploy Vercel al cierre. Aprobado.",
+      "timestamp": "2026-08-15T01:42:47.569Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar el refinamiento del tour en memoria al cierre. Aprobado.",
+      "timestamp": "2026-08-15T01:42:56.446Z"
+    }
+  ],
+  "createdAt": "2026-08-15T01:41:57.881Z",
+  "classifiedAt": "2026-08-15T01:41:57.881Z",
+  "approvedAt": "2026-08-15T01:42:56.447Z",
+  "completedAt": "2026-08-15T01:53:02.278Z"
+}

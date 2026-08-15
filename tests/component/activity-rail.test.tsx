@@ -81,4 +81,12 @@ describe('ActivityRail sidebar', () => {
     const aside = screen.getByRole('complementary', { name: 'Navegación' })
     expect(aside.getAttribute('style')).toContain('width: 260px')
   })
+
+  it('muestra el botón Tutorial justo después de Accesibilidad en el nav', () => {
+    renderRail()
+
+    const accessibility = screen.getByRole('link', { name: 'Accesibilidad' })
+    const tutorial = screen.getByRole('button', { name: 'Tutorial' })
+    expect(accessibility.compareDocumentPosition(tutorial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
 })

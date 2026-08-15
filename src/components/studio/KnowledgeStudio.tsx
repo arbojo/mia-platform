@@ -178,6 +178,7 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
           </p>
         </div>
         <Button
+          data-tour="studio-analyze"
           onClick={handleAnalyze}
           disabled={analyzing}
           className="bg-olive-600 hover:bg-olive-700"
@@ -200,14 +201,16 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
 
       {report && report.status === 'completed' && report.overall_score !== null ? (
         <>
-          <ReadinessScore
-            overall={report.overall_score}
-            completeness={report.completeness_score ?? 0}
-            consistency={report.consistency_score ?? 0}
-            readiness={report.readiness_score ?? 0}
-          />
+          <div data-tour="studio-score">
+            <ReadinessScore
+              overall={report.overall_score}
+              completeness={report.completeness_score ?? 0}
+              consistency={report.consistency_score ?? 0}
+              readiness={report.readiness_score ?? 0}
+            />
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div data-tour="studio-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="border-amber-100">
               <CardContent className="pt-4">
                 <p className="text-2xl font-bold text-amber-600">
@@ -236,7 +239,7 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
             readinessIssues={report.readiness_issues}
           />
 
-          <div>
+          <div data-tour="studio-suggestions">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 Sugerencias ({suggestions.length})

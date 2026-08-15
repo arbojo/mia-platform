@@ -405,6 +405,24 @@ export const es = {
         desc: 'Cada tarjeta es un producto. Haz clic en una para gestionar sus medios, editar o eliminarlo.',
       },
     },
+    studio: {
+      analyze: {
+        title: 'Ejecutar Análisis',
+        desc: 'Analiza la base de conocimiento de MIA y calcula qué tan lista está para atender a tus clientes.',
+      },
+      score: {
+        title: 'Puntuación de preparación',
+        desc: 'La puntuación general de preparación de MIA, desglosada en completitud, consistencia y preparación.',
+      },
+      stats: {
+        title: 'Resultados del análisis',
+        desc: 'Un resumen rápido del análisis: problemas detectados y sugerencias aprobadas o pendientes.',
+      },
+      suggestions: {
+        title: 'Sugerencias de MIA',
+        desc: 'MIA propone mejoras concretas a tu conocimiento. Filtra, revisa y aprueba las que te sirvan.',
+      },
+    },
   },
 }
 export type Dict = typeof es

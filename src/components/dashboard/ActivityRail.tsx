@@ -34,6 +34,12 @@ interface NavItem {
   icon: LucideIcon
 }
 
+interface NavGroup {
+  name: string
+  items: NavItem[]
+  tutorial?: boolean
+}
+
 export function ActivityRail() {
   const pathname = usePathname()
   const router = useRouter()
@@ -42,7 +48,7 @@ export function ActivityRail() {
   const { openMenu } = useContextMenu()
   const { startForPath } = useTour()
 
-  const nav: Array<{ name: string; items: NavItem[] }> = [
+  const nav: Array<NavGroup> = [
     {
       name: t.nav.today,
       items: [
@@ -134,6 +140,7 @@ export function ActivityRail() {
           icon: Accessibility,
         },
       ],
+      tutorial: true,
     },
   ]
 
@@ -239,26 +246,22 @@ export function ActivityRail() {
                   </Link>
                 )
               })}
+              {group.tutorial && (
+                <button
+                  type="button"
+                  data-tour="tutorial-button"
+                  onClick={() => startForPath(pathname)}
+                  className="relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150"
+                  style={{ color: 'var(--atmosphere-text-secondary)' }}
+                >
+                  <CircleHelp className="h-4 w-4 shrink-0" />
+                  <span className="whitespace-nowrap">{t.tour.tutorialButton}</span>
+                </button>
+              )}
             </div>
           </div>
         ))}
       </nav>
-
-      <div
-        className="shrink-0 border-t px-2.5 py-3"
-        style={{ borderColor: 'var(--atmosphere-border)' }}
-      >
-        <button
-          type="button"
-          data-tour="tutorial-button"
-          onClick={() => startForPath(pathname)}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150"
-          style={{ color: 'var(--atmosphere-text-secondary)' }}
-        >
-          <CircleHelp className="h-4 w-4 shrink-0" />
-          <span className="whitespace-nowrap">{t.tour.tutorialButton}</span>
-        </button>
-      </div>
     </aside>
   )
 }

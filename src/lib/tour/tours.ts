@@ -39,6 +39,15 @@ const pageTours: Record<string, TourDef> = {
       { target: '[data-tour="knowledge-tab-files"]', titleKey: 'knowledge.tabFiles.title', descKey: 'knowledge.tabFiles.desc' },
     ],
   },
+  '/dashboard/knowledge-studio': {
+    key: 'studio',
+    steps: [
+      { target: '[data-tour="studio-analyze"]', titleKey: 'studio.analyze.title', descKey: 'studio.analyze.desc' },
+      { target: '[data-tour="studio-score"]', titleKey: 'studio.score.title', descKey: 'studio.score.desc' },
+      { target: '[data-tour="studio-stats"]', titleKey: 'studio.stats.title', descKey: 'studio.stats.desc' },
+      { target: '[data-tour="studio-suggestions"]', titleKey: 'studio.suggestions.title', descKey: 'studio.suggestions.desc' },
+    ],
+  },
   '/dashboard/catalog': {
     key: 'catalog',
     steps: [
