@@ -17,11 +17,13 @@ import {
   Truck,
   Package,
   Sparkles,
+  CircleHelp,
   type LucideIcon,
 } from 'lucide-react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
 import { useModule, MODULES, type ModuleKey } from '@/components/layout/AppLayout'
 import { useContextMenu, type ContextMenuItemDef, type ContextMenuItems } from '@/components/ui/context-menu'
+import { useTour } from '@/components/tour/TourProvider'
 
 const RAIL_WIDTH = 260
 
@@ -38,6 +40,7 @@ export function ActivityRail() {
   const { t } = useI18n()
   const { activeModule, setModule } = useModule()
   const { openMenu } = useContextMenu()
+  const { startForPath } = useTour()
 
   const nav: Array<{ name: string; items: NavItem[] }> = [
     {
@@ -240,6 +243,22 @@ export function ActivityRail() {
           </div>
         ))}
       </nav>
+
+      <div
+        className="shrink-0 border-t px-2.5 py-3"
+        style={{ borderColor: 'var(--atmosphere-border)' }}
+      >
+        <button
+          type="button"
+          data-tour="tutorial-button"
+          onClick={() => startForPath(pathname)}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150"
+          style={{ color: 'var(--atmosphere-text-secondary)' }}
+        >
+          <CircleHelp className="h-4 w-4 shrink-0" />
+          <span className="whitespace-nowrap">{t.tour.tutorialButton}</span>
+        </button>
+      </div>
     </aside>
   )
 }

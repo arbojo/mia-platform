@@ -130,7 +130,10 @@ export default async function DashboardPage() {
     <div className="animate-appear-up space-y-8">
       <MorningGreeting context={data.greetingContext} />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        data-tour="home-vitals"
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+      >
         <VitalPresence
           value={data.todaysActivity.conversations}
           action={t.dashboard.activeConversations}
@@ -198,6 +201,7 @@ export default async function DashboardPage() {
           {t.dashboard.explore}
         </h2>
         <div
+          data-tour="home-modules"
           className="flex flex-col overflow-hidden"
           style={{
             borderRadius: 'var(--mod-radius-lg)',

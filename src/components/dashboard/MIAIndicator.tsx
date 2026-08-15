@@ -68,6 +68,7 @@ export function MIAIndicator({ status = 'active' }: { status?: MIAStatus }) {
       <button
         {...hoverProps}
         type="button"
+        data-tour="mia-indicator"
         onClick={(e) => openMenu(e, presenceMenu)}
         onContextMenu={(e) => openMenu(e, presenceMenu)}
         className="flex items-center gap-2 rounded-full transition-all duration-300"

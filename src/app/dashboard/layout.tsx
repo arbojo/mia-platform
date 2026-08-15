@@ -9,6 +9,7 @@ import { AccessibilityProvider } from '@/components/dashboard/AccessibilityProvi
 import { I18nProvider } from '@/components/dashboard/I18nProvider'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ContextMenuProvider } from '@/components/ui/context-menu'
+import { TourProvider } from '@/components/tour/TourProvider'
 import { getUserLocale } from '@/lib/i18n/server'
 
 export default async function DashboardLayout({
@@ -31,19 +32,21 @@ export default async function DashboardLayout({
         <AtmosphereProvider>
       <AccessibilityProvider>
         <ContextMenuProvider>
-          <AppLayout>
-            <ActivityRail />
-            <div className="flex flex-1 flex-col overflow-auto">
-              <CommandStrip />
-              <main className="relative flex-1">
-                <div className="p-8">
-                  <OnboardingBanner onboardingStatus={business?.onboarding_status} />
-                  {children}
-                </div>
-              </main>
-            </div>
-            <MIAIndicator />
-          </AppLayout>
+          <TourProvider>
+            <AppLayout>
+              <ActivityRail />
+              <div className="flex flex-1 flex-col overflow-auto">
+                <CommandStrip />
+                <main className="relative flex-1">
+                  <div className="p-8">
+                    <OnboardingBanner onboardingStatus={business?.onboarding_status} />
+                    {children}
+                  </div>
+                </main>
+              </div>
+              <MIAIndicator />
+            </AppLayout>
+          </TourProvider>
         </ContextMenuProvider>
       </AccessibilityProvider>
       </AtmosphereProvider>

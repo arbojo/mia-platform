@@ -121,7 +121,7 @@ export function ConversationList({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-tour="conversation-list">
       {conversations.map((conv) => {
         const statusBadge = STATUS_CONFIG[conv.status] ?? STATUS_CONFIG.archived
         return (

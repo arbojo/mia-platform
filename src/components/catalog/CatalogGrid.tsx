@@ -100,7 +100,7 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
             Tus productos con su SKU, precio y multimedia. Haz clic en uno para gestionar sus medios.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" data-tour="catalog-actions">
           <Link href="/dashboard/knowledge">
             <Button variant="outline">
               <Images className="mr-2 h-4 w-4" />
@@ -119,7 +119,10 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
       </div>
 
       {products.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-16 text-center">
+        <div
+          data-tour="catalog-grid"
+          className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-16 text-center"
+        >
           <p className="text-lg text-zinc-700">Aún no hay productos.</p>
           <p className="mt-1 text-sm text-zinc-500">
             Agrega tu primer producto para empezar a construir tu catálogo.
@@ -133,7 +136,10 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          data-tour="catalog-grid"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
           {products.map((product) => (
             <ProductCard
               key={product.id}

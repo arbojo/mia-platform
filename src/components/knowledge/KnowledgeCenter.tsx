@@ -94,6 +94,7 @@ export function KnowledgeCenter({ businessId, initialKnowledge, initialInstructi
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            data-tour={`knowledge-tab-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
               'px-4 py-3 text-sm font-medium border-b-2 transition-colors',

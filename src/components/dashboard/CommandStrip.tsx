@@ -41,6 +41,7 @@ export function CommandStrip() {
     <div className="relative flex items-center justify-end gap-2 px-6 py-2.5">
       <button
         type="button"
+        data-tour="module-chip"
         onClick={(e) => openMenu(e, moduleMenu)}
         onContextMenu={(e) => openMenu(e, moduleMenu)}
         className="flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors duration-200"
@@ -57,6 +58,7 @@ export function CommandStrip() {
 
       <button
         type="button"
+        data-tour="theme-toggle"
         onClick={toggle}
         className={utilityButtonClass}
         style={{ color: 'var(--atmosphere-text-secondary)' }}
@@ -68,6 +70,7 @@ export function CommandStrip() {
 
       <button
         type="button"
+        data-tour="language-button"
         onClick={(e) => openMenu(e, localeMenu)}
         className={utilityButtonClass}
         style={{ color: 'var(--atmosphere-text-secondary)' }}

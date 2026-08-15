@@ -44,6 +44,7 @@ export function SignalIndicator({
 
   return (
     <button
+      data-tour="signals-bell"
       onClick={onClick}
       className="relative flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200"
       style={{

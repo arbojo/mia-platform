@@ -309,4 +309,104 @@ export const pt: Dict = {
     deliveryPromiseRule:
       'NUNCA prometa datas, prazos nem horários de entrega que não estejam no seu conhecimento. Se o negócio tiver dias de entrega carregados, cite-os como estão. Se não tiver, diga que a equipe coordena a entrega e confirma pelo WhatsApp, sem comprometer datas.',
   },
+  tour: {
+    dialogLabel: 'Tutorial',
+    closeLabel: 'Fechar tutorial',
+    tutorialButton: 'Tutorial',
+    offerTitle: 'Quer ver como funciona?',
+    offerDesc: 'A MIA pode mostrar o que cada botão desta página faz.',
+    offerStart: 'Ver tutorial',
+    offerDismiss: 'Agora não',
+    skip: 'Pular',
+    back: 'Voltar',
+    next: 'Próximo',
+    finish: 'Concluir',
+    step: (current: number, total: number) => `Etapa ${current} de ${total}`,
+    shell: {
+      nav: {
+        title: 'Sua navegação',
+        desc: 'Navegue pela MIA daqui: Hoje, Aprenda, Cresça e Configurações agrupam todas as seções.',
+      },
+      module: {
+        title: 'Módulo ativo',
+        desc: 'Altere o módulo em que a MIA trabalha: Vendas, Inventário ou Logística. Cada um colore a interface e suas seções.',
+      },
+      theme: {
+        title: 'Modo claro / escuro',
+        desc: 'Alterne entre o tema claro e o escuro para maior conforto visual.',
+      },
+      language: {
+        title: 'Idioma',
+        desc: 'Escolha o idioma da MIA: espanhol, inglês, português ou japonês.',
+      },
+      signals: {
+        title: 'Sinais da MIA',
+        desc: 'Os sinais que a MIA detecta (vendas, acompanhamentos, dados interessantes) aparecem aqui. Abra para revisar sua caixa de entrada.',
+      },
+      mia: {
+        title: 'Presença da MIA',
+        desc: 'Mostra o estado da MIA: ativa, aprendendo ou descansando. Clique para alterar ou ir para Saúde.',
+      },
+    },
+    home: {
+      vitals: {
+        title: 'Métricas do dia',
+        desc: 'O pulso do seu negócio nas últimas 24 horas: conversas ativas, novos clientes, mensagens gerenciadas e a preparação da MIA.',
+      },
+      modules: {
+        title: 'Zonas da MIA',
+        desc: 'Atalhos para os módulos principais: Memória, Pensamento e Laboratório. Cada um mostra um resumo do que a MIA está fazendo.',
+      },
+      report: {
+        title: 'Relatório semanal',
+        desc: 'Toda segunda-feira a MIA monta um resumo da semana: conversas, aprendizados e recomendações para crescer.',
+      },
+    },
+    conversations: {
+      search: {
+        title: 'Buscar conversas',
+        desc: 'Encontre uma conversa pelo nome, telefone ou e-mail do cliente.',
+      },
+      status: {
+        title: 'Filtrar por status',
+        desc: 'Filtre as conversas pelo status: ativas, em espera, concluídas, abandonadas ou arquivadas.',
+      },
+      assistant: {
+        title: 'Filtrar por assistente',
+        desc: 'Se você tiver vários assistentes, escolha de qual deseja ver as conversas.',
+      },
+      list: {
+        title: 'Lista de conversas',
+        desc: 'Cada conversa mostra o cliente, a última atividade e um resumo. Expanda uma para ver memória e notas.',
+      },
+    },
+    knowledge: {
+      tabKnowledge: {
+        title: 'Base de Conhecimento',
+        desc: 'Fatos e informações do negócio que a MIA deve conhecer para atender bem seus clientes.',
+      },
+      tabMedia: {
+        title: 'Biblioteca de Mídia',
+        desc: 'Imagens e depoimentos que a MIA envia conforme o contexto da conversa.',
+      },
+      tabInstructions: {
+        title: 'Instruções de IA',
+        desc: 'Regras de comportamento e personalidade da MIA: como ela responde e quais prioridades segue.',
+      },
+      tabFiles: {
+        title: 'Arquivos',
+        desc: 'Ensine a MIA com seus documentos. Envie um arquivo e ela aprende automaticamente.',
+      },
+    },
+    catalog: {
+      actions: {
+        title: 'Ações do catálogo',
+        desc: 'Mídias gerais abre a biblioteca; Importar carrega produtos de uma fonte; Novo produto adiciona um manualmente com SKU e preço.',
+      },
+      grid: {
+        title: 'Seus produtos',
+        desc: 'Cada cartão é um produto. Clique em um para gerenciar suas mídias, editar ou excluir.',
+      },
+    },
+  },
 }

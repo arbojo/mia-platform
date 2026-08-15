@@ -102,7 +102,7 @@ export function WeeklyReportCard({ report }: { report: WeeklyReportData | null }
   }
 
   return (
-    <div style={glassStyle}>
+    <div style={glassStyle} data-tour="home-report">
       <div className="p-6">
         <div className="flex items-center justify-between">
           <h3 style={{ color: 'var(--atmosphere-text)' }}>{t.weeklyReport.title}</h3>

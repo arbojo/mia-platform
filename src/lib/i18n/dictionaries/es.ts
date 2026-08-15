@@ -306,5 +306,105 @@ export const es = {
     deliveryPromiseRule:
       'NUNCA prometas fechas, plazos ni horarios de entrega que no estén en tu conocimiento. Si el negocio tiene días de entrega cargados, cítalos tal cual. Si no los tiene, di que el equipo coordina la entrega y confirma por WhatsApp, sin comprometer fechas.',
   },
+  tour: {
+    dialogLabel: 'Tutorial',
+    closeLabel: 'Cerrar tutorial',
+    tutorialButton: 'Tutorial',
+    offerTitle: '¿Quieres ver cómo funciona?',
+    offerDesc: 'MIA puede mostrarte qué hace cada botón de esta página.',
+    offerStart: 'Ver tutorial',
+    offerDismiss: 'No, gracias',
+    skip: 'Saltar',
+    back: 'Atrás',
+    next: 'Siguiente',
+    finish: 'Terminar',
+    step: (current: number, total: number) => `Paso ${current} de ${total}`,
+    shell: {
+      nav: {
+        title: 'Tu navegación',
+        desc: 'Desde aquí te mueves por MIA: Hoy, Aprende, Crece y Configuración agrupan todas las secciones.',
+      },
+      module: {
+        title: 'Módulo activo',
+        desc: 'Cambia el módulo en el que trabaja MIA: Ventas, Inventario o Logística. Cada uno colorea la interfaz y sus secciones.',
+      },
+      theme: {
+        title: 'Modo claro / oscuro',
+        desc: 'Alterna entre el tema claro y el oscuro para mayor comodidad visual.',
+      },
+      language: {
+        title: 'Idioma',
+        desc: 'Elige el idioma de MIA: español, inglés, portugués o japonés.',
+      },
+      signals: {
+        title: 'Señales de MIA',
+        desc: 'Aquí aparecen las señales que MIA detecta (ventas, seguimientos, datos interesantes) para que revises tu bandeja.',
+      },
+      mia: {
+        title: 'Presencia de MIA',
+        desc: 'Indica el estado de MIA: activa, aprendiendo o descansando. Haz clic para cambiarlo o ir a Salud.',
+      },
+    },
+    home: {
+      vitals: {
+        title: 'Métricas del día',
+        desc: 'El pulso de tu negocio en las últimas 24 horas: conversaciones activas, nuevos clientes, mensajes gestionados y la preparación de MIA.',
+      },
+      modules: {
+        title: 'Zonas de MIA',
+        desc: 'Atajos a los módulos principales: Memoria, Pensamiento y Laboratorio. Cada uno muestra un resumen de lo que MIA está haciendo.',
+      },
+      report: {
+        title: 'Reporte semanal',
+        desc: 'MIA reúne cada lunes un resumen de la semana: conversaciones, aprendizajes y recomendaciones para crecer.',
+      },
+    },
+    conversations: {
+      search: {
+        title: 'Buscar conversaciones',
+        desc: 'Encuentra una conversación por el nombre, teléfono o correo del cliente.',
+      },
+      status: {
+        title: 'Filtrar por estado',
+        desc: 'Filtra las conversaciones por su estado: activas, en espera, completadas, abandonadas o archivadas.',
+      },
+      assistant: {
+        title: 'Filtrar por asistente',
+        desc: 'Si tienes varios asistentes, elige de cuál quieres ver las conversaciones.',
+      },
+      list: {
+        title: 'Lista de conversaciones',
+        desc: 'Cada conversación muestra al cliente, su última actividad y el resumen. Despliega una para ver la memoria y las notas.',
+      },
+    },
+    knowledge: {
+      tabKnowledge: {
+        title: 'Base de Conocimiento',
+        desc: 'Hechos e información del negocio que MIA debe conocer para atender bien a tus clientes.',
+      },
+      tabMedia: {
+        title: 'Biblioteca Multimedia',
+        desc: 'Imágenes y testimonios que MIA envía según el contexto de la conversación.',
+      },
+      tabInstructions: {
+        title: 'Instrucciones IA',
+        desc: 'Reglas de comportamiento y personalidad de MIA: cómo responde y qué prioridades sigue.',
+      },
+      tabFiles: {
+        title: 'Archivos',
+        desc: 'Enseña a MIA con tus documentos. Sube un archivo y ella aprende de él automáticamente.',
+      },
+    },
+    catalog: {
+      actions: {
+        title: 'Acciones del catálogo',
+        desc: 'Medios generales abre la biblioteca multimedia; Importar carga productos desde una fuente; Nuevo producto agrega uno a mano con su SKU y precio.',
+      },
+      grid: {
+        title: 'Tus productos',
+        desc: 'Cada tarjeta es un producto. Haz clic en una para gestionar sus medios, editar o eliminarlo.',
+      },
+    },
+  },
 }
 export type Dict = typeof es

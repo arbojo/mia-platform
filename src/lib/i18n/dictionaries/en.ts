@@ -309,4 +309,104 @@ export const en: Dict = {
     deliveryPromiseRule:
       'NEVER promise delivery dates, deadlines, or times that are not in your knowledge. If the business has delivery days loaded, cite them as-is. If not, say the team coordinates delivery and confirms by WhatsApp, without committing to dates.',
   },
+  tour: {
+    dialogLabel: 'Tutorial',
+    closeLabel: 'Close tutorial',
+    tutorialButton: 'Tutorial',
+    offerTitle: 'Want to see how it works?',
+    offerDesc: 'MIA can show you what each button on this page does.',
+    offerStart: 'View tutorial',
+    offerDismiss: 'Not now',
+    skip: 'Skip',
+    back: 'Back',
+    next: 'Next',
+    finish: 'Finish',
+    step: (current: number, total: number) => `Step ${current} of ${total}`,
+    shell: {
+      nav: {
+        title: 'Your navigation',
+        desc: 'Move around MIA from here: Today, Learn, Grow and Settings group every section.',
+      },
+      module: {
+        title: 'Active module',
+        desc: 'Switch the module MIA works on: Sales, Inventory or Logistics. Each one colors the interface and its sections.',
+      },
+      theme: {
+        title: 'Light / dark mode',
+        desc: 'Toggle between light and dark themes for visual comfort.',
+      },
+      language: {
+        title: 'Language',
+        desc: "Choose MIA's language: Spanish, English, Portuguese or Japanese.",
+      },
+      signals: {
+        title: 'MIA signals',
+        desc: 'The signals MIA detects (sales, follow-ups, interesting data) land here. Open it to review your inbox.',
+      },
+      mia: {
+        title: 'MIA presence',
+        desc: "Shows MIA's state: active, learning or resting. Click it to change it or go to Health.",
+      },
+    },
+    home: {
+      vitals: {
+        title: "Today's metrics",
+        desc: "Your business pulse in the last 24 hours: active conversations, new customers, handled messages and MIA's readiness.",
+      },
+      modules: {
+        title: 'MIA zones',
+        desc: 'Shortcuts to the main modules: Memory, Thinking and Lab. Each shows a summary of what MIA is doing.',
+      },
+      report: {
+        title: 'Weekly report',
+        desc: 'Every Monday MIA puts together a weekly summary: conversations, learnings and recommendations to grow.',
+      },
+    },
+    conversations: {
+      search: {
+        title: 'Search conversations',
+        desc: "Find a conversation by the customer's name, phone or email.",
+      },
+      status: {
+        title: 'Filter by status',
+        desc: 'Filter conversations by their state: active, waiting, completed, abandoned or archived.',
+      },
+      assistant: {
+        title: 'Filter by assistant',
+        desc: "If you have several assistants, choose which one's conversations to see.",
+      },
+      list: {
+        title: 'Conversation list',
+        desc: 'Each conversation shows the customer, last activity and a summary. Expand one to see memory and notes.',
+      },
+    },
+    knowledge: {
+      tabKnowledge: {
+        title: 'Knowledge Base',
+        desc: 'Facts and business info MIA must know to serve your customers well.',
+      },
+      tabMedia: {
+        title: 'Media Library',
+        desc: 'Images and testimonials MIA sends based on conversation context.',
+      },
+      tabInstructions: {
+        title: 'AI Instructions',
+        desc: "MIA's behavior and personality rules: how she responds and what priorities she follows.",
+      },
+      tabFiles: {
+        title: 'Files',
+        desc: 'Teach MIA with your documents. Upload a file and she learns from it automatically.',
+      },
+    },
+    catalog: {
+      actions: {
+        title: 'Catalog actions',
+        desc: 'General media opens the media library; Import loads products from a source; New product adds one by hand with its SKU and price.',
+      },
+      grid: {
+        title: 'Your products',
+        desc: 'Each card is a product. Click one to manage its media, edit or delete it.',
+      },
+    },
+  },
 }

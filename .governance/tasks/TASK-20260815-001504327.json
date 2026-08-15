@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260815-001504327",
+  "title": "Tutorial interactivo contextual del dashboard (spotlight tour, activable desde sidebar)",
+  "description": "Feature de UX: tour interactivo que muestra que hace cada boton de la pagina actual, activable desde el sidebar y con auto-ofrecimiento en la primera visita (persistido en localStorage). Componente propio sin dependencias nuevas, reutilizando el patron de portal del context-menu existente. Arquitectura: (1) src/components/tour/types.ts (TourStep con target selector + claves i18n), (2) src/components/tour/TourProvider.tsx (context global, estado activo, resolucion de tour por pathname, auto-ofrecimiento, start/next/prev/close), (3) src/components/tour/TourOverlay.tsx (portal a document.body, spotlight via box-shadow 9999px sobre el target, tooltip glass, progreso x/N, botones Saltar/Anterior/Siguiente, scrollIntoView por paso, teclado Escape/Flechas, clamp al viewport, role=dialog), (4) src/lib/tour/tours.ts (registro de tours: shell + 4 paginas prioritarias Home, Conversations, Knowledge, Catalog), (5) integracion en src/app/dashboard/layout.tsx (montar TourProvider) y boton Tutorial al pie de src/components/dashboard/ActivityRail.tsx, (6) seccion tour en diccionarios i18n es/en/pt/ja, (7) anclas data-tour minimas donde faltan (tabs de KnowledgeCenter, botones header de CatalogGrid), (8) tests de componente. Sin cambios de schema ni de AI ni de seguridad.",
+  "scope": {
+    "categories": [
+      "feature"
+    ],
+    "filesAffected": 9,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "i18n",
+      "ux"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 9 files affected, cross-cutting (multi-domain), category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Arquitectura de tour propio sin dependencias; reutiliza patron portal del context-menu, spotlight por box-shadow, registro de tours por ruta con claves i18n. Aprobado.",
+      "timestamp": "2026-08-15T00:15:23.818Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin cambios de backend/API; el tour es UI pura. Aprobado.",
+      "timestamp": "2026-08-15T00:16:01.294Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "TourOverlay portal+spotlight, TourProvider context, boton en ActivityRail, i18n en 4 idiomas. Aprobado.",
+      "timestamp": "2026-08-15T00:16:10.929Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Tests de componente del tour + verificacion visual DevTools MCP + e2e sin regresiones. Aprobado.",
+      "timestamp": "2026-08-15T00:16:20.528Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit+push con rebase + deploy Vercel al cierre. Aprobado.",
+      "timestamp": "2026-08-15T00:16:29.199Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar decision ADR de tour propio en memoria. Aprobado.",
+      "timestamp": "2026-08-15T00:16:38.066Z"
+    }
+  ],
+  "createdAt": "2026-08-15T00:15:04.822Z",
+  "classifiedAt": "2026-08-15T00:15:04.822Z",
+  "approvedAt": "2026-08-15T00:16:38.068Z",
+  "completedAt": "2026-08-15T01:01:01.926Z"
+}

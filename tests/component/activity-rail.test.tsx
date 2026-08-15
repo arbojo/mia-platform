@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { ActivityRail } from '@/components/dashboard/ActivityRail'
 import { I18nProvider } from '@/components/dashboard/I18nProvider'
 import { ContextMenuProvider } from '@/components/ui/context-menu'
+import { TourProvider } from '@/components/tour/TourProvider'
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -13,7 +14,9 @@ function renderRail() {
   return render(
     <I18nProvider locale="es">
       <ContextMenuProvider>
-        <ActivityRail />
+        <TourProvider>
+          <ActivityRail />
+        </TourProvider>
       </ContextMenuProvider>
     </I18nProvider>
   )
