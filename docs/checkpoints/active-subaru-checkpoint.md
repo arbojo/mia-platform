@@ -1,14 +1,14 @@
 ---
 task_id: MISSION-20260815-001
 title: Tour interactivo contextual del dashboard
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 9
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260815-001504327
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-15T00:16:57.264Z
+updated: 2026-08-15T00:25:02.049Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Aprobación: TASK-20260815-001504327.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark MISSION-20260815-001 2`.
 
 ## Constraints
 
