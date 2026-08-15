@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `47f50cd`.
+> Fuente de verdad: este repositorio en `d1751ed`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `47f50cd` |
+| **Commit HEAD** | `d1751ed` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T18:27:34-06:00 |
+| **Generado** | 2026-08-14T19:02:02-06:00 |
 
 ---
 
@@ -338,7 +338,7 @@ widget
 
 ## 9. Componentes
 
-111 componentes en `src/components/`:
+114 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -451,6 +451,9 @@ studio/AnalysisReport.tsx
 studio/KnowledgeStudio.tsx
 studio/ReadinessScore.tsx
 studio/SuggestionCard.tsx
+tour/TourOverlay.tsx
+tour/TourProvider.tsx
+tour/types.ts
 training/MemoryTimeline.tsx
 ```
 
@@ -458,7 +461,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-98 módulos:
+99 módulos:
 
 ```
 ai/client.ts
@@ -557,6 +560,7 @@ system/edition.ts
 system/health.ts
 system/language.ts
 system/routing.ts
+tour/tours.ts
 types/index.ts
 utils.ts
 ```
@@ -577,7 +581,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (98)**:
+**Tareas registradas (99)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -679,6 +683,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260814-202922311 | Simplificar media_type de knowledge_items a solo image | testimonial | completed |
 | TASK-20260814-225411178 | Run e2e tests against production server (next start) to fix Turbopack dev concurrency flakiness | completed |
 | TASK-20260814-234953800 | Separar utilidades del chip de modulo en CommandStrip (tema, idioma, MIA Signals) | completed |
+| TASK-20260815-001504327 | Tutorial interactivo contextual del dashboard (spotlight tour, activable desde sidebar) | completed |
 
 ---
 
@@ -727,6 +732,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-offer)
+0e7cdd0 subaru: checkpoint MISSION-20260815-001 - en-progreso
+157b913 docs: regenerate MASTER.md at 47f50cd
 47f50cd subaru: checkpoint MISSION-20260815-001 - en-progreso
 6adf7fe docs: regenerate MASTER.md at ab0b3ec
 ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
@@ -744,9 +752,6 @@ e87274c fix: run e2e tests against production server to eliminate Turbopack dev 
 bbc2a2c docs: regenerate MASTER.md at bf41aa2
 bf41aa2 refactor: simplify media_type to image | testimonial
 f3b788c docs: regenerate MASTER.md at 04dd0f1
-04dd0f1 fix: set bridge MIA_APP_URL to production for webhooks
-a69269f fix: prevent automatic empty lab sessions on scenario select
-e103cee docs: regenerate MASTER.md at 0252e42
 ```
 
 ---
