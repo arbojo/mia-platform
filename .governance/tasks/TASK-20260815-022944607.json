@@ -1,0 +1,92 @@
+{
+  "id": "TASK-20260815-022944607",
+  "title": "Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova",
+  "description": "MIA queda ciclada repitiendo la pregunta de control (\"Te confirmo tu pedido?\") cuando el cliente responde una negativa informal (un \"no\" a secas) o desvia la conversacion a otro tema. Causa raiz: el prompt de ventas (waOrderCapture + closing policies en los diccionarios i18n) ordena pedir confirmacion explicita y cerrar cada respuesta con gancho comercial; no existe una regla que le diga que hacer ante una negativa informal o un cambio de tema, por lo que repite el template. Fix: (1) agregar en waOrderCapture y en las closing policies una regla anti-bucle: si el cliente rechaza informalmente o desvia a otro tema, reconocerlo, pivotar con naturalidad y NO repetir la pregunta de confirmacion; una negativa clara detiene el intento de cierre. Aplica a los 4 diccionarios (es/en/pt/ja). (2) Actualizar la sales_rule de Vitanova en la DB (y su seed) anadiendo el corolario de que no se insiste tras una negativa o desvio. Sin cambios de schema ni de seguridad.",
+  "scope": {
+    "categories": [
+      "ai_behaviour"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "i18n",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected, AI behaviour changes, cross-cutting (multi-domain). Required agents (7): architect, backend, ai_engineer, performance, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Cambio de comportamiento de IA con 6 archivos; el prompt es el leaver correcto, la ampliacion del diccionario de detect no era suficiente",
+      "timestamp": "2026-08-15T02:29:56.401Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin cambios de API ni schema; solo strings de prompts en diccionarios y regla de ventas. Sin impacto backend",
+      "timestamp": "2026-08-15T02:30:06.581Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Regla anti-bucle correcta: reconocer negativa informal/desvio, pivotar y no repetir el template de confirmacion. Evita ciclar el LLM sin sacrificar la confirmacion explicita de pedidos",
+      "timestamp": "2026-08-15T02:30:16.533Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Solo texto de prompts: costo de tokens despreciable (unos cientos de tokens extra en el system prompt). Sin impacto medible",
+      "timestamp": "2026-08-15T02:30:27.394Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Cambio de prompts sin UI; verificare lint, build y unit tests. Se agregara test del contenido de las instrucciones",
+      "timestamp": "2026-08-15T02:30:37.800Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin cambios de schema, sin secretos. Verificare git y deploy tras los gates",
+      "timestamp": "2026-08-15T02:30:47.211Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara el hallazgo del bucle de confirmacion y el fix de prompts en la memoria de ingenieria",
+      "timestamp": "2026-08-15T02:30:56.852Z"
+    }
+  ],
+  "createdAt": "2026-08-15T02:29:44.548Z",
+  "classifiedAt": "2026-08-15T02:29:44.548Z",
+  "approvedAt": "2026-08-15T02:30:56.854Z",
+  "startedAt": "2026-08-15T02:31:07.399Z",
+  "completedAt": "2026-08-15T02:38:40.414Z"
+}

@@ -297,6 +297,8 @@ ${buildClosingPolicy(personality.sales_aggressiveness, ai)}
 
 ${ai.deliveryPromiseRule}
 
+${ai.rejectionPivotRule}
+
 ## ${ai.businessInfo}
 ${brand?.elevator_pitch ?? ai.noBusinessInfo}
 ${brand?.target_customers ? `\n${ai.targetCustomers}: ${brand.target_customers}` : ''}

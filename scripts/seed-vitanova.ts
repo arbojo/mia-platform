@@ -222,7 +222,7 @@ async function seedRules(supabase: ReturnType<typeof createClient>, businessId: 
     {
       business_id: businessId,
       category: 'schedule',
-      content: 'Para generar el pedido se requiere confirmación explícita del cliente y su ciudad (para la fecha de entrega). El "me interesa" no es una compra.',
+      content: 'Para generar el pedido se requiere confirmación explícita del cliente y su ciudad (para la fecha de entrega). El "me interesa" no es una compra. Si el cliente se niega o desvía la conversación, NO insistas ni repitas la pregunta de confirmación: acéptalo con naturalidad y quédate disponible.',
       priority: 2,
       is_active: true,
     },

@@ -308,6 +308,11 @@ export const pt: Dict = {
       '- Nunca pressione artificialmente: a prioridade é ajudar o cliente a decidir.',
     deliveryPromiseRule:
       'NUNCA prometa datas, prazos nem horários de entrega que não estejam no seu conhecimento. Se o negócio tiver dias de entrega carregados, cite-os como estão. Se não tiver, diga que a equipe coordena a entrega e confirma pelo WhatsApp, sem comprometer datas.',
+    rejectionPivotRule:
+      'SE O CLIENTE RECUSAR OU MUDAR DE ASSUNTO:\n' +
+      '- Se o cliente recusar informalmente ("não", "não, obrigado", "melhor não", "agora não", "já ia saindo") ou desviar a conversa para outro assunto, aceite com naturalidade, responda ao que ele pediu e NÃO repita a pergunta de confirmação nem o gancho de fechamento.\n' +
+      '- Uma recusa clara encerra a tentativa de fechamento: não insista, não pergunte a mesma coisa de novo e não pressione. Continue disponível e siga a conversa.\n' +
+      '- Se o cliente apenas mudar de assunto sem recusar, responda à nova pergunta com naturalidade; você pode retomar o fechamento mais adiante, uma única vez, sem repetir o mesmo texto.',
   },
   tour: {
     dialogLabel: 'Tutorial',

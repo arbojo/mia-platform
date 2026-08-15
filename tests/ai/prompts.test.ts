@@ -159,4 +159,17 @@ describe('buildMasterPrompt', () => {
     const streaming = build({ knowledge: knowledgeWithImage })
     expect(streaming).not.toContain('[IMAGEN_DISPONIBLE]')
   })
+
+  it('incluye la regla anti-bucle de rechazo/desvio en es', () => {
+    const prompt = build()
+    expect(prompt).toContain('SI EL CLIENTE NIEGA O CAMBIA DE TEMA')
+    expect(prompt).toContain('no insistas')
+    expect(prompt).toContain('repitas la pregunta de confirmación ni el gancho de cierre')
+  })
+
+  it('incluye la regla anti-bucle de rechazo/desvio en en', () => {
+    const prompt = build({ locale: 'en' })
+    expect(prompt).toContain('IF THE CUSTOMER DECLINES OR CHANGES SUBJECT')
+    expect(prompt).toContain('do not insist')
+  })
 })

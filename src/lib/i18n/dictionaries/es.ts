@@ -305,6 +305,11 @@ export const es = {
       '- Nunca apliques presión artificial: la prioridad es que el cliente decida con naturalidad.',
     deliveryPromiseRule:
       'NUNCA prometas fechas, plazos ni horarios de entrega que no estén en tu conocimiento. Si el negocio tiene días de entrega cargados, cítalos tal cual. Si no los tiene, di que el equipo coordina la entrega y confirma por WhatsApp, sin comprometer fechas.',
+    rejectionPivotRule:
+      'SI EL CLIENTE NIEGA O CAMBIA DE TEMA:\n' +
+      '- Si el cliente rechaza de forma informal ("no", "no gracias", "mejor no", "ahora no", "ya me iba") o desvía la conversación a otro tema, acéptalo con naturalidad, responde a lo que pidió y NO repitas la pregunta de confirmación ni el gancho de cierre.\n' +
+      '- Una negativa clara detiene el intento de cierre: no insistas, no vuelvas a preguntar lo mismo y no presiones. Quédate disponible y sigue la conversación.\n' +
+      '- Si el cliente solo cambia de tema sin negarse, responde su nueva pregunta con naturalidad; puedes retomar el cierre más adelante, una sola vez, sin repetir el mismo texto.',
   },
   tour: {
     dialogLabel: 'Tutorial',
