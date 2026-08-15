@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d1751ed`.
+> Fuente de verdad: este repositorio en `0cc454a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d1751ed` |
+| **Commit HEAD** | `0cc454a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T19:02:02-06:00 |
+| **Generado** | 2026-08-14T19:13:25-06:00 |
 
 ---
 
@@ -732,6 +732,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+0cc454a fix(subaru): governance complete acepta status completed en freeze/complete
+c53c1b2 subaru: checkpoint MISSION-20260815-001 - completado
+0819f25 subaru: checkpoint MISSION-20260815-001 - en-progreso
+721ff97 docs: regenerate MASTER.md at d1751ed
 d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-offer)
 0e7cdd0 subaru: checkpoint MISSION-20260815-001 - en-progreso
 157b913 docs: regenerate MASTER.md at 47f50cd
@@ -748,10 +752,6 @@ c6b2f72 docs: regenerate MASTER.md at 2980906
 e750a5d docs: regenerate MASTER.md at b5f16da
 b5f16da fix: separate theme, language and signals from the module chip menu in CommandStrip
 8a404ab docs: regenerate MASTER.md at e87274c
-e87274c fix: run e2e tests against production server to eliminate Turbopack dev flakiness
-bbc2a2c docs: regenerate MASTER.md at bf41aa2
-bf41aa2 refactor: simplify media_type to image | testimonial
-f3b788c docs: regenerate MASTER.md at 04dd0f1
 ```
 
 ---
