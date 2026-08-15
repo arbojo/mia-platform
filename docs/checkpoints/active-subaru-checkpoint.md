@@ -1,23 +1,23 @@
 ---
-task_id: TASK-20260814-031446183
-title: Envío único de imagen por producto/sesión + blindaje multimedia WhatsApp
-state: completed
-current_step: 8
-total_steps: 8
+task_id: MISSION-20260815-001
+title: Tour interactivo contextual del dashboard
+state: frozen
+current_step: 0
+total_steps: 9
 branch: main
-last_machine: archlinux
-governance_id: TASK-20260814-031446183
+last_machine: Deivis-Desktop
+governance_id: TASK-20260815-001504327
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-14T03:35:52.540Z
+updated: 2026-08-15T00:16:57.264Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Envío único de imagen por producto/sesión + blindaje multimedia WhatsApp
+Tour interactivo contextual del dashboard
 
-Aprobación: TASK-20260814-031446183.
+Aprobación: TASK-20260815-001504327.
 
 ## Scope
 
@@ -31,7 +31,7 @@ Aprobación: TASK-20260814-031446183.
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: (qué logra el paso 4)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -63,7 +63,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
   - Objetivo: (qué logra el paso 5)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -71,7 +71,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
+- [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
   - Objetivo: (qué logra el paso 6)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -79,7 +79,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
+- [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
   - Objetivo: (qué logra el paso 7)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -87,8 +87,16 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
+- [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
   - Objetivo: (qué logra el paso 8)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 9:** (objetivo del paso 9 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 9)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
   - Dependencia: (paso previo que debe estar terminado, o "ninguna")
@@ -98,13 +106,11 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión TASK-20260814-031446183 completada (8/8 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, TypeScript strict check.
-- Finalizado: 2026-08-14T03:35:52.540Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..9.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete TASK-20260814-031446183` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
@@ -121,5 +127,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260814-031446183 <n>`.
-6. Al final: `subaru complete TASK-20260814-031446183`.
+5. Continuar el paso indicado y ejecutar `subaru mark MISSION-20260815-001 <n>`.
+6. Al final: `subaru complete MISSION-20260815-001`.
