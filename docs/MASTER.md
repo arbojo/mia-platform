@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2980906`.
+> Fuente de verdad: este repositorio en `ab0b3ec`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2980906` |
+| **Commit HEAD** | `ab0b3ec` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T18:17:06-06:00 |
+| **Generado** | 2026-08-14T18:26:16-06:00 |
 
 ---
 
@@ -727,6 +727,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
+4b49d37 subaru: checkpoint MISSION-20260815-001 - en-progreso
+09073b1 subaru: checkpoint MISSION-20260815-001 - en-progreso
+b5a86ff subaru: checkpoint MISSION-20260815-001 - en-progreso
+5006b69 subaru: checkpoint MISSION-20260815-001 - en-progreso
+205237f subaru: checkpoint MISSION-20260815-001 - en-progreso
+c6b2f72 docs: regenerate MASTER.md at 2980906
 2980906 subaru: checkpoint MISSION-20260815-001 - listo
 e750a5d docs: regenerate MASTER.md at b5f16da
 b5f16da fix: separate theme, language and signals from the module chip menu in CommandStrip
@@ -740,13 +747,6 @@ a69269f fix: prevent automatic empty lab sessions on scenario select
 e103cee docs: regenerate MASTER.md at 0252e42
 0252e42 chore: seal cross-platform dev for Windows (.gitattributes + README section)
 b9a65e4 docs: regenerate MASTER.md at 06ed13d
-06ed13d chore: complete governance task TASK-20260814-035326841 (cleanup final pass)
-836898d refactor: align strict types across tests and Database schema
-15dfdbe docs: regenerate MASTER.md at 5e420f8
-5e420f8 subaru: checkpoint TASK-20260814-031446183 - completado
-e20e0b7 docs: regenerate MASTER.md at 61f7a81
-61f7a81 subaru: checkpoint TASK-20260814-031446183 - en-progreso
-b42e354 subaru: checkpoint TASK-20260814-031446183 - en-progreso
 ```
 
 ---
