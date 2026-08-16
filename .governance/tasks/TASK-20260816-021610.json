@@ -1,0 +1,94 @@
+{
+  "id": "TASK-20260816-021610",
+  "title": "Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge)",
+  "description": "MIA suelta las respuestas de golpe en el simulador y en WhatsApp. En el simulador (ChatWindow.tsx:486-496, LabChatWindow.tsx:286-296) ya existen 3 puntos animados sin texto y el stream SSE llega incremental, pero el indicador es sutil y con gpt-4o-mini la respuesta se percibe instantanea. En WhatsApp el bridge (services/whatsapp-bridge) espera la respuesta completa de MIA (sendToMia en session-manager.ts:572) y la envia como un solo mensaje (sendReply, linea 602) sin nunca mandar sendPresenceUpdate('composing'), que Baileys soporta. Fix: Parte A (web) - componente compartido TypingIndicator con texto 'escribiendo...' + puntos animados, usado en ChatWindow y LabChatWindow, con minimo de visibilidad de 600ms para que no se sienta instantaneo. Parte B (bridge) - enviar 'composing' antes de llamar a MIA (cubre la generacion completa) con heartbeat de ~15s mientras espera y 'paused' despues de enviar/no-reply/error; cubrir tambien la ruta de seguimientos (sendMessage y endpoint /send). Siempre activo, sin toggle.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "feature",
+      "infrastructure"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "channels",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected (2 dominios: app web + servicio bridge), cross-cutting. Required agents (7): architect, backend, frontend, performance, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "El indicador de typing es un componente UI compartido reutilizable y la presencia en WhatsApp es un efecto de capa de canal (bridge), sin tocar el core de prompts. Sin cambios de schema",
+      "timestamp": "2026-08-16T02:16:15.000Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Los cambios del bridge se limitan a session-manager (sendPresenceUpdate antes/despues del envio) con un helper aislado y testeable; no tocan la logica de negocio de MIA",
+      "timestamp": "2026-08-16T02:16:20.000Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "TypingIndicator como componente reutilizable (<150 lineas) y minimo de visibilidad controlado por timestamp; mejora UX sin agregar estado global",
+      "timestamp": "2026-08-16T02:16:25.000Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Un presence update ligero por mensaje y un heartbeat de 15s no generan costo medible ni carga relevante; el minimo de 600ms en UI es despreciable",
+      "timestamp": "2026-08-16T02:16:30.000Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se agregara unit test para el helper de presencia del bridge y se verificaran lint, build, unit tests y e2e del root; typecheck+build del bridge",
+      "timestamp": "2026-08-16T02:16:35.000Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin cambios de schema ni secretos. El bridge se despliega en Fly.io (flyctl) y la app en Vercel; ambos tras gates y push",
+      "timestamp": "2026-08-16T02:16:40.000Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara el hallazgo de la respuesta de golpe en WhatsApp (sin typing presence) y el indicador web poco visible",
+      "timestamp": "2026-08-16T02:16:45.000Z"
+    }
+  ],
+  "createdAt": "2026-08-16T02:16:10.000Z",
+  "classifiedAt": "2026-08-16T02:16:10.000Z",
+  "approvedAt": "2026-08-16T02:16:45.000Z",
+  "startedAt": "2026-08-16T02:16:25.779Z",
+  "completedAt": null
+}

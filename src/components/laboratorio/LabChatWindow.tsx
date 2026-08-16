@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ResponseAnalysis } from '@/components/laboratorio/ResponseAnalysis'
 import { cn } from '@/lib/utils'
 import { createSseParser } from '@/lib/chat/sse'
+import { useTypingIndicator } from '@/lib/chat/useTypingIndicator'
+import { TypingIndicator } from '@/components/chat/TypingIndicator'
 
 interface Message {
   id: string
@@ -44,7 +46,7 @@ export function LabChatWindow({
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
+  const { isTyping, startTyping, stopTyping } = useTypingIndicator()
   const [activeConversationId, setActiveConversationId] = useState<string | undefined>(conversationId)
   const [prevConversationId, setPrevConversationId] = useState<string | undefined>(conversationId)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -88,7 +90,7 @@ export function LabChatWindow({
     setMessages((prev) => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
-    setIsTyping(true)
+    startTyping()
 
     try {
       let conversation = activeConversationId
@@ -163,6 +165,7 @@ export function LabChatWindow({
         const parser = createSseParser((event) => {
           if (event.type !== 'text-delta') return
           assistantContent += event.delta
+          stopTyping()
           setMessages((prev) => {
             const updated = [...prev]
             const lastMsg = updated[updated.length - 1]
@@ -226,7 +229,7 @@ export function LabChatWindow({
       ])
     } finally {
       setIsLoading(false)
-      setIsTyping(false)
+      stopTyping()
     }
   }
 
@@ -283,17 +286,7 @@ export function LabChatWindow({
           </div>
         ))}
 
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-2xl px-4 py-2">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.1s]" />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-              </div>
-            </div>
-          </div>
-        )}
+        {isTyping && <TypingIndicator />}
 
         <div ref={messagesEndRef} />
       </div>

@@ -20,6 +20,7 @@ import P from 'pino'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia } from './mia-client.js'
 import { sendReply } from './media-url.js'
+import { withTypingPresence } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import type { BridgeConfig } from './config.js'
 
@@ -563,25 +564,31 @@ export class SessionManager {
       const externalId = msg.key.id ?? ''
       const timestamp = toTimestamp(msg.messageTimestamp ?? undefined)
       const waId = jidNormalizedUser(remoteJid)
+      const content = extracted.content
+      const payload = extracted.payload
 
       try {
         // Forward to the MIA engine. A failed webhook (e.g. MIA app down)
         // must never crash the bridge or drop the connection. Audio uses a
         // shorter timeout so the defensive fallback stays near-instant.
-        const isAudio = extracted.payload?.type === 'audio'
-        const miaReply = await sendToMia(
-          this.config,
-          {
-            businessId: session.businessId,
-            externalId,
-            customerExternalId: waId,
-            customerName: msg.pushName ?? null,
-            customerPhone: waId,
-            content: extracted.content,
-            payload: extracted.payload,
-            receivedAt: timestamp,
-          },
-          isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
+        const isAudio = payload?.type === 'audio'
+        // 'escribiendo…' durante toda la generación: la presencia se re-afirma
+        // en el heartbeat mientras dura la llamada y se apaga al terminar.
+        const miaReply = await withTypingPresence(session.socket, remoteJid, () =>
+          sendToMia(
+            this.config,
+            {
+              businessId: session.businessId,
+              externalId,
+              customerExternalId: waId,
+              customerName: msg.pushName ?? null,
+              customerPhone: waId,
+              content,
+              payload,
+              receivedAt: timestamp,
+            },
+            isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
+          )
         )
 
         // Shadow mode (deliver: false): MIA processed and stored the reply
@@ -635,11 +642,13 @@ export class SessionManager {
     }
     try {
       const jid = jidNormalizedUser(to)
-      if (interactive) {
-        await sendInteractive(session.socket, jid, content, interactive)
-      } else {
-        await sendReply(session.socket, jid, content, imageUrl)
-      }
+      await withTypingPresence(session.socket, jid, async () => {
+        if (interactive) {
+          await sendInteractive(session.socket, jid, content, interactive)
+        } else {
+          await sendReply(session.socket, jid, content, imageUrl)
+        }
+      })
       return { success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

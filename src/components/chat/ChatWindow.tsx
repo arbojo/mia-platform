@@ -8,7 +8,9 @@ import { cn } from '@/lib/utils'
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react'
 import type { ProductReference } from '@/lib/channels/types'
 import { createSseParser } from '@/lib/chat/sse'
+import { useTypingIndicator } from '@/lib/chat/useTypingIndicator'
 import { ProductMessageCard } from '@/components/chat/ProductMessageCard'
+import { TypingIndicator } from '@/components/chat/TypingIndicator'
 
 interface Message {
   id: string
@@ -67,7 +69,7 @@ export function ChatWindow({
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
+  const { isTyping, startTyping, stopTyping } = useTypingIndicator()
   const [correctionId, setCorrectionId] = useState<string | null>(null)
   const [correctionText, setCorrectionText] = useState('')
   const [savedQuestion, setSavedQuestion] = useState<string | null>(null)
@@ -151,7 +153,7 @@ export function ChatWindow({
     setMessages((prev) => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
-    setIsTyping(true)
+    startTyping()
     setShowCheckoutInvite(false)
 
     try {
@@ -207,6 +209,7 @@ export function ChatWindow({
         const parser = createSseParser((event) => {
           if (event.type === 'text-delta') {
             assistantContent += event.delta
+            stopTyping()
             setMessages((prev) =>
               prev.map((msg, i) =>
                 i === prev.length - 1 && msg.role === 'assistant'
@@ -244,7 +247,7 @@ export function ChatWindow({
       ])
     } finally {
       setIsLoading(false)
-      setIsTyping(false)
+      stopTyping()
     }
   }
 
@@ -483,17 +486,7 @@ export function ChatWindow({
           </div>
         )}
 
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-2xl px-4 py-2">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.1s]" />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-              </div>
-            </div>
-          </div>
-        )}
+        {isTyping && <TypingIndicator />}
 
         <div ref={messagesEndRef} />
       </div>
