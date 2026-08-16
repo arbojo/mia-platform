@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a9fc53d`.
+> Fuente de verdad: este repositorio en `dd4e4b6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a9fc53d` |
+| **Commit HEAD** | `dd4e4b6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T22:32:54-06:00 |
+| **Generado** | 2026-08-15T22:45:25-06:00 |
 
 ---
 
@@ -583,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (108)**:
+**Tareas registradas (109)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -695,6 +695,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-034253 | Dar color de módulo a Inventario y Delivery: acento module-accent en sus pantallas + la ruta gana sobre el selector manual | completed |
 | TASK-20260816-040159629 | Opcion Desechar por sugerencia en Enseñarle a MIA (TeachModal) | completed |
 | TASK-20260816-042844183 | Logo MIA girando como indicador de carga (auth + dashboards) | completed |
+| TASK-20260816-044156521 | Hacer visible el logo MIA girando (duracion minima en auth + loading dashboard) | completed |
 
 ---
 
@@ -743,6 +744,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+dd4e4b6 feat: hacer visible el logo MIA girando (duracion minima auth + loading dashboard)
+035558f docs: regenerate MASTER.md at a9fc53d
 a9fc53d feat: logo MIA girando como indicador de carga (auth + dashboards)
 71acd0e docs: regenerate MASTER.md at fb6f2fd
 fb6f2fd chore: completar governance TASK-20260816-040159629 (opcion desechar TeachModal)
@@ -761,8 +764,6 @@ d29f1e4 feat: opcion desechar por sugerencia en enseñarle a MIA
 a4aac4a docs: regenerate MASTER.md at fc8b767
 fc8b767 chore: completar governance TASK-20260816-032745 (normalizar paleta)
 065fcf8 subaru: checkpoint MISSION-COLOR-NORMALIZACION - completado
-db4d2e4 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
-24b66be docs: regenerate MASTER.md at 883620b
 ```
 
 ---
