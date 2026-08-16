@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     const businessId = new URL(req.url).searchParams.get('business_id')
     await requireInventoryAdmin(businessId)
-    assertInventoryEditionAvailable()
+    await assertInventoryEditionAvailable(businessId!)
 
     const supabase = createInventoryAdmin()
     const { data, error } = await supabase
@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const businessId = new URL(req.url).searchParams.get('business_id')
     const { userId } = await requireInventoryAdmin(businessId)
-    assertInventoryEditionAvailable()
+    await assertInventoryEditionAvailable(businessId!)
 
     const body = await req.json()
     const parsed = settingsSchema.safeParse(body)

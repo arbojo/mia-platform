@@ -1,15 +1,19 @@
 import { createDeliveryAdmin } from './db'
-import { canUseDeliveryHub } from '@/lib/system/edition'
+import { canBusinessUseDeliveryHub } from '@/lib/system/edition'
 import { DeliveryError } from './errors'
 
-export async function assertDeliveryHubEnabled(businessId: string): Promise<void> {
-  if (!canUseDeliveryHub()) {
+export async function assertDeliveryEditionAvailable(businessId: string): Promise<void> {
+  if (!(await canBusinessUseDeliveryHub(businessId))) {
     throw new DeliveryError(
       'DELIVERY_NOT_ENABLED',
-      'El Delivery Hub no está disponible en tu edición',
+      'El Delivery Hub no está disponible en tu plan',
       403
     )
   }
+}
+
+export async function assertDeliveryHubEnabled(businessId: string): Promise<void> {
+  await assertDeliveryEditionAvailable(businessId)
 
   const supabase = createDeliveryAdmin()
   const { data, error } = await supabase

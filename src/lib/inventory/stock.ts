@@ -2,7 +2,7 @@ import { createInventoryAdmin } from './db'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { daysSince, stockStatus, unitsSoldInWindow } from './rules'
 import type { StockItemWithProduct, StockStatus } from './types'
-import { canUseInventoryHub } from '@/lib/system/edition'
+import { canBusinessUseInventoryHub } from '@/lib/system/edition'
 
 interface ProductRow {
   id: string
@@ -167,7 +167,7 @@ export async function getCatalogAvailability(
   businessId: string,
   productIds: string[]
 ): Promise<Record<string, CatalogAvailability> | null> {
-  if (!canUseInventoryHub()) return null
+  if (!(await canBusinessUseInventoryHub(businessId))) return null
 
   const inv = createInventoryAdmin()
 

@@ -1,19 +1,19 @@
 import { createInventoryAdmin } from './db'
-import { canUseInventoryHub } from '@/lib/system/edition'
+import { canBusinessUseInventoryHub } from '@/lib/system/edition'
 import { InventoryError } from './errors'
 
-export function assertInventoryEditionAvailable(): void {
-  if (!canUseInventoryHub()) {
+export async function assertInventoryEditionAvailable(businessId: string): Promise<void> {
+  if (!(await canBusinessUseInventoryHub(businessId))) {
     throw new InventoryError(
       'INVENTORY_NOT_ENABLED',
-      'El Inventory Hub no está disponible en tu edición',
+      'El Inventory Hub no está disponible en tu plan',
       403
     )
   }
 }
 
 export async function assertInventoryHubEnabled(businessId: string): Promise<void> {
-  assertInventoryEditionAvailable()
+  await assertInventoryEditionAvailable(businessId)
 
   const supabase = createInventoryAdmin()
   const { data, error } = await supabase

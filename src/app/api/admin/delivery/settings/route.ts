@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { NextResponse, type NextRequest } from 'next/server'
 import { DeliveryError } from '@/lib/delivery/errors'
 import { requireDeliveryAdmin } from '@/lib/delivery/admin-api'
-import { assertDeliveryHubEnabled } from '@/lib/delivery/licensing'
+import { assertDeliveryEditionAvailable } from '@/lib/delivery/licensing'
 import { createDeliveryAdmin } from '@/lib/delivery/db'
 
 export const runtime = 'nodejs'
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   try {
     const businessId = new URL(req.url).searchParams.get('business_id')
     await requireDeliveryAdmin(businessId)
-    await assertDeliveryHubEnabled(businessId!)
+    await assertDeliveryEditionAvailable(businessId!)
 
     const supabase = createDeliveryAdmin()
     const { data, error } = await supabase
@@ -49,7 +49,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const businessId = new URL(req.url).searchParams.get('business_id')
     await requireDeliveryAdmin(businessId)
-    await assertDeliveryHubEnabled(businessId!)
+    await assertDeliveryEditionAvailable(businessId!)
 
     const body = await req.json()
     const parsed = settingsSchema.safeParse(body)

@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260816-075359212",
+  "title": "Acceso full para Vitanova (root): licencias DB-first por negocio",
+  "description": "Vitanova (arbojo@gmail.com / negocio 4fb7418d-6c98-4a09-9094-4e4e4b2006a6) es la empresa raiz y primer cliente: debe tener acceso full (edition enterprise, hubs de inventario y delivery habilitados). (1) Aplicar migracion 037_business_edition.sql (pendiente en este proyecto: columna businesses.edition + backfill Vitanova->enterprise). (2) Alinear los gates de licencias de inventory y delivery para resolver la edicion por negocio (DB-first via getEffectiveEdition) en lugar del env global MIA_EDITION sincrono: assertInventoryHubEnabled y assertDeliveryHubEnabled usan canBusinessUse*Hub(businessId), getCatalogAvailability idem, y las rutas de settings usan el gate de edicion por negocio sin exigir enabled. (3) Habilitar inventory.business_settings y delivery.business_settings (enabled=true) para Vitanova. Otros negocios (edition NULL) siguen restringidos segun su plan / MIA_EDITION global.",
+  "scope": {
+    "categories": [
+      "security",
+      "feature",
+      "api_change"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "database"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 5 files affected, schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "La edicion ya es DB-first por negocio (037); alinear los gates API al mismo modelo elimina la inconsistencia UI vs API sin cambiar la arquitectura. Vitanova=enterprise, resto NULL->env. OK.",
+      "timestamp": "2026-08-16T07:54:20.435Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Se aplica la migracion 037 existente (columna edition + backfill Vitanova) y se habilitan inventory/delivery.business_settings.enabled=true para Vitanova; sin schema nuevo. RLS intacto. OK.",
+      "timestamp": "2026-08-16T07:54:21.926Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "assertInventoryHubEnabled/assertDeliveryHubEnabled y getCatalogAvailability resuelven la edicion por negocio (canBusinessUse*Hub) y las rutas de settings usan el gate de edicion; el flag enabled se mantiene. Otros tenants siguen gateados. OK.",
+      "timestamp": "2026-08-16T07:54:23.063Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI; las paginas ya usan getEffectiveEdition DB-first. El paywall de inventory/delivery para tenants sin edicion se conserva. OK.",
+      "timestamp": "2026-08-16T07:54:24.320Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "La resolucion de capacidades es por tenant (nunca por identidad) y solo se lee server-side con el client admin; no se exponen columnas al cliente. Vitanova es el negocio raiz autorizado por el owner. OK.",
+      "timestamp": "2026-08-16T07:54:25.465Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit_tests, e2e_tests, security_review, typecheck. Verificare que un tenant sin edicion siga recibiendo 403 en los hubs. OK.",
+      "timestamp": "2026-08-16T07:54:27.128Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Diff acotado (5 archivos), commit unico, push y deploy verdes. OK.",
+      "timestamp": "2026-08-16T07:54:28.414Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar como patron: las capacidades pertenecen al negocio (037) y los gates deben ser DB-first; el env global es solo fallback. OK.",
+      "timestamp": "2026-08-16T07:54:29.746Z"
+    }
+  ],
+  "createdAt": "2026-08-16T07:53:59.630Z",
+  "classifiedAt": "2026-08-16T07:53:59.630Z",
+  "approvedAt": "2026-08-16T07:54:29.746Z",
+  "startedAt": "2026-08-16T07:54:38.457Z"
+}

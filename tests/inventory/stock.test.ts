@@ -58,7 +58,7 @@ describe('buildStockListing', () => {
       { id: 'p2', name: 'Producto B', sku: null, price: 200 },
     ],
     stockByProduct: {
-      p1: { quantity: 3, low_stock_threshold: 5 },
+      p1: { quantity: 3, low_stock_threshold: 5, version: 1 },
     },
     sales30d: [
       {
