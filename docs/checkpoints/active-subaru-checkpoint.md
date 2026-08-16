@@ -2,13 +2,13 @@
 task_id: 5
 title: Glass Overlay Blur - transicion al cambiar de vista
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-224949925
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T23:01:44.259Z
+updated: 2026-08-16T23:01:48.967Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -68,7 +68,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: lint 0 errores/0 warnings; build OK; unit 718/718; e2e 66 passed / 2 skipped.
   - Gate/verificación: lint, build, unit_tests, e2e_tests
 
-- [ ] **Paso 5:** Verificación DevTools + security + cierre
+- [x] **Paso 5:** Verificación DevTools + security + cierre
   - Objetivo: confirmar overlay servido en el bundle, consola limpia y sin implicaciones de seguridad.
   - Archivos: (ninguno — validación)
   - Acción: servidor de producción + navegación con Playwright: `/login` 200, bundle CSS contiene `.glass-loader-overlay`, `.glass-loader-overlay.active`, `.mia-glow-spinner`, `miaSpin`; `/dashboard` sin sesión redirige a login; 0 errores/warnings de consola. Security review: sin cambios de datos/acceso (UI client-only, no security implications).
@@ -83,7 +83,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 5`.
+Todos los pasos marcados. Ejecutar `subaru complete 5` cuando pasen los gates de verificación.
 
 ## Constraints
 
