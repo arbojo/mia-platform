@@ -72,4 +72,33 @@ describe('buildStructuredStreamResponse', () => {
 
     expect(events).toEqual([{ type: 'text-delta', delta: 'Solo texto.' }])
   })
+
+  it('incluye el data part media cuando hay media condicional', async () => {
+    const media = {
+      imageUrl: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/img.jpg',
+      mediaType: 'image' as const,
+    }
+    const response = buildStructuredStreamResponse({
+      textStream: mockTextStream(['Aquí tienes:']),
+      media,
+    })
+
+    const { events } = await readEvents(response)
+
+    expect(events).toHaveLength(2)
+    expect(events[0]).toEqual({ type: 'text-delta', delta: 'Aquí tienes:' })
+    expect(events[1]).toEqual({ type: 'data', data: { type: 'media', media } })
+  })
+
+  it('omite el data part media cuando media es null', async () => {
+    const response = buildStructuredStreamResponse({
+      textStream: mockTextStream(['Solo texto.']),
+      product: null,
+      media: null,
+    })
+
+    const { events } = await readEvents(response)
+
+    expect(events).toEqual([{ type: 'text-delta', delta: 'Solo texto.' }])
+  })
 })

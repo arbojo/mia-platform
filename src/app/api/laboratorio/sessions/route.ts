@@ -101,3 +101,39 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ session, conversationId })
 }
+
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const businessId = searchParams.get('businessId')
+
+  if (!businessId) {
+    return NextResponse.json({ error: 'businessId is required' }, { status: 400 })
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const admin = createAdminClient()
+
+  const { data: business } = await admin
+    .from('businesses')
+    .select('owner_id')
+    .eq('id', businessId)
+    .maybeSingle()
+
+  if (!business || business.owner_id !== user.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const { error } = await admin.from('lab_sessions').delete().eq('business_id', businessId)
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ deleted: true })
+}

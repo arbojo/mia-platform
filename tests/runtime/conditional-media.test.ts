@@ -201,3 +201,62 @@ describe('resolveConditionalMedia once-per-product/session', () => {
     )
   })
 })
+
+describe('resolveConditionalMedia resend request', () => {
+  it('re-dispatches an already dispatched item when the customer asks again', async () => {
+    const generic = item({ id: 'generic-1', product_id: null })
+    mockSupabase([generic], [{ knowledge_item_id: 'generic-1' }])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: null, isResend: true })
+
+    expect(result?.knowledgeItemId).toBe('generic-1')
+  })
+
+  it('re-dispatches a product image even when already sent in this conversation', async () => {
+    const productMedia = item({ id: 'media-1', product_id: 'prod-x' })
+    mockSupabase([productMedia], [], ['prod-x'])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: 'prod-x', isResend: true })
+
+    expect(result?.knowledgeItemId).toBe('media-1')
+  })
+
+  it('still omits the image when isResend is false and everything was dispatched', async () => {
+    const generic = item({ id: 'generic-1', product_id: null })
+    mockSupabase([generic], [{ knowledge_item_id: 'generic-1' }])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: null, isResend: false })
+
+    expect(result).toBeNull()
+  })
+
+  it('works without a customer id (laboratorio conversations)', async () => {
+    const generic = item({ id: 'generic-1', product_id: null })
+    let insertPayload: Record<string, unknown> | undefined
+    const supabase = {
+      from: vi.fn((table: string) => {
+        if (table === 'knowledge_items') return makeThenable([generic])
+        const thenable = makeThenable([])
+        if (table === 'chat_media_dispatched') {
+          thenable.insert = vi.fn((payload: Record<string, unknown>) => {
+            insertPayload = payload
+            return Promise.resolve({ data: null, error: null })
+          })
+        }
+        return thenable
+      }),
+    }
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
+
+    const result = await resolveConditionalMedia({
+      businessId: 'biz-1',
+      conversationId: 'conv-1',
+      userMessage: '¿cuál es el precio?',
+      productId: null,
+    })
+
+    expect(result?.knowledgeItemId).toBe('generic-1')
+    expect(insertPayload).toBeDefined()
+    expect(insertPayload?.customer_id).toBeUndefined()
+  })
+})

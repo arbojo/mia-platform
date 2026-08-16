@@ -15,6 +15,7 @@ const requestSchema = z.object({
   assistantId: z.string().uuid(),
   conversationId: z.string().uuid().optional(),
   requestType: z.enum(['live_customer', 'simulation', 'training']).optional().default('live_customer'),
+  channel: z.enum(['web', 'whatsapp', 'messenger', 'instagram', 'widget', 'simulation']).optional(),
 })
 
 export async function POST(req: Request) {
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Invalid request' }, { status: 400 })
     }
 
-    const { messages, assistantId, conversationId, requestType } = parsed.data
+    const { messages, assistantId, conversationId, requestType, channel } = parsed.data
 
     const { data: assistant, error: assistantError } = await supabase
       .from('assistants')
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
       conversationId,
       messages,
       requestType,
+      channel,
     })
 
     return result.toStructuredStreamResponse()

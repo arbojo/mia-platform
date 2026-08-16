@@ -1,0 +1,108 @@
+{
+  "id": "TASK-20260816-211422079",
+  "title": "Laboratorio: historial de sesiones gestionable + imágenes condicionales en el simulador",
+  "description": "Dos mejoras pedidas por el usuario en el laboratorio (dashboard/laboratorio). (1) Historial de sesiones del sidebar (SessionHistory): las tarjetas de sesiones anteriores persisten para siempre y sin forma de borrarlas; se agrega DELETE /api/laboratorio/sessions/[id] (borrar una) y DELETE /api/laboratorio/sessions?businessId= (limpiar todo, con validacion de propiedad del owner), filtro por assistantId en GET y en la UI, boton eliminar por tarjeta + boton Limpiar historial. (2) Imagenes condicionales en el simulador: hoy /api/chat -> processStreaming nunca resuelve resolveConditionalMedia y no pasa channel al prompt, por lo que el lab no muestra imagenes ni anuncia IMAGEN_DISPONIBLE. Se agrega channel simulation al union de loadConversationContext/buildMasterPrompt/formatKnowledge (para que la nota [IMAGEN_DISPONIBLE] con trigger y descripcion semantica llegue al prompt del lab), processStreaming acepta channel y llama resolveConditionalMedia por mensaje, stream-response emite evento SSE media (imageUrl/mediaType) y sse.ts lo parsea, LabChatWindow/ChatWindow renderizan adjunto de imagen en la burbuja del asistente, y media.ts agrega isResendRequest() para que resolveConditionalMedia salte los guards chat_media_dispatched/media_sent_products cuando el cliente pide explicitamente que se reenvie la imagen (solo una vez por conversacion salvo re-pedido). Sin cambios de schema. Verificacion: lint, build, unit tests (nuevos tests de isResendRequest y del evento media), e2e, DevTools, revision de rendimiento (un fetch extra por mensaje solo cuando hay conversationId) y seguridad (URLs pasan isSafeMediaUrl; DELETE valida owner).",
+  "scope": {
+    "categories": [
+      "feature",
+      "ai_behaviour",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 11,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "backend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 11 files affected, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (9): architect, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Plan aprobado: SSE media event, channel simulation en el union, resolveConditionalMedia en processStreaming y DELETE de sesiones con validacion de owner; sin schema, alternativa mas simple",
+      "timestamp": "2026-08-16T21:14:45.715Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Rutas DELETE validan propiedad negocio/owner; processStreaming reutiliza resolveConditionalMedia y el guard isSafeMediaUrl existente; sin duplicar logica",
+      "timestamp": "2026-08-16T21:14:49.381Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Render de imagen como adjunto en burbuja del asistente (patron ProductMessageCard); historial con filtro por asistente y acciones delete/clear",
+      "timestamp": "2026-08-16T21:14:52.134Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "channel simulation activa IMAGEN_DISPONIBLE con trigger y descripcion semantica en el prompt del lab; isResendRequest detecta re-pedido explicito sin hardcodear conocimiento",
+      "timestamp": "2026-08-16T21:14:54.771Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "resolveConditionalMedia solo cuando hay conversationId; lecturas indexadas por business+is_active, sin costo de tokens adicional",
+      "timestamp": "2026-08-16T21:14:56.935Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "URLs pasan isSafeMediaUrl (mismo criterio que el bridge); DELETE verifica owner via admin client; sin cambios de RLS",
+      "timestamp": "2026-08-16T21:15:41.473Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se agregan tests unitarios (isResendRequest + parseo del evento media); se corren lint/build/e2e/DevTools antes de cerrar",
+      "timestamp": "2026-08-16T21:15:43.652Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Se verificara gobernanza completa, gates de calidad y sync remoto antes de commit/push",
+      "timestamp": "2026-08-16T21:15:46.038Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara la decision y el resultado en memoria de ingenieria al completar",
+      "timestamp": "2026-08-16T21:15:48.416Z"
+    }
+  ],
+  "createdAt": "2026-08-16T21:14:22.195Z",
+  "classifiedAt": "2026-08-16T21:14:22.195Z",
+  "approvedAt": "2026-08-16T21:15:48.418Z",
+  "startedAt": "2026-08-16T21:16:01.963Z"
+}

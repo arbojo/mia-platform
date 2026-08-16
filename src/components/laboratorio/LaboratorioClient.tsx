@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { SimulationModes, type SimulationMode } from '@/components/laboratorio/SimulationModes'
 import { ContextPanel } from '@/components/laboratorio/ContextPanel'
 import { SessionEvaluation } from '@/components/laboratorio/SessionEvaluation'
@@ -62,6 +62,15 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   const selectedBusiness = businesses.find((b) => b.id === businessId)
   const assistants = selectedBusiness?.assistants ?? []
 
+  const loadSessions = useCallback(() => {
+    if (businessId && assistantId) {
+      fetch(`/api/laboratorio/sessions?businessId=${businessId}&assistantId=${assistantId}`)
+        .then((res) => res.json())
+        .then((data) => setSessions(data.sessions ?? []))
+        .catch(console.error)
+    }
+  }, [businessId, assistantId])
+
   useEffect(() => {
     if (assistantId) {
       fetch(`/api/laboratorio/context?assistantId=${assistantId}`)
@@ -72,13 +81,27 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   }, [assistantId])
 
   useEffect(() => {
-    if (businessId) {
-      fetch(`/api/laboratorio/sessions?businessId=${businessId}`)
-        .then((res) => res.json())
-        .then((data) => setSessions(data.sessions ?? []))
-        .catch(console.error)
+    loadSessions()
+  }, [loadSessions])
+
+  const handleDeleteSession = async (id: string) => {
+    try {
+      await fetch(`/api/laboratorio/sessions/${id}`, { method: 'DELETE' })
+      setSessions((prev) => prev.filter((s) => s.id !== id))
+    } catch (err) {
+      console.error('Failed to delete session:', err)
     }
-  }, [businessId])
+  }
+
+  const handleClearSessions = async () => {
+    if (!window.confirm('¿Eliminar todo el historial de sesiones de este asistente?')) return
+    try {
+      await fetch(`/api/laboratorio/sessions?businessId=${businessId}`, { method: 'DELETE' })
+      setSessions([])
+    } catch (err) {
+      console.error('Failed to clear sessions:', err)
+    }
+  }
 
   const handleStartSession = () => {
     setCurrentSessionId(null)
@@ -96,12 +119,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
 
   const handleTeachClose = () => {
     setTeachSuggestions(null)
-    if (businessId) {
-      fetch(`/api/laboratorio/sessions?businessId=${businessId}`)
-        .then((res) => res.json())
-        .then((data) => setSessions(data.sessions ?? []))
-        .catch(console.error)
-    }
+    loadSessions()
   }
 
   const handleExport = () => {
@@ -171,7 +189,11 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
             }}
             activeScenarioId={activeScenario?.id}
           />
-          <SessionHistory sessions={sessions} />
+          <SessionHistory
+            sessions={sessions}
+            onDelete={handleDeleteSession}
+            onClear={handleClearSessions}
+          />
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
@@ -187,6 +209,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
             onConversationCreated={(conversationId, sessionId) => {
               setCurrentConversationId(conversationId)
               if (sessionId) setCurrentSessionId(sessionId)
+              loadSessions()
             }}
             onTokensUsed={(tokens) => {
               setTokenUsage((prev) => ({

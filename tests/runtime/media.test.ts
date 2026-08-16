@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeText, triggerMatches, intentMatchesTrigger } from '@/lib/runtime/media'
+import {
+  normalizeText,
+  triggerMatches,
+  intentMatchesTrigger,
+  isResendRequest,
+} from '@/lib/runtime/media'
 
 describe('normalizeText', () => {
   it('lowercases and trims', () => {
@@ -78,5 +83,33 @@ describe('intentMatchesTrigger', () => {
 
   it('ignores non-intent triggers', () => {
     expect(intentMatchesTrigger('catalog', 'producto')).toBe(false)
+  })
+})
+
+describe('isResendRequest', () => {
+  it('detects an explicit resend request', () => {
+    expect(isResendRequest('¿puedes enviar la imagen de nuevo?')).toBe(true)
+    expect(isResendRequest('mándame la foto por favor')).toBe(true)
+    expect(isResendRequest('¿me pasas la foto otra vez?')).toBe(true)
+    expect(isResendRequest('no vi la foto, mándala de nuevo')).toBe(true)
+  })
+
+  it('detects resend requests with accents stripped', () => {
+    expect(isResendRequest('¿me la pasás?')).toBe(false)
+    expect(isResendRequest('envíame la fotografía nuevamente')).toBe(true)
+  })
+
+  it('does not flag first-time image requests as resend', () => {
+    expect(isResendRequest('¿me muestras el catálogo?')).toBe(false)
+    expect(isResendRequest('¿tienen fotos de los productos?')).toBe(false)
+  })
+
+  it('treats "ver la foto" as an explicit request to show the image', () => {
+    expect(isResendRequest('quiero ver las fotos')).toBe(true)
+  })
+
+  it('returns false when there is no media word', () => {
+    expect(isResendRequest('¿cuál es el precio?')).toBe(false)
+    expect(isResendRequest('mándalo otra vez')).toBe(false)
   })
 })

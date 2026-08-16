@@ -1,8 +1,14 @@
 import type { ProductReference } from '@/lib/channels/types'
 
+export interface MediaStreamData {
+  imageUrl: string
+  mediaType: 'image' | 'testimonial'
+}
+
 export type SseParsedEvent =
   | { type: 'text-delta'; delta: string }
   | { type: 'product'; product: ProductReference }
+  | { type: 'media'; media: MediaStreamData }
   | { type: 'unknown' }
 
 export interface SseParser {
@@ -50,6 +56,10 @@ function parseLine(payload: string, onEvent: (event: SseParsedEvent) => void): v
       onEvent({ type: 'product', product: parsed.data.product })
       return
     }
+    if (parsed.type === 'data' && isMediaData(parsed.data)) {
+      onEvent({ type: 'media', media: parsed.data.media })
+      return
+    }
     onEvent({ type: 'unknown' })
   } catch {
     onEvent({ type: 'unknown' })
@@ -62,4 +72,15 @@ function isProductData(data: unknown): data is { type: 'product'; product: Produ
   if (record.type !== 'product' || !record.product) return false
   const product = record.product as Record<string, unknown>
   return typeof product.productId === 'string' && typeof product.name === 'string'
+}
+
+function isMediaData(data: unknown): data is { type: 'media'; media: MediaStreamData } {
+  if (!data || typeof data !== 'object') return false
+  const record = data as Record<string, unknown>
+  if (record.type !== 'media' || !record.media) return false
+  const media = record.media as Record<string, unknown>
+  return (
+    typeof media.imageUrl === 'string' &&
+    (media.mediaType === 'image' || media.mediaType === 'testimonial')
+  )
 }

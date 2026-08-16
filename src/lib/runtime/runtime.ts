@@ -4,13 +4,14 @@ import { resolveCustomer } from '@/lib/channels/identity'
 import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
-import { resolveConditionalMedia } from './conditional-media'
+import { resolveConditionalMedia, type MediaAttachment } from './conditional-media'
+import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
 import { processSaleClosing } from '@/lib/sales/process'
-import type { ChannelAdapter, InteractiveComponent } from '@/lib/channels/types'
+import type { ChannelAdapter, ChannelType, InteractiveComponent } from '@/lib/channels/types'
 import type { WireMessage } from './types'
 import type { LandingContext } from '@/lib/ai/knowledge'
 
@@ -27,8 +28,9 @@ export async function processStreaming(params: {
   requestType: string
   landingContext?: LandingContext
   intentTag?: string | null
+  channel?: ChannelType | 'simulation'
 }): Promise<ProcessStreamingResult> {
-  const { assistantId, businessId, conversationId, messages, requestType, landingContext, intentTag } = params
+  const { assistantId, businessId, conversationId, messages, requestType, landingContext, intentTag, channel } = params
 
   const supabase = createAdminClient()
   let customerId: string | undefined
@@ -47,7 +49,7 @@ export async function processStreaming(params: {
     businessId,
     assistantId,
     customerId,
-    undefined,
+    channel,
     intentTag ?? undefined,
     landingContext
   )
@@ -97,6 +99,30 @@ export async function processStreaming(params: {
     }
   }
 
+  // Media condicional (imagenes por trigger): se resuelve tambien en el flujo
+  // streaming (incluido el laboratorio con channel=simulation). El re-pedido
+  // explicito del cliente salta los guards de envio unico.
+  let media: MediaAttachment | null = null
+  if (conversationId && lastUserMessage) {
+    try {
+      media = await resolveConditionalMedia({
+        businessId,
+        customerId,
+        conversationId,
+        userMessage: lastUserMessage.content,
+        intentTag: intentTag ?? null,
+        productId: product?.productId ?? landingContext?.productId ?? null,
+        isResend: isResendRequest(lastUserMessage.content),
+      })
+    } catch (err) {
+      console.error('Failed to resolve conditional media:', err)
+    }
+  }
+  const safeMedia =
+    media && media.imageUrl && isSafeMediaUrl(media.imageUrl)
+      ? { imageUrl: media.imageUrl, mediaType: media.mediaType }
+      : null
+
   const result = await executeAI({
     mode: 'stream',
     businessId,
@@ -116,6 +142,7 @@ export async function processStreaming(params: {
               ...(product
                 ? { product_id: product.productId, product }
                 : {}),
+              ...(safeMedia ? { media: safeMedia } : {}),
             },
           })
         } catch (err) {
@@ -127,7 +154,8 @@ export async function processStreaming(params: {
 
   return {
     toTextStreamResponse: () => result.toTextStreamResponse(),
-    toStructuredStreamResponse: () => buildStructuredStreamResponse({ textStream: result.textStream, product }),
+    toStructuredStreamResponse: () =>
+      buildStructuredStreamResponse({ textStream: result.textStream, product, media: safeMedia }),
   }
 }
 

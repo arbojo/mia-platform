@@ -3,6 +3,7 @@ import { authorityTag } from '@/lib/ai/knowledge'
 import type { Locale } from '@/lib/i18n/config'
 import { DEFAULT_LOCALE } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import type { ChannelType } from '@/lib/channels/types'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -121,7 +122,7 @@ function formatKnowledge(
   knowledge: KnowledgeItem[],
   ai: PromptDict,
   activeProductId?: string,
-  channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget'
+  channel?: ChannelType | 'simulation'
 ): string {
   if (knowledge.length === 0) return ''
 
@@ -188,7 +189,7 @@ export function buildMasterPrompt(params: {
   customerMemory?: string
   recentLessons?: RecentLesson[]
   locale?: Locale
-  channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget'
+  channel?: ChannelType | 'simulation'
   intentTag?: string | null
   landingContext?: {
     brand?: string

@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react'
 import type { ProductReference } from '@/lib/channels/types'
-import { createSseParser } from '@/lib/chat/sse'
+import { createSseParser, type MediaStreamData } from '@/lib/chat/sse'
 import { useTypingIndicator } from '@/lib/chat/useTypingIndicator'
 import { ProductMessageCard } from '@/components/chat/ProductMessageCard'
 import { TypingIndicator } from '@/components/chat/TypingIndicator'
@@ -17,6 +17,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   product?: ProductReference | null
+  media?: MediaStreamData | null
 }
 
 interface ChatWindowProps {
@@ -175,6 +176,7 @@ export function ChatWindow({
           assistantId,
           conversationId,
           requestType: getRequestType(mode),
+          ...(landingContext ? { channel: 'widget' } : {}),
           ...(customerExternalId ? { customerExternalId } : {}),
           ...(landingContext ? { landingContext } : {}),
         }),
@@ -222,6 +224,14 @@ export function ChatWindow({
               prev.map((msg, i) =>
                 i === prev.length - 1 && msg.role === 'assistant'
                   ? { ...msg, product: event.product }
+                  : msg
+              )
+            )
+          } else if (event.type === 'media') {
+            setMessages((prev) =>
+              prev.map((msg, i) =>
+                i === prev.length - 1 && msg.role === 'assistant'
+                  ? { ...msg, media: event.media }
                   : msg
               )
             )
@@ -352,6 +362,14 @@ export function ChatWindow({
               )}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
+              {message.role === 'assistant' && message.media && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={message.media.imageUrl}
+                  alt="Imagen enviada por el asistente"
+                  className="mt-2 max-w-full rounded-lg"
+                />
+              )}
               {message.role === 'assistant' && message.product && (
                 <ProductMessageCard product={message.product} />
               )}

@@ -36,6 +36,45 @@ describe('createSseParser', () => {
     ])
   })
 
+  it('emite el evento media para un data part de media condicional', () => {
+    const parser = createSseParser((event) => collected.events.push(event))
+    const collected = { events: [] as SseParsedEvent[] }
+    const media = {
+      imageUrl: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/img.jpg',
+      mediaType: 'image',
+    }
+
+    parser.push(
+      encoder.encode(
+        [
+          `data: ${JSON.stringify({ type: 'text-delta', delta: 'Aquí tienes la foto:' })}\n\n`,
+          `data: ${JSON.stringify({ type: 'data', data: { type: 'media', media } })}\n\n`,
+          'data: [DONE]\n\n',
+        ].join('')
+      )
+    )
+    parser.flush()
+
+    expect(collected.events).toEqual([
+      { type: 'text-delta', delta: 'Aquí tienes la foto:' },
+      { type: 'media', media },
+    ])
+  })
+
+  it('emite unknown para un media part sin forma valida', () => {
+    const onEvent = vi.fn()
+    const parser = createSseParser(onEvent)
+
+    parser.push(
+      encoder.encode(
+        `data: ${JSON.stringify({ type: 'data', data: { type: 'media', media: { imageUrl: 123 } } })}\n\n`
+      )
+    )
+    parser.flush()
+
+    expect(onEvent).toHaveBeenCalledWith({ type: 'unknown' })
+  })
+
   it('soporta eventos divididos entre chunks', () => {
     const parser = createSseParser((event) => collected.events.push(event))
     const collected = { events: [] as SseParsedEvent[] }

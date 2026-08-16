@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ResponseAnalysis } from '@/components/laboratorio/ResponseAnalysis'
 import { cn } from '@/lib/utils'
-import { createSseParser } from '@/lib/chat/sse'
+import { createSseParser, type MediaStreamData } from '@/lib/chat/sse'
 import { useTypingIndicator } from '@/lib/chat/useTypingIndicator'
 import { TypingIndicator } from '@/components/chat/TypingIndicator'
 
@@ -14,6 +14,7 @@ interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  media?: MediaStreamData | null
 }
 
 interface LabChatWindowProps {
@@ -145,6 +146,7 @@ export function LabChatWindow({
           assistantId,
           conversationId: conversation,
           requestType: 'simulation',
+          channel: 'simulation',
         }),
       })
 
@@ -163,7 +165,19 @@ export function LabChatWindow({
 
       if (reader) {
         const parser = createSseParser((event) => {
-          if (event.type !== 'text-delta') return
+          if (event.type !== 'text-delta') {
+            if (event.type === 'media') {
+              setMessages((prev) => {
+                const updated = [...prev]
+                const lastMsg = updated[updated.length - 1]
+                if (lastMsg.role === 'assistant') {
+                  lastMsg.media = event.media
+                }
+                return [...updated]
+              })
+            }
+            return
+          }
           assistantContent += event.delta
           stopTyping()
           setMessages((prev) => {
@@ -275,6 +289,14 @@ export function LabChatWindow({
               )}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
+              {message.role === 'assistant' && message.media && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={message.media.imageUrl}
+                  alt="Imagen enviada por el asistente"
+                  className="mt-2 max-w-full rounded-lg"
+                />
+              )}
               {message.role === 'assistant' && (
                 <ResponseAnalysis
                   messageId={message.id}

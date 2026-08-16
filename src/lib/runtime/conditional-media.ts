@@ -13,13 +13,14 @@ export interface MediaAttachment {
 
 export async function resolveConditionalMedia(params: {
   businessId: string
-  customerId: string
+  customerId?: string
   conversationId: string | null
   userMessage: string
   intentTag?: string | null
   productId?: string | null
+  isResend?: boolean
 }): Promise<MediaAttachment | null> {
-  const { businessId, customerId, conversationId, userMessage, intentTag, productId } = params
+  const { businessId, customerId, conversationId, userMessage, intentTag, productId, isResend } = params
   if (!conversationId) return null
 
   const supabase = createAdminClient()
@@ -43,15 +44,20 @@ export async function resolveConditionalMedia(params: {
 
   if (matching.length === 0) return null
 
-  const { data: dispatched } = await supabase
-    .from('chat_media_dispatched')
-    .select('knowledge_item_id')
-    .eq('conversation_id', conversationId)
+  // Envío único por knowledge item: salvo que el cliente pida explícitamente
+  // que se reenvíe la imagen (isResend), cada imagen se despacha una sola vez.
+  let pending = matching
+  if (!isResend) {
+    const { data: dispatched } = await supabase
+      .from('chat_media_dispatched')
+      .select('knowledge_item_id')
+      .eq('conversation_id', conversationId)
 
-  const dispatchedIds = new Set((dispatched ?? []).map((d) => d.knowledge_item_id))
-  const pending = matching.filter((item) => !dispatchedIds.has(item.id))
+    const dispatchedIds = new Set((dispatched ?? []).map((d) => d.knowledge_item_id))
+    pending = matching.filter((item) => !dispatchedIds.has(item.id))
 
-  if (pending.length === 0) return null
+    if (pending.length === 0) return null
+  }
 
   // Prioridad de producto: medio del producto activo > medio genérico (NULL).
   // El product_context elimina la ambigüedad de keywords compartidas
@@ -65,8 +71,9 @@ export async function resolveConditionalMedia(params: {
   if (!selected?.image_url) return null
 
   // Envío único por PRODUCTO/sesión: si la imagen de este producto ya se
-  // mostró en esta conversación, se omite la imagen (solo texto).
-  if (selected.product_id) {
+  // mostró en esta conversación, se omite la imagen (solo texto), salvo
+  // re-pedido explícito del cliente.
+  if (selected.product_id && !isResend) {
     const sentProducts = await getConversationMediaSentProducts(supabase, conversationId)
     if (sentProducts.includes(selected.product_id)) return null
   }
@@ -83,7 +90,7 @@ export async function resolveConditionalMedia(params: {
     await supabase.from('chat_media_dispatched').insert({
       business_id: businessId,
       conversation_id: conversationId,
-      customer_id: customerId,
+      ...(customerId ? { customer_id: customerId } : {}),
       knowledge_item_id: selected.id,
     })
   } catch (err) {

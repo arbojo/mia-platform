@@ -4,6 +4,7 @@ import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
 import { getProfileLanguage } from '@/lib/system/language'
 import type { Locale } from '@/lib/i18n/config'
+import type { ChannelType } from '@/lib/channels/types'
 
 export class ContextError extends Error {
   constructor(
@@ -61,7 +62,7 @@ export async function loadConversationContext(
   businessId: string,
   assistantId: string,
   customerId?: string,
-  channel?: 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widget',
+  channel?: ChannelType | 'simulation',
   intentTag?: string | null,
   landingContext?: LandingContext
 ): Promise<LoadedContext> {

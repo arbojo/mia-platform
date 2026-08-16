@@ -34,3 +34,20 @@ export function intentMatchesTrigger(intentTag: string, triggerCondition: string
 
   return parts.some((part) => part === `intent ${normalizedTag}`)
 }
+
+const RESEND_VERB =
+  /\b(reenvia|envia|enviar|envio|envie|manda|mande|pasa|pase|muestra|mira|ver|repite|repeti|ensename|ensena)\w*\b/
+const RESEND_AGAIN = /\b(otra vez|de nuevo|nuevamente)\b/
+
+/**
+ * Detecta una petición explícita de re-enviar la imagen ("mándala otra vez",
+ * "¿me pasas la foto?", "envía la imagen de nuevo"). Se usa para saltar los
+ * guards de envío único (chat_media_dispatched / media_sent_products) y
+ * re-mostrar la imagen solo cuando el cliente lo pide.
+ */
+export function isResendRequest(message: string): boolean {
+  const text = normalizeText(message)
+  const hasMediaWord = /(imagen|imagenes|foto|fotos|fotografia|fotografias)/.test(text)
+  if (!hasMediaWord) return false
+  return RESEND_VERB.test(text) || RESEND_AGAIN.test(text)
+}
