@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { SuccessPop } from '@/components/ui/success-pop'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +49,7 @@ export function ProductFormDialog({
   const [benefits, setBenefits] = useState(product?.benefits ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
 
   const handleSave = async () => {
     if (!name.trim()) return
@@ -63,6 +65,15 @@ export function ProductFormDialog({
       benefits: benefits.trim() || null,
     }
 
+    const finishSaved = (data: Product) => {
+      onSaved(data)
+      setSaved(true)
+      window.setTimeout(() => {
+        onOpenChange(false)
+        setSaved(false)
+      }, 900)
+    }
+
     if (product) {
       const { data, error } = await supabase
         .from('products')
@@ -73,8 +84,7 @@ export function ProductFormDialog({
       if (error) {
         setError(error.message)
       } else if (data) {
-        onSaved(data)
-        onOpenChange(false)
+        finishSaved(data)
       }
     } else {
       const { data, error } = await supabase
@@ -85,8 +95,7 @@ export function ProductFormDialog({
       if (error) {
         setError(error.message)
       } else if (data) {
-        onSaved(data)
-        onOpenChange(false)
+        finishSaved(data)
       }
     }
 
@@ -160,6 +169,7 @@ export function ProductFormDialog({
             {loading ? 'Guardando...' : product ? 'Guardar cambios' : 'Agregar producto'}
           </AlertDialogAction>
         </AlertDialogFooter>
+        {saved && <SuccessPop message="Producto guardado" />}
       </AlertDialogContent>
     </AlertDialog>
   )

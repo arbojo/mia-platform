@@ -129,7 +129,7 @@ export function MIAInbox({
         WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
         boxShadow:
           '0 0 0 1px var(--module-accent-border), 0 20px 60px rgba(0,0,0,0.45), 0 0 32px var(--module-glow-soft)',
-        animation: 'fade-lift-in var(--duration-fast, 150ms) var(--ease-premium)',
+        animation: 'elastic-pop 0.35s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1))',
         transformOrigin: 'top right',
       }}
     >

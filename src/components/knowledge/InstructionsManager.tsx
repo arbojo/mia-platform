@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { SuccessPop } from '@/components/ui/success-pop'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +35,7 @@ export function InstructionsManager({ businessId, initialItems }: InstructionsMa
   const [editTarget, setEditTarget] = useState<AiInstruction | null>(null)
   const [editInstruction, setEditInstruction] = useState('')
   const [editPriority, setEditPriority] = useState('0')
+  const [editSaved, setEditSaved] = useState(false)
 
   const handleAdd = async () => {
     if (!instruction.trim()) return
@@ -75,7 +77,11 @@ export function InstructionsManager({ businessId, initialItems }: InstructionsMa
     if (res.ok) {
       const { item } = await res.json()
       setItems((prev) => prev.map((i) => (i.id === item.id ? item : i)).sort((a, b) => b.priority - a.priority))
-      setEditTarget(null)
+      setEditSaved(true)
+      window.setTimeout(() => {
+        setEditTarget(null)
+        setEditSaved(false)
+      }, 900)
     }
 
     setLoading(false)
@@ -263,6 +269,7 @@ export function InstructionsManager({ businessId, initialItems }: InstructionsMa
               Guardar
             </AlertDialogAction>
           </AlertDialogFooter>
+          {editSaved && <SuccessPop message="Instrucción actualizada" />}
         </AlertDialogContent>
       </AlertDialog>
     </div>

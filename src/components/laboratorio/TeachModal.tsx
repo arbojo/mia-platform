@@ -112,7 +112,7 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
 
   if (feedback && feedback.saved > 0) {
     return (
-      <div className="p-6 text-center space-y-4">
+      <div className="animate-elastic-pop p-6 text-center space-y-4">
         <p className="text-2xl">✨</p>
         <p className="font-medium text-gray-900">
           ¡MIA ya sabe esto! Se guardaron {feedback.saved} de {feedback.total}.

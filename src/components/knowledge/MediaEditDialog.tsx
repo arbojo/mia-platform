@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { SuccessPop } from '@/components/ui/success-pop'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ export function MediaEditDialog({ item, onOpenChange, onSaved }: MediaEditDialog
   const [description, setDescription] = useState(item?.answer ?? '')
   const [trigger, setTrigger] = useState(item?.trigger_condition ?? '')
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const handleSave = async () => {
     if (!item || !description.trim()) return
@@ -50,8 +52,12 @@ export function MediaEditDialog({ item, onOpenChange, onSaved }: MediaEditDialog
       }),
     })
     if (res.ok) {
-      onOpenChange(false)
-      onSaved()
+      setSaved(true)
+      window.setTimeout(() => {
+        onOpenChange(false)
+        onSaved()
+        setSaved(false)
+      }, 900)
     }
     setSaving(false)
   }
@@ -113,6 +119,7 @@ export function MediaEditDialog({ item, onOpenChange, onSaved }: MediaEditDialog
             {saving ? 'Guardando...' : 'Guardar'}
           </AlertDialogAction>
         </AlertDialogFooter>
+        {saved && <SuccessPop message="Medio actualizado" />}
       </AlertDialogContent>
     </AlertDialog>
   )

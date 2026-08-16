@@ -61,7 +61,7 @@ export function ImportDialog({ open, onOpenChange, businessId, onImported }: Imp
 
         <div className="space-y-4 py-2">
           {summary ? (
-            <div className="space-y-3">
+            <div className="animate-elastic-pop space-y-3">
               <p className="flex items-center gap-2 text-sm font-medium text-zinc-900">
                 <CheckCircle2 className="h-4 w-4 text-brand-600" />
                 Importación completada. El catálogo se actualizó.

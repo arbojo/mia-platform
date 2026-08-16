@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { SuccessPop } from '@/components/ui/success-pop'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +48,8 @@ interface KnowledgeItemDialogProps {
   title?: string
   submitLabel?: string
   submitting?: boolean
+  success?: boolean
+  successMessage?: string
   onSubmit: (values: KnowledgeItemFormValues) => Promise<void>
 }
 
@@ -58,6 +61,8 @@ export function KnowledgeItemDialog({
   title = 'Editar conocimiento',
   submitLabel = 'Guardar',
   submitting = false,
+  success = false,
+  successMessage = 'Guardado',
   onSubmit,
 }: KnowledgeItemDialogProps) {
   const [category, setCategory] = useState(initial?.category ?? 'faq')
@@ -144,6 +149,7 @@ export function KnowledgeItemDialog({
             {submitting ? 'Guardando...' : submitLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
+        {success && <SuccessPop message={successMessage} />}
       </AlertDialogContent>
     </AlertDialog>
   )

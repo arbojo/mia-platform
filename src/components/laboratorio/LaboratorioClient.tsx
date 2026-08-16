@@ -266,7 +266,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
       {teachSuggestions && businessId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4">
           <div className="flex min-h-full items-center justify-center">
-            <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
+            <div className="animate-elastic-pop w-full max-w-lg rounded-xl bg-white shadow-xl">
               <TeachModal
                 suggestions={teachSuggestions}
                 businessId={businessId}

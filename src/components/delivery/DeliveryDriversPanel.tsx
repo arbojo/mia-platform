@@ -184,7 +184,7 @@ export function DeliveryDriversPanel({ businessId }: { businessId: string }) {
 
       {magicLink && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-5 text-slate-900">
+          <div className="animate-elastic-pop w-full max-w-md rounded-xl bg-white p-5 text-slate-900">
             <h3 className="text-sm font-semibold">Enlace de acceso</h3>
             <p className="mt-1 text-xs text-slate-500">
               Vence el {new Date(magicLink.expiresAt).toLocaleString()}. Es de un solo uso.

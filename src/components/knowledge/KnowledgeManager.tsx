@@ -46,6 +46,7 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
   const [filterStatus, setFilterStatus] = useState<'active' | 'inactive' | 'all'>('active')
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeItem | null>(null)
   const [editTarget, setEditTarget] = useState<KnowledgeItem | null>(null)
+  const [editSaved, setEditSaved] = useState(false)
 
   const reloadItems = useCallback(async (status: 'active' | 'inactive' | 'all') => {
     const params = new URLSearchParams({ business_id: businessId, status })
@@ -107,7 +108,11 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
     if (res.ok) {
       const { item } = await res.json()
       setItems((prev) => prev.map((i) => (i.id === item.id ? item : i)))
-      setEditTarget(null)
+      setEditSaved(true)
+      window.setTimeout(() => {
+        setEditTarget(null)
+        setEditSaved(false)
+      }, 900)
     }
 
     setLoading(false)
@@ -334,6 +339,8 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
         title="Editar conocimiento"
         submitLabel="Guardar"
         submitting={loading}
+        success={editSaved}
+        successMessage="Conocimiento guardado"
         onSubmit={handleEditValues}
       />
     </div>
