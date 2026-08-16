@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `32005cf`.
+> Fuente de verdad: este repositorio en `cb615fd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `32005cf` |
+| **Commit HEAD** | `cb615fd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T16:39:38-06:00 |
+| **Generado** | 2026-08-16T16:51:31-06:00 |
 
 ---
 
@@ -775,6 +775,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+cb615fd subaru: checkpoint 5 - listo
+f94203e docs: regenerate MASTER.md at 32005cf
 32005cf fix: laboratorio layout - tarjeta de escenarios cortada y encogida
 8ecb59f docs: regenerate MASTER.md at df18120
 df18120 chore: governance completion artifacts - elastic pop task
@@ -793,8 +795,6 @@ cfe81a4 subaru: checkpoint 4 - listo
 0cc827c governance: TASK-20260816-211422079 completado
 e778bc6 subaru: checkpoint 3 - completado
 c322b87 subaru: checkpoint 3 - en-progreso
-1e077aa feat: laboratorio - historial de sesiones gestionable e imagenes condicionales en el simulador
-120e53c subaru: checkpoint 3 - en-progreso
 ```
 
 ---
