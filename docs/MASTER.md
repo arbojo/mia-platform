@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7b7c75f`.
+> Fuente de verdad: este repositorio en `748d68f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7b7c75f` |
+| **Commit HEAD** | `748d68f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:43:22-06:00 |
+| **Generado** | 2026-08-15T21:46:15-06:00 |
 
 ---
 
@@ -741,6 +741,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+748d68f subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
+0d64788 subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
+44b3eef style: color de modulo para inventario y delivery
+789ffda docs: regenerate MASTER.md at 7b7c75f
 7b7c75f subaru: checkpoint MISSION-MODULO-COLORES - listo
 75f8719 chore: governance TASK-20260816-034253 - colores de modulo para inventario/delivery
 a4aac4a docs: regenerate MASTER.md at fc8b767
@@ -757,10 +761,6 @@ db4d2e4 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
 cbabace docs: regenerate MASTER.md at 035d9e0
 035d9e0 chore: completar governance TASK-20260816-025216 (kusanali)
 f479bff subaru: checkpoint MISSION-KUSANALI - completado
-bd749db subaru: checkpoint MISSION-KUSANALI - en-progreso
-2804a79 docs: regenerate MASTER.md at 37937a4
-37937a4 subaru: checkpoint MISSION-KUSANALI - en-progreso
-6487f28 style: migrar identidad visual kusanali a MIA (tokens, fuentes, botones)
 ```
 
 ---
