@@ -150,7 +150,31 @@ Todas las tablas: `ENABLE RLS` + `FORCE RLS` + `REVOKE ALL FROM anon, authentica
 
 ---
 
-## 6. Referencias
+## 6. Registro de auditoría de resiliencia (2026-08-16)
+
+Auditoría post-implementación de la Fase 2 (migraciones 042/043/044, `TASK-20260816-091002865`) para verificar el contrato de No-Bloqueo (§2.2) frente a la lógica cognitiva.
+
+### 6.1 Blindaje del hot path
+
+- `inventory.ingest_errors` usa el esquema `(business_id, sales_event_id, error, payload)` — verificado en `handle_sale_won_cx` (044:507-509) y en el trigger v3 `handle_sale_won` (042:192-222). No existe columna `metadata`.
+- `handle_sale_won_cx` (044:473-510) envuelve TODA la lógica CX (settings → resolve_variant → calcular_eta → create_delivery_promise) en `BEGIN...EXCEPTION WHEN OTHERS` que inserta en `ingest_errors` y hace `RETURN NEW`: la venta nunca aborta, y por la misma transacción tampoco revierte el decremento de stock del trigger v3.
+- `resolve_variant` (042:42-85) nunca lanza (`RETURN NULL` sin match); el fallo inducible más profundo está en `create_delivery_promise` (044:441).
+
+### 6.2 Pureza del espejo TypeScript
+
+- `computeEta(context: EtaContext): EtaResult` en `src/lib/inventory/eta.ts` replica la precedencia SQL (local → transit → purchase → lead_time) sin acceso a DB y sin `any` (type-safety estricto). Tests: `tests/inventory/eta.test.ts` (6 casos).
+
+### 6.3 Gate de runtime (2026-08-16) — APROBADO
+
+- Smoke test "jaque v2" ejecutado contra el runtime real (fault injection sobre `create_delivery_promise` con transacción `BEGIN...ROLLBACK`, cero residuo): `venta_ok=1` y `error_capturado=fallo_inducido_smoke_phase2` → **blindaje confirmado** (el EXCEPTION captura el fallo en el punto más profundo y la venta completa).
+- El gate atrapó **2 errores SQL reales** que el análisis estático no detectó:
+  1. `044:357` — `UNIQUE (business_id, sales_event_id) WHERE ...` inline en `CREATE TABLE` es inválido en PostgreSQL (no admite índices parciales como constraint de tabla). Corregido a `CREATE UNIQUE INDEX idx_inventory_promises_sale ... WHERE sales_event_id IS NOT NULL` (patrón de 043).
+  2. `044` `calcular_eta` — `RETURN NEXT ROW(...)` es inválido en una función con `RETURNS TABLE` (parámetros OUT). Corregido a asignación de variables OUT + `RETURN NEXT;` (5 ocurrencias).
+- Verificación post-gate: cero residuo (0 smoke-loc, 0 assets de prueba, 0 sales de test, 0 función/trigger de fallo). `INSUFFICIENT_STOCK` capturado es esperado (trigger v3 con `current_qty=0` en el seed; no bloquea).
+
+---
+
+## 7. Referencias
 
 - ADR-010 — MIA Sales Domain Boundary (frontera respetada, `sales_events` como contrato)
 - ADR-019 — Delivery Hub (patrón de módulo aislado adoptado: schema, trigger, grants, gating)

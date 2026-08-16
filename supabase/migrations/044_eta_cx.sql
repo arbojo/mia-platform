@@ -245,13 +245,23 @@ BEGIN
     FROM inventory.assets a
     WHERE a.id = p_asset_id AND a.location_id = p_location_id;
   IF NOT FOUND THEN
-    RETURN NEXT ROW('unavailable', NULL, 0, 'asset_no_encontrado_en_nodo', '{}'::jsonb);
+    source := 'unavailable';
+    eta_days := NULL;
+    available_qty := 0;
+    message := 'asset_no_encontrado_en_nodo';
+    breakdown := '{}'::jsonb;
+    RETURN NEXT;
     RETURN;
   END IF;
 
   -- (a) Local: hay stock en el nodo destino
   IF v_local_qty > 0 THEN
-    RETURN NEXT ROW('local', 0, v_local_qty, 'Disponible en el nodo destino', '{}'::jsonb);
+    source := 'local';
+    eta_days := 0;
+    available_qty := v_local_qty;
+    message := 'Disponible en el nodo destino';
+    breakdown := '{}'::jsonb;
+    RETURN NEXT;
     RETURN;
   END IF;
 
@@ -269,9 +279,12 @@ BEGIN
            OR (v_network IS NULL AND v_code IS NOT NULL AND a.code IS NOT DISTINCT FROM v_code));
 
   IF v_transit_qty > 0 THEN
-    RETURN NEXT ROW('transit', GREATEST(v_transit_eta, 0), v_transit_qty,
-      'Stock en transito hacia el nodo',
-      jsonb_build_object('transit_qty', v_transit_qty, 'eta_dias', GREATEST(v_transit_eta, 0)));
+    source := 'transit';
+    eta_days := GREATEST(v_transit_eta, 0);
+    available_qty := v_transit_qty;
+    message := 'Stock en transito hacia el nodo';
+    breakdown := jsonb_build_object('transit_qty', v_transit_qty, 'eta_dias', GREATEST(v_transit_eta, 0));
+    RETURN NEXT;
     RETURN;
   END IF;
 
@@ -290,9 +303,12 @@ BEGIN
            OR (v_network IS NULL AND v_code IS NOT NULL AND a.code IS NOT DISTINCT FROM v_code));
 
   IF v_po_qty > 0 THEN
-    RETURN NEXT ROW('purchase', GREATEST(v_po_eta, 0), v_po_qty,
-      'Reposicion externa en transito',
-      jsonb_build_object('po_qty', v_po_qty, 'eta_dias', GREATEST(v_po_eta, 0)));
+    source := 'purchase';
+    eta_days := GREATEST(v_po_eta, 0);
+    available_qty := v_po_qty;
+    message := 'Reposicion externa en transito';
+    breakdown := jsonb_build_object('po_qty', v_po_qty, 'eta_dias', GREATEST(v_po_eta, 0));
+    RETURN NEXT;
     RETURN;
   END IF;
 
@@ -305,8 +321,12 @@ BEGIN
     3
   );
 
-  RETURN NEXT ROW('purchase', v_lead, 0, 'Requiere reabastecimiento externo',
-    jsonb_build_object('lead_time_dias', v_lead));
+  source := 'purchase';
+  eta_days := v_lead;
+  available_qty := 0;
+  message := 'Requiere reabastecimiento externo';
+  breakdown := jsonb_build_object('lead_time_dias', v_lead);
+  RETURN NEXT;
 END $$;
 
 COMMENT ON FUNCTION inventory.calcular_eta(UUID, UUID) IS
@@ -353,9 +373,15 @@ CREATE TABLE inventory.delivery_promises (
   payment_context JSONB NOT NULL DEFAULT '{}'::jsonb,
   idempotency_key TEXT UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (business_id, sales_event_id) WHERE sales_event_id IS NOT NULL
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE UNIQUE INDEX idx_inventory_promises_sale
+  ON inventory.delivery_promises (business_id, sales_event_id)
+  WHERE sales_event_id IS NOT NULL;
+
+COMMENT ON INDEX inventory.idx_inventory_promises_sale IS
+  'UNIQUE parcial: una promesa abierta por venta. Postgres no admite parciales inline en CREATE TABLE; indice separado (patron idx_inventory_po_open_suggestion).';
 
 CREATE INDEX idx_inventory_promises_business ON inventory.delivery_promises(business_id, status, created_at DESC);
 CREATE INDEX idx_inventory_promises_order ON inventory.delivery_promises(delivery_order_id);
