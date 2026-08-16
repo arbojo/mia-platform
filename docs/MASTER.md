@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f87fbd9`.
+> Fuente de verdad: este repositorio en `ad467ef`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f87fbd9` |
+| **Commit HEAD** | `ad467ef` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T01:26:10-06:00 |
+| **Generado** | 2026-08-16T01:35:49-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-53 tablas definidas en `supabase/migrations/`:
+57 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -129,6 +129,10 @@ Patrón de cliente Supabase:
 | inventory | 034_inventory_hub.sql |
 | inventory | 034_inventory_hub.sql |
 | inventory | 034_inventory_hub.sql |
+| inventory | 040_inventory_universal.sql |
+| inventory | 040_inventory_universal.sql |
+| inventory | 040_inventory_universal.sql |
+| inventory | 040_inventory_universal.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -175,6 +179,8 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 37 | 037_business_edition.sql |
 | 38 | 038_media_sent_products.sql |
 | 39 | 039_media_type_simple.sql |
+| 40 | 040_inventory_universal.sql |
+| 41 | 041_inventory_trigger_v2.sql |
 
 ---
 
@@ -212,7 +218,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-81 rutas en `src/app/api/`:
+82 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -231,6 +237,7 @@ admin/inventory/import
 admin/inventory/items
 admin/inventory/items/threshold
 admin/inventory/movements
+admin/inventory/predictions
 admin/inventory/settings
 admin/inventory/suggestions/ai
 admin/inventory/suggestions
@@ -462,7 +469,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-100 módulos:
+101 módulos:
 
 ```
 ai/client.ts
@@ -534,6 +541,7 @@ inventory/db.ts
 inventory/errors.ts
 inventory/import.ts
 inventory/licensing.ts
+inventory/predictions.ts
 inventory/rules.ts
 inventory/stock.ts
 inventory/suggestions.ts
@@ -583,7 +591,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (110)**:
+**Tareas registradas (112)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -697,6 +705,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-042844183 | Logo MIA girando como indicador de carga (auth + dashboards) | completed |
 | TASK-20260816-044156521 | Hacer visible el logo MIA girando (duracion minima en auth + loading dashboard) | completed |
 | TASK-20260816-045059628 | Texto "Cargando… un momento" + color por modulo en loading del dashboard | completed |
+| TASK-20260816-071246514 | Inventario Universal + Motor de IA (fase de diseno) — multi-industria | completed |
+| TASK-20260816-072521677 | Inventario Universal F1: assets polimorfico + ledger universal + trigger v2 + motor predictivo hibrido | completed |
 
 ---
 
@@ -745,6 +755,16 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ad467ef subaru: checkpoint 1 - en-progreso
+97d28a2 feat: inventario universal F1 - assets polimorfico, ledger universal con costos, trigger v2 y motor predictivo hibrido
+110de00 subaru: checkpoint 1 - en-progreso
+d8ca48f subaru: checkpoint 1 - en-progreso
+13e0364 subaru: checkpoint 1 - en-progreso
+d0f37de subaru: checkpoint 1 - en-progreso
+c5bf32e subaru: checkpoint 1 - en-progreso
+2814aa7 subaru: checkpoint 1 - en-progreso
+65e0da2 subaru: checkpoint 1 - en-progreso
+d70cb8d docs: regenerate MASTER.md at f87fbd9
 f87fbd9 subaru: checkpoint 1 - listo
 4cd876c docs: regenerate MASTER.md at 53dd0b7
 53dd0b7 feat: texto 'Cargando… un momento' y paleta por modulo en loading del dashboard
@@ -755,16 +775,6 @@ a9fc53d feat: logo MIA girando como indicador de carga (auth + dashboards)
 71acd0e docs: regenerate MASTER.md at fb6f2fd
 fb6f2fd chore: completar governance TASK-20260816-040159629 (opcion desechar TeachModal)
 d29f1e4 feat: opcion desechar por sugerencia en enseñarle a MIA
-5a9e28a docs: regenerate MASTER.md at 7b43544
-7b43544 chore: completar governance TASK-20260816-034253 (colores de modulo)
-6536fc0 subaru: checkpoint MISSION-MODULO-COLORES - completado
-0dabead subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
-49f228b docs: regenerate MASTER.md at 748d68f
-748d68f subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
-0d64788 subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
-44b3eef style: color de modulo para inventario y delivery
-789ffda docs: regenerate MASTER.md at 7b7c75f
-7b7c75f subaru: checkpoint MISSION-MODULO-COLORES - listo
 ```
 
 ---
