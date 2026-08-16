@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `46e1cf5`.
+> Fuente de verdad: este repositorio en `5332e81`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `46e1cf5` |
+| **Commit HEAD** | `5332e81` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-15T20:28:11-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-15T20:28:42-06:00 |
 
 ---
 
@@ -738,6 +738,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+5332e81 docs: regenerate MASTER.md at 46e1cf5
 46e1cf5 feat: indicador 'escribiendo…' en simulador y typing presence en WhatsApp
 cbf85e5 docs: regenerate MASTER.md at 4a32bde
 4a32bde docs: regenerate MASTER.md at c9d21c1
@@ -757,7 +758,6 @@ d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-of
 47f50cd subaru: checkpoint MISSION-20260815-001 - en-progreso
 6adf7fe docs: regenerate MASTER.md at ab0b3ec
 ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
-4b49d37 subaru: checkpoint MISSION-20260815-001 - en-progreso
 ```
 
 ---
