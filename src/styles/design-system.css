@@ -90,6 +90,8 @@
   --module-glow-soft: rgba(22, 163, 74, 0.18);
   --module-surface-hover: rgba(22, 163, 74, 0.04);
   --module-surface-active: rgba(22, 163, 74, 0.08);
+  --atmosphere-accent: #16a34a;
+  --atmosphere-glow: rgba(22, 163, 74, 0.1);
 }
 
 [data-theme='dark'] [data-module='inventory'] {
@@ -102,6 +104,8 @@
   --module-glow-soft: rgba(110, 194, 156, 0.22);
   --module-surface-hover: rgba(110, 194, 156, 0.08);
   --module-surface-active: rgba(110, 194, 156, 0.14);
+  --atmosphere-accent: #6EC29C;
+  --atmosphere-glow: rgba(110, 194, 156, 0.12);
 }
 
 /* logistics — rojo suave (no hostigante) */
@@ -115,6 +119,8 @@
   --module-glow-soft: rgba(197, 106, 94, 0.18);
   --module-surface-hover: rgba(197, 106, 94, 0.04);
   --module-surface-active: rgba(197, 106, 94, 0.08);
+  --atmosphere-accent: #C56A5E;
+  --atmosphere-glow: rgba(197, 106, 94, 0.1);
 }
 
 [data-theme='dark'] [data-module='logistics'] {
@@ -127,6 +133,8 @@
   --module-glow-soft: rgba(224, 141, 128, 0.22);
   --module-surface-hover: rgba(224, 141, 128, 0.08);
   --module-surface-active: rgba(224, 141, 128, 0.14);
+  --atmosphere-accent: #E08D80;
+  --atmosphere-glow: rgba(224, 141, 128, 0.12);
 }
 
 /* 3. Utilidades de acento de módulo */

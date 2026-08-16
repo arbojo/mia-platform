@@ -70,7 +70,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     getServerSnapshot
   )
 
-  const activeModule: ModuleKey = manual ?? detectModule(pathname)
+  const routeModule = detectModule(pathname)
+  const activeModule: ModuleKey = routeModule !== 'sales' ? routeModule : (manual ?? routeModule)
 
   const selectModule = useCallback((m: ModuleKey) => {
     localStorage.setItem('mia-module', m)
