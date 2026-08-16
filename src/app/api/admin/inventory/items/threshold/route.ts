@@ -33,13 +33,13 @@ export async function PATCH(req: NextRequest) {
       .select('asset_id')
       .eq('business_id', businessId)
       .eq('product_id', product_id)
-      .maybeSingle()
+      .limit(1)
 
-    if (!bridge) {
+    if (!bridge?.[0]) {
       throw new InventoryError('NOT_FOUND', 'No existe stock para este producto', 404)
     }
 
-    const assetId = bridge.asset_id as string
+    const assetId = bridge[0].asset_id as string
 
     const { data, error } = await supabase
       .from('assets')

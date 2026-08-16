@@ -31,9 +31,9 @@ export async function applyAdjustment(input: AdjustmentInput): Promise<{ newQuan
     .select('asset_id')
     .eq('business_id', input.businessId)
     .eq('product_id', input.productId)
-    .maybeSingle()
+    .limit(1)
 
-  const assetId = bridge?.asset_id as string | undefined
+  const assetId = bridge?.[0]?.asset_id as string | undefined
 
   if (assetId) {
     const { data: existing } = await supabase

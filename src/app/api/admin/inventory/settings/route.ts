@@ -11,6 +11,15 @@ const settingsSchema = z.object({
   enabled: z.boolean().optional(),
   default_low_stock_threshold: z.number().int().min(0).optional(),
   lead_time_days: z.number().int().min(0).optional(),
+  vertical: z.enum(['ecommerce', 'manufacturing', 'realestate']).optional(),
+  prediction_mode: z.enum(['minmax', 'trend', 'hybrid']).optional(),
+  default_min_qty: z.number().int().min(0).nullable().optional(),
+  default_max_qty: z.number().int().min(0).nullable().optional(),
+  safety_stock_days: z.number().int().min(0).optional(),
+  cx_promise_enabled: z.boolean().optional(),
+  late_delivery_threshold_days: z.number().int().min(0).optional(),
+  late_delivery_discount_percent: z.number().min(0).max(100).optional(),
+  compensation_max_amount: z.number().min(0).nullable().optional(),
 })
 
 export async function GET(req: NextRequest) {

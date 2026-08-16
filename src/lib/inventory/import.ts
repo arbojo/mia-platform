@@ -107,9 +107,9 @@ export async function applyStockImport(
       .select('asset_id')
       .eq('business_id', businessId)
       .eq('product_id', product.id)
-      .maybeSingle()
+      .limit(1)
 
-    let assetId = bridge?.asset_id as string | undefined
+    let assetId = bridge?.[0]?.asset_id as string | undefined
     let nextVersion = 1
 
     if (!assetId) {

@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260816-091002865",
+  "title": "Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX)",
+  "description": "Expansion Fase 2 del Inventory Hub. (1) Migracion 042_polymorphic_variants.sql: relajar asset_products a N:M, inventory.resolve_variant() con GIN @> + fallback is_default, trigger handle_sale_won v3. (2) Migracion 043_rop_purchasing.sql: calculate_rop_for_asset, suppliers (supplier_reliability_score/webhook_secret), purchase_orders + purchase_order_events (UNIQUE parcial de sugerencia abierta = idempotencia del comprador autonomo), bom + suggest_bom_procurement, suggest_purchase_orders, handle_supplier_webhook (HMAC verificado en app), vista replenishment_dashboard con semaforo verde/amarillo/rojo. (3) Migracion 044_eta_cx.sql: ledger con transfer_out/in y product_id nullable, network_key en assets, transfers + execute_transfer atomico, calcular_eta (local > transit > purchase > lead), business_settings CX (late_delivery_threshold_days, late_delivery_discount_percent), delivery_promises con payment_context listo para pasarela y trigger handle_sale_won_cx protegido (BEGIN/EXCEPTION; nunca escribe en public, ADR-020). (4) TS: types ampliado + rop.ts/purchasing.ts/eta.ts (verifyWebhookSignature timing-safe + computeEta puro testeable) + fix maybeSingle->limit(1) en import/adjustments/threshold + settings schema. Sin push (Subaru freeze).",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "security"
+    ],
+    "filesAffected": 11,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "backend",
+      "database",
+      "security"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 11 files affected, schema changes required, security implications, cross-cutting (multi-domain), category requires council. Required agents (8): architect, database, backend, frontend, security, qa, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:09.907Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:11.017Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:12.199Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:13.308Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:14.833Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:15.980Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:17.067Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Aprobado por protocolo del Concilio tras auditoria linea por linea (webhook timing-safe, CX no escribe en public, precedencia ETA verificada)",
+      "timestamp": "2026-08-16T09:10:18.271Z"
+    }
+  ],
+  "createdAt": "2026-08-16T09:10:02.714Z",
+  "classifiedAt": "2026-08-16T09:10:02.714Z",
+  "approvedAt": "2026-08-16T09:10:18.272Z"
+}
