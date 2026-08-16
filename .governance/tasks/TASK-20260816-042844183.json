@@ -1,0 +1,76 @@
+{
+  "id": "TASK-20260816-042844183",
+  "title": "Logo MIA girando como indicador de carga (auth + dashboards)",
+  "description": "Capricho visual aprobado por el usuario: usar el logo de MIA (icono Sparkles del sidebar, ActivityRail.tsx:199-202, color var(--module-accent) + drop-shadow(0 0 6px var(--module-glow-soft))) girando con animate-spin como indicador de \"cargando\", en lugar de los spinners genericos de borde/Loader2. Alcance: solo auth y spinners de pantalla de dashboard, NO botones. Plan: (1) nuevo componente src/components/ui/mia-spinner.tsx con MiaSpinner presentacional (Sparkles + animate-spin + color/glow por CSS vars, prop size via className, sin use client); (2) reemplazos: login/page.tsx:70 y signup/page.tsx:92 (borde spinner en \"Verificando sesion...\"), MemoryPanel.tsx:63 (Loader2), WeeklyReportCard.tsx:67 (borde spinner), ConnectionsManager.tsx:572 (Loader2 estado WhatsApp). Se mantienen los iconos giratorios dentro de botones (HealthDashboard.tsx:82 RefreshCw, ConnectionsManager.tsx:620 Loader2 en boton) y el driver portal (fuera de alcance). Sin cambios de schema, API, backend ni AI. Verificacion: lint + build + unit (674) + Playwright (52) + visual en produccion (Vercel) login y dashboard.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "ux"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 6 files affected, cross-cutting (multi-domain). Required agents (5): architect, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "El MiaSpinner es un componente presentacional reutilizable que respeta las CSS vars existentes del sidebar (module-accent/glow); no introduce estado global ni dependencias nuevas. Aprobado.",
+      "timestamp": "2026-08-16T04:28:50.952Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Componente UI puro con shadcn-ui y cn(); reemplazos quirurgicos en auth y paneles, sin tocar botones. Aprobado.",
+      "timestamp": "2026-08-16T04:28:52.251Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se verificara lint, build, unit (674) y Playwright (52); ademas check visual de login y dashboard. Aprobado.",
+      "timestamp": "2026-08-16T04:28:53.427Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit+push con rebase y deploy Vercel tras gates; sin schema ni secretos. Aprobado.",
+      "timestamp": "2026-08-16T04:28:58.778Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara el patron MiaSpinner (logo girando) en memoria de ingenieria. Aprobado.",
+      "timestamp": "2026-08-16T04:28:59.918Z"
+    }
+  ],
+  "createdAt": "2026-08-16T04:28:44.505Z",
+  "classifiedAt": "2026-08-16T04:28:44.505Z",
+  "approvedAt": "2026-08-16T04:28:59.919Z",
+  "startedAt": "2026-08-16T04:29:05.245Z",
+  "completedAt": "2026-08-16T04:32:42.752Z"
+}

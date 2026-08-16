@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Brain, Loader2, AlertCircle } from 'lucide-react'
+import { Brain, AlertCircle } from 'lucide-react'
+import { MiaSpinner } from '@/components/ui/mia-spinner'
 
 interface CustomerMemory {
   interests: string[]
@@ -60,7 +61,7 @@ export function MemoryPanel({ customerId, assistantId }: MemoryPanelProps) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <MiaSpinner className="h-4 w-4" />
         Cargando memoria...
       </div>
     )

@@ -6,6 +6,7 @@ import { RefreshCw } from 'lucide-react'
 import type { WeeklyReportData } from '@/lib/ai/weekly-report'
 import { useI18n } from '@/components/dashboard/I18nProvider'
 import { useContextMenu, type ContextMenuItems } from '@/components/ui/context-menu'
+import { MiaSpinner } from '@/components/ui/mia-spinner'
 
 function formatDate(dateStr: string, locale: string): string {
   return new Date(dateStr).toLocaleDateString(locale, {
@@ -63,10 +64,7 @@ export function WeeklyReportCard({ report }: { report: WeeklyReportData | null }
       <div style={glassStyle}>
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <div
-              className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
-              style={{ borderColor: 'var(--atmosphere-accent)', borderTopColor: 'transparent' }}
-            />
+            <MiaSpinner className="h-5 w-5" />
             <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
               {t.weeklyReport.generating}
             </p>

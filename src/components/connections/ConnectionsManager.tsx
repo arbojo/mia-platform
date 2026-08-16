@@ -25,6 +25,7 @@ import {
 import type { ChannelType } from '@/lib/channels/types'
 import { ConnectionFollowUpConfig } from '@/components/connections/ConnectionFollowUpConfig'
 import { Loader2, RefreshCw } from 'lucide-react'
+import { MiaSpinner } from '@/components/ui/mia-spinner'
 
 interface Connection {
   id: string
@@ -569,7 +570,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               {waStatus === 'connecting' || waStatus === 'generating' ? (
-                <Loader2 className="h-4 w-4 animate-spin" style={{ color: waStatusMeta[waStatus].color }} />
+                <MiaSpinner className="h-4 w-4" style={{ color: waStatusMeta[waStatus].color }} />
               ) : (
                 <span
                   className="h-2.5 w-2.5 rounded-full"

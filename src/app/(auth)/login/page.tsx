@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { MiaSpinner } from '@/components/ui/mia-spinner'
 import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
@@ -67,7 +68,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-white p-4">
       {checkingAuth ? (
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto" />
+          <MiaSpinner className="h-8 w-8 mx-auto" />
           <p className="text-sm text-muted-foreground mt-2">Verificando sesión...</p>
         </div>
       ) : (
