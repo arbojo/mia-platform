@@ -172,4 +172,44 @@ describe('buildMasterPrompt', () => {
     expect(prompt).toContain('IF THE CUSTOMER DECLINES OR CHANGES SUBJECT')
     expect(prompt).toContain('do not insist')
   })
+
+  it('askCity condicional: no pide ciudad en fase de investigación en es', () => {
+    const prompt = build({ channel: 'whatsapp' })
+    expect(prompt).toContain('Pregunta la ciudad SOLO cuando el cliente pida envío/entrega')
+    expect(prompt).toContain('fase de investigación')
+    expect(prompt).toContain('NO preguntes la ciudad')
+    expect(prompt).toContain('no la vuelvas a preguntar')
+  })
+
+  it('askCity condicional: no pide ciudad en fase de investigación en en', () => {
+    const prompt = build({ channel: 'whatsapp', locale: 'en' })
+    expect(prompt).toContain('Ask for the city ONLY when the customer requests shipping/delivery')
+    expect(prompt).toContain('research phase')
+    expect(prompt).toContain('do NOT ask for the city')
+  })
+
+  it('closing policies: sostiene el cierre en fase de investigación y no repite gancho', () => {
+    const prompt = build({ channel: 'whatsapp' })
+    expect(prompt).toContain('SOSTÉN el cierre')
+    expect(prompt).toContain('No repitas el mismo gancho ni la misma pregunta en mensajes consecutivos')
+  })
+
+  it('closing policies: sostiene el cierre en fase de investigación y no repite gancho en en', () => {
+    const prompt = build({ channel: 'whatsapp', locale: 'en' })
+    expect(prompt).toContain('HOLD the close')
+    expect(prompt).toContain('Do not repeat the same hook or question in consecutive messages')
+  })
+
+  it('waOrderCapture: formato de dirección de una línea y no auto-confirmar', () => {
+    const prompt = build({ channel: 'whatsapp' })
+    expect(prompt).toContain('DIRECCIÓN: captúrala en UNA línea')
+    expect(prompt).toContain('Col. <colonia>')
+    expect(prompt).toContain('NUNCA digas "tu pedido está confirmado"')
+  })
+
+  it('waOrderCapture: formato de dirección de una línea y no auto-confirmar en en', () => {
+    const prompt = build({ channel: 'whatsapp', locale: 'en' })
+    expect(prompt).toContain('ADDRESS: capture it in ONE line')
+    expect(prompt).toContain('NEVER say "your order is confirmed"')
+  })
 })

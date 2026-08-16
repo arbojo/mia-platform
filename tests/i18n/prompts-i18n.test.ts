@@ -42,7 +42,7 @@ describe('buildMasterPrompt i18n', () => {
     expect(prompt).toContain(
       'Tu conocimiento comercial está delimitado única y exclusivamente por el catálogo, las reglas de venta y la documentación provista por este inquilino.'
     )
-    expect(prompt).toContain('Siempre pregunta la ciudad antes de prometer envío')
+    expect(prompt).toContain('Pregunta la ciudad SOLO cuando el cliente pida envío/entrega o muestre intención de compra')
     expect(prompt).toContain('No menciones descuentos a menos que el cliente pregunte')
     expect(prompt).toContain('Handoff humano cuando la negociación lo requiera.')
   })

@@ -1,0 +1,103 @@
+{
+  "id": "TASK-20260815-194306248",
+  "title": "Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA",
+  "description": "Diagnostico (conversacion real de Bella Patch): (1) MIA repite verbatim 'En que ciudad te encuentras' en casi cada turno por la regla incondicional askCity (es.ts:209) y las closing policies que ordenan cerrar toda respuesta con gancho comercial; no existe fase de investigacion. (2) La captura de direccion confunde colonia/ciudad porque customers solo tiene address libre + city y el prompt no define formato ni confirmacion. (3) El boton 'Ensenarle a MIA' no guarda nada en silencio: TeachModal.tsx:18-25 precarga Conocimiento con pregunta vacia, teach/route.ts:28 omite knowledge sin pregunta, y count=0 no muestra feedback (TeachModal.tsx:51-54). Fix: Parte 1 - validacion por tipo + feedback 'guardados N de M' + hints + categorias en TeachModal y teach route (respetar categoria, rechazo 400). Parte 2 - askCity condicional y no repetitivo, regla de fase de investigacion en closing policies, formato de direccion de una linea con confirmacion y no decir 'confirmado' sin si explicito, en los 4 diccionarios + tests. Parte 3 - script teach-evaluation-lessons para Vitanova con las 3 sugerencias como instrucciones.",
+  "scope": {
+    "categories": [
+      "ai_behaviour",
+      "ui_change",
+      "api_change",
+      "bugfix"
+    ],
+    "filesAffected": 9,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "ai",
+      "i18n",
+      "frontend",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "ai_engineer",
+      "frontend",
+      "performance",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 9 files affected, AI behaviour changes, cross-cutting (multi-domain). Required agents (8): architect, backend, ai_engineer, frontend, performance, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "El prompt es el leaver correcto para el comportamiento repetitivo; el fix del boton Ensenarle a MIA corrige un flujo que descarta silenciosamente la ensenanza. Sin cambios de schema",
+      "timestamp": "2026-08-15T19:43:10.000Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Cambios en teach route para validar y respetar categoria; sin impacto en schema. Script de datos para Vitanova idempotente",
+      "timestamp": "2026-08-15T19:43:15.000Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "askCity condicional + fase de investigacion + formato de direccion y no auto-confirmar atacan la raiz del comportamiento sin inflar tokens significativamente",
+      "timestamp": "2026-08-15T19:43:20.000Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "TeachModal con validacion, feedback real y hints de tipo; el select de categoria para knowledge alinea con las categorias validas",
+      "timestamp": "2026-08-15T19:43:25.000Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Solo texto de prompts (unos cientos de tokens) y logica de UI simple; sin impacto medible en costo ni latencia",
+      "timestamp": "2026-08-15T19:43:30.000Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se agregara test de contenido de prompts y se verificara lint, build y unit tests",
+      "timestamp": "2026-08-15T19:43:35.000Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin cambios de schema ni secretos. Verificare git y deploy tras los gates",
+      "timestamp": "2026-08-15T19:43:40.000Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara el hallazgo del bucle de ciudad y el fix de prompts en la memoria de ingenieria",
+      "timestamp": "2026-08-15T19:43:45.000Z"
+    }
+  ],
+  "createdAt": "2026-08-15T19:43:06.248Z",
+  "classifiedAt": "2026-08-15T19:43:06.248Z",
+  "approvedAt": "2026-08-15T19:43:45.000Z",
+  "startedAt": "2026-08-16T01:43:21.587Z",
+  "completedAt": "2026-08-16T01:49:06.966Z"
+}
