@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `dd4e4b6`.
+> Fuente de verdad: este repositorio en `53dd0b7`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `dd4e4b6` |
+| **Commit HEAD** | `53dd0b7` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T22:45:25-06:00 |
+| **Generado** | 2026-08-15T22:54:13-06:00 |
 
 ---
 
@@ -583,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (109)**:
+**Tareas registradas (110)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -696,6 +696,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-040159629 | Opcion Desechar por sugerencia en Enseñarle a MIA (TeachModal) | completed |
 | TASK-20260816-042844183 | Logo MIA girando como indicador de carga (auth + dashboards) | completed |
 | TASK-20260816-044156521 | Hacer visible el logo MIA girando (duracion minima en auth + loading dashboard) | completed |
+| TASK-20260816-045059628 | Texto "Cargando… un momento" + color por modulo en loading del dashboard | completed |
 
 ---
 
@@ -744,6 +745,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+53dd0b7 feat: texto 'Cargando… un momento' y paleta por modulo en loading del dashboard
+dbd208c docs: regenerate MASTER.md at dd4e4b6
 dd4e4b6 feat: hacer visible el logo MIA girando (duracion minima auth + loading dashboard)
 035558f docs: regenerate MASTER.md at a9fc53d
 a9fc53d feat: logo MIA girando como indicador de carga (auth + dashboards)
@@ -762,8 +765,6 @@ d29f1e4 feat: opcion desechar por sugerencia en enseñarle a MIA
 7b7c75f subaru: checkpoint MISSION-MODULO-COLORES - listo
 75f8719 chore: governance TASK-20260816-034253 - colores de modulo para inventario/delivery
 a4aac4a docs: regenerate MASTER.md at fc8b767
-fc8b767 chore: completar governance TASK-20260816-032745 (normalizar paleta)
-065fcf8 subaru: checkpoint MISSION-COLOR-NORMALIZACION - completado
 ```
 
 ---
