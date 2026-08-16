@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4a32bde`.
+> Fuente de verdad: este repositorio en `46e1cf5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4a32bde` |
+| **Commit HEAD** | `46e1cf5` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T20:07:02-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-15T20:28:11-06:00 |
 
 ---
 
@@ -338,7 +338,7 @@ widget
 
 ## 9. Componentes
 
-114 componentes en `src/components/`:
+115 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -356,6 +356,7 @@ catalog/import/SourceImportPanel.tsx
 chat/ChatWindow.tsx
 chat/ProductMessageCard.tsx
 chat/TrainingChat.tsx
+chat/TypingIndicator.tsx
 connections/ConnectionFollowUpConfig.tsx
 connections/ConnectionsManager.tsx
 conversations/ConversationFilters.tsx
@@ -461,7 +462,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-99 módulos:
+100 módulos:
 
 ```
 ai/client.ts
@@ -490,6 +491,7 @@ channels/gateway.ts
 channels/identity.ts
 channels/types.ts
 chat/sse.ts
+chat/useTypingIndicator.ts
 conversation/context.ts
 conversation/resolver.ts
 dashboard/queries.ts
@@ -581,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (102)**:
+**Tareas registradas (103)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -687,6 +689,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-014157047 | Ajustes al tutorial interactivo: shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio | completed |
 | TASK-20260815-022944607 | Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova | completed |
 | TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
+| TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | in_progress |
 
 ---
 
@@ -735,6 +738,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+46e1cf5 feat: indicador 'escribiendo…' en simulador y typing presence en WhatsApp
+cbf85e5 docs: regenerate MASTER.md at 4a32bde
 4a32bde docs: regenerate MASTER.md at c9d21c1
 c9d21c1 feat(laboratorio): fix guardado de Enseñarle a MIA y condicionar pregunta de ciudad
 a31a63d docs: regenerate MASTER.md at d34f916
@@ -753,8 +758,6 @@ d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-of
 6adf7fe docs: regenerate MASTER.md at ab0b3ec
 ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
 4b49d37 subaru: checkpoint MISSION-20260815-001 - en-progreso
-09073b1 subaru: checkpoint MISSION-20260815-001 - en-progreso
-b5a86ff subaru: checkpoint MISSION-20260815-001 - en-progreso
 ```
 
 ---
