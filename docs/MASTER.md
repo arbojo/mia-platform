@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `175a7ac`.
+> Fuente de verdad: este repositorio en `007b19f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `175a7ac` |
+| **Commit HEAD** | `007b19f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T02:31:08-06:00 |
+| **Generado** | 2026-08-16T03:14:04-06:00 |
 
 ---
 
@@ -756,6 +756,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+007b19f subaru: checkpoint 2 - listo
+355ed63 docs: regenerate MASTER.md at 175a7ac
 175a7ac governance: TASK-20260816-075359212 completado
 2d514d8 docs: regenerate MASTER.md at 697cfe6
 697cfe6 feat: acceso full para Vitanova (root) - licencias DB-first por negocio
@@ -774,8 +776,6 @@ c5bf32e subaru: checkpoint 1 - en-progreso
 65e0da2 subaru: checkpoint 1 - en-progreso
 d70cb8d docs: regenerate MASTER.md at f87fbd9
 f87fbd9 subaru: checkpoint 1 - listo
-4cd876c docs: regenerate MASTER.md at 53dd0b7
-53dd0b7 feat: texto 'Cargando… un momento' y paleta por modulo en loading del dashboard
 ```
 
 ---
