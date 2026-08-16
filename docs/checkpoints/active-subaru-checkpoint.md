@@ -1,14 +1,14 @@
 ---
 task_id: MISSION-MODULO-COLORES
 title: Color de modulo para Inventario y Delivery: module-accent + ruta gana
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 3
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260816-034253
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T03:43:11.485Z
+updated: 2026-08-16T03:46:10.429Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Aprobación: TASK-20260816-034253.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -62,7 +62,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark MISSION-MODULO-COLORES 2`.
 
 ## Constraints
 
