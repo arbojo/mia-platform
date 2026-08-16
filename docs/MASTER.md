@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `df18120`.
+> Fuente de verdad: este repositorio en `32005cf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `df18120` |
+| **Commit HEAD** | `32005cf` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T16:27:52-06:00 |
+| **Generado** | 2026-08-16T16:39:38-06:00 |
 
 ---
 
@@ -606,7 +606,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (116)**:
+**Tareas registradas (117)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -726,6 +726,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-091002865 | Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX) | completed |
 | TASK-20260816-211422079 | Laboratorio: historial de sesiones gestionable + imágenes condicionales en el simulador | completed |
 | TASK-20260816-220813618 | Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición | completed |
+| TASK-20260816-223701336 | Fix layout del Laboratorio: tarjeta Escenarios cortada y encogida | completed |
 
 ---
 
@@ -774,6 +775,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+32005cf fix: laboratorio layout - tarjeta de escenarios cortada y encogida
+8ecb59f docs: regenerate MASTER.md at df18120
 df18120 chore: governance completion artifacts - elastic pop task
 59a81ce subaru: checkpoint 4 - completado
 bcda86f feat: efecto scale & elastic pop en modales y confirmaciones de guardado
@@ -792,8 +795,6 @@ e778bc6 subaru: checkpoint 3 - completado
 c322b87 subaru: checkpoint 3 - en-progreso
 1e077aa feat: laboratorio - historial de sesiones gestionable e imagenes condicionales en el simulador
 120e53c subaru: checkpoint 3 - en-progreso
-15d8e1b subaru: checkpoint 3 - en-progreso
-865c555 subaru: checkpoint 3 - en-progreso
 ```
 
 ---
