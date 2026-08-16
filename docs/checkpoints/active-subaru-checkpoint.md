@@ -1,14 +1,14 @@
 ---
 task_id: 2
 title: Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX)
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 5
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260816-091002865
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T09:12:23.797Z
+updated: 2026-08-16T19:33:31.075Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Aprobación: TASK-20260816-091002865.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark 2 2`.
 
 ## Constraints
 
