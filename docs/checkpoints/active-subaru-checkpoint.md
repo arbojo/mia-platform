@@ -2,13 +2,13 @@
 task_id: 5
 title: Glass Overlay Blur - transicion al cambiar de vista
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-224949925
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T23:01:34.160Z
+updated: 2026-08-16T23:01:39.226Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -52,7 +52,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: componente implementado según lógica aprobada.
   - Gate/verificación: lint + build
 
-- [ ] **Paso 3:** Integración en layout + eliminación de loading.tsx + tests unitarios
+- [x] **Paso 3:** Integración en layout + eliminación de loading.tsx + tests unitarios
   - Objetivo: montar el overlay en el dashboard y eliminar el swap de contenido.
   - Archivos: `src/app/dashboard/layout.tsx`, `src/app/dashboard/loading.tsx` (eliminar), `tests/component/glass-loader.test.tsx`
   - Acción: montar `<GlassLoader />` dentro de AppLayout (junto a MIAIndicator); eliminar `dashboard/loading.tsx` para que la vista previa permanezca montada bajo el blur; tests (activación por pathname, searchParams ignorado, click anchor, popstate, fade-out tras duración mínima, modificadores).
@@ -83,7 +83,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 4`.
 
 ## Constraints
 
