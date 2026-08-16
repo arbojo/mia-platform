@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c9d21c1`.
+> Fuente de verdad: este repositorio en `4a32bde`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c9d21c1` |
+| **Commit HEAD** | `4a32bde` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
-| **Generado** | 2026-08-15T20:06:54-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform` |
+| **Generado** | 2026-08-15T20:07:02-06:00 |
 
 ---
 
@@ -735,6 +735,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+4a32bde docs: regenerate MASTER.md at c9d21c1
 c9d21c1 feat(laboratorio): fix guardado de Enseñarle a MIA y condicionar pregunta de ciudad
 a31a63d docs: regenerate MASTER.md at d34f916
 d34f916 fix(ai): regla anti-bucle de confirmacion en prompts y corolario en regla de pedido de Vitanova
@@ -754,7 +755,6 @@ ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
 4b49d37 subaru: checkpoint MISSION-20260815-001 - en-progreso
 09073b1 subaru: checkpoint MISSION-20260815-001 - en-progreso
 b5a86ff subaru: checkpoint MISSION-20260815-001 - en-progreso
-5006b69 subaru: checkpoint MISSION-20260815-001 - en-progreso
 ```
 
 ---
