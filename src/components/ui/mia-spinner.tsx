@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { Sparkles } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -6,11 +6,12 @@ import { cn } from '@/lib/utils'
 interface MiaSpinnerProps {
   className?: string
   title?: string
+  label?: ReactNode
   style?: CSSProperties
 }
 
-export function MiaSpinner({ className, title = 'Cargando…', style }: MiaSpinnerProps) {
-  return (
+export function MiaSpinner({ className, title = 'Cargando…', label, style }: MiaSpinnerProps) {
+  const icon = (
     <Sparkles
       aria-label={title}
       role="status"
@@ -21,5 +22,16 @@ export function MiaSpinner({ className, title = 'Cargando…', style }: MiaSpinn
         ...style,
       }}
     />
+  )
+
+  if (!label) return icon
+
+  return (
+    <span className="inline-flex flex-col items-center gap-2">
+      {icon}
+      <span className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+        {label}
+      </span>
+    </span>
   )
 }

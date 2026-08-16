@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260816-045059628",
+  "title": "Texto \"Cargando… un momento\" + color por modulo en loading del dashboard",
+  "description": "Refinamiento visual del loading del dashboard: (1) MiaSpinner (src/components/ui/mia-spinner.tsx) acepta prop opcional label que renderiza el texto debajo del logo girando, con color var(--atmosphere-text-secondary); (2) src/app/dashboard/loading.tsx pasa a client component que en mount lee window.location.pathname (se actualiza al instante durante navegacion client-side, a diferencia de usePathname de AppLayout que va atrasado) y detecta el modulo con la misma logica de AppLayout (delivery->logistics, inventory->inventory, resto->sales), envolviendo el contenido en un div con data-module para que el logo y el texto usen la paleta correcta (ventas azul, inventario verde, delivery rojo) incluso en navegacion cruzada entre modulos. Texto del label: \"Cargando… un momento\". Las paginas auth conservan su texto \"Verificando sesion...\". Sin cambios de schema, API, backend ni AI. Verificacion: lint + build + unit (674) + Playwright (52) + visual en produccion navegando entre Ventas/Inventario/Delivery.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-16T04:50:59.212Z",
+  "classifiedAt": "2026-08-16T04:50:59.212Z",
+  "approvedAt": "2026-08-16T04:50:59.212Z",
+  "startedAt": "2026-08-16T04:51:03.123Z",
+  "completedAt": "2026-08-16T04:54:06.671Z"
+}
