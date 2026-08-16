@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260816-025216",
+  "title": "Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look)",
+  "description": "El usuario quiere portar la identidad visual de su proyecto kusanali (repo privado arbojo/kusanali, web/globals.css) a MIA SIN copiar funcionalidades: solo colores, fuentes y estilos de botones. Kusanali: fondo slate (#eef1f6 light / #0f172a dark), cards blancas con borde #cbd5e1, texto #1a1a1a/#64748b, sidebar oscuro #1e293b (firma kusanali, en light y dark), fuente Inter pura, sombras y easing spring cubic-bezier(0.16,1,0.3,1). Decisión del usuario: (1) adiós completo al olive #6b7849; (2) acentos por módulo — VENTAS = azul pálido bonito (#5B9BD5 light / #9CC6EE dark), INVENTARIO = verde de kusanali (#16a34a / #6EC29C), DELIVERY = rojo suave NO hostigante (#C56A5E / #E08D80); (3) Inter puro (eliminar Lora de headings). Alcance ESTRICTO de estilo: tokens en src/app/globals.css (paleta, sidebar, radios, sombras, chart, atmospheres), fuentes en src/app/layout.tsx, acentos por módulo en src/styles/design-system.css, variantes visuales de src/components/ui/button.tsx. Cero cambios de lógica, funcionalidad, componentes completos ni datos.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "style"
+    ],
+    "filesAffected": 4,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "design_system"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "product_manager",
+      "frontend",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: cross-cutting (tokens globales afectan toda la app), cambio de identidad visual por decisión del usuario, exige concilio. Required agents (8): architect, product_manager, frontend, performance, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Cambio confinado a la capa de presentación: tokens CSS, fuentes y variantes de botón. No toca arquitectura de datos, API ni lógica; los acentos por módulo ya viven en design-system.css y solo se re-tiñen",
+      "timestamp": "2026-08-16T02:52:20.000Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "El usuario solicita explícitamente la identidad visual kusanali y colores por módulo (ventas azul, inventario verde, delivery rojo suave). Solo estilo, sin features ni complejidad funcional",
+      "timestamp": "2026-08-16T02:52:25.000Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Los cambios son declarativos (CSS variables y cva classes). El mapeo Tailwind v4 via @theme inline propaga los tokens a todas las utilidades sin tocar componentes",
+      "timestamp": "2026-08-16T02:52:30.000Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Quitar Lora reduce la carga de fuentes; los tokens CSS no afectan runtime ni bundle de forma medible",
+      "timestamp": "2026-08-16T02:52:35.000Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin secretos, sin cambios de datos ni de red. Los contrastes propuestos mantienen legibilidad en light y dark; no se introducen vectores de riesgo",
+      "timestamp": "2026-08-16T02:52:40.000Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se verifican lint, build, test:unit y e2e Playwright antes de cerrar; la re-tinción no debe romper accesos ni flujos existentes",
+      "timestamp": "2026-08-16T02:52:45.000Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Deploy Vercel prod tras gates y push; sin schema ni secretos. Se conserva el protocolo Subaru con checkpoint previo",
+      "timestamp": "2026-08-16T02:52:50.000Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrará en memoria el reemplazo de la identidad olive por la paleta kusanali y los acentos por módulo",
+      "timestamp": "2026-08-16T02:52:55.000Z"
+    }
+  ],
+  "createdAt": "2026-08-16T02:52:16.000Z",
+  "classifiedAt": "2026-08-16T02:52:16.000Z",
+  "approvedAt": "2026-08-16T02:52:55.000Z",
+  "startedAt": "2026-08-16T02:52:32.059Z",
+  "completedAt": null
+}
