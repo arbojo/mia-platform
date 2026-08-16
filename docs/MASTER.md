@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `5332e81`.
+> Fuente de verdad: este repositorio en `9992f05`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `5332e81` |
+| **Commit HEAD** | `9992f05` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T20:28:42-06:00 |
+| **Generado** | 2026-08-15T20:39:59-06:00 |
 
 ---
 
@@ -689,7 +689,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-014157047 | Ajustes al tutorial interactivo: shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio | completed |
 | TASK-20260815-022944607 | Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova | completed |
 | TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
-| TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | in_progress |
+| TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
 
 ---
 
@@ -738,6 +738,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9992f05 chore: complete governance TASK-20260816-021610
+ef2914f docs: regenerate MASTER.md at 5332e81
 5332e81 docs: regenerate MASTER.md at 46e1cf5
 46e1cf5 feat: indicador 'escribiendo…' en simulador y typing presence en WhatsApp
 cbf85e5 docs: regenerate MASTER.md at 4a32bde
@@ -756,8 +758,6 @@ d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-of
 0e7cdd0 subaru: checkpoint MISSION-20260815-001 - en-progreso
 157b913 docs: regenerate MASTER.md at 47f50cd
 47f50cd subaru: checkpoint MISSION-20260815-001 - en-progreso
-6adf7fe docs: regenerate MASTER.md at ab0b3ec
-ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
 ```
 
 ---
