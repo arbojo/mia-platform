@@ -1,14 +1,14 @@
 ---
 task_id: 1
 title: Inventario Universal F1: assets + ledger universal + trigger v2 + motor predictivo
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 9
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260816-072521677
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T07:26:10.876Z
+updated: 2026-08-16T07:28:02.929Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Aprobación: TASK-20260816-072521677.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark 1 2`.
 
 ## Constraints
 
