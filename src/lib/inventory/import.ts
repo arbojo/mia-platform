@@ -80,47 +80,91 @@ export async function applyStockImport(
   const pub = createAdminClient()
   const { data: products, error: productsError } = await pub
     .from('products')
-    .select('id, sku')
+    .select('id, name, sku')
     .eq('business_id', businessId)
 
   if (productsError) throw productsError
 
-  const skuToId = new Map<string, string>()
-  for (const product of (products ?? []) as Array<{ id: string; sku: string | null }>) {
-    if (product.sku) skuToId.set(product.sku.toLowerCase(), product.id)
+  const skuToProduct = new Map<string, { id: string; name: string; sku: string | null }>()
+  for (const product of (products ?? []) as Array<{ id: string; name: string; sku: string | null }>) {
+    if (product.sku) skuToProduct.set(product.sku.toLowerCase(), product)
   }
 
   const inv = createInventoryAdmin()
   const now = new Date().toISOString()
 
   for (const row of rows) {
-    const productId = skuToId.get(row.sku.toLowerCase())
+    const product = skuToProduct.get(row.sku.toLowerCase())
 
-    if (!productId) {
+    if (!product) {
       summary.skipped += 1
       summary.errors.push({ row: 0, message: 'SKU no existe en el catálogo', sku: row.sku })
       continue
     }
 
-    const { data: existing } = await inv
-      .from('stock_items')
-      .select('version')
+    const { data: bridge } = await inv
+      .from('asset_products')
+      .select('asset_id')
       .eq('business_id', businessId)
-      .eq('product_id', productId)
+      .eq('product_id', product.id)
       .maybeSingle()
 
-    const nextVersion = (existing?.version ?? 0) + 1
+    let assetId = bridge?.asset_id as string | undefined
+    let nextVersion = 1
 
-    const { error: upsertError } = await inv.from('stock_items').upsert(
-      {
+    if (!assetId) {
+      const { data: newAsset, error: assetError } = await inv
+        .from('assets')
+        .insert({
+          business_id: businessId,
+          item_type: 'sku',
+          tracking_mode: 'quantity',
+          code: product.sku,
+          name: product.name,
+          attributes: { product_id: product.id },
+          uom: 'u',
+          lifecycle_state: 'active',
+          current_qty: row.quantity,
+          version: 1,
+        })
+        .select('id, version')
+        .single()
+
+      if (assetError) {
+        summary.skipped += 1
+        summary.errors.push({ row: 0, message: `Error al crear asset: ${assetError.message}`, sku: row.sku })
+        continue
+      }
+
+      assetId = newAsset.id
+      nextVersion = newAsset.version + 1
+
+      const { error: bridgeError } = await inv.from('asset_products').insert({
         business_id: businessId,
-        product_id: productId,
-        quantity: row.quantity,
-        version: nextVersion,
-        updated_at: now,
-      },
-      { onConflict: 'business_id,product_id' }
-    )
+        asset_id: assetId,
+        product_id: product.id,
+      })
+      if (bridgeError) {
+        summary.skipped += 1
+        summary.errors.push({ row: 0, message: `Error de puente: ${bridgeError.message}`, sku: row.sku })
+        continue
+      }
+    } else {
+      const { data: existing } = await inv
+        .from('assets')
+        .select('version')
+        .eq('business_id', businessId)
+        .eq('id', assetId)
+        .maybeSingle()
+
+      nextVersion = (existing?.version ?? 0) + 1
+    }
+
+    const { error: upsertError } = await inv
+      .from('assets')
+      .update({ current_qty: row.quantity, version: nextVersion, updated_at: now })
+      .eq('business_id', businessId)
+      .eq('id', assetId)
 
     if (upsertError) {
       summary.skipped += 1
@@ -130,7 +174,8 @@ export async function applyStockImport(
 
     const { error: movementError } = await inv.from('stock_movements').insert({
       business_id: businessId,
-      product_id: productId,
+      product_id: product.id,
+      asset_id: assetId,
       quantity_delta: row.quantity,
       movement_type: 'import',
       reference_type: 'import',

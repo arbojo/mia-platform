@@ -28,11 +28,24 @@ export async function PATCH(req: NextRequest) {
     const { product_id, low_stock_threshold } = parsed.data
     const supabase = createInventoryAdmin()
 
-    const { data, error } = await supabase
-      .from('stock_items')
-      .update({ low_stock_threshold, updated_at: new Date().toISOString() })
+    const { data: bridge } = await supabase
+      .from('asset_products')
+      .select('asset_id')
       .eq('business_id', businessId)
       .eq('product_id', product_id)
+      .maybeSingle()
+
+    if (!bridge) {
+      throw new InventoryError('NOT_FOUND', 'No existe stock para este producto', 404)
+    }
+
+    const assetId = bridge.asset_id as string
+
+    const { data, error } = await supabase
+      .from('assets')
+      .update({ min_qty: low_stock_threshold, updated_at: new Date().toISOString() })
+      .eq('business_id', businessId)
+      .eq('id', assetId)
       .select('*')
       .maybeSingle()
 
@@ -49,9 +62,9 @@ export async function PATCH(req: NextRequest) {
       actor_type: 'user',
       actor_id: userId || null,
       action: 'set_threshold',
-      entity: 'stock_items',
-      entity_id: product_id,
-      details: { low_stock_threshold },
+      entity: 'assets',
+      entity_id: assetId,
+      details: { product_id, low_stock_threshold },
     })
 
     return NextResponse.json({ item: data })

@@ -1,0 +1,120 @@
+{
+  "id": "TASK-20260816-072521677",
+  "title": "Inventario Universal F1: assets polimorfico + ledger universal + trigger v2 + motor predictivo hibrido",
+  "description": "Fase 1 de implementacion del Inventario Universal aprobado (TASK-20260816-071246514). Incluye: (1) migracion 040 con inventory.locations, inventory.assets (item_type sku|material|asset, tracking_mode quantity|serial|single, attributes JSONB + GIN, uom, lifecycle_state, location_id, parent_asset_id BOM, current_qty, version), inventory.asset_products (puente UNIQUE product_id), ALTER de inventory.stock_movements al ledger universal (asset_id, unit_cost, total_cost, lot_id, lifecycle_from/to, location_id; dedupe UNIQUE business_id+asset_id+reference_id), backfill idempotente stock_items->assets (sku) y movimientos->asset_id, nueva tabla inventory.predictions (business_id, asset_id, horizon, forecast_qty, suggested_qty, min_qty, max_qty, velocity7d, velocity30d, model, confidence, inputs JSONB, UNIQUE parcial business_id+asset_id+horizon+model), ALTER business_settings (+vertical, +prediction_mode minmax|trend|hybrid, +min_qty, +max_qty), RLS ENABLE+FORCE+REVOKE + policies en todo lo nuevo (patron 034/ADR-020). (2) migracion 041: reemplazo de inventory.handle_sale_won() v2: resuelve producto->asset via asset_products (o asset_id directo en metadata), decremento atomico en assets.current_qty con guarda+version, escribe ledger universal con unit_cost (proxy products.price), idempotencia por UNIQUE dedupe, fallos -> ingest_errors, NUNCA aborta la venta (SECURITY DEFINER, search_path=\"\", BEGIN..EXCEPTION por linea, RETURN NEW). Solo tracking_mode=quantity; serial/single lifecycle en F2/F3. (3) TS: src/lib/inventory/predictions.ts motor hibrido (minmax: ROP=demanda en lead time + safety con min_qty/max_qty; trend: velocidad 7d/30d suavizada; hybrid: mezcla ponderada) con salida normalizada a inventory.predictions (determinista, LLM opcional on-demand como ai.ts con recordAiUsage); src/app/api/inventory/predictions/route.ts (POST genera, GET lista). (4) compat: types.ts, stock.ts, suggestions.ts, adjustments.ts para asset_id + unit_cost. Respetar: migraciones nuevas solo (034 inmutable), admin client server-side, RLS multi-tenant, ADR-019/020 aislamiento, no tocar core de ventas.",
+  "scope": {
+    "categories": [
+      "feature",
+      "architecture",
+      "schema",
+      "ai"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend",
+      "ai",
+      "performance",
+      "security"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 8 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Implementacion fiel del diseno aprobado (071246514): assets polimorfico + ledger universal + motor predictivo hibrido; respeta ADR-019/020 y no toca el core. Aprobado.",
+      "timestamp": "2026-08-16T07:25:41.317Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migraciones 040/041 incrementales (034 inmutable), RLS FORCE+REVOKE en todo lo nuevo, backfill idempotente, trigger v2 no-bloqueante con dedupe. Aprobado.",
+      "timestamp": "2026-08-16T07:25:42.643Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "predictions.ts + API route con admin client server-side; compat en stock/suggestions/adjustments sin romper flujo actual. Aprobado.",
+      "timestamp": "2026-08-16T07:25:43.894Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI en esta fase; tipos actualizados mantienen contrato de componentes existentes. Aprobado.",
+      "timestamp": "2026-08-16T07:25:45.039Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Motor hibrido determinista (minmax/trend/hybrid) en TS/SQL; LLM solo on-demand y trackeado con recordAiUsage, nunca en hot path. Aprobado.",
+      "timestamp": "2026-08-16T07:25:46.208Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Decremento atomico con guarda, indices GIN + dedupe UNIQUE, prediccion on-demand (cron futuro), sin IA en hot path. Aprobado.",
+      "timestamp": "2026-08-16T07:25:53.256Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "RLS ENABLE+FORCE+REVOKE en assets/locations/asset_products/predictions, admin client solo server-side, search_path vacio en el trigger. Aprobado.",
+      "timestamp": "2026-08-16T07:25:54.755Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates lint/build/unit/e2e obligatorios; pruebas de dedupe del trigger y de que stock bajo nunca bloquea ventas. Aprobado.",
+      "timestamp": "2026-08-16T07:25:56.492Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Migraciones 040/041 + TS en un solo release atomico; aplicacion SQL via dashboard + deploy Vercel tras gates. Aprobado.",
+      "timestamp": "2026-08-16T07:25:57.974Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registra assets como entidad central del Inventory Hub y predictor hibrido como patron; ADR-020 evoluciona sin romperse. Aprobado.",
+      "timestamp": "2026-08-16T07:25:59.776Z"
+    }
+  ],
+  "createdAt": "2026-08-16T07:25:21.498Z",
+  "classifiedAt": "2026-08-16T07:25:21.498Z",
+  "approvedAt": "2026-08-16T07:25:59.777Z",
+  "startedAt": "2026-08-16T07:35:33.316Z",
+  "completedAt": "2026-08-16T07:35:34.457Z"
+}

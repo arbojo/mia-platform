@@ -41,7 +41,7 @@ export function saleQuantities(event: SaleEvent): Map<string, number> {
 export interface InventoryListingInput {
   businessId: string
   products: ProductRow[]
-  stockByProduct: Record<string, { quantity: number; low_stock_threshold: number }>
+  stockByProduct: Record<string, { quantity: number; low_stock_threshold: number; version: number }>
   sales30d: SaleEvent[]
 }
 
@@ -69,7 +69,7 @@ export function buildStockListing(input: InventoryListingInput): StockItemWithPr
       product_id: product.id,
       quantity,
       low_stock_threshold: threshold,
-      version: 1,
+      version: stock?.version ?? 1,
       created_at: '',
       updated_at: '',
       product_name: product.name,
@@ -87,8 +87,17 @@ export async function getStockOverview(businessId: string) {
   const inv = createInventoryAdmin()
   const pub = createAdminClient()
 
-  const [stockResult, productsResult, salesResult] = await Promise.all([
-    inv.from('stock_items').select('*').eq('business_id', businessId),
+  const [assetsResult, bridgeResult, productsResult, salesResult] = await Promise.all([
+    inv
+      .from('assets')
+      .select('id, business_id, item_type, tracking_mode, code, name, attributes, current_qty, min_qty, max_qty, version, is_active')
+      .eq('business_id', businessId)
+      .eq('tracking_mode', 'quantity')
+      .eq('is_active', true),
+    inv
+      .from('asset_products')
+      .select('asset_id, product_id')
+      .eq('business_id', businessId),
     pub
       .from('products')
       .select('id, name, sku, price')
@@ -102,15 +111,28 @@ export async function getStockOverview(businessId: string) {
       .gte('created_at', new Date(Date.now() - 30 * 86_400_000).toISOString()),
   ])
 
-  if (stockResult.error) throw stockResult.error
+  if (assetsResult.error) throw assetsResult.error
+  if (bridgeResult.error) throw bridgeResult.error
   if (productsResult.error) throw productsResult.error
   if (salesResult.error) throw salesResult.error
 
-  const stockByProduct: Record<string, { quantity: number; low_stock_threshold: number }> = {}
-  for (const item of stockResult.data ?? []) {
-    stockByProduct[item.product_id] = {
-      quantity: item.quantity,
-      low_stock_threshold: item.low_stock_threshold,
+  const assetById = new Map<string, { current_qty: number; min_qty: number | null; version: number }>()
+  for (const asset of assetsResult.data ?? []) {
+    assetById.set(asset.id as string, {
+      current_qty: asset.current_qty as number,
+      min_qty: asset.min_qty as number | null,
+      version: asset.version as number,
+    })
+  }
+
+  const stockByProduct: Record<string, { quantity: number; low_stock_threshold: number; version: number }> = {}
+  for (const bridge of bridgeResult.data ?? []) {
+    const asset = assetById.get(bridge.asset_id as string)
+    if (!asset) continue
+    stockByProduct[bridge.product_id as string] = {
+      quantity: asset.current_qty,
+      low_stock_threshold: asset.min_qty ?? 0,
+      version: asset.version,
     }
   }
 
@@ -160,24 +182,42 @@ export async function getCatalogAvailability(
 
   if (productIds.length === 0) return {}
 
-  const { data, error } = await inv
-    .from('stock_items')
-    .select('product_id, quantity, low_stock_threshold')
+  const { data: bridge, error: bridgeError } = await inv
+    .from('asset_products')
+    .select('asset_id, product_id')
     .eq('business_id', businessId)
     .in('product_id', productIds)
 
+  if (bridgeError) throw bridgeError
+
+  const assetIds = [...new Set((bridge ?? []).map((b) => b.asset_id as string))]
+  if (assetIds.length === 0) return {}
+
+  const { data, error } = await inv
+    .from('assets')
+    .select('id, current_qty, min_qty')
+    .eq('business_id', businessId)
+    .in('id', assetIds)
+
   if (error) throw error
 
+  const assetById = new Map<string, { current_qty: number; min_qty: number | null }>()
+  for (const asset of data ?? []) {
+    assetById.set(asset.id as string, {
+      current_qty: asset.current_qty as number,
+      min_qty: asset.min_qty as number | null,
+    })
+  }
+
   const result: Record<string, CatalogAvailability> = {}
-  for (const item of (data ?? []) as Array<{
-    product_id: string
-    quantity: number
-    low_stock_threshold: number
-  }>) {
-    result[item.product_id] = {
-      quantity: item.quantity,
-      low_stock_threshold: item.low_stock_threshold,
-      status: stockStatus(item.quantity, item.low_stock_threshold),
+  for (const row of bridge ?? []) {
+    const asset = assetById.get(row.asset_id as string)
+    if (!asset) continue
+    const threshold = asset.min_qty ?? 0
+    result[row.product_id as string] = {
+      quantity: asset.current_qty,
+      low_stock_threshold: threshold,
+      status: stockStatus(asset.current_qty, threshold),
     }
   }
 

@@ -1,0 +1,119 @@
+{
+  "id": "TASK-20260816-071246514",
+  "title": "Inventario Universal + Motor de IA (fase de diseno) — multi-industria",
+  "description": "Fase de DISENO (sin codigo) del Inventory Hub evolucionado a \"Inventario Universal\": SaaS multi-industria para gestionar inventarios inteligentes en 3 verticales — ecommerce (retail variado), manufactura (fabrica de calzado: insumos + producto terminado) e inmobiliaria (activos/propiedades como inventario). Basado en el modelo actual (schema inventory, ADR-020, stock_items ligado a public.products, ledger stock_movements, trigger SALE_WON, restock_suggestions, edition gating). Entregable de esta fase: arquitectura de reingenieria de datos agnostica al tipo de item (polimorfismo item_type + atributos JSONB + serial/ubicacion/estado), motor de cognicion IA (prediccion adaptativa por vertical: demanda estacional ecommerce / tiempos de ciclo y WIP manufactura / rotacion de activos inmobiliaria; deteccion de anomalias: perdidas, obsolescencia, baja rotacion), capas tecnologicas (Interfaz/Datos/Inteligencia) y diseno modular para cambiar entre stock y activos sin cambiar de software. Respeta: RLS + multi-tenant, admin client para writes, patron ADR-019/020 de modulo aislado, promesa core (no tocar ventas). Sin migraciones aplicadas en esta fase; se entregara como documento de arquitectura para el concilio y luego tareas de implementacion.",
+  "scope": {
+    "categories": [
+      "feature",
+      "architecture",
+      "schema",
+      "ai"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "database",
+      "backend",
+      "frontend",
+      "ai",
+      "analytics"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: schema changes required, AI behaviour changes, cross-cutting (multi-domain), category requires council. Required agents (10): architect, database, backend, frontend, ai_engineer, performance, security, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "El modelo de assets polimorfico con tracking_mode es la abstraccion correcta: generaliza stock, serial y ciclo de vida con una sola tabla; el pipeline senal->prediccion->anomalia->accion separa IA del hot path. Aprobado.",
+      "timestamp": "2026-08-16T07:13:43.518Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Schema inventory.assets con attributes JSONB, uom y lifecycle_state + ledger extendido preserva RLS/ADR-020; migracion incremental F1-F4. Aprobado.",
+      "timestamp": "2026-08-16T07:13:44.730Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Adapters por vertical y bridge asset_products(product_id,asset_id) mantienen el trigger SALE_WON intacto; writes via admin client. Aprobado.",
+      "timestamp": "2026-08-16T07:13:45.893Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Paneles segun vertical+tracking_mode reutilizando componentes existentes y paleta de modulo. Aprobado.",
+      "timestamp": "2026-08-16T07:13:48.016Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Engines por vertical con salida normalizada a predictions + anomalias con severidad; determinismo en SQL, LLM solo interpretacion on-demand como restock_suggestions. Aprobado.",
+      "timestamp": "2026-08-16T07:14:32.266Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Forecast por cron + on-demand, ledger append-only, sin IA en hot path. Aprobado.",
+      "timestamp": "2026-08-16T07:14:33.551Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "RLS ENABLE+FORCE+REVOKE en todo el schema, admin solo server-side, atributos sensibles sin exponer a clientes. Aprobado.",
+      "timestamp": "2026-08-16T07:14:34.878Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates completos: lint/build/unit/e2e para cada fase; migracion F1 sin romper trigger SALE_WON. Aprobado.",
+      "timestamp": "2026-08-16T07:14:36.093Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Plan de lanzamiento por fases F1-F4, cada fase con deploy a Vercel y migration segura de Supabase. Aprobado.",
+      "timestamp": "2026-08-16T07:14:40.250Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "ADR-020 se conserva; el diseno documenta la evolucion del Inventory Hub a universal sin romper ADRs previos. Aprobado.",
+      "timestamp": "2026-08-16T07:14:41.397Z"
+    }
+  ],
+  "createdAt": "2026-08-16T07:12:46.915Z",
+  "classifiedAt": "2026-08-16T07:12:46.915Z",
+  "approvedAt": "2026-08-16T07:14:41.397Z",
+  "startedAt": "2026-08-16T07:14:48.132Z",
+  "completedAt": "2026-08-16T07:14:49.365Z"
+}

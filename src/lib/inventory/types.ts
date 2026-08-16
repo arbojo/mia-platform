@@ -18,6 +18,39 @@ export type MovementType =
 
 export type StockStatus = 'out' | 'low' | 'ok'
 
+export type PredictionMode = 'minmax' | 'trend' | 'hybrid'
+
+export interface InventoryAsset {
+  id: string
+  business_id: string
+  item_type: 'sku' | 'material' | 'asset'
+  tracking_mode: 'quantity' | 'serial' | 'single'
+  code: string | null
+  name: string
+  attributes: Record<string, unknown>
+  uom: string
+  lifecycle_state: string
+  location_id: string | null
+  parent_asset_id: string | null
+  current_qty: number
+  min_qty: number | null
+  max_qty: number | null
+  version: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface PredictionResult {
+  model: PredictionMode
+  forecast_qty: number
+  suggested_qty: number
+  reorder_point: number
+  min_qty: number
+  max_qty: number | null
+  confidence: number
+}
+
 export interface StockItem {
   business_id: string
   product_id: string
