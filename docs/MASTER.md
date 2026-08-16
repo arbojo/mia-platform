@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4340072`.
+> Fuente de verdad: este repositorio en `697cfe6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4340072` |
+| **Commit HEAD** | `697cfe6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T01:47:38-06:00 |
+| **Generado** | 2026-08-16T01:58:59-06:00 |
 
 ---
 
@@ -591,7 +591,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (112)**:
+**Tareas registradas (113)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -707,6 +707,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-045059628 | Texto "Cargando… un momento" + color por modulo en loading del dashboard | completed |
 | TASK-20260816-071246514 | Inventario Universal + Motor de IA (fase de diseno) — multi-industria | completed |
 | TASK-20260816-072521677 | Inventario Universal F1: assets polimorfico + ledger universal + trigger v2 + motor predictivo hibrido | completed |
+| TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | in_progress |
 
 ---
 
@@ -755,6 +756,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+697cfe6 feat: acceso full para Vitanova (root) - licencias DB-first por negocio
+21d2e52 docs: regenerate MASTER.md at 4340072
 4340072 subaru: checkpoint 1 - completado
 2c0b9ba subaru: checkpoint 1 - en-progreso
 22b7450 docs: regenerate MASTER.md at ad467ef
@@ -773,8 +776,6 @@ f87fbd9 subaru: checkpoint 1 - listo
 53dd0b7 feat: texto 'Cargando… un momento' y paleta por modulo en loading del dashboard
 dbd208c docs: regenerate MASTER.md at dd4e4b6
 dd4e4b6 feat: hacer visible el logo MIA girando (duracion minima auth + loading dashboard)
-035558f docs: regenerate MASTER.md at a9fc53d
-a9fc53d feat: logo MIA girando como indicador de carga (auth + dashboards)
 ```
 
 ---
