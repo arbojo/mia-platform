@@ -2,13 +2,13 @@
 task_id: 4
 title: Efecto Scale & Elastic Pop en modales y ventanas flotantes de edicion
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-220813618
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T22:12:14.308Z
+updated: 2026-08-16T22:12:55.276Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark 4 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark 4 4`.
 
 ## Constraints
 
