@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ad467ef`.
+> Fuente de verdad: este repositorio en `4340072`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ad467ef` |
+| **Commit HEAD** | `4340072` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T01:35:49-06:00 |
+| **Generado** | 2026-08-16T01:47:38-06:00 |
 
 ---
 
@@ -755,6 +755,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+4340072 subaru: checkpoint 1 - completado
+2c0b9ba subaru: checkpoint 1 - en-progreso
+22b7450 docs: regenerate MASTER.md at ad467ef
 ad467ef subaru: checkpoint 1 - en-progreso
 97d28a2 feat: inventario universal F1 - assets polimorfico, ledger universal con costos, trigger v2 y motor predictivo hibrido
 110de00 subaru: checkpoint 1 - en-progreso
@@ -772,9 +775,6 @@ dbd208c docs: regenerate MASTER.md at dd4e4b6
 dd4e4b6 feat: hacer visible el logo MIA girando (duracion minima auth + loading dashboard)
 035558f docs: regenerate MASTER.md at a9fc53d
 a9fc53d feat: logo MIA girando como indicador de carga (auth + dashboards)
-71acd0e docs: regenerate MASTER.md at fb6f2fd
-fb6f2fd chore: completar governance TASK-20260816-040159629 (opcion desechar TeachModal)
-d29f1e4 feat: opcion desechar por sugerencia en enseñarle a MIA
 ```
 
 ---
