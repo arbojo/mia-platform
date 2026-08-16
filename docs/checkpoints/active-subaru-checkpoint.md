@@ -1,23 +1,23 @@
 ---
-task_id: MISSION-MODULO-COLORES
-title: Color de modulo para Inventario y Delivery: module-accent + ruta gana
-state: completed
-current_step: 3
-total_steps: 3
+task_id: 1
+title: Inventario Universal F1: assets + ledger universal + trigger v2 + motor predictivo
+state: frozen
+current_step: 0
+total_steps: 9
 branch: main
 last_machine: archlinux
-governance_id: TASK-20260816-034253
+governance_id: TASK-20260816-072521677
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T03:50:29.825Z
+updated: 2026-08-16T07:26:10.876Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Color de modulo para Inventario y Delivery: module-accent + ruta gana
+Inventario Universal F1: assets + ledger universal + trigger v2 + motor predictivo
 
-Aprobación: TASK-20260816-034253.
+Aprobación: TASK-20260816-072521677.
 
 ## Scope
 
@@ -31,7 +31,7 @@ Aprobación: TASK-20260816-034253.
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -47,8 +47,56 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 4)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 5)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 6)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 7)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 8)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 9:** (objetivo del paso 9 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 9)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
   - Dependencia: (paso previo que debe estar terminado, o "ninguna")
@@ -58,13 +106,11 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión MISSION-MODULO-COLORES completada (3/3 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Performance Engineer review.
-- Finalizado: 2026-08-16T03:50:29.825Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..9.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete MISSION-MODULO-COLORES` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
@@ -81,5 +127,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark MISSION-MODULO-COLORES <n>`.
-6. Al final: `subaru complete MISSION-MODULO-COLORES`.
+5. Continuar el paso indicado y ejecutar `subaru mark 1 <n>`.
+6. Al final: `subaru complete 1`.
