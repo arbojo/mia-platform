@@ -1,0 +1,83 @@
+{
+  "id": "TASK-20260816-224949925",
+  "title": "Glass Overlay Blur — transición de carga al cambiar de vista",
+  "description": "Reemplazar el swap a pantalla de \"Cargando...\" (loading.tsx) por una transicion Glass Overlay (blur) al navegar entre vistas del dashboard: (1) CSS en globals.css con .glass-loader-overlay (fixed inset 0, rgba(15,23,42,0.4), backdrop-filter blur(12px), flex centrado, z-index 9999, opacity 0, pointer-events none, transicion opacity 0.3s cubic-bezier(0.4,0,0.2,1)), .glass-loader-overlay.active (opacity 1, pointer-events auto), .mia-glow-spinner (48px, border 3px rgba(255,255,255,0.1), border-top #8b5cf6, border-right #06b6d4, animacion miaSpin 0.8s linear infinite) y @keyframes miaSpin, con respeto a prefers-reduced-motion. (2) Nuevo componente reutilizable src/components/ui/mia-glow-spinner.tsx (role=status + label aria-live visually-hidden). (3) Nuevo componente src/components/ui/glass-loader.tsx: overlay client montado en el layout del dashboard que se activa SOLO en navegacion (click capture en anchors internos, popstate/back-forward, y cambio de usePathname como catch-all de router.push) y se desactiva tras un minimo de duracion (~450ms) con fade-out de 300ms; ignora cambios solo de searchParams (filtros) y no activa en cargas de datos dentro de una misma vista. (4) Eliminar src/app/dashboard/loading.tsx para que el contenido previo permanezca montado bajo el blur durante la transicion. (5) Montar <GlassLoader /> en src/app/dashboard/layout.tsx dentro de AppLayout. (6) Tests unitarios tests/component/glass-loader.test.tsx (muestra en cambio de pathname, ignora searchParams, click en anchor interno, popstate, fade-out tras min-duracion, reduced-motion). Sin cambios de schema, sin backend, sin AI behavior. Verificacion: lint, build, unit tests, e2e existentes, DevTools (consola limpia al navegar entre vistas), revision de rendimiento (blur fullscreen es transitorio, solo durante navegacion) y seguridad (sin cambios en datos/acceso).",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 7 files affected, category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "UI overlay de transicion coherente con el diseno MIA; sin cambios de esquema ni backend; la eliminacion de loading.tsx preserva la vista previa bajo blur como requiere el diseno",
+      "timestamp": "2026-08-16T22:50:05.842Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "No hay cambios en API, rutas ni logica de servidor; la transicion es puramente de UI cliente. Aprobado.",
+      "timestamp": "2026-08-16T22:50:13.961Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "GlassLoader client en layout dashboard con deteccion global de navegacion (click capture + popstate + pathname), spinner glow reutilizable, accesible (role=status/aria-live) y respeto a prefers-reduced-motion. Se elimina loading.tsx para conservar contenido previo bajo blur.",
+      "timestamp": "2026-08-16T22:50:22.311Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Cobertura prevista: tests unitarios de glass-loader (pathname, searchParams ignorado, click anchor, popstate, fade-out, reduced-motion), lint, build, e2e existentes y revision DevTools (consola limpia al navegar).",
+      "timestamp": "2026-08-16T22:50:30.330Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Cambio frontend autocontenido, sin secrets ni env vars nuevas; se seguira el flujo completo (freeze subaru, gates, commit, push, vercel --prod).",
+      "timestamp": "2026-08-16T22:50:39.239Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar el patron Glass Overlay Blur como patron de transicion del dashboard MIA; la eliminacion de loading.tsx es una decision de arquitectura de navegacion a documentar.",
+      "timestamp": "2026-08-16T22:50:47.393Z"
+    }
+  ],
+  "createdAt": "2026-08-16T22:49:49.448Z",
+  "classifiedAt": "2026-08-16T22:49:49.448Z",
+  "approvedAt": "2026-08-16T22:50:47.395Z",
+  "startedAt": "2026-08-16T22:50:57.748Z",
+  "completedAt": "2026-08-16T23:02:12.417Z"
+}
