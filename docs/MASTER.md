@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0cc827c`.
+> Fuente de verdad: este repositorio en `10a33be`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0cc827c` |
+| **Commit HEAD** | `10a33be` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T15:42:20-06:00 |
+| **Generado** | 2026-08-16T16:10:26-06:00 |
 
 ---
 
@@ -606,7 +606,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (115)**:
+**Tareas registradas (116)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -725,6 +725,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | completed |
 | TASK-20260816-091002865 | Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX) | completed |
 | TASK-20260816-211422079 | Laboratorio: historial de sesiones gestionable + imágenes condicionales en el simulador | completed |
+| TASK-20260816-220813618 | Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición | in_progress |
 
 ---
 
@@ -773,6 +774,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+10a33be chore: governance artifacts - elastic pop task TASK-20260816-220813618
+cfe81a4 subaru: checkpoint 4 - listo
+35693a0 docs: regenerate MASTER.md at 0cc827c
 0cc827c governance: TASK-20260816-211422079 completado
 e778bc6 subaru: checkpoint 3 - completado
 c322b87 subaru: checkpoint 3 - en-progreso
@@ -790,9 +794,6 @@ bd698c2 subaru: checkpoint 2 - completado
 2448b0b subaru: checkpoint 2 - en-progreso
 3f1248b subaru: checkpoint 2 - en-progreso
 72e9661 subaru: checkpoint 2 - en-progreso
-4bc8a55 subaru: checkpoint 2 - en-progreso
-9b3a14b subaru: checkpoint 2 - en-progreso
-fd0ce29 fix: 044 indice parcial UNIQUE y RETURN NEXT con OUT params (bugs atrapados por el gate de runtime)
 ```
 
 ---
