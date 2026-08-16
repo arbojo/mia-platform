@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `9992f05`.
+> Fuente de verdad: este repositorio en `483d97d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `9992f05` |
+| **Commit HEAD** | `483d97d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T20:39:59-06:00 |
+| **Generado** | 2026-08-15T20:52:57-06:00 |
 
 ---
 
@@ -583,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (103)**:
+**Tareas registradas (104)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -690,6 +690,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-022944607 | Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova | completed |
 | TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
 | TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
+| TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | in_progress |
 
 ---
 
@@ -738,6 +739,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+483d97d chore: governance TASK-20260816-025216 (migración estilo kusanali)
+ed4275c subaru: checkpoint MISSION-KUSANALI - listo
+8c59bfb docs: regenerate MASTER.md at 9992f05
 9992f05 chore: complete governance TASK-20260816-021610
 ef2914f docs: regenerate MASTER.md at 5332e81
 5332e81 docs: regenerate MASTER.md at 46e1cf5
@@ -755,9 +759,6 @@ c53c1b2 subaru: checkpoint MISSION-20260815-001 - completado
 0819f25 subaru: checkpoint MISSION-20260815-001 - en-progreso
 721ff97 docs: regenerate MASTER.md at d1751ed
 d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-offer)
-0e7cdd0 subaru: checkpoint MISSION-20260815-001 - en-progreso
-157b913 docs: regenerate MASTER.md at 47f50cd
-47f50cd subaru: checkpoint MISSION-20260815-001 - en-progreso
 ```
 
 ---
