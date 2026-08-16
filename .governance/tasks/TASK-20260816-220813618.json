@@ -1,0 +1,82 @@
+{
+  "id": "TASK-20260816-220813618",
+  "title": "Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición",
+  "description": "Indicar visualmente cuando MIA guarda conocimiento o confirma una accion: (1) animacion global elasticPop en globals.css (keyframes elastic-pop, clase .animate-elastic-pop con cubic-bezier(0.34, 1.56, 0.64, 1), 0.35s, escala 0.85 -> 1.03 -> 1, con respeto a prefers-reduced-motion; el sistema ya define --ease-bounce con esa curva). (2) Entrada elastica en TODOS los modales cambiando el primitivo base: en src/components/ui/alert-dialog.tsx, AlertDialogContent reemplaza data-open:animate-in fade-in-0 zoom-in-95 por data-open:animate-elastic-pop (Base UI agrega data-open; afecta automaticamente a KnowledgeItemDialog, MediaEditDialog, RulesManager, InstructionsManager, ConnectionsManager, MediaBrowser, CatalogGrid, ProductFormDialog, ProductDetail, ImportDialog y TeachModal). Entrada elastica tambien en los modales overlay custom (DeliveryDriversPanel magic-link modal, LaboratorioClient teach modal) y en el panel flotante MIAInbox. (3) Confirmacion de guardado reutilizable: nuevo componente src/components/ui/success-pop.tsx (SuccessPop: tarjeta centrada con check que reproduce .animate-elastic-pop al montarse) integrado en los flujos de save: KnowledgeItemDialog (+ prop success) con KnowledgeManager, MediaEditDialog (auto-cierre tras ~900ms), InstructionsManager, RulesManager, ProductFormDialog, ImportDialog y TeachModal (feedback card). Sin cambios de schema, sin cambios de backend, sin cambios de AI behavior. Verificacion: lint, build, unit tests (test del componente SuccessPop), e2e existentes, DevTools (consola limpia al abrir/guardar en modales), revision de rendimiento (animacion GPU-only, transform/opacity, sin layout) y seguridad (sin cambios en datos/acceso).",
+  "scope": {
+    "categories": [
+      "feature",
+      "ui_change"
+    ],
+    "filesAffected": 15,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: 15 files affected, category requires council. Required agents (6): architect, backend, frontend, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Entrada elastica resuelta en el primitivo base (alert-dialog content via data-open) => un solo punto de cambio cubre todos los modales; SuccessPop reutilizable evita duplicacion. Animacion GPU-only (transform/opacity) sin impacto de layout.",
+      "timestamp": "2026-08-16T22:08:24.693Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Sin cambios de backend; los flujos de guardado existentes (PATCH/POST de knowledge, products, teach) se reutilizan tal cual. Solo se agrega feedback visual post-200.",
+      "timestamp": "2026-08-16T22:08:34.056Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "SuccessPop como componente reutilizable + clase .animate-elastic-pop global; integrado en dialogs de edicion y guardado (knowledge, rules, instructions, products, import, teach). Respeta prefers-reduced-motion.",
+      "timestamp": "2026-08-16T22:08:36.230Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates cubiertos: lint, build, unit tests (nuevo test de SuccessPop), e2e existentes y verificacion DevTools en modales al abrir/guardar. Sin regresion de accesibilidad: la animacion se desactiva con prefers-reduced-motion.",
+      "timestamp": "2026-08-16T22:08:49.264Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico + push + deploy Vercel tras pasar todos los gates; la animacion no toca datos ni rutas.",
+      "timestamp": "2026-08-16T22:08:52.643Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrara en memoria de ingenieria el patron de feedback de guardado (SuccessPop) y la convencion de animacion de entrada de modales.",
+      "timestamp": "2026-08-16T22:08:55.969Z"
+    }
+  ],
+  "createdAt": "2026-08-16T22:08:13.820Z",
+  "classifiedAt": "2026-08-16T22:08:13.820Z",
+  "approvedAt": "2026-08-16T22:08:55.971Z",
+  "startedAt": "2026-08-16T22:09:54.395Z"
+}
