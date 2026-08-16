@@ -1,23 +1,23 @@
 ---
-task_id: MISSION-COLOR-NORMALIZACION
-title: Normalizar paleta dashboard: fondo slate uniforme + azul unico
-state: completed
-current_step: 3
+task_id: MISSION-MODULO-COLORES
+title: Color de modulo para Inventario y Delivery: module-accent + ruta gana
+state: frozen
+current_step: 0
 total_steps: 3
 branch: main
 last_machine: archlinux
-governance_id: TASK-20260816-032745
+governance_id: TASK-20260816-034253
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T03:35:11.294Z
+updated: 2026-08-16T03:43:11.485Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Normalizar paleta dashboard: fondo slate uniforme + azul unico
+Color de modulo para Inventario y Delivery: module-accent + ruta gana
 
-Aprobación: TASK-20260816-032745.
+Aprobación: TASK-20260816-034253.
 
 ## Scope
 
@@ -31,7 +31,7 @@ Aprobación: TASK-20260816-032745.
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -58,13 +58,11 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión MISSION-COLOR-NORMALIZACION completada (3/3 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Performance Engineer review.
-- Finalizado: 2026-08-16T03:35:11.294Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..3.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete MISSION-COLOR-NORMALIZACION` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
@@ -81,5 +79,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark MISSION-COLOR-NORMALIZACION <n>`.
-6. Al final: `subaru complete MISSION-COLOR-NORMALIZACION`.
+5. Continuar el paso indicado y ejecutar `subaru mark MISSION-MODULO-COLORES <n>`.
+6. Al final: `subaru complete MISSION-MODULO-COLORES`.
