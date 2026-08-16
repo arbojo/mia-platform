@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e506f23`.
+> Fuente de verdad: este repositorio en `9f14f92`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e506f23` |
+| **Commit HEAD** | `9f14f92` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T17:02:01-06:00 |
+| **Generado** | 2026-08-16T17:03:12-06:00 |
 
 ---
 
@@ -606,7 +606,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (117)**:
+**Tareas registradas (118)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -727,6 +727,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-211422079 | Laboratorio: historial de sesiones gestionable + imágenes condicionales en el simulador | completed |
 | TASK-20260816-220813618 | Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición | completed |
 | TASK-20260816-223701336 | Fix layout del Laboratorio: tarjeta Escenarios cortada y encogida | completed |
+| TASK-20260816-224949925 | Glass Overlay Blur — transición de carga al cambiar de vista | completed |
 
 ---
 
@@ -775,6 +776,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9f14f92 chore: governance completion artifacts - glass loader task
+6a4a975 feat: glass overlay blur como transicion de carga al cambiar de vista
+05994fa docs: regenerate MASTER.md at e506f23
 e506f23 subaru: checkpoint 5 - completado
 05c287b subaru: checkpoint 5 - en-progreso
 e4aa2e9 subaru: checkpoint 5 - en-progreso
@@ -792,9 +796,6 @@ bcda86f feat: efecto scale & elastic pop en modales y confirmaciones de guardado
 65041c6 subaru: checkpoint 4 - en-progreso
 38f4986 subaru: checkpoint 4 - en-progreso
 f49f717 subaru: checkpoint 4 - en-progreso
-f439376 subaru: checkpoint 4 - en-progreso
-2b2a4a5 docs: regenerate MASTER.md at a4ffd91
-a4ffd91 subaru: checkpoint 4 - en-progreso
 ```
 
 ---
