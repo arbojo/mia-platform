@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `37937a4`.
+> Fuente de verdad: este repositorio en `035d9e0`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `37937a4` |
+| **Commit HEAD** | `035d9e0` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:02:19-06:00 |
+| **Generado** | 2026-08-15T21:06:52-06:00 |
 
 ---
 
@@ -690,7 +690,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-022944607 | Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova | completed |
 | TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
 | TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
-| TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | in_progress |
+| TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | completed |
 
 ---
 
@@ -739,6 +739,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+035d9e0 chore: completar governance TASK-20260816-025216 (kusanali)
+f479bff subaru: checkpoint MISSION-KUSANALI - completado
+bd749db subaru: checkpoint MISSION-KUSANALI - en-progreso
+2804a79 docs: regenerate MASTER.md at 37937a4
 37937a4 subaru: checkpoint MISSION-KUSANALI - en-progreso
 6487f28 style: migrar identidad visual kusanali a MIA (tokens, fuentes, botones)
 0f7879c subaru: checkpoint MISSION-KUSANALI - en-progreso
@@ -755,10 +759,6 @@ ef2914f docs: regenerate MASTER.md at 5332e81
 46e1cf5 feat: indicador 'escribiendo…' en simulador y typing presence en WhatsApp
 cbf85e5 docs: regenerate MASTER.md at 4a32bde
 4a32bde docs: regenerate MASTER.md at c9d21c1
-c9d21c1 feat(laboratorio): fix guardado de Enseñarle a MIA y condicionar pregunta de ciudad
-a31a63d docs: regenerate MASTER.md at d34f916
-d34f916 fix(ai): regla anti-bucle de confirmacion en prompts y corolario en regla de pedido de Vitanova
-d79c280 docs: regenerate MASTER.md at e973874
 ```
 
 ---
