@@ -78,7 +78,7 @@ export function FileImportPanel({ businessId, onImported }: FileImportPanelProps
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button
-        className="bg-olive-600 hover:bg-olive-700"
+        className="bg-brand-600 hover:bg-brand-700"
         disabled={!fileName || loading}
         onClick={handleSubmit}
       >

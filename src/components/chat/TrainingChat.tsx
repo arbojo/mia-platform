@@ -63,12 +63,12 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b bg-olive-50 flex gap-2">
+      <div className="p-3 border-b bg-brand-50 flex gap-2">
         <button
           onClick={() => setCorrectionType('knowledge')}
           className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
             correctionType === 'knowledge'
-              ? 'bg-olive-600 text-white'
+              ? 'bg-brand-600 text-white'
               : 'bg-white text-zinc-600 hover:bg-zinc-100'
           }`}
         >
@@ -78,7 +78,7 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
           onClick={() => setCorrectionType('rule')}
           className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
             correctionType === 'rule'
-              ? 'bg-olive-600 text-white'
+              ? 'bg-brand-600 text-white'
               : 'bg-white text-zinc-600 hover:bg-zinc-100'
           }`}
         >
@@ -88,7 +88,7 @@ export function TrainingChat({ assistantName, assistantId, conversationId }: Tra
           onClick={() => setCorrectionType('instruction')}
           className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
             correctionType === 'instruction'
-              ? 'bg-olive-600 text-white'
+              ? 'bg-brand-600 text-white'
               : 'bg-white text-zinc-600 hover:bg-zinc-100'
           }`}
         >

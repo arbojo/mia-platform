@@ -14,9 +14,9 @@ interface DemoPaywallProps {
 
 export default function DemoPaywall({ isAuthenticated }: DemoPaywallProps) {
   return (
-    <Card className="border-olive-200 bg-gradient-to-br from-olive-50 to-white">
+    <Card className="border-brand-200 bg-gradient-to-br from-brand-50 to-white">
       <CardHeader className="text-center">
-        <CardTitle className="text-xl text-olive-900">
+        <CardTitle className="text-xl text-brand-900">
           Llegaste al límite de la demo
         </CardTitle>
         <CardDescription>
@@ -31,14 +31,14 @@ export default function DemoPaywall({ isAuthenticated }: DemoPaywallProps) {
         </ul>
         {isAuthenticated ? (
           <Link href="/dashboard/onboarding" className="block">
-            <Button className="w-full bg-olive-600 hover:bg-olive-700">
+            <Button className="w-full bg-brand-600 hover:bg-brand-700">
               Comenzar mi asistente
             </Button>
           </Link>
         ) : (
           <div className="space-y-2">
             <Link href="/signup?source=demo" className="block">
-              <Button className="w-full bg-olive-600 hover:bg-olive-700">
+              <Button className="w-full bg-brand-600 hover:bg-brand-700">
                 Crear mi asistente
               </Button>
             </Link>

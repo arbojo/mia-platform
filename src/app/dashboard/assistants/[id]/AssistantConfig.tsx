@@ -211,7 +211,7 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving} className="bg-olive-600 hover:bg-olive-700">
+          <Button onClick={handleSave} disabled={saving} className="bg-brand-600 hover:bg-brand-700">
             <Save className="h-4 w-4 mr-2" />
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </Button>
@@ -334,7 +334,7 @@ function SliderField({
         max={100}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-olive-600"
+        className="w-full accent-brand-600"
       />
       <div className="flex justify-between text-[10px]" style={{ color: 'var(--atmosphere-text-secondary)' }}>
         <span>{left}</span>

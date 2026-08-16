@@ -103,7 +103,7 @@ export function MemoryTimeline({ assistantId }: { assistantId: string }) {
       <div className="space-y-4">
         {lessons.map((lesson) => (
           <div key={lesson.id} className="flex gap-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-olive-100 rounded-full flex items-center justify-center text-sm">
+            <div className="flex-shrink-0 w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-sm">
               {getTypeIcon(lesson.correction_type)}
             </div>
             <div className="flex-1 min-w-0">

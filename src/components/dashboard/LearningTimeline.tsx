@@ -61,10 +61,10 @@ export function LearningTimeline({ recentLessons, velocity }: LearningTimelinePr
     : recentLessons.length
 
   return (
-    <div className="rounded-2xl border border-olive-100 bg-white p-6">
+    <div className="rounded-2xl border border-brand-100 bg-white p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-zinc-900">Lo que aprendí</h3>
-        <span className="rounded-full bg-olive-100 px-3 py-1 text-xs font-medium text-olive-700">
+        <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
           {totalLearned} cosas nuevas
         </span>
       </div>
@@ -94,7 +94,7 @@ export function LearningTimeline({ recentLessons, velocity }: LearningTimelinePr
         <div className="mt-5 space-y-3">
           {recentLessons.slice(0, 8).map((lesson) => (
             <div key={lesson.id} className="flex items-center gap-3 rounded-lg bg-zinc-50 px-4 py-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-olive-100 text-olive-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                 {getTypeIcon(lesson.correction_type)}
               </div>
               <div className="flex-1">

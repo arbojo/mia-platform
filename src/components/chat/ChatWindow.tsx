@@ -305,10 +305,10 @@ export function ChatWindow({
 
   return (
     <div className="flex flex-col h-full border rounded-xl overflow-hidden bg-white">
-      <div className="p-4 border-b bg-olive-50">
+      <div className="p-4 border-b bg-brand-50">
         <div className="flex items-center gap-3">
           <Avatar>
-            <AvatarFallback className="bg-olive-200 text-olive-700">
+            <AvatarFallback className="bg-brand-200 text-brand-700">
               {assistantName[0]}
             </AvatarFallback>
           </Avatar>
@@ -347,7 +347,7 @@ export function ChatWindow({
               className={cn(
                 'max-w-[80%] rounded-2xl px-4 py-2',
                 message.role === 'user'
-                  ? 'bg-olive-600 text-white'
+                  ? 'bg-brand-600 text-white'
                   : 'bg-gray-100 text-gray-900'
               )}
             >
@@ -388,7 +388,7 @@ export function ChatWindow({
 
         {showCheckoutInvite && landingContext && (
           <div className="flex justify-start">
-            <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white border border-olive-200">
+            <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white border border-brand-200">
               <p className="text-xs text-gray-600 mb-2">
                 ¿Listo para continuar? Completamos tu pedido en el formulario de esta página, sin pedirte datos aquí.
               </p>
@@ -397,7 +397,7 @@ export function ChatWindow({
                 size="sm"
                 onClick={handleCheckoutContinue}
                 disabled={isOpeningForm || saleStatus === 'registering'}
-                className="relative w-full overflow-hidden bg-olive-600 hover:bg-olive-700"
+                className="relative w-full overflow-hidden bg-brand-600 hover:bg-brand-700"
               >
                 <span className="mia-shimmer-layer" aria-hidden="true" />
                 {saleStatus === 'registering'
@@ -503,7 +503,7 @@ export function ChatWindow({
           <Button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="bg-olive-600 hover:bg-olive-700"
+            className="bg-brand-600 hover:bg-brand-700"
           >
             {isLoading ? '...' : 'Enviar'}
           </Button>

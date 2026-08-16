@@ -43,7 +43,7 @@ export function SessionHistory({ sessions }: SessionHistoryProps) {
       {sessions.map((session) => (
         <div
           key={session.id}
-          className="p-3 border rounded-lg hover:border-olive-300 transition-colors"
+          className="p-3 border rounded-lg hover:border-brand-300 transition-colors"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

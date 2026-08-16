@@ -101,9 +101,9 @@ export function FileUpload({ businessId, onReportCreated }: FileUploadProps) {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={() => inputRef.current?.click()}
-        className="cursor-pointer rounded-2xl border-2 border-dashed border-olive-300 bg-olive-50/50 p-8 text-center transition-colors hover:border-olive-400 hover:bg-olive-50"
+        className="cursor-pointer rounded-2xl border-2 border-dashed border-brand-300 bg-brand-50/50 p-8 text-center transition-colors hover:border-brand-400 hover:bg-brand-50"
       >
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-olive-100 text-3xl">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-3xl">
           📚
         </div>
         <p className="text-lg font-medium text-zinc-900">
@@ -159,7 +159,7 @@ export function FileUpload({ businessId, onReportCreated }: FileUploadProps) {
           <Button
             onClick={handleUpload}
             disabled={uploading}
-            className="w-full bg-olive-600 hover:bg-olive-700"
+            className="w-full bg-brand-600 hover:bg-brand-700"
           >
             {uploading ? '📚 Estoy estudiando...' : '📚 Enséñame'}
           </Button>
@@ -167,8 +167,8 @@ export function FileUpload({ businessId, onReportCreated }: FileUploadProps) {
       )}
 
       {uploadMessage && (
-        <div className="rounded-xl bg-olive-50 p-4 text-center">
-          <p className="text-sm text-olive-800">{uploadMessage}</p>
+        <div className="rounded-xl bg-brand-50 p-4 text-center">
+          <p className="text-sm text-brand-800">{uploadMessage}</p>
         </div>
       )}
 

@@ -119,14 +119,14 @@ export function LearningReport({ report }: LearningReportProps) {
 
   if (report.status === 'processing') {
     return (
-      <div className="rounded-2xl border border-olive-200 bg-olive-50 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-olive-100 text-3xl animate-pulse">
+      <div className="rounded-2xl border border-brand-200 bg-brand-50 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-3xl animate-pulse">
           📚
         </div>
-        <p className="text-lg font-medium text-olive-900">
+        <p className="text-lg font-medium text-brand-900">
           Estoy estudiando tus archivos...
         </p>
-        <p className="mt-2 text-sm text-olive-700">
+        <p className="mt-2 text-sm text-brand-700">
           Dame un momento para entender todo lo que me estás enseñando.
         </p>
       </div>
@@ -149,20 +149,20 @@ export function LearningReport({ report }: LearningReportProps) {
   return (
     <div className="space-y-6">
       {/* MIA speaks — the "I Understand You" moment */}
-      <div className="rounded-2xl border border-olive-200 bg-olive-50 p-6">
-        <p className="text-lg text-olive-900">
+      <div className="rounded-2xl border border-brand-200 bg-brand-50 p-6">
+        <p className="text-lg text-brand-900">
           Ya terminé de estudiar tus archivos.
         </p>
-        <p className="mt-2 text-olive-800">
+        <p className="mt-2 text-brand-800">
           Creo que ya entiendo bastante bien cómo funciona tu negocio.
         </p>
-        <p className="mt-2 text-olive-800">
+        <p className="mt-2 text-brand-800">
           Ahora quiero enseñarte lo que aprendí para que juntos revisemos que todo esté correcto.
         </p>
         {!showFull && (
           <Button
             onClick={() => setShowFull(true)}
-            className="mt-4 bg-olive-600 hover:bg-olive-700"
+            className="mt-4 bg-brand-600 hover:bg-brand-700"
           >
             📖 Ver lo que aprendí
           </Button>

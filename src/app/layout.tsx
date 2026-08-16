@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter, Lora } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import '@/styles/design-system.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
-const lora = Lora({ subsets: ['latin'], variable: '--font-lora' })
 
 export const metadata: Metadata = {
   title: 'MIA - Asistente de Ventas IA',
@@ -18,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.variable} ${lora.variable} font-sans`}>{children}</body>
+      <body className={`${inter.variable} font-sans`}>{children}</body>
     </html>
   )
 }

@@ -6,7 +6,7 @@ const actions = [
     label: 'Entrenar a MIA',
     description: 'Ensenale a responder mejor',
     href: '/dashboard/assistants',
-    color: 'bg-olive-50 hover:bg-olive-100 text-olive-700',
+    color: 'bg-brand-50 hover:bg-brand-100 text-brand-700',
   },
   {
     icon: '📦',
@@ -34,7 +34,7 @@ const actions = [
     label: 'Simulador de Ventas',
     description: 'Prueba a MIA con clientes',
     href: '/dashboard/laboratorio',
-    color: 'bg-olive-50 hover:bg-fuchsia-100 text-fuchsia-700',
+    color: 'bg-brand-50 hover:bg-fuchsia-100 text-fuchsia-700',
   },
 ]
 

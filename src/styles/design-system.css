@@ -35,19 +35,19 @@
   --mod-duration-medium: var(--duration-medium, 300ms);
   --mod-duration-slow: var(--duration-slow, 500ms);
 
-  /* Acento por defecto — Ventas en Azul */
-  --module-accent: #1E5A99;
-  --module-accent-strong: #174A80;
-  --module-accent-soft: rgba(30, 90, 153, 0.1);
-  --module-accent-softer: rgba(30, 90, 153, 0.06);
-  --module-accent-border: rgba(30, 90, 153, 0.25);
-  --module-glow: rgba(30, 90, 153, 0.35);
-  --module-glow-soft: rgba(30, 90, 153, 0.18);
+  /* Acento por defecto — Ventas en Azul Pálido */
+  --module-accent: #5B9BD5;
+  --module-accent-strong: #3D6E9C;
+  --module-accent-soft: rgba(91, 155, 213, 0.1);
+  --module-accent-softer: rgba(91, 155, 213, 0.06);
+  --module-accent-border: rgba(91, 155, 213, 0.25);
+  --module-glow: rgba(91, 155, 213, 0.35);
+  --module-glow-soft: rgba(91, 155, 213, 0.18);
 
   /* Superficies de módulo */
   --module-surface: #FFFFFF;
-  --module-surface-hover: rgba(30, 90, 153, 0.04);
-  --module-surface-active: rgba(30, 90, 153, 0.08);
+  --module-surface-hover: rgba(91, 155, 213, 0.04);
+  --module-surface-active: rgba(91, 155, 213, 0.08);
 
   /* Toque maestro — glow de urgencia */
   --urgency-color: #D4743A;
@@ -55,18 +55,18 @@
   --urgency-glow-strong: rgba(212, 116, 58, 0.7);
 }
 
-/* Ventas en Azul — variante oscura */
+/* Ventas en Azul Pálido — variante oscura */
 [data-theme='dark'] {
-  --module-accent: #6CA8E0;
+  --module-accent: #8FB9E8;
   --module-accent-strong: #9CC6EE;
-  --module-accent-soft: rgba(108, 168, 224, 0.16);
-  --module-accent-softer: rgba(108, 168, 224, 0.1);
-  --module-accent-border: rgba(108, 168, 224, 0.35);
-  --module-glow: rgba(108, 168, 224, 0.4);
-  --module-glow-soft: rgba(108, 168, 224, 0.22);
-  --module-surface: #252420;
-  --module-surface-hover: rgba(108, 168, 224, 0.08);
-  --module-surface-active: rgba(108, 168, 224, 0.14);
+  --module-accent-soft: rgba(143, 185, 232, 0.16);
+  --module-accent-softer: rgba(143, 185, 232, 0.1);
+  --module-accent-border: rgba(143, 185, 232, 0.35);
+  --module-glow: rgba(143, 185, 232, 0.4);
+  --module-glow-soft: rgba(143, 185, 232, 0.22);
+  --module-surface: #1e293b;
+  --module-surface-hover: rgba(143, 185, 232, 0.08);
+  --module-surface-active: rgba(143, 185, 232, 0.14);
   --urgency-color: #F0A35E;
   --urgency-glow: rgba(240, 163, 94, 0.45);
   --urgency-glow-strong: rgba(240, 163, 94, 0.7);
@@ -79,17 +79,17 @@
   /* sin overrides: usa Ventas en Azul del terreno compartido */
 }
 
-/* inventory — esmeralda */
+/* inventory — verde kusanali */
 [data-module='inventory'] {
-  --module-accent: #2D8A5E;
-  --module-accent-strong: #22694A;
-  --module-accent-soft: rgba(45, 138, 94, 0.1);
-  --module-accent-softer: rgba(45, 138, 94, 0.06);
-  --module-accent-border: rgba(45, 138, 94, 0.25);
-  --module-glow: rgba(45, 138, 94, 0.35);
-  --module-glow-soft: rgba(45, 138, 94, 0.18);
-  --module-surface-hover: rgba(45, 138, 94, 0.04);
-  --module-surface-active: rgba(45, 138, 94, 0.08);
+  --module-accent: #16a34a;
+  --module-accent-strong: #128C3F;
+  --module-accent-soft: rgba(22, 163, 74, 0.1);
+  --module-accent-softer: rgba(22, 163, 74, 0.06);
+  --module-accent-border: rgba(22, 163, 74, 0.25);
+  --module-glow: rgba(22, 163, 74, 0.35);
+  --module-glow-soft: rgba(22, 163, 74, 0.18);
+  --module-surface-hover: rgba(22, 163, 74, 0.04);
+  --module-surface-active: rgba(22, 163, 74, 0.08);
 }
 
 [data-theme='dark'] [data-module='inventory'] {
@@ -104,29 +104,29 @@
   --module-surface-active: rgba(110, 194, 156, 0.14);
 }
 
-/* logistics — ámbar / naranja */
+/* logistics — rojo suave (no hostigante) */
 [data-module='logistics'] {
-  --module-accent: #D4743A;
-  --module-accent-strong: #A9552A;
-  --module-accent-soft: rgba(212, 116, 58, 0.1);
-  --module-accent-softer: rgba(212, 116, 58, 0.06);
-  --module-accent-border: rgba(212, 116, 58, 0.25);
-  --module-glow: rgba(212, 116, 58, 0.35);
-  --module-glow-soft: rgba(212, 116, 58, 0.18);
-  --module-surface-hover: rgba(212, 116, 58, 0.04);
-  --module-surface-active: rgba(212, 116, 58, 0.08);
+  --module-accent: #C56A5E;
+  --module-accent-strong: #A55246;
+  --module-accent-soft: rgba(197, 106, 94, 0.1);
+  --module-accent-softer: rgba(197, 106, 94, 0.06);
+  --module-accent-border: rgba(197, 106, 94, 0.25);
+  --module-glow: rgba(197, 106, 94, 0.35);
+  --module-glow-soft: rgba(197, 106, 94, 0.18);
+  --module-surface-hover: rgba(197, 106, 94, 0.04);
+  --module-surface-active: rgba(197, 106, 94, 0.08);
 }
 
 [data-theme='dark'] [data-module='logistics'] {
-  --module-accent: #F0A35E;
-  --module-accent-strong: #F7C594;
-  --module-accent-soft: rgba(240, 163, 94, 0.16);
-  --module-accent-softer: rgba(240, 163, 94, 0.1);
-  --module-accent-border: rgba(240, 163, 94, 0.35);
-  --module-glow: rgba(240, 163, 94, 0.4);
-  --module-glow-soft: rgba(240, 163, 94, 0.22);
-  --module-surface-hover: rgba(240, 163, 94, 0.08);
-  --module-surface-active: rgba(240, 163, 94, 0.14);
+  --module-accent: #E08D80;
+  --module-accent-strong: #F2B7AE;
+  --module-accent-soft: rgba(224, 141, 128, 0.16);
+  --module-accent-softer: rgba(224, 141, 128, 0.1);
+  --module-accent-border: rgba(224, 141, 128, 0.35);
+  --module-glow: rgba(224, 141, 128, 0.4);
+  --module-glow-soft: rgba(224, 141, 128, 0.22);
+  --module-surface-hover: rgba(224, 141, 128, 0.08);
+  --module-surface-active: rgba(224, 141, 128, 0.14);
 }
 
 /* 3. Utilidades de acento de módulo */

@@ -55,7 +55,7 @@ export function MediaGrid({ items, emptyMessage, productNames, onEdit, onDelete 
             <p className="line-clamp-2 text-sm text-gray-700">{item.answer}</p>
             {item.trigger_condition && (
               <p className="text-xs text-gray-500">
-                Se envía cuando: <span className="text-olive-600">{item.trigger_condition}</span>
+                Se envía cuando: <span className="text-brand-600">{item.trigger_condition}</span>
               </p>
             )}
           </div>

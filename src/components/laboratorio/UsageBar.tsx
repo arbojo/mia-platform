@@ -35,7 +35,7 @@ export function UsageBar({
       {onExport && (
         <button
           onClick={onExport}
-          className="text-olive-600 hover:text-olive-700 font-medium"
+          className="text-brand-600 hover:text-brand-700 font-medium"
         >
           📥 Exportar
         </button>

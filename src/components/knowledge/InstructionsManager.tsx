@@ -149,7 +149,7 @@ export function InstructionsManager({ businessId, initialItems }: InstructionsMa
           <Button
             onClick={handleAdd}
             disabled={loading || !instruction.trim()}
-            className="bg-olive-600 hover:bg-olive-700"
+            className="bg-brand-600 hover:bg-brand-700"
           >
             {loading ? 'Agregando...' : 'Agregar instrucción'}
           </Button>

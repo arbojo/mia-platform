@@ -16,13 +16,13 @@ const presenceConfig: Record<
     says: 'Estoy aquí',
     feels: 'Acompañando tu negocio',
     color: 'var(--mia-blue)',
-    glow: 'rgba(30, 90, 153, 0.5)',
+    glow: 'rgba(91, 155, 213, 0.5)',
   },
   learning: {
     says: 'Estoy aprendiendo',
     feels: 'Descubriendo algo nuevo',
-    color: 'var(--mia-olive)',
-    glow: 'rgba(107, 120, 73, 0.5)',
+    color: 'var(--mia-teal)',
+    glow: 'rgba(13, 148, 136, 0.5)',
   },
   paused: {
     says: 'Descansando',

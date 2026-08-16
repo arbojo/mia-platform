@@ -44,14 +44,14 @@ export default async function AssistantsPage() {
           </p>
         </div>
         <Link href="/dashboard/onboarding">
-          <Button className="bg-olive-600 hover:bg-olive-700">
+          <Button className="bg-brand-600 hover:bg-brand-700">
             Nueva asistente
           </Button>
         </Link>
       </div>
 
       {assistants.length === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed border-olive-200 rounded-xl">
+        <div className="text-center py-12 border-2 border-dashed border-brand-200 rounded-xl">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Aún no tienes asistentes
           </h2>
@@ -59,7 +59,7 @@ export default async function AssistantsPage() {
             Crea tu primera asistente para comenzar a vender
           </p>
           <Link href="/dashboard/onboarding">
-            <Button className="bg-olive-600 hover:bg-olive-700">
+            <Button className="bg-brand-600 hover:bg-brand-700">
               Crear asistente
             </Button>
           </Link>
@@ -78,12 +78,12 @@ export default async function AssistantsPage() {
               return (
                 <div
                   key={assistant.id}
-                  className="p-6 border rounded-xl hover:border-olive-300 transition-colors"
+                  className="p-6 border rounded-xl hover:border-brand-300 transition-colors"
                 >
                   <Link href={`/dashboard/assistants/${assistant.id}`} className="block">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-olive-100 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-olive-600">
+                      <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
+                        <span className="text-xl font-bold text-brand-600">
                           {assistant.name[0]}
                         </span>
                       </div>
@@ -95,7 +95,7 @@ export default async function AssistantsPage() {
                           {assistant.communication_style}
                         </p>
                         {counts.get(assistant.id) !== undefined && (
-                          <p className="text-[11px] text-olive-600 mt-0.5">
+                          <p className="text-[11px] text-brand-600 mt-0.5">
                             {counts.get(assistant.id)} corrección{counts.get(assistant.id) !== 1 ? 'es' : ''} aprendida{counts.get(assistant.id) !== 1 ? 's' : ''}
                           </p>
                         )}

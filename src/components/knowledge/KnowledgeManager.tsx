@@ -186,7 +186,7 @@ export function KnowledgeManager({ businessId, initialItems }: KnowledgeManagerP
         <Button
           onClick={handleAdd}
           disabled={loading || !question.trim() || !answer.trim()}
-          className="bg-olive-600 hover:bg-olive-700"
+          className="bg-brand-600 hover:bg-brand-700"
         >
           {loading ? 'Agregando...' : 'Agregar conocimiento'}
         </Button>

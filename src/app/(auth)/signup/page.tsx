@@ -70,10 +70,10 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-olive-50 to-white p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-white p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-olive-900">
+            <CardTitle className="text-2xl font-bold text-brand-900">
               ¡Cuenta creada!
             </CardTitle>
             <CardDescription>
@@ -86,16 +86,16 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-olive-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-white p-4">
       {checkingAuth ? (
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-olive-600 mx-auto" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 mx-auto" />
           <p className="text-sm text-muted-foreground mt-2">Verificando sesión...</p>
         </div>
       ) : (
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-olive-900">
+          <CardTitle className="text-2xl font-bold text-brand-900">
             Crea tu cuenta
           </CardTitle>
           <CardDescription>
@@ -151,14 +151,14 @@ export default function SignupPage() {
             {error && (
               <p className="text-sm text-red-500">{error}</p>
             )}
-            <Button type="submit" className="w-full bg-olive-600 hover:bg-olive-700" disabled={loading}>
+            <Button type="submit" className="w-full bg-brand-600 hover:bg-brand-700" disabled={loading}>
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{' '}
-            <Link href="/login" className="text-olive-600 hover:underline">
+            <Link href="/login" className="text-brand-600 hover:underline">
               Iniciar sesión
             </Link>
           </p>

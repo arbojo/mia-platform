@@ -85,7 +85,7 @@ export function ProductDetail({ businessId, product, availability }: ProductDeta
               </Badge>
             )}
             {current.price !== null && (
-              <p className="text-2xl font-semibold text-olive-600">${current.price}</p>
+              <p className="text-2xl font-semibold text-brand-600">${current.price}</p>
             )}
             {current.description && (
               <div>

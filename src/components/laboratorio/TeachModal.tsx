@@ -121,7 +121,7 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
             ))}
           </ul>
         )}
-        <Button onClick={onClose} className="bg-olive-600 hover:bg-olive-700">
+        <Button onClick={onClose} className="bg-brand-600 hover:bg-brand-700">
           Cerrar
         </Button>
       </div>
@@ -214,7 +214,7 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
         <Button
           onClick={handleSave}
           disabled={loading}
-          className="flex-1 bg-olive-600 hover:bg-olive-700"
+          className="flex-1 bg-brand-600 hover:bg-brand-700"
         >
           {loading ? 'Guardando...' : 'Guardar'}
         </Button>

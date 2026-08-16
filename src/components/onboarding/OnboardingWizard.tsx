@@ -280,7 +280,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
               key={s.title}
               className={cn(
                 'flex-1 text-center pb-4 border-b-2 transition-colors',
-                i <= step ? 'border-olive-600 text-olive-600' : 'border-gray-200 text-gray-400'
+                i <= step ? 'border-brand-600 text-brand-600' : 'border-gray-200 text-gray-400'
               )}
             >
               <p className="text-sm font-medium">{s.title}</p>
@@ -319,7 +319,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
                     className={cn(
                       'p-4 border rounded-lg text-left transition-all',
                       selectedPersonality.id === p.id
-                        ? 'border-olive-600 bg-olive-50'
+                        ? 'border-brand-600 bg-brand-50'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
@@ -341,7 +341,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
                     className={cn(
                       'p-4 border rounded-lg text-left transition-all',
                       selectedStyle.id === s.id
-                        ? 'border-olive-600 bg-olive-50'
+                        ? 'border-brand-600 bg-brand-50'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
@@ -355,7 +355,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
             <Button
               onClick={handleCreateAssistant}
               disabled={loading || !assistantName.trim()}
-              className="w-full bg-olive-600 hover:bg-olive-700"
+              className="w-full bg-brand-600 hover:bg-brand-700"
             >
               {loading ? 'Creando...' : 'Continuar'}
             </Button>
@@ -425,7 +425,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
             <Button
               onClick={handleSaveBusiness}
               disabled={loading || !businessName.trim()}
-              className="w-full bg-olive-600 hover:bg-olive-700"
+              className="w-full bg-brand-600 hover:bg-brand-700"
             >
               {loading ? 'Guardando...' : 'Continuar'}
             </Button>
@@ -525,7 +525,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
             <Button
               onClick={handleSaveProducts}
               disabled={loading}
-              className="w-full bg-olive-600 hover:bg-olive-700"
+              className="w-full bg-brand-600 hover:bg-brand-700"
             >
               {loading ? 'Guardando...' : products.length > 0 ? 'Continuar' : 'Saltar por ahora'}
             </Button>
@@ -614,7 +614,7 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
             <Button
               onClick={handleSaveRules}
               disabled={loading}
-              className="w-full bg-olive-600 hover:bg-olive-700"
+              className="w-full bg-brand-600 hover:bg-brand-700"
             >
               {loading ? 'Guardando...' : rules.length > 0 ? '¡Listo!' : 'Saltar por ahora'}
             </Button>

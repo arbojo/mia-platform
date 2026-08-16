@@ -57,7 +57,7 @@ export function ProductIntelligenceCard({ products }: ProductIntelligenceCardPro
   const critical = products.filter((p) => p.status === 'critical').length
 
   return (
-    <div className="rounded-2xl border border-olive-100 bg-white p-6">
+    <div className="rounded-2xl border border-brand-100 bg-white p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-zinc-900">Inteligencia de productos</h3>
         <span className="text-xs text-zinc-400">{products.length} productos</span>

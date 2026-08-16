@@ -63,7 +63,7 @@ export function ImportDialog({ open, onOpenChange, businessId, onImported }: Imp
           {summary ? (
             <div className="space-y-3">
               <p className="flex items-center gap-2 text-sm font-medium text-zinc-900">
-                <CheckCircle2 className="h-4 w-4 text-olive-600" />
+                <CheckCircle2 className="h-4 w-4 text-brand-600" />
                 Importación completada. El catálogo se actualizó.
               </p>
               <ImportResults summary={summary} />
@@ -99,7 +99,7 @@ export function ImportDialog({ open, onOpenChange, businessId, onImported }: Imp
           <AlertDialogCancel>{summary ? 'Cerrar' : 'Cancelar'}</AlertDialogCancel>
           {summary && (
             <Button
-              className="bg-olive-600 hover:bg-olive-700"
+              className="bg-brand-600 hover:bg-brand-700"
               onClick={() => {
                 setSummary(null)
                 setPreview(null)

@@ -140,7 +140,7 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
         <Button
           onClick={handleSave}
           disabled={loading || !content.trim()}
-          className="bg-olive-600 hover:bg-olive-700"
+          className="bg-brand-600 hover:bg-brand-700"
         >
           {loading ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Agregar regla'}
         </Button>

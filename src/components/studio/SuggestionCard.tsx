@@ -54,7 +54,7 @@ export function SuggestionCard({ suggestion, onAction, onEdit }: SuggestionCardP
   }
 
   return (
-    <div className={`p-4 border rounded-xl transition-all duration-500 hover:lift ${suggestion.status === 'approved' ? 'bg-olive-50 border-olive-200' : suggestion.status === 'rejected' ? 'bg-stone-50 border-stone-200 opacity-60' : ''}`} style={{ boxShadow: 'var(--shadow-card)' }}>
+    <div className={`p-4 border rounded-xl transition-all duration-500 hover:lift ${suggestion.status === 'approved' ? 'bg-brand-50 border-brand-200' : suggestion.status === 'rejected' ? 'bg-stone-50 border-stone-200 opacity-60' : ''}`} style={{ boxShadow: 'var(--shadow-card)' }}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
@@ -70,8 +70,8 @@ export function SuggestionCard({ suggestion, onAction, onEdit }: SuggestionCardP
           <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
 
           {suggestion.suggested_question && suggestion.suggested_answer && (
-            <div className="mt-3 p-3 bg-olive-50 rounded-lg">
-              <p className="text-xs font-medium text-olive-700 mb-1">Conocimiento sugerido:</p>
+            <div className="mt-3 p-3 bg-brand-50 rounded-lg">
+              <p className="text-xs font-medium text-brand-700 mb-1">Conocimiento sugerido:</p>
               <p className="text-sm"><span className="font-medium">P:</span> {suggestion.suggested_question}</p>
               <p className="text-sm"><span className="font-medium">R:</span> {suggestion.suggested_answer}</p>
               {suggestion.suggested_category && (

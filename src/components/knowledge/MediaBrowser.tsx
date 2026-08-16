@@ -184,7 +184,7 @@ export function MediaBrowser({
           <Button
             onClick={() => void handleCreateItem()}
             disabled={!canCreate}
-            className="w-full bg-olive-600 hover:bg-olive-700"
+            className="w-full bg-brand-600 hover:bg-brand-700"
           >
             Guardar medio
           </Button>

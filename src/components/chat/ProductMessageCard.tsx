@@ -34,13 +34,13 @@ export function ProductMessageCard({ product }: ProductMessageCardProps) {
       <div className="flex flex-col gap-1 p-3">
         <h3 className="font-semibold text-zinc-900">{product.name}</h3>
         {product.price !== null && (
-          <p className="font-semibold text-olive-600">${product.price}</p>
+          <p className="font-semibold text-brand-600">${product.price}</p>
         )}
         {benefits.length > 0 && (
           <ul className="line-clamp-2 space-y-1 text-xs text-zinc-500">
             {benefits.map((benefit, index) => (
               <li key={index} className="flex items-start gap-1.5">
-                <Check className="mt-0.5 h-3 w-3 shrink-0 text-olive-600" />
+                <Check className="mt-0.5 h-3 w-3 shrink-0 text-brand-600" />
                 {benefit}
               </li>
             ))}

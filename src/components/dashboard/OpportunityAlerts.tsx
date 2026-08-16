@@ -62,7 +62,7 @@ export function OpportunityAlerts({ memories }: OpportunityAlertsProps) {
   )
 
   return (
-    <div className="rounded-2xl border border-olive-100 bg-white p-6">
+    <div className="rounded-2xl border border-brand-100 bg-white p-6">
       <h3 className="text-lg font-semibold text-zinc-900">Lo que noté esta semana</h3>
       <p className="mt-1 text-sm text-zinc-500">
         Patrones que detecté en las conversaciones con clientes
@@ -82,7 +82,7 @@ export function OpportunityAlerts({ memories }: OpportunityAlertsProps) {
               <div className="mt-3 space-y-2">
                 {items.map((memory) => (
                   <div key={memory.id} className="flex items-start gap-2">
-                    <div className="mt-1 h-1.5 w-1.5 rounded-full bg-olive-400" />
+                    <div className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-400" />
                     <div className="flex-1">
                       <p className="text-sm text-zinc-700">{memory.content}</p>
                       <div className="mt-1 flex items-center gap-2">

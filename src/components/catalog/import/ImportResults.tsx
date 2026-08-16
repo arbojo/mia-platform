@@ -45,7 +45,7 @@ export function ImportResults({ preview, summary }: ImportResultsProps) {
     return (
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2">
-          <Badge className="bg-olive-600 text-white">Creados: {summary.created}</Badge>
+          <Badge className="bg-brand-600 text-white">Creados: {summary.created}</Badge>
           <Badge className="bg-blue-600 text-white">Actualizados: {summary.updated}</Badge>
           <Badge variant="secondary">Omitidos: {summary.skipped}</Badge>
           <Badge variant="destructive">Errores: {summary.errors.length}</Badge>

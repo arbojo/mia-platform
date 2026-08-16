@@ -71,7 +71,7 @@ export function ProductCard({
           </div>
           <div className="flex items-center justify-between gap-2">
             {price !== null && (
-              <p className="text-sm font-semibold text-olive-600">${price}</p>
+              <p className="text-sm font-semibold text-brand-600">${price}</p>
             )}
             {availabilityBadge && (
               <span

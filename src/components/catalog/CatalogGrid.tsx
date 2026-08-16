@@ -111,7 +111,7 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
             <Upload className="mr-2 h-4 w-4" />
             Importar
           </Button>
-          <Button className="bg-olive-600 hover:bg-olive-700" onClick={() => setCreateOpen(true)}>
+          <Button className="bg-brand-600 hover:bg-brand-700" onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nuevo producto
           </Button>
@@ -128,7 +128,7 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
             Agrega tu primer producto para empezar a construir tu catálogo.
           </p>
           <Button
-            className="mt-4 bg-olive-600 hover:bg-olive-700"
+            className="mt-4 bg-brand-600 hover:bg-brand-700"
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />

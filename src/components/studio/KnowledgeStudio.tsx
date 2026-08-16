@@ -181,7 +181,7 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
           data-tour="studio-analyze"
           onClick={handleAnalyze}
           disabled={analyzing}
-          className="bg-olive-600 hover:bg-olive-700"
+          className="bg-brand-600 hover:bg-brand-700"
         >
           {analyzing ? 'Analizando...' : 'Ejecutar Análisis'}
         </Button>
@@ -287,18 +287,18 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
           <Button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="bg-olive-600 hover:bg-olive-700"
+            className="bg-brand-600 hover:bg-brand-700"
           >
             {analyzing ? 'Analizando...' : 'Reintentar Análisis'}
           </Button>
         </div>
       ) : report && report.status === 'analyzing' ? (
         <div className="text-center py-12">
-          <div className="animate-pulse text-olive-600 text-lg">Analizando conocimiento...</div>
+          <div className="animate-pulse text-brand-600 text-lg">Analizando conocimiento...</div>
           <p className="text-gray-500 mt-2">Esto puede tomar unos segundos</p>
         </div>
       ) : (
-        <div className="text-center py-12 border-2 border-dashed border-olive-200 rounded-xl">
+        <div className="text-center py-12 border-2 border-dashed border-brand-200 rounded-xl">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Ejecuta tu primer análisis
           </h2>
@@ -308,7 +308,7 @@ export function KnowledgeStudio({ businessId, initialReport, initialSuggestions 
           <Button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="bg-olive-600 hover:bg-olive-700"
+            className="bg-brand-600 hover:bg-brand-700"
           >
             {analyzing ? 'Analizando...' : 'Ejecutar Análisis'}
           </Button>

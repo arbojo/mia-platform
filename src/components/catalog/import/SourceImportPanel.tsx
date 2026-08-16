@@ -155,7 +155,7 @@ export function SourceImportPanel({ businessId, onPreview, onImported }: SourceI
           Vista previa
         </Button>
         <Button
-          className="bg-olive-600 hover:bg-olive-700"
+          className="bg-brand-600 hover:bg-brand-700"
           disabled={loading}
           onClick={() => post('import')}
         >

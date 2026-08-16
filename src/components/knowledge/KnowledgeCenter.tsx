@@ -99,7 +99,7 @@ export function KnowledgeCenter({ businessId, initialKnowledge, initialInstructi
             className={cn(
               'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
               activeTab === tab.id
-                ? 'border-olive-600 text-olive-600'
+                ? 'border-brand-600 text-brand-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             )}
           >
@@ -131,11 +131,11 @@ export function KnowledgeCenter({ businessId, initialKnowledge, initialInstructi
           )}
 
           {loadingReport && (
-            <div className="rounded-2xl border border-olive-200 bg-olive-50 p-8 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-olive-100 text-3xl animate-pulse">
+            <div className="rounded-2xl border border-brand-200 bg-brand-50 p-8 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-3xl animate-pulse">
                 📚
               </div>
-              <p className="text-lg font-medium text-olive-900">
+              <p className="text-lg font-medium text-brand-900">
                 Estoy revisando lo que aprendí...
               </p>
             </div>
@@ -149,7 +149,7 @@ export function KnowledgeCenter({ businessId, initialKnowledge, initialInstructi
             <div className="text-center">
               <button
                 onClick={() => setReport(null)}
-                className="text-sm text-olive-600 hover:text-olive-700"
+                className="text-sm text-brand-600 hover:text-brand-700"
               >
                 📚 Enseñarme con más archivos
               </button>
