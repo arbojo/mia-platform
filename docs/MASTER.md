@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `748d68f`.
+> Fuente de verdad: este repositorio en `7b43544`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `748d68f` |
+| **Commit HEAD** | `7b43544` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:46:15-06:00 |
+| **Generado** | 2026-08-15T21:50:45-06:00 |
 
 ---
 
@@ -692,7 +692,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
 | TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | completed |
 | TASK-20260816-032745 | Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas | completed |
-| TASK-20260816-034253 | Dar color de módulo a Inventario y Delivery: acento module-accent en sus pantallas + la ruta gana sobre el selector manual | in_progress |
+| TASK-20260816-034253 | Dar color de módulo a Inventario y Delivery: acento module-accent en sus pantallas + la ruta gana sobre el selector manual | completed |
 
 ---
 
@@ -741,6 +741,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7b43544 chore: completar governance TASK-20260816-034253 (colores de modulo)
+6536fc0 subaru: checkpoint MISSION-MODULO-COLORES - completado
+0dabead subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
+49f228b docs: regenerate MASTER.md at 748d68f
 748d68f subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
 0d64788 subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
 44b3eef style: color de modulo para inventario y delivery
@@ -757,10 +761,6 @@ db4d2e4 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
 90aec65 style: normalizar paleta del dashboard - fondo slate uniforme + azul unico
 296221c docs: regenerate MASTER.md at 330ff35
 330ff35 chore: governance TASK-20260816-032745 - normalizar paleta del dashboard
-72f2050 subaru: checkpoint MISSION-COLOR-NORMALIZACION - listo
-cbabace docs: regenerate MASTER.md at 035d9e0
-035d9e0 chore: completar governance TASK-20260816-025216 (kusanali)
-f479bff subaru: checkpoint MISSION-KUSANALI - completado
 ```
 
 ---
