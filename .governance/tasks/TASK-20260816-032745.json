@@ -1,0 +1,98 @@
+{
+  "id": "TASK-20260816-032745",
+  "title": "Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas",
+  "description": "El usuario navega el sidebar del dashboard (módulo Ventas) y detecta inconsistencias de color tras la migración kusanali: cada pantalla conserva un tinte atmosférico distinto (Relaciones y Conexiones cian verdoso, Memoria y Catálogo verde, Laboratorio dorado, Concilio gris-dorado) mientras los botones/nav usan el azul de módulo #5B9BD5. Causa raíz: coexisten dos sistemas de color — data-atmosphere (tinte de fondo por ruta en AtmosphereProvider + globals.css) y data-module (acento de botones/nav por módulo en AppLayout/design-system.css). Decisión del usuario (concilio, opción elegida): NORMALIZAR a fondo slate kusanali uniforme (#e2e8f0 light / #0f172a dark) + azul #5B9BD5 único en botones, nav y acentos para todas las pantallas del módulo Ventas. Inventario y Delivery conservan su acento de módulo (verde #16a34a / rojo suave #C56A5E) sobre el mismo fondo slate. Alcance: colapsar AtmosphereProvider a data-atmosphere='home' único (eliminar atmosphereMap, máquina de transición, overlays y atmosphereLabels) y eliminar los bloques muertos [data-atmosphere='conversations|memory|heuristic|lab|council'] de globals.css (base, .light y .dark). Cero cambios de lógica, funcionalidad, módulos ni datos.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "style"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "design_system"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "product_manager",
+      "frontend",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: cross-cutting (afecta el fondo/acento de todas las pantallas del dashboard), eliminación de un sistema de color existente (data-atmosphere), exige concilio por petición del usuario. Required agents (8): architect, product_manager, frontend, performance, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Se elimina la duplicidad de sistemas de color (atmosphere tint por ruta vs module accent) consolidando una sola fuente de verdad visual: data-atmosphere unificado a 'home' + acento por módulo. Cambio confinado a capa de presentación, sin tocar arquitectura de datos ni lógica",
+      "timestamp": "2026-08-16T03:28:00.000Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "El usuario reporta pantallas con tintes inconsistentes (verde, dorado, cian, gris) y pide normalizar. La opción elegida (uniforme slate + azul, con acentos de módulo para Inventario/Delivery) reduce fricción visual y mantiene la identidad kusanali",
+      "timestamp": "2026-08-16T03:28:05.000Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Todos los componentes ya usan var(--atmosphere-*) y var(--module-accent); al unificar data-atmosphere='home' las pantallas adoptan el fondo slate sin tocar cada página. globals.css conserva los defaults :root/.light/.dark",
+      "timestamp": "2026-08-16T03:28:10.000Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Eliminar la máquina de transición de atmosphere y bloques CSS muertos reduce JS y CSS servido sin impacto negativo en runtime ni bundle de forma medible",
+      "timestamp": "2026-08-16T03:28:15.000Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin secretos, sin cambios de datos ni de red. Los contrastes slate + azul mantienen legibilidad light/dark; no se introducen vectores de riesgo",
+      "timestamp": "2026-08-16T03:28:20.000Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se verifican lint, build, test:unit y e2e Playwright antes de cerrar; el colapso de AtmosphereProvider no debe romper navegación, transiciones ni flujos existentes",
+      "timestamp": "2026-08-16T03:28:25.000Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Deploy Vercel prod tras gates y push; sin schema ni secretos. Se conserva el protocolo Subaru con checkpoint previo",
+      "timestamp": "2026-08-16T03:28:30.000Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrará en memoria la normalización del sistema de color: un solo atmosphere (home) + acentos por módulo, eliminando los tintes por ruta",
+      "timestamp": "2026-08-16T03:28:35.000Z"
+    }
+  ],
+  "createdAt": "2026-08-16T03:27:45.000Z",
+  "classifiedAt": "2026-08-16T03:27:45.000Z",
+  "approvedAt": "2026-08-16T03:28:35.000Z",
+  "startedAt": "2026-08-16T03:28:02.599Z"
+}
