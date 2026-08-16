@@ -2,13 +2,13 @@
 task_id: 5
 title: Glass Overlay Blur - transicion al cambiar de vista
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-224949925
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T23:01:39.226Z
+updated: 2026-08-16T23:01:44.259Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -60,7 +60,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: 8 tests de glass-loader pasan.
   - Gate/verificación: unit_tests (project component)
 
-- [ ] **Paso 4:** Gates de calidad — lint, build, unit, e2e
+- [x] **Paso 4:** Gates de calidad — lint, build, unit, e2e
   - Objetivo: verificar que no hay regresiones en todo el proyecto.
   - Archivos: (ninguno — validación)
   - Acción: `npm run lint` (0/0), `npm run build`, `npx vitest run` (suite completa), `npm test` (e2e).
@@ -83,7 +83,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 5`.
 
 ## Constraints
 
