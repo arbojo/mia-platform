@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `330ff35`.
+> Fuente de verdad: este repositorio en `883620b`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `330ff35` |
+| **Commit HEAD** | `883620b` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:28:21-06:00 |
+| **Generado** | 2026-08-15T21:31:24-06:00 |
 
 ---
 
@@ -740,6 +740,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+883620b subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
+0052ac6 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
+90aec65 style: normalizar paleta del dashboard - fondo slate uniforme + azul unico
+296221c docs: regenerate MASTER.md at 330ff35
 330ff35 chore: governance TASK-20260816-032745 - normalizar paleta del dashboard
 72f2050 subaru: checkpoint MISSION-COLOR-NORMALIZACION - listo
 cbabace docs: regenerate MASTER.md at 035d9e0
@@ -756,10 +760,6 @@ bd749db subaru: checkpoint MISSION-KUSANALI - en-progreso
 2b405bb docs: regenerate MASTER.md at 483d97d
 483d97d chore: governance TASK-20260816-025216 (migración estilo kusanali)
 ed4275c subaru: checkpoint MISSION-KUSANALI - listo
-8c59bfb docs: regenerate MASTER.md at 9992f05
-9992f05 chore: complete governance TASK-20260816-021610
-ef2914f docs: regenerate MASTER.md at 5332e81
-5332e81 docs: regenerate MASTER.md at 46e1cf5
 ```
 
 ---
