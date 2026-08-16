@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d34f916`.
+> Fuente de verdad: este repositorio en `c9d21c1`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d34f916` |
+| **Commit HEAD** | `c9d21c1` |
 | **Rama** | `main` |
-| **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-14T20:39:13-06:00 |
+| **Remoto** | `https://github.com/arbojo/mia-platform.git` |
+| **Generado** | 2026-08-15T20:06:54-06:00 |
 
 ---
 
@@ -581,7 +581,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (101)**:
+**Tareas registradas (102)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -686,6 +686,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-001504327 | Tutorial interactivo contextual del dashboard (spotlight tour, activable desde sidebar) | completed |
 | TASK-20260815-014157047 | Ajustes al tutorial interactivo: shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio | completed |
 | TASK-20260815-022944607 | Fix bucle de confirmacion: regla anti-bucle en prompts (4 diccionarios) y corolario en regla de pedido de Vitanova | completed |
+| TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
 
 ---
 
@@ -734,6 +735,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+c9d21c1 feat(laboratorio): fix guardado de Enseñarle a MIA y condicionar pregunta de ciudad
+a31a63d docs: regenerate MASTER.md at d34f916
 d34f916 fix(ai): regla anti-bucle de confirmacion en prompts y corolario en regla de pedido de Vitanova
 d79c280 docs: regenerate MASTER.md at e973874
 e973874 feat(tour): shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio
@@ -752,8 +755,6 @@ ab0b3ec subaru: checkpoint MISSION-20260815-001 - en-progreso
 09073b1 subaru: checkpoint MISSION-20260815-001 - en-progreso
 b5a86ff subaru: checkpoint MISSION-20260815-001 - en-progreso
 5006b69 subaru: checkpoint MISSION-20260815-001 - en-progreso
-205237f subaru: checkpoint MISSION-20260815-001 - en-progreso
-c6b2f72 docs: regenerate MASTER.md at 2980906
 ```
 
 ---
