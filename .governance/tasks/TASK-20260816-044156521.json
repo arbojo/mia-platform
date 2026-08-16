@@ -1,0 +1,38 @@
+{
+  "id": "TASK-20260816-044156521",
+  "title": "Hacer visible el logo MIA girando (duracion minima en auth + loading dashboard)",
+  "description": "El usuario reporto que no vio el logo girando porque los spinners duran milisegundos. Refinamiento del MiaSpinner (TASK-20260816-042844183): (1) login/page.tsx y signup/page.tsx: el bloque \"Verificando sesion...\" con MiaSpinner ahora tiene una duracion minima de 600ms (startedAt + remain = max(0, 600-elapsed)) para que el logo gire siempre al cargar la app, tanto en redirect como en setCheckingAuth(false); (2) nuevo src/app/dashboard/loading.tsx: MiaSpinner centrado (min-h, full width) que se muestra durante la navegacion entre modulos del dashboard. Sin cambios de schema, API, backend ni AI. Verificacion: lint + build + unit (674) + Playwright (52) + visual en produccion.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-16T04:41:56.864Z",
+  "classifiedAt": "2026-08-16T04:41:56.864Z",
+  "approvedAt": "2026-08-16T04:41:56.864Z",
+  "startedAt": "2026-08-16T04:42:00.993Z",
+  "completedAt": "2026-08-16T04:45:14.376Z"
+}

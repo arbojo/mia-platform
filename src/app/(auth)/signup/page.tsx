@@ -22,12 +22,16 @@ export default function SignupPage() {
   const supabase = createClient()
 
   useEffect(() => {
+    const startedAt = Date.now()
     const checkAuth = async () => {
       const destination = await getUserLandingPath()
+      const remain = Math.max(0, 600 - (Date.now() - startedAt))
       if (destination !== '/login') {
+        await new Promise((resolve) => setTimeout(resolve, remain))
         router.replace(destination)
         return
       }
+      await new Promise((resolve) => setTimeout(resolve, remain))
       setCheckingAuth(false)
     }
     checkAuth()
