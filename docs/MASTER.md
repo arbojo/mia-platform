@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7b43544`.
+> Fuente de verdad: este repositorio en `fb6f2fd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7b43544` |
+| **Commit HEAD** | `fb6f2fd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:50:45-06:00 |
+| **Generado** | 2026-08-15T22:05:07-06:00 |
 
 ---
 
@@ -583,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (106)**:
+**Tareas registradas (107)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -693,6 +693,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | completed |
 | TASK-20260816-032745 | Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas | completed |
 | TASK-20260816-034253 | Dar color de módulo a Inventario y Delivery: acento module-accent en sus pantallas + la ruta gana sobre el selector manual | completed |
+| TASK-20260816-040159629 | Opcion Desechar por sugerencia en Enseñarle a MIA (TeachModal) | completed |
 
 ---
 
@@ -741,6 +742,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+fb6f2fd chore: completar governance TASK-20260816-040159629 (opcion desechar TeachModal)
+d29f1e4 feat: opcion desechar por sugerencia en enseñarle a MIA
+5a9e28a docs: regenerate MASTER.md at 7b43544
 7b43544 chore: completar governance TASK-20260816-034253 (colores de modulo)
 6536fc0 subaru: checkpoint MISSION-MODULO-COLORES - completado
 0dabead subaru: checkpoint MISSION-MODULO-COLORES - en-progreso
@@ -758,9 +762,6 @@ db4d2e4 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
 24b66be docs: regenerate MASTER.md at 883620b
 883620b subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
 0052ac6 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
-90aec65 style: normalizar paleta del dashboard - fondo slate uniforme + azul unico
-296221c docs: regenerate MASTER.md at 330ff35
-330ff35 chore: governance TASK-20260816-032745 - normalizar paleta del dashboard
 ```
 
 ---
