@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `697cfe6`.
+> Fuente de verdad: este repositorio en `175a7ac`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `697cfe6` |
+| **Commit HEAD** | `175a7ac` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T01:58:59-06:00 |
+| **Generado** | 2026-08-16T02:31:08-06:00 |
 
 ---
 
@@ -707,7 +707,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-045059628 | Texto "Cargando… un momento" + color por modulo en loading del dashboard | completed |
 | TASK-20260816-071246514 | Inventario Universal + Motor de IA (fase de diseno) — multi-industria | completed |
 | TASK-20260816-072521677 | Inventario Universal F1: assets polimorfico + ledger universal + trigger v2 + motor predictivo hibrido | completed |
-| TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | in_progress |
+| TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | completed |
 
 ---
 
@@ -756,6 +756,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+175a7ac governance: TASK-20260816-075359212 completado
+2d514d8 docs: regenerate MASTER.md at 697cfe6
 697cfe6 feat: acceso full para Vitanova (root) - licencias DB-first por negocio
 21d2e52 docs: regenerate MASTER.md at 4340072
 4340072 subaru: checkpoint 1 - completado
@@ -774,8 +776,6 @@ d70cb8d docs: regenerate MASTER.md at f87fbd9
 f87fbd9 subaru: checkpoint 1 - listo
 4cd876c docs: regenerate MASTER.md at 53dd0b7
 53dd0b7 feat: texto 'Cargando… un momento' y paleta por modulo en loading del dashboard
-dbd208c docs: regenerate MASTER.md at dd4e4b6
-dd4e4b6 feat: hacer visible el logo MIA girando (duracion minima auth + loading dashboard)
 ```
 
 ---
