@@ -1,14 +1,14 @@
 ---
 task_id: 3
 title: Laboratorio: historial de sesiones gestionable + imagenes condicionales en el simulador
-state: in_progress
+state: completed
 current_step: 6
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-211422079
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T21:41:46.186Z
+updated: 2026-08-16T21:41:57.563Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -82,7 +82,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..6.
+- Misión 3 completada (6/6 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Performance Engineer review.
+- Finalizado: 2026-08-16T21:41:57.563Z.
 
 ## Next action
 
