@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a4ffd91`.
+> Fuente de verdad: este repositorio en `df18120`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a4ffd91` |
+| **Commit HEAD** | `df18120` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T16:11:20-06:00 |
+| **Generado** | 2026-08-16T16:27:52-06:00 |
 
 ---
 
@@ -725,7 +725,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | completed |
 | TASK-20260816-091002865 | Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX) | completed |
 | TASK-20260816-211422079 | Laboratorio: historial de sesiones gestionable + imágenes condicionales en el simulador | completed |
-| TASK-20260816-220813618 | Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición | in_progress |
+| TASK-20260816-220813618 | Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición | completed |
 
 ---
 
@@ -774,6 +774,14 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+df18120 chore: governance completion artifacts - elastic pop task
+59a81ce subaru: checkpoint 4 - completado
+bcda86f feat: efecto scale & elastic pop en modales y confirmaciones de guardado
+65041c6 subaru: checkpoint 4 - en-progreso
+38f4986 subaru: checkpoint 4 - en-progreso
+f49f717 subaru: checkpoint 4 - en-progreso
+f439376 subaru: checkpoint 4 - en-progreso
+2b2a4a5 docs: regenerate MASTER.md at a4ffd91
 a4ffd91 subaru: checkpoint 4 - en-progreso
 ad63817 docs: regenerate MASTER.md at 10a33be
 10a33be chore: governance artifacts - elastic pop task TASK-20260816-220813618
@@ -786,14 +794,6 @@ c322b87 subaru: checkpoint 3 - en-progreso
 120e53c subaru: checkpoint 3 - en-progreso
 15d8e1b subaru: checkpoint 3 - en-progreso
 865c555 subaru: checkpoint 3 - en-progreso
-8c9fd82 subaru: checkpoint 3 - en-progreso
-22eeaf3 subaru: checkpoint 3 - en-progreso
-5df1dba docs: regenerate MASTER.md at 947cb77
-947cb77 subaru: checkpoint 3 - listo
-4a72615 docs: regenerate MASTER.md at 0234132
-0234132 governance: TASK-20260816-091002865 completado
-bd698c2 subaru: checkpoint 2 - completado
-2448b0b subaru: checkpoint 2 - en-progreso
 ```
 
 ---
