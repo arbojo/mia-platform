@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `007b19f`.
+> Fuente de verdad: este repositorio en `0234132`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `007b19f` |
+| **Commit HEAD** | `0234132` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T03:14:04-06:00 |
+| **Generado** | 2026-08-16T13:34:31-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-57 tablas definidas en `supabase/migrations/`:
+65 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -133,6 +133,14 @@ Patrón de cliente Supabase:
 | inventory | 040_inventory_universal.sql |
 | inventory | 040_inventory_universal.sql |
 | inventory | 040_inventory_universal.sql |
+| inventory | 043_rop_purchasing.sql |
+| inventory | 043_rop_purchasing.sql |
+| inventory | 043_rop_purchasing.sql |
+| inventory | 043_rop_purchasing.sql |
+| inventory | 043_rop_purchasing.sql |
+| inventory | 044_eta_cx.sql |
+| inventory | 044_eta_cx.sql |
+| inventory | 044_eta_cx.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -181,6 +189,9 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 39 | 039_media_type_simple.sql |
 | 40 | 040_inventory_universal.sql |
 | 41 | 041_inventory_trigger_v2.sql |
+| 42 | 042_polymorphic_variants.sql |
+| 43 | 043_rop_purchasing.sql |
+| 44 | 044_eta_cx.sql |
 
 ---
 
@@ -469,7 +480,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-101 módulos:
+104 módulos:
 
 ```
 ai/client.ts
@@ -539,9 +550,12 @@ inventory/admin-api.ts
 inventory/ai.ts
 inventory/db.ts
 inventory/errors.ts
+inventory/eta.ts
 inventory/import.ts
 inventory/licensing.ts
 inventory/predictions.ts
+inventory/purchasing.ts
+inventory/rop.ts
 inventory/rules.ts
 inventory/stock.ts
 inventory/suggestions.ts
@@ -591,7 +605,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (113)**:
+**Tareas registradas (114)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -708,6 +722,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-071246514 | Inventario Universal + Motor de IA (fase de diseno) — multi-industria | completed |
 | TASK-20260816-072521677 | Inventario Universal F1: assets polimorfico + ledger universal + trigger v2 + motor predictivo hibrido | completed |
 | TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | completed |
+| TASK-20260816-091002865 | Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX) | completed |
 
 ---
 
@@ -756,6 +771,16 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+0234132 governance: TASK-20260816-091002865 completado
+bd698c2 subaru: checkpoint 2 - completado
+2448b0b subaru: checkpoint 2 - en-progreso
+3f1248b subaru: checkpoint 2 - en-progreso
+72e9661 subaru: checkpoint 2 - en-progreso
+4bc8a55 subaru: checkpoint 2 - en-progreso
+9b3a14b subaru: checkpoint 2 - en-progreso
+fd0ce29 fix: 044 indice parcial UNIQUE y RETURN NEXT con OUT params (bugs atrapados por el gate de runtime)
+2d0be5d feat: phase 2 logistics and autonomous procurement (Subaru freeze)
+4213532 docs: regenerate MASTER.md at 007b19f
 007b19f subaru: checkpoint 2 - listo
 355ed63 docs: regenerate MASTER.md at 175a7ac
 175a7ac governance: TASK-20260816-075359212 completado
@@ -766,16 +791,6 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 2c0b9ba subaru: checkpoint 1 - en-progreso
 22b7450 docs: regenerate MASTER.md at ad467ef
 ad467ef subaru: checkpoint 1 - en-progreso
-97d28a2 feat: inventario universal F1 - assets polimorfico, ledger universal con costos, trigger v2 y motor predictivo hibrido
-110de00 subaru: checkpoint 1 - en-progreso
-d8ca48f subaru: checkpoint 1 - en-progreso
-13e0364 subaru: checkpoint 1 - en-progreso
-d0f37de subaru: checkpoint 1 - en-progreso
-c5bf32e subaru: checkpoint 1 - en-progreso
-2814aa7 subaru: checkpoint 1 - en-progreso
-65e0da2 subaru: checkpoint 1 - en-progreso
-d70cb8d docs: regenerate MASTER.md at f87fbd9
-f87fbd9 subaru: checkpoint 1 - listo
 ```
 
 ---
