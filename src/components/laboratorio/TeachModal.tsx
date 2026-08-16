@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -50,6 +51,11 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
 
   const updateItem = (index: number, patch: Partial<TeachItem>) => {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)))
+    setError(null)
+  }
+
+  const discardItem = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index))
     setError(null)
   }
 
@@ -128,6 +134,19 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
     )
   }
 
+  if (items.length === 0) {
+    return (
+      <div className="p-6 text-center space-y-4">
+        <p className="text-2xl">🗑️</p>
+        <p className="font-medium text-gray-900">Descartaste todas las sugerencias</p>
+        <p className="text-sm text-gray-500">No se guardó nada. MIA seguirá aprendiendo con las próximas sesiones.</p>
+        <Button variant="outline" onClick={onClose}>
+          Cerrar
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 space-y-4">
       <div>
@@ -150,18 +169,31 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
               key={index}
               className={`p-3 border rounded-lg space-y-2 ${invalid ? 'border-red-400 bg-red-50' : ''}`}
             >
-              <div className="flex gap-2">
-                {(Object.keys(TYPE_HINTS) as ItemType[]).map((t) => (
-                  <Button
-                    key={t}
-                    type="button"
-                    variant={item.type === t ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => updateItem(index, { type: t, category: t === 'knowledge' ? 'faq' : 'restrictions' })}
-                  >
-                    {t === 'knowledge' ? 'Conocimiento' : t === 'rule' ? 'Regla' : 'Instrucción'}
-                  </Button>
-                ))}
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {(Object.keys(TYPE_HINTS) as ItemType[]).map((t) => (
+                    <Button
+                      key={t}
+                      type="button"
+                      variant={item.type === t ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => updateItem(index, { type: t, category: t === 'knowledge' ? 'faq' : 'restrictions' })}
+                    >
+                      {t === 'knowledge' ? 'Conocimiento' : t === 'rule' ? 'Regla' : 'Instrucción'}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => discardItem(index)}
+                  aria-label="Descartar esta sugerencia"
+                  className="text-gray-400 hover:text-red-600"
+                >
+                  <X className="size-4" />
+                  Desechar
+                </Button>
               </div>
               <p className="text-xs text-gray-500">{TYPE_HINTS[item.type]}</p>
 

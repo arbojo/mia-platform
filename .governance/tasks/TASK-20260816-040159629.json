@@ -1,0 +1,37 @@
+{
+  "id": "TASK-20260816-040159629",
+  "title": "Opcion Desechar por sugerencia en Enseñarle a MIA (TeachModal)",
+  "description": "El TeachModal (src/components/laboratorio/TeachModal.tsx) abre una tarjeta por cada sugerencia de la evaluacion de sesion y bloquea el guardado si NO todas las tarjetas tipo conocimiento tienen pregunta: handleSave (lineas 60-64) valida el array completo y cancela todo con error. No existe forma de descartar una sugerencia individual; solo Cancelar (descarta todo) o Guardar (exige completar todas). Fix UI puro en 1 archivo: (1) boton Desechar (icono X, variant ghost size sm) en la esquina de cada tarjeta que elimina esa sugerencia de items via setItems(prev => prev.filter((_, i) => i !== index)); (2) estado vacio: si items.length === 0 tras desechar, mostrar \"Descartaste todas las sugerencias\" + boton Cerrar (onClose) en lugar del listado vacio. Validacion y guardado intactos: solo aplican a las tarjetas restantes. Sin cambios de schema, API, backend ni AI. Verificacion: lint + build + unit (674) + Playwright (52) + verificar en produccion (Vercel) el modal con varias sugerencias.",
+  "scope": {
+    "categories": [
+      "ui_change"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "domains": [
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "frontend",
+      "qa",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Direct delegation: single domain, no cross-cutting impact. Required agents (3): frontend, qa, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [],
+  "createdAt": "2026-08-16T04:01:59.382Z",
+  "classifiedAt": "2026-08-16T04:01:59.382Z",
+  "approvedAt": "2026-08-16T04:01:59.382Z",
+  "startedAt": "2026-08-16T04:02:02.834Z"
+}
