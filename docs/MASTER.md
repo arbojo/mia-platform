@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `035d9e0`.
+> Fuente de verdad: este repositorio en `330ff35`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `035d9e0` |
+| **Commit HEAD** | `330ff35` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:06:52-06:00 |
+| **Generado** | 2026-08-15T21:28:21-06:00 |
 
 ---
 
@@ -583,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (104)**:
+**Tareas registradas (105)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -691,6 +691,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
 | TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
 | TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | completed |
+| TASK-20260816-032745 | Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas | in_progress |
 
 ---
 
@@ -739,6 +740,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+330ff35 chore: governance TASK-20260816-032745 - normalizar paleta del dashboard
+72f2050 subaru: checkpoint MISSION-COLOR-NORMALIZACION - listo
+cbabace docs: regenerate MASTER.md at 035d9e0
 035d9e0 chore: completar governance TASK-20260816-025216 (kusanali)
 f479bff subaru: checkpoint MISSION-KUSANALI - completado
 bd749db subaru: checkpoint MISSION-KUSANALI - en-progreso
@@ -756,9 +760,6 @@ ed4275c subaru: checkpoint MISSION-KUSANALI - listo
 9992f05 chore: complete governance TASK-20260816-021610
 ef2914f docs: regenerate MASTER.md at 5332e81
 5332e81 docs: regenerate MASTER.md at 46e1cf5
-46e1cf5 feat: indicador 'escribiendo…' en simulador y typing presence en WhatsApp
-cbf85e5 docs: regenerate MASTER.md at 4a32bde
-4a32bde docs: regenerate MASTER.md at c9d21c1
 ```
 
 ---
