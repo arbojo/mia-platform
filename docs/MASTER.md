@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `fc8b767`.
+> Fuente de verdad: este repositorio en `7b7c75f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `fc8b767` |
+| **Commit HEAD** | `7b7c75f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:35:26-06:00 |
+| **Generado** | 2026-08-15T21:43:22-06:00 |
 
 ---
 
@@ -583,7 +583,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (105)**:
+**Tareas registradas (106)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -692,6 +692,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
 | TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | completed |
 | TASK-20260816-032745 | Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas | completed |
+| TASK-20260816-034253 | Dar color de módulo a Inventario y Delivery: acento module-accent en sus pantallas + la ruta gana sobre el selector manual | in_progress |
 
 ---
 
@@ -740,6 +741,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7b7c75f subaru: checkpoint MISSION-MODULO-COLORES - listo
+75f8719 chore: governance TASK-20260816-034253 - colores de modulo para inventario/delivery
+a4aac4a docs: regenerate MASTER.md at fc8b767
 fc8b767 chore: completar governance TASK-20260816-032745 (normalizar paleta)
 065fcf8 subaru: checkpoint MISSION-COLOR-NORMALIZACION - completado
 db4d2e4 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
@@ -757,9 +761,6 @@ bd749db subaru: checkpoint MISSION-KUSANALI - en-progreso
 2804a79 docs: regenerate MASTER.md at 37937a4
 37937a4 subaru: checkpoint MISSION-KUSANALI - en-progreso
 6487f28 style: migrar identidad visual kusanali a MIA (tokens, fuentes, botones)
-0f7879c subaru: checkpoint MISSION-KUSANALI - en-progreso
-1ddddfd subaru: checkpoint MISSION-KUSANALI - en-progreso
-4ab7ec6 subaru: checkpoint MISSION-KUSANALI - en-progreso
 ```
 
 ---
