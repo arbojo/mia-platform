@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `cb615fd`.
+> Fuente de verdad: este repositorio en `e506f23`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `cb615fd` |
+| **Commit HEAD** | `e506f23` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T16:51:31-06:00 |
+| **Generado** | 2026-08-16T17:02:01-06:00 |
 
 ---
 
@@ -775,6 +775,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e506f23 subaru: checkpoint 5 - completado
+05c287b subaru: checkpoint 5 - en-progreso
+e4aa2e9 subaru: checkpoint 5 - en-progreso
+3c9cb10 subaru: checkpoint 5 - en-progreso
+16ed4ec subaru: checkpoint 5 - en-progreso
+e0db83e subaru: checkpoint 5 - en-progreso
+89e49e2 docs: regenerate MASTER.md at cb615fd
 cb615fd subaru: checkpoint 5 - listo
 f94203e docs: regenerate MASTER.md at 32005cf
 32005cf fix: laboratorio layout - tarjeta de escenarios cortada y encogida
@@ -788,13 +795,6 @@ f49f717 subaru: checkpoint 4 - en-progreso
 f439376 subaru: checkpoint 4 - en-progreso
 2b2a4a5 docs: regenerate MASTER.md at a4ffd91
 a4ffd91 subaru: checkpoint 4 - en-progreso
-ad63817 docs: regenerate MASTER.md at 10a33be
-10a33be chore: governance artifacts - elastic pop task TASK-20260816-220813618
-cfe81a4 subaru: checkpoint 4 - listo
-35693a0 docs: regenerate MASTER.md at 0cc827c
-0cc827c governance: TASK-20260816-211422079 completado
-e778bc6 subaru: checkpoint 3 - completado
-c322b87 subaru: checkpoint 3 - en-progreso
 ```
 
 ---
