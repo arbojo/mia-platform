@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `53dd0b7`.
+> Fuente de verdad: este repositorio en `f87fbd9`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `53dd0b7` |
+| **Commit HEAD** | `f87fbd9` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T22:54:13-06:00 |
+| **Generado** | 2026-08-16T01:26:10-06:00 |
 
 ---
 
@@ -745,6 +745,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+f87fbd9 subaru: checkpoint 1 - listo
+4cd876c docs: regenerate MASTER.md at 53dd0b7
 53dd0b7 feat: texto 'Cargando… un momento' y paleta por modulo en loading del dashboard
 dbd208c docs: regenerate MASTER.md at dd4e4b6
 dd4e4b6 feat: hacer visible el logo MIA girando (duracion minima auth + loading dashboard)
@@ -763,8 +765,6 @@ d29f1e4 feat: opcion desechar por sugerencia en enseñarle a MIA
 44b3eef style: color de modulo para inventario y delivery
 789ffda docs: regenerate MASTER.md at 7b7c75f
 7b7c75f subaru: checkpoint MISSION-MODULO-COLORES - listo
-75f8719 chore: governance TASK-20260816-034253 - colores de modulo para inventario/delivery
-a4aac4a docs: regenerate MASTER.md at fc8b767
 ```
 
 ---
