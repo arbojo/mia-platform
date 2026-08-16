@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `947cb77`.
+> Fuente de verdad: este repositorio en `0cc827c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `947cb77` |
+| **Commit HEAD** | `0cc827c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-16T15:16:15-06:00 |
+| **Generado** | 2026-08-16T15:42:20-06:00 |
 
 ---
 
@@ -229,7 +229,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-82 rutas en `src/app/api/`:
+83 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -300,6 +300,7 @@ knowledge/suggestions/[id]
 laboratorio/analyze
 laboratorio/context
 laboratorio/evaluate
+laboratorio/sessions/[id]
 laboratorio/sessions
 laboratorio/teach
 onboarding/chat
@@ -605,7 +606,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (114)**:
+**Tareas registradas (115)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -723,6 +724,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-072521677 | Inventario Universal F1: assets polimorfico + ledger universal + trigger v2 + motor predictivo hibrido | completed |
 | TASK-20260816-075359212 | Acceso full para Vitanova (root): licencias DB-first por negocio | completed |
 | TASK-20260816-091002865 | Fase 2 - Logistica predictiva y compras autonomas (variantes, ROP, ETA, CX) | completed |
+| TASK-20260816-211422079 | Laboratorio: historial de sesiones gestionable + imágenes condicionales en el simulador | completed |
 
 ---
 
@@ -771,6 +773,16 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+0cc827c governance: TASK-20260816-211422079 completado
+e778bc6 subaru: checkpoint 3 - completado
+c322b87 subaru: checkpoint 3 - en-progreso
+1e077aa feat: laboratorio - historial de sesiones gestionable e imagenes condicionales en el simulador
+120e53c subaru: checkpoint 3 - en-progreso
+15d8e1b subaru: checkpoint 3 - en-progreso
+865c555 subaru: checkpoint 3 - en-progreso
+8c9fd82 subaru: checkpoint 3 - en-progreso
+22eeaf3 subaru: checkpoint 3 - en-progreso
+5df1dba docs: regenerate MASTER.md at 947cb77
 947cb77 subaru: checkpoint 3 - listo
 4a72615 docs: regenerate MASTER.md at 0234132
 0234132 governance: TASK-20260816-091002865 completado
@@ -781,16 +793,6 @@ bd698c2 subaru: checkpoint 2 - completado
 4bc8a55 subaru: checkpoint 2 - en-progreso
 9b3a14b subaru: checkpoint 2 - en-progreso
 fd0ce29 fix: 044 indice parcial UNIQUE y RETURN NEXT con OUT params (bugs atrapados por el gate de runtime)
-2d0be5d feat: phase 2 logistics and autonomous procurement (Subaru freeze)
-4213532 docs: regenerate MASTER.md at 007b19f
-007b19f subaru: checkpoint 2 - listo
-355ed63 docs: regenerate MASTER.md at 175a7ac
-175a7ac governance: TASK-20260816-075359212 completado
-2d514d8 docs: regenerate MASTER.md at 697cfe6
-697cfe6 feat: acceso full para Vitanova (root) - licencias DB-first por negocio
-21d2e52 docs: regenerate MASTER.md at 4340072
-4340072 subaru: checkpoint 1 - completado
-2c0b9ba subaru: checkpoint 1 - en-progreso
 ```
 
 ---
