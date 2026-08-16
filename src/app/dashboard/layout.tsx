@@ -9,6 +9,7 @@ import { AccessibilityProvider } from '@/components/dashboard/AccessibilityProvi
 import { I18nProvider } from '@/components/dashboard/I18nProvider'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ContextMenuProvider } from '@/components/ui/context-menu'
+import { GlassLoader } from '@/components/ui/glass-loader'
 import { TourProvider } from '@/components/tour/TourProvider'
 import { getUserLocale } from '@/lib/i18n/server'
 
@@ -45,6 +46,7 @@ export default async function DashboardLayout({
                 </main>
               </div>
               <MIAIndicator />
+              <GlassLoader />
             </AppLayout>
           </TourProvider>
         </ContextMenuProvider>
