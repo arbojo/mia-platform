@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `483d97d`.
+> Fuente de verdad: este repositorio en `37937a4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `483d97d` |
+| **Commit HEAD** | `37937a4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T20:52:57-06:00 |
+| **Generado** | 2026-08-15T21:02:19-06:00 |
 
 ---
 
@@ -739,6 +739,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+37937a4 subaru: checkpoint MISSION-KUSANALI - en-progreso
+6487f28 style: migrar identidad visual kusanali a MIA (tokens, fuentes, botones)
+0f7879c subaru: checkpoint MISSION-KUSANALI - en-progreso
+1ddddfd subaru: checkpoint MISSION-KUSANALI - en-progreso
+4ab7ec6 subaru: checkpoint MISSION-KUSANALI - en-progreso
+576067c subaru: checkpoint MISSION-KUSANALI - en-progreso
+2b405bb docs: regenerate MASTER.md at 483d97d
 483d97d chore: governance TASK-20260816-025216 (migración estilo kusanali)
 ed4275c subaru: checkpoint MISSION-KUSANALI - listo
 8c59bfb docs: regenerate MASTER.md at 9992f05
@@ -752,13 +759,6 @@ c9d21c1 feat(laboratorio): fix guardado de Enseñarle a MIA y condicionar pregun
 a31a63d docs: regenerate MASTER.md at d34f916
 d34f916 fix(ai): regla anti-bucle de confirmacion en prompts y corolario en regla de pedido de Vitanova
 d79c280 docs: regenerate MASTER.md at e973874
-e973874 feat(tour): shell solo en Centro de Mando, boton Tutorial junto a Accesibilidad y tour de Knowledge Studio
-db16ec3 docs: regenerate MASTER.md at 0cc454a
-0cc454a fix(subaru): governance complete acepta status completed en freeze/complete
-c53c1b2 subaru: checkpoint MISSION-20260815-001 - completado
-0819f25 subaru: checkpoint MISSION-20260815-001 - en-progreso
-721ff97 docs: regenerate MASTER.md at d1751ed
-d1751ed feat: add contextual interactive tour for dashboard (spotlight + auto-offer)
 ```
 
 ---
