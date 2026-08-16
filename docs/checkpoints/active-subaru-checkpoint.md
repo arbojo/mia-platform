@@ -2,13 +2,13 @@
 task_id: MISSION-COLOR-NORMALIZACION
 title: Normalizar paleta dashboard: fondo slate uniforme + azul unico
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 3
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260816-032745
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T03:31:24.261Z
+updated: 2026-08-16T03:35:08.838Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -62,7 +62,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark MISSION-COLOR-NORMALIZACION 3`.
+Todos los pasos marcados. Ejecutar `subaru complete MISSION-COLOR-NORMALIZACION` cuando pasen los gates de verificación.
 
 ## Constraints
 
