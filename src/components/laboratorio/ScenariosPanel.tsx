@@ -69,7 +69,7 @@ interface ScenariosPanelProps {
 
 export function ScenariosPanel({ onSelect, activeScenarioId }: ScenariosPanelProps) {
   return (
-    <Card className="border-brand-100">
+    <Card className="shrink-0 border-brand-100">
       <CardContent className="pt-4">
         <h3 className="font-semibold text-gray-900 mb-3">Escenarios de prueba</h3>
         <p className="text-xs text-gray-500 mb-3">

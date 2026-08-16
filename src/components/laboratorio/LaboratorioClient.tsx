@@ -147,7 +147,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100dvh-7rem)]">
       <div className="flex items-center gap-4 mb-4">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900">🎭 Simulador de Ventas</h1>
@@ -180,7 +180,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
       </div>
 
       <div className="flex flex-1 gap-4 min-h-0">
-        <div className="w-48 flex flex-col gap-4">
+        <div className="w-48 flex flex-col gap-4 min-h-0 overflow-y-auto">
           <SimulationModes selected={mode} onSelect={setMode} />
           <ScenariosPanel
             onSelect={(scenario) => {

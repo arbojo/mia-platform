@@ -43,7 +43,7 @@ export function SessionHistory({ sessions, onDelete, onClear }: SessionHistoryPr
   }
 
   return (
-    <div className="space-y-2">
+    <div className="shrink-0 space-y-2">
       {onClear && sessions.length > 0 && (
         <Button
           size="sm"

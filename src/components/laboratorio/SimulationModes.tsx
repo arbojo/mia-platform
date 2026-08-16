@@ -39,7 +39,7 @@ interface SimulationModesProps {
 
 export function SimulationModes({ selected, onSelect }: SimulationModesProps) {
   return (
-    <div className="space-y-2">
+    <div className="shrink-0 space-y-2">
       <p className="text-sm font-medium text-gray-700">Modo de prueba</p>
       <div className="flex flex-wrap gap-2">
         {modes.map((mode) => (
