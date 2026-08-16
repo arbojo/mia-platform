@@ -2,13 +2,13 @@
 task_id: 3
 title: Laboratorio: historial de sesiones gestionable + imagenes condicionales en el simulador
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-211422079
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T21:40:49.748Z
+updated: 2026-08-16T21:41:01.023Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: (qué logra el paso 4)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -86,7 +86,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark 3 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark 3 5`.
 
 ## Constraints
 
