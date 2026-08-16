@@ -1,14 +1,14 @@
 ---
 task_id: 5
 title: Glass Overlay Blur - transicion al cambiar de vista
-state: in_progress
+state: completed
 current_step: 5
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-224949925
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T23:01:48.967Z
+updated: 2026-08-16T23:02:01.096Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -79,7 +79,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..5.
+- Misión 5 completada (5/5 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review.
+- Finalizado: 2026-08-16T23:02:01.096Z.
 
 ## Next action
 
