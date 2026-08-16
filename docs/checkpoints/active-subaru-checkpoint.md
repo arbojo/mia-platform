@@ -2,13 +2,13 @@
 task_id: 5
 title: Glass Overlay Blur - transicion al cambiar de vista
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260816-224949925
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-16T23:00:59.109Z
+updated: 2026-08-16T23:01:34.160Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -44,7 +44,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: CSS presente en globals.css y componente compila.
   - Gate/verificación: lint + build
 
-- [ ] **Paso 2:** Componente GlassLoader con detección global de navegación
+- [x] **Paso 2:** Componente GlassLoader con detección global de navegación
   - Objetivo: overlay client que se activa SOLO en navegación entre vistas.
   - Archivos: `src/components/ui/glass-loader.tsx`
   - Acción: activación por click capture en anchors internos (excluye modificadores, _blank, defaultPrevented), `popstate` (back/forward) y cambio de `usePathname` (catch-all de router.push). Desactivación tras duración mínima (~450ms) con fade-out. Ignora cambios solo de searchParams. A11y: aria-hidden cuando inactivo.
@@ -83,7 +83,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark 5 3`.
 
 ## Constraints
 
