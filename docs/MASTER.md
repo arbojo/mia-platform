@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `883620b`.
+> Fuente de verdad: este repositorio en `fc8b767`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `883620b` |
+| **Commit HEAD** | `fc8b767` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-15T21:31:24-06:00 |
+| **Generado** | 2026-08-15T21:35:26-06:00 |
 
 ---
 
@@ -691,7 +691,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260815-194306248 | Mejorar captura de direcciones y reducir repeticion de ciudad en cierres + fix boton Ensenarle a MIA | completed |
 | TASK-20260816-021610 | Indicador 'escribiendo' en simulador web y typing presence real en WhatsApp (bridge) | completed |
 | TASK-20260816-025216 | Migrar estilo visual de kusanali a MIA (tokens de diseño, fuentes y botones — solo look) | completed |
-| TASK-20260816-032745 | Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas | in_progress |
+| TASK-20260816-032745 | Normalizar paleta del dashboard: fondo slate uniforme + azul único en todas las pantallas de Ventas | completed |
 
 ---
 
@@ -740,6 +740,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+fc8b767 chore: completar governance TASK-20260816-032745 (normalizar paleta)
+065fcf8 subaru: checkpoint MISSION-COLOR-NORMALIZACION - completado
+db4d2e4 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
+24b66be docs: regenerate MASTER.md at 883620b
 883620b subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
 0052ac6 subaru: checkpoint MISSION-COLOR-NORMALIZACION - en-progreso
 90aec65 style: normalizar paleta del dashboard - fondo slate uniforme + azul unico
@@ -756,10 +760,6 @@ bd749db subaru: checkpoint MISSION-KUSANALI - en-progreso
 0f7879c subaru: checkpoint MISSION-KUSANALI - en-progreso
 1ddddfd subaru: checkpoint MISSION-KUSANALI - en-progreso
 4ab7ec6 subaru: checkpoint MISSION-KUSANALI - en-progreso
-576067c subaru: checkpoint MISSION-KUSANALI - en-progreso
-2b405bb docs: regenerate MASTER.md at 483d97d
-483d97d chore: governance TASK-20260816-025216 (migración estilo kusanali)
-ed4275c subaru: checkpoint MISSION-KUSANALI - listo
 ```
 
 ---
