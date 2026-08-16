@@ -1,0 +1,98 @@
+{
+  "id": "TASK-20260816-034253",
+  "title": "Dar color de módulo a Inventario y Delivery: acento module-accent en sus pantallas + la ruta gana sobre el selector manual",
+  "description": "Tras normalizar la paleta a slate + azul, el usuario reporta que Inventario y Delivery no muestran los colores que el concilio les asignó (inventario verde #16a34a, delivery rojo suave #C56A5E): siguen en azul de Ventas. Causa raíz: (1) las pantallas de inventario/delivery usan --atmosphere-accent (azul uniforme) en lugar de --module-accent (color del módulo) — los bloques [data-module='inventory'/'logistics'] de design-system.css definen --module-accent pero los componentes referencian el token de atmosphere; (2) AppLayout resuelve activeModule = manual ?? detectModule, así que si el usuario seleccionó Ventas (localStorage mia-module), incluso en /dashboard/inventory y /dashboard/delivery el data-module es 'sales' y el acento queda azul. Solución acordada: (A) AppLayout — la ruta gana para rutas de módulo: routeModule !== 'sales' ? routeModule : (manual ?? routeModule); el selector manual solo tiñe páginas de Ventas. (B) design-system.css — dentro de los bloques [data-module='inventory'] y [data-module='logistics'] (light y dark) agregar también --atmosphere-accent y --atmosphere-glow con el color del módulo, para re-teñir automáticamente los 13 componentes (paywalls InventoryPaywall/DeliveryPaywall, InventoryAdmin/DeliveryAdmin, paneles) sin tocarlos uno por uno. NO desbloquea funcionalidad: los módulos siguen gated por edición (paywall). Sin cambios de lógica de negocio, datos ni schema.",
+  "scope": {
+    "categories": [
+      "ui_change",
+      "style"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "domains": [
+      "frontend",
+      "design_system"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "product_manager",
+      "frontend",
+      "performance",
+      "security",
+      "qa",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Complexity drivers: cross-cutting (cambia la resolución de data-module que afecta la navegación global y los acentos de todas las pantallas), exige concilio por protocolo. Required agents (8): architect, product_manager, frontend, performance, security, qa, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Fix centralizado y DRY: override de --atmosphere-accent dentro de los bloques de módulo evita editar 13 componentes; la resolución de módulo queda determinista por ruta para las dos rutas de módulo. Cambio confinado a presentación, sin tocar arquitectura de datos",
+      "timestamp": "2026-08-16T03:43:00.000Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "El usuario espera que las pantallas de presentación de Inventario y Delivery muestren su color asignado; la ruta ganando sobre el selector manual hace predecible el color en esos módulos",
+      "timestamp": "2026-08-16T03:43:05.000Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "El override CSS de --atmosphere-accent/--atmosphere-glow dentro de [data-module='inventory'|'logistics'] re-tiñe paywalls, admins y paneles sin tocar componentes; AppLayout cambia una línea. Sin regresiones: el chrome compartido ya es module-aware",
+      "timestamp": "2026-08-16T03:43:10.000Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Cero impacto en runtime/bundle: son dos declaraciones CSS y una expresión de resolución de módulo",
+      "timestamp": "2026-08-16T03:43:15.000Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Sin secretos, sin cambios de datos ni de red. Contraste verde/rojo suave sobre slate mantiene legibilidad light/dark",
+      "timestamp": "2026-08-16T03:43:20.000Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Se verifican lint, build, test:unit y e2e Playwright antes de cerrar; el cambio de resolución de módulo no debe romper navegación ni acentos existentes",
+      "timestamp": "2026-08-16T03:43:25.000Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Deploy Vercel prod tras gates y push; sin schema ni secretos. Se conserva el protocolo Subaru con checkpoint previo",
+      "timestamp": "2026-08-16T03:43:30.000Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Se registrará en memoria la conexión del sistema module-accent con las pantallas de Inventario/Delivery y la regla ruta-gana para rutas de módulo",
+      "timestamp": "2026-08-16T03:43:35.000Z"
+    }
+  ],
+  "createdAt": "2026-08-16T03:42:53.000Z",
+  "classifiedAt": "2026-08-16T03:42:53.000Z",
+  "approvedAt": "2026-08-16T03:43:35.000Z",
+  "startedAt": "2026-08-16T03:43:10.248Z"
+}
