@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `6e1abc2`.
+> Fuente de verdad: este repositorio en `b45ad56`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `6e1abc2` |
+| **Commit HEAD** | `b45ad56` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T12:38:19-06:00 |
+| **Generado** | 2026-08-17T13:31:47-06:00 |
 
 ---
 
@@ -776,6 +776,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b45ad56 feat: add real-time WhatsApp debug panel + stale socket guard
+d2a0162 fix: guard stale socket events to prevent session destruction race condition
+e62e77d docs: regenerate MASTER.md at 6e1abc2
 6e1abc2 fix: reconnect now does full logout+fresh connect to clear corrupted auth state
 6129de9 docs: regenerate MASTER.md at 323b96a
 323b96a fix: recover whatsapp connection when bridge is connected but DB has no record
@@ -793,9 +796,6 @@ e4aa2e9 subaru: checkpoint 5 - en-progreso
 e0db83e subaru: checkpoint 5 - en-progreso
 89e49e2 docs: regenerate MASTER.md at cb615fd
 cb615fd subaru: checkpoint 5 - listo
-f94203e docs: regenerate MASTER.md at 32005cf
-32005cf fix: laboratorio layout - tarjeta de escenarios cortada y encogida
-8ecb59f docs: regenerate MASTER.md at df18120
 ```
 
 ---
