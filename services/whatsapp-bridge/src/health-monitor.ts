@@ -96,6 +96,16 @@ export class HealthMonitor {
       return
     }
 
+    const sendFailures = health.consecutiveSendFailures ?? 0
+    if (sendFailures >= 3) {
+      console.warn(
+        `[health-monitor] ${health.businessId}: ` +
+          `${sendFailures} consecutive send failures. Restarting session.`
+      )
+      await this.manager.restart(health.businessId)
+      return
+    }
+
     // The socket claims to be connected but never produced a usable identity.
     if (!health.hasIdentity) {
       console.warn(

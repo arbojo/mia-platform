@@ -97,6 +97,21 @@ export async function POST(request: Request) {
       )
     }
 
+    const admin = createAdminClient()
+
+    const { data: existingConnection } = await admin
+      .from('channel_connections')
+      .select('id')
+      .eq('business_id', body.businessId)
+      .eq('channel', 'whatsapp')
+      .maybeSingle()
+
+    if (existingConnection) {
+      await logoutBridgeSession(body.businessId).catch(() => {})
+      await admin.from('whatsapp_sessions').delete().eq('business_id', body.businessId)
+      await admin.from('channel_connections').delete().eq('id', existingConnection.id)
+    }
+
     const connection = await findOrCreateConnection(body.businessId, body.assistantId)
     if (!connection) {
       return NextResponse.json({ error: 'Failed to create connection' }, { status: 500 })
@@ -216,14 +231,14 @@ export async function DELETE(request: Request) {
       .delete()
       .eq('business_id', body.businessId)
 
-    const { error: updateError } = await admin
+    const { error: deleteConnError } = await admin
       .from('channel_connections')
-      .update({ status: 'disconnected', updated_at: new Date().toISOString() })
+      .delete()
       .eq('business_id', body.businessId)
       .eq('channel', 'whatsapp')
 
-    if (deleteError || updateError) {
-      console.error('Baileys session cleanup error:', { deleteError, updateError })
+    if (deleteError || deleteConnError) {
+      console.error('Baileys session cleanup error:', { deleteError, deleteConnError })
       return NextResponse.json({ error: 'Failed to clean up session' }, { status: 500 })
     }
 

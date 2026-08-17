@@ -68,6 +68,7 @@ export interface SessionHealth {
   zombieSignalCount: number
   hasIdentity: boolean
   reconnectAttempt: number
+  consecutiveSendFailures: number
 }
 
 interface ActiveSession {
@@ -83,6 +84,7 @@ interface ActiveSession {
   hasIdentity: boolean
   reconnectAttempt: number
   reconnectTimer: ReturnType<typeof setTimeout> | null
+  consecutiveSendFailures: number
 }
 
 const PROTOCOL_TIMEOUT_PATTERNS = [
@@ -218,6 +220,7 @@ export class SessionManager {
       hasIdentity: false,
       reconnectAttempt: 0,
       reconnectTimer: null,
+      consecutiveSendFailures: 0,
     }
     this.sessions.set(businessId, session)
 
@@ -305,6 +308,7 @@ export class SessionManager {
       zombieSignalCount: session.zombieSignalCount,
       hasIdentity: session.hasIdentity,
       reconnectAttempt: session.reconnectAttempt,
+      consecutiveSendFailures: session.consecutiveSendFailures,
     }
   }
 
@@ -596,17 +600,31 @@ export class SessionManager {
         if (miaReply?.deliver === false) continue
 
         if (miaReply?.response && session.socket.user?.id) {
-          if (miaReply.interactive) {
-            await sendInteractive(
-              session.socket,
-              remoteJid,
-              miaReply.response,
-              miaReply.interactive
+          try {
+            if (miaReply.interactive) {
+              await sendInteractive(
+                session.socket,
+                remoteJid,
+                miaReply.response,
+                miaReply.interactive
+              )
+            } else {
+              await sendReply(session.socket, remoteJid, miaReply.response, miaReply.imageUrl)
+            }
+            session.consecutiveSendFailures = 0
+          } catch (sendErr) {
+            session.consecutiveSendFailures += 1
+            logger.error(
+              { err: sendErr, businessId: session.businessId, jid: remoteJid },
+              `send failed (${session.consecutiveSendFailures} consecutive)`
             )
-          } else {
-            // Imagen de producto si aplica (con fallback defensivo a texto si
-            // la descarga de la imagen falla o la URL no es segura).
-            await sendReply(session.socket, remoteJid, miaReply.response, miaReply.imageUrl)
+            if (session.consecutiveSendFailures >= 3) {
+              console.warn(
+                `[session-manager] ${session.businessId}: ${session.consecutiveSendFailures} consecutive send failures, restarting`
+              )
+              void this.restart(session.businessId)
+              return
+            }
           }
         }
 
