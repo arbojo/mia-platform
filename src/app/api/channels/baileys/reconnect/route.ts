@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { reconnectBridgeSession, isWhatsAppBridgeEnabled, BridgeClientError } from '@/lib/baileys/bridge'
+import {
+  logoutBridgeSession,
+  startBridgeSession,
+  isWhatsAppBridgeEnabled,
+  BridgeClientError,
+} from '@/lib/baileys/bridge'
 
 async function assertOwnership(userId: string, businessId: string) {
   const supabase = createAdminClient()
@@ -41,9 +46,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const status = await reconnectBridgeSession(body.businessId)
+    await logoutBridgeSession(body.businessId).catch(() => {})
 
     const admin = createAdminClient()
+    await admin.from('whatsapp_sessions').delete().eq('business_id', body.businessId)
+
+    const status = await startBridgeSession(body.businessId)
+
     const { data: existing } = await admin
       .from('channel_connections')
       .select('id')

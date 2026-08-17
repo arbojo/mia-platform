@@ -186,6 +186,7 @@ export class SessionManager {
       }
       this.sessions.delete(businessId)
     }
+    this.connecting.delete(businessId)
     await this.connect(businessId)
   }
 
