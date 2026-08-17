@@ -98,6 +98,8 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   const [waError, setWaError] = useState<string | null>(null)
   const [waRefreshing, setWaRefreshing] = useState(false)
   const [waAssistantId, setWaAssistantId] = useState('')
+  const [waDebugLogs, setWaDebugLogs] = useState<string[]>([])
+  const [waDebugOpen, setWaDebugOpen] = useState(false)
   const wsRef = useRef<WebSocket | null>(null)
   const waTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const waStatusRef = useRef<WaStatus>('idle')
@@ -105,6 +107,11 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   useEffect(() => {
     waStatusRef.current = waStatus
   }, [waStatus])
+
+  const addDebugLog = useCallback((msg: string) => {
+    const ts = new Date().toLocaleTimeString('es-AR', { hour12: false })
+    setWaDebugLogs((prev) => [...prev.slice(-50), `${ts} ${msg}`])
+  }, [])
 
   const channels = [
     { id: 'web' as ChannelType, label: 'Chat Web', emoji: '\u{1F310}' },
@@ -294,9 +301,13 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     setWaStatus('connecting')
     setWaQr(null)
     setWaError(null)
+    setWaDebugLogs([])
     closeWs()
+    addDebugLog('=== RECONNECT START ===')
+    addDebugLog(`BusinessId: ${businessId}`)
 
     try {
+      addDebugLog('POST /api/channels/baileys/reconnect...')
       const res = await fetchWithTimeout('/api/channels/baileys/reconnect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -305,12 +316,17 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
 
       if (!res.ok) {
         const err = (await res.json().catch(() => null)) as { error?: string } | null
+        addDebugLog(`Reconnect POST failed: ${res.status} ${err?.error ?? ''}`)
         throw new Error(err?.error ?? 'No se pudo reconectar WhatsApp')
       }
+
+      const body = await res.json() as { status?: string; phone?: string }
+      addDebugLog(`Reconnect POST OK: status=${body.status} phone=${body.phone ?? 'n/a'}`)
 
       await openWaSocket()
     } catch (error) {
       clearWaTimeout()
+      addDebugLog(`ERROR: ${error instanceof Error ? error.message : String(error)}`)
       setWaError(error instanceof Error ? error.message : 'Error desconocido')
       setWaStatus('error')
     }
@@ -319,20 +335,32 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   async function openWaSocket() {
     if (!businessId) return
 
+    addDebugLog('Requesting WS token...')
     const tokenRes = await fetchWithTimeout(
       `/api/channels/baileys/ws-token?businessId=${businessId}`
     )
     if (!tokenRes.ok) {
+      addDebugLog(`WS token failed: ${tokenRes.status}`)
       throw new Error('No se pudo obtener el token de conexión')
     }
     const tokenData = (await tokenRes.json()) as { token: string; wsUrl: string }
+    addDebugLog(`WS token OK. URL: ${tokenData.wsUrl}`)
 
     closeWs()
-    const ws = new WebSocket(`${tokenData.wsUrl}?businessId=${businessId}&token=${tokenData.token}`)
+    const wsUrl = `${tokenData.wsUrl}?businessId=${businessId}&token=${tokenData.token}`
+    addDebugLog(`Opening WS: ${wsUrl.slice(0, 80)}...`)
+    const ws = new WebSocket(wsUrl)
     wsRef.current = ws
     armWaTimeout()
+    addDebugLog('Timeout armed: 60s')
+
+    ws.onopen = () => {
+      addDebugLog('WS connected to bridge')
+    }
 
     ws.onmessage = (event) => {
+      const raw = typeof event.data === 'string' ? event.data : String(event.data)
+      addDebugLog(`WS ← ${raw.slice(0, 300)}`)
       const msg = JSON.parse(event.data) as {
         type: 'qr' | 'status' | 'error'
         qr?: string
@@ -346,40 +374,48 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         setWaQr(msg.dataUrl ?? msg.qr ?? null)
         setWaStatus('generating')
         armWaTimeout()
+        addDebugLog('QR received, timeout reset')
       } else if (msg.type === 'status') {
         if (msg.status === 'connected') {
           clearWaTimeout()
           setWaStatus('connected')
           setWaPhone(msg.phone ?? null)
           setWaQr(null)
+          addDebugLog(`CONNECTED! phone=${msg.phone ?? 'n/a'}`)
           void reconcileBridgeStatus()
         } else if (msg.status === 'connecting') {
           setWaStatus('connecting')
+          addDebugLog('Status: connecting')
         } else if (msg.status === 'disconnected') {
           clearWaTimeout()
           setWaStatus('idle')
           setWaQr(null)
+          addDebugLog('Status: disconnected')
         } else if (msg.status === 'error') {
           clearWaTimeout()
           setWaStatus('error')
+          addDebugLog('Status: error from bridge')
         }
       } else if (msg.type === 'error') {
         clearWaTimeout()
         setWaError(msg.message ?? 'Error de conexión')
         setWaStatus('error')
+        addDebugLog(`Error event: ${msg.message}`)
       }
     }
 
     ws.onerror = () => {
       if (wsRef.current !== ws) return
       clearWaTimeout()
+      addDebugLog('WS error event')
       setWaError('No se pudo conectar con el servicio de WhatsApp')
       setWaStatus('error')
     }
 
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       if (wsRef.current !== ws) return
       clearWaTimeout()
+      addDebugLog(`WS closed: code=${ev.code} reason=${ev.reason || 'n/a'}`)
       if (waStatusRef.current !== 'connected' && waStatusRef.current !== 'idle') {
         setWaError('Se perdió la conexión con el servicio de WhatsApp')
         setWaStatus('error')
@@ -671,6 +707,35 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                 }}
               >
                 {waError ?? 'Error al conectar WhatsApp'}
+              </div>
+            )}
+
+            {waDebugLogs.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setWaDebugOpen(!waDebugOpen)}
+                  className="text-xs font-mono cursor-pointer select-none"
+                  style={{ color: 'var(--atmosphere-text-secondary)' }}
+                >
+                  {waDebugOpen ? '▼' : '▶'} Debug log ({waDebugLogs.length} eventos)
+                </button>
+                {waDebugOpen && (
+                  <div
+                    className="mt-2 rounded-lg border p-3 text-xs font-mono overflow-auto max-h-64 space-y-0.5"
+                    style={{
+                      borderColor: 'var(--atmosphere-border)',
+                      backgroundColor: 'rgba(0,0,0,0.4)',
+                      color: 'var(--atmosphere-text-secondary)',
+                    }}
+                  >
+                    {waDebugLogs.map((log, i) => (
+                      <div key={i} style={{ color: log.includes('CONNECTED') ? 'var(--mia-green)' : log.includes('ERROR') || log.includes('failed') ? 'var(--mia-red)' : log.includes('QR') ? 'var(--mia-gold)' : undefined }}>
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
