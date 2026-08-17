@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `04bf7c9`.
+> Fuente de verdad: este repositorio en `323b96a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `04bf7c9` |
+| **Commit HEAD** | `323b96a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T11:11:17-06:00 |
+| **Generado** | 2026-08-17T11:24:49-06:00 |
 
 ---
 
@@ -776,6 +776,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+323b96a fix: recover whatsapp connection when bridge is connected but DB has no record
+294724a docs: regenerate MASTER.md at 04bf7c9
 04bf7c9 fix: whatsapp baileys send failure detection + session cleanup
 8a532b5 docs: regenerate MASTER.md at 9f14f92
 9f14f92 chore: governance completion artifacts - glass loader task
@@ -794,8 +796,6 @@ f94203e docs: regenerate MASTER.md at 32005cf
 8ecb59f docs: regenerate MASTER.md at df18120
 df18120 chore: governance completion artifacts - elastic pop task
 59a81ce subaru: checkpoint 4 - completado
-bcda86f feat: efecto scale & elastic pop en modales y confirmaciones de guardado
-65041c6 subaru: checkpoint 4 - en-progreso
 ```
 
 ---
