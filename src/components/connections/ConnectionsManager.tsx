@@ -193,6 +193,13 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
     }
   }, [closeWs, clearWaTimeout])
 
+  useEffect(() => {
+    if (waStatus === 'error' || waStatus === 'idle') {
+      void refreshConnections()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waStatus])
+
   async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), WA_FETCH_TIMEOUT_MS)
