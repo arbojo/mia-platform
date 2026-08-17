@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1275bb9`.
+> Fuente de verdad: este repositorio en `4087537`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1275bb9` |
+| **Commit HEAD** | `4087537` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T16:08:50-06:00 |
+| **Generado** | 2026-08-17T16:36:03-06:00 |
 
 ---
 
@@ -783,6 +783,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+4087537 fix: refresh connections on waStatus error/idle so clean button stays visible
+ece0222 docs: regenerate MASTER.md at 1275bb9
 1275bb9 feat: sales closing blindaje + WhatsApp sanitization + settings
 183dd5b docs: regenerate MASTER.md at b45ad56
 b45ad56 feat: add real-time WhatsApp debug panel + stale socket guard
@@ -801,8 +803,6 @@ e506f23 subaru: checkpoint 5 - completado
 05c287b subaru: checkpoint 5 - en-progreso
 e4aa2e9 subaru: checkpoint 5 - en-progreso
 3c9cb10 subaru: checkpoint 5 - en-progreso
-16ed4ec subaru: checkpoint 5 - en-progreso
-e0db83e subaru: checkpoint 5 - en-progreso
 ```
 
 ---
