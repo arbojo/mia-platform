@@ -175,17 +175,37 @@ export async function GET(request: Request) {
     const admin = createAdminClient()
     const { data: connection } = await admin
       .from('channel_connections')
-      .select('status')
+      .select('id, status')
       .eq('business_id', businessId)
       .eq('channel', 'whatsapp')
       .maybeSingle()
 
-    if (connection && connection.status !== status.status) {
-      await admin
-        .from('channel_connections')
-        .update({ status: status.status, updated_at: new Date().toISOString() })
+    if (connection) {
+      if (connection.status !== status.status) {
+        await admin
+          .from('channel_connections')
+          .update({ status: status.status, updated_at: new Date().toISOString() })
+          .eq('id', connection.id)
+      }
+    } else if (status.status === 'connected' || status.status === 'connecting') {
+      const { data: assistant } = await admin
+        .from('assistants')
+        .select('id')
         .eq('business_id', businessId)
-        .eq('channel', 'whatsapp')
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle()
+
+      if (assistant) {
+        await admin.from('channel_connections').insert({
+          business_id: businessId,
+          assistant_id: assistant.id,
+          channel: 'whatsapp',
+          status: status.status,
+          credentials: { transport: 'baileys' },
+          configuration: {},
+        })
+      }
     }
 
     return NextResponse.json({ success: true, ...status, bridgeEnabled: true })

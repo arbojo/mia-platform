@@ -44,11 +44,38 @@ export async function POST(request: Request) {
     const status = await reconnectBridgeSession(body.businessId)
 
     const admin = createAdminClient()
-    await admin
+    const { data: existing } = await admin
       .from('channel_connections')
-      .update({ status: status.status, updated_at: new Date().toISOString() })
+      .select('id')
       .eq('business_id', body.businessId)
       .eq('channel', 'whatsapp')
+      .maybeSingle()
+
+    if (existing) {
+      await admin
+        .from('channel_connections')
+        .update({ status: status.status, updated_at: new Date().toISOString() })
+        .eq('id', existing.id)
+    } else {
+      const { data: assistant } = await admin
+        .from('assistants')
+        .select('id')
+        .eq('business_id', body.businessId)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle()
+
+      if (assistant) {
+        await admin.from('channel_connections').insert({
+          business_id: body.businessId,
+          assistant_id: assistant.id,
+          channel: 'whatsapp',
+          status: status.status,
+          credentials: { transport: 'baileys' },
+          configuration: {},
+        })
+      }
+    }
 
     return NextResponse.json({ success: true, status: status.status, phone: status.phone })
   } catch (error) {
