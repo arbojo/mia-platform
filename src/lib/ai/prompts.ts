@@ -52,6 +52,13 @@ interface RecentLesson {
 
 type PromptDict = ReturnType<typeof getDictionary>['ai']
 
+export interface SalesPromptConfig {
+  ask_address: boolean
+  ask_phone: boolean
+  allow_cancellation: boolean
+  cancellation_window_hours: number
+}
+
 function buildClosingPolicy(aggressiveness: number, ai: PromptDict): string {
   if (aggressiveness > 70) return ai.closingProactive
   if (aggressiveness < 30) return ai.closingConsultative
@@ -191,6 +198,7 @@ export function buildMasterPrompt(params: {
   locale?: Locale
   channel?: ChannelType | 'simulation'
   intentTag?: string | null
+  salesConfig?: SalesPromptConfig
   landingContext?: {
     brand?: string
     product?: string
@@ -211,6 +219,7 @@ export function buildMasterPrompt(params: {
     locale,
     channel,
     intentTag,
+    salesConfig,
     landingContext,
   } = params
 
@@ -299,6 +308,13 @@ ${buildClosingPolicy(personality.sales_aggressiveness, ai)}
 ${ai.deliveryPromiseRule}
 
 ${ai.rejectionPivotRule}
+
+## ${ai.salesClosingControl}
+${ai.closingMaxAttempts}
+${ai.closingDeclineStop}
+${ai.closingTopicShift}
+${salesConfig ? `${salesConfig.ask_address ? ai.salesAskAddress : ''}${salesConfig.ask_phone ? ai.salesAskPhone : ''}` : ''}
+${salesConfig?.allow_cancellation ? ai.salesCancellationAllowed.replace('{hours}', String(salesConfig.cancellation_window_hours)) : ai.salesCancellationDenied}
 
 ## ${ai.businessInfo}
 ${brand?.elevator_pitch ?? ai.noBusinessInfo}

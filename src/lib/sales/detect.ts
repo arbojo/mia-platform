@@ -3,20 +3,21 @@ import { trackAiUsage } from '@/lib/ai/cost'
 import type { DetectedSaleEvent } from './events'
 
 export interface SaleDetectionResult {
-  outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | null
+  outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | null
   events: DetectedSaleEvent[]
   customerName?: string | null
   phone?: string | null
   city?: string | null
   address?: string | null
   products?: Array<{ name: string; amount?: number | null }> | null
+  cancellationReason?: string | null
 }
 
 const DETECTION_SYSTEM_PROMPT = `Eres un analizador de conversaciones de venta. Analiza el diálogo entre un vendedor y un cliente y determina el estado de la venta.
 
 Devuelve SOLO un JSON con esta forma:
 {
-  "outcome": "pending" | "interested" | "not_interested" | "sold",
+  "outcome": "pending" | "interested" | "not_interested" | "sold" | "cancelled",
   "events": [
     {
       "type": "SALE_STARTED" | "PRODUCT_SELECTED" | "OBJECTION_DETECTED" | "OBJECTION_RESOLVED" | "UPSELL_ACCEPTED" | "CROSSSELL_ACCEPTED" | "FOLLOWUP_REQUIRED" | "SALE_WON" | "SALE_LOST" | "CUSTOMER_HESITATION" | "PRICE_ACCEPTED" | "PRICE_REJECTED",
@@ -30,11 +31,13 @@ Devuelve SOLO un JSON con esta forma:
   "address": "dirección de envío si la proporcionó o null",
   "products": [
     {"name": "nombre del producto", "amount": 123.45 o null}
-  ]
+  ],
+  "cancellationReason": "motivo de cancelación si aplica o null"
 }
 
 Reglas:
 - outcome "sold" SOLO si el cliente confirmó explícitamente la compra (ej. "sí quiero", "lo llevo", "confirmo el pedido").
+- outcome "cancelled" SOLO si el cliente quiere cancelar una compra previa (ej. "quiero cancelar", "me arrepentí", "devuélveme"). Solo clasificar como cancelled si hay evidencia clara de una compra anterior en la conversación.
 - outcome "not_interested" si el cliente rechazó o descartó la compra.
 - outcome "interested" si el cliente mostró interés pero aún no confirmó.
 - Emite SALE_WON si hay confirmación de compra; SALE_LOST si hay rechazo.
@@ -99,7 +102,7 @@ export async function detectSaleOutcome(params: {
 
   try {
     const parsed = JSON.parse(jsonMatch[0]) as Partial<SaleDetectionResult>
-    const validOutcomes = ['pending', 'interested', 'not_interested', 'sold'] as const
+    const validOutcomes = ['pending', 'interested', 'not_interested', 'sold', 'cancelled'] as const
     const outcome = validOutcomes.includes(parsed.outcome as (typeof validOutcomes)[number])
       ? (parsed.outcome as SaleDetectionResult['outcome'])
       : null
@@ -166,5 +169,88 @@ export async function detectSaleOutcome(params: {
     }
   } catch {
     return { outcome: null, events: [] }
+  }
+}
+
+const CANCELLATION_KEYWORDS = [
+  'cancelar', 'cancela', 'anular', 'anula', 'devolver', 'devuelvo',
+  'no quiero', 'ya no quiero', 'me arrepentí', 'me arrepenti',
+  'dame de baja', 'baja', 'reembolso', 'revertir', 'deshacer',
+  'cambié de opinión', 'cambie de opinion', 'no lo quiero más',
+  'quiero cancelar', 'necesito cancelar', 'puedo cancelar',
+  'olvídalo', 'olvidalo', 'no sigas',
+]
+
+export function hasCancellationTrigger(lastUserMessage: string): boolean {
+  const normalized = lastUserMessage
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+  return CANCELLATION_KEYWORDS.some((kw) => {
+    const kn = kw.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return normalized.includes(kn)
+  })
+}
+
+const CANCELLATION_SYSTEM_PROMPT = `Eres un analizador de intenciones de cancelación de compra.
+Analiza la conversación y determina si el cliente confirma que quiere cancelar un pedido reciente.
+
+Devuelve SOLO un JSON con esta forma:
+{
+  "confirmed": true | false,
+  "reason": "motivo si lo menciona o null"
+}
+
+Reglas:
+- confirmed=true SOLO si el cliente CONFIRMA explícitamente que quiere cancelar (ej. "sí, quiero cancelar", "cancela, ya no lo quiero").
+- confirmed=false si el cliente solo PREGUNTA si puede cancelar, o si el contexto no es claro.
+- NO confundas "no quiero" genérico (de otro producto o tema) con cancelación de una compra previa.
+- El cliente debe haber hecho una compra anterior en la misma conversación para que sea cancellation.`
+
+export async function detectCancellation(params: {
+  businessId: string
+  assistantId: string
+  messages: Array<{ role: string; content: string }>
+}): Promise<{ confirmed: boolean; reason: string | null }> {
+  const { businessId, assistantId, messages } = params
+
+  const transcript = messages
+    .slice(-8)
+    .map((m) => `${m.role === 'user' ? 'Cliente' : 'Vendedor'}: ${m.content}`)
+    .join('\n')
+
+  try {
+    const completion = await getOpenAIClient().chat.completions.create({
+      model: MODEL,
+      messages: [
+        { role: 'system', content: CANCELLATION_SYSTEM_PROMPT },
+        { role: 'user', content: transcript },
+      ],
+      max_tokens: 150,
+      temperature: 0,
+    })
+
+    const promptTokens = completion.usage?.prompt_tokens ?? 0
+    const completionTokens = completion.usage?.completion_tokens ?? 0
+
+    await trackAiUsage({
+      business_id: businessId,
+      assistant_id: assistantId,
+      promptTokens,
+      completionTokens,
+      request_type: 'live_customer',
+    })
+
+    const raw = completion.choices[0]?.message?.content ?? ''
+    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return { confirmed: false, reason: null }
+
+    const parsed = JSON.parse(jsonMatch[0]) as { confirmed?: boolean; reason?: string | null }
+    return {
+      confirmed: typeof parsed.confirmed === 'boolean' ? parsed.confirmed : false,
+      reason: typeof parsed.reason === 'string' ? parsed.reason : null,
+    }
+  } catch {
+    return { confirmed: false, reason: null }
   }
 }

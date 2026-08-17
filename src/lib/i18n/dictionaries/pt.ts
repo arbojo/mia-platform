@@ -31,6 +31,8 @@ export const pt: Dict = {
     inventory: 'Inventário',
     inventoryQuestion: 'estoque e reposição',
     settings: 'Configurações',
+    salesSettings: 'Configurações de Vendas',
+    salesSettingsQuestion: 'como MIA confirma pedidos e cancelamentos',
     adjustments: 'Ajustes',
     connections: 'Conexões',
     connectionsTitle: 'canais e integrações',
@@ -102,6 +104,24 @@ export const pt: Dict = {
     weekSales: 'Vendas desta semana',
     conversion: 'Conversão',
     topProducts: 'Produtos mais vendidos',
+  },
+  settings: {
+    title: 'Configurações de Vendas',
+    subtitle: 'Gerencie como MIA confirma pedidos e lida com cancelamentos',
+    orderSection: 'Pedido',
+    askAddress: 'Perguntar endereço de entrega',
+    askPhone: 'Perguntar telefone de contato',
+    confirmationSection: 'Confirmação',
+    confirmationMessage: 'Mensagem de confirmação',
+    cancellationSection: 'Cancelamento',
+    allowCancellation: 'Permitir cancelamento pelo chat',
+    cancellationWindow: 'Janela de cancelamento (horas)',
+    cancellationMessage: 'Mensagem de cancelamento',
+    variables: 'Variáveis disponíveis',
+    preview: 'Visualização',
+    save: 'Salvar configurações',
+    saved: 'Configurações salvas',
+    error: 'Erro ao salvar configurações',
   },
   signals: {
     calm: 'A MIA está tranquila',
@@ -322,6 +342,21 @@ export const pt: Dict = {
       '- Se o cliente recusar informalmente ("não", "não, obrigado", "melhor não", "agora não", "já ia saindo") ou desviar a conversa para outro assunto, aceite com naturalidade, responda ao que ele pediu e NÃO repita a pergunta de confirmação nem o gancho de fechamento.\n' +
       '- Uma recusa clara encerra a tentativa de fechamento: não insista, não pergunte a mesma coisa de novo e não pressione. Continue disponível e siga a conversa.\n' +
       '- Se o cliente apenas mudar de assunto sem recusar, responda à nova pergunta com naturalidade; você pode retomar o fechamento mais adiante, uma única vez, sem repetir o mesmo texto.',
+    salesClosingControl: 'Controle de Fechamento',
+    closingMaxAttempts:
+      'Máximo 1 tentativa de fechamento por conversa. Se foi recusado, NÃO tente novamente.',
+    closingDeclineStop:
+      'Se o cliente diz "não", "não obrigado", "não quero", "mais não", "melhor não" ou qualquer variação de recusa, PARE imediatamente. NÃO volte ao assunto de compra.',
+    closingTopicShift:
+      'Se o cliente mudar de assunto (pergunta outra coisa), responda a pergunta e NÃO volte ao assunto de compra, a menos que o cliente traga o assunto primeiro.',
+    salesAskAddress:
+      '- Peça o endereço de entrega ao confirmar o pedido. Formato: "Rua e número, Bairro, Cidade, Estado". Não invente endereços.',
+    salesAskPhone:
+      '- Peça o número de telefone ao confirmar o pedido. Apenas dígitos e +. Não invente números.',
+    salesCancellationAllowed:
+      'O cliente pode cancelar pedidos dentro de {hours} horas após a compra. Se solicitar cancelamento dentro da janela, confirme uma vez. Se estiver fora da janela, indique que escalará para suporte humano.',
+    salesCancellationDenied:
+      'Cancelamentos não estão disponíveis pelo chat. Se o cliente solicitar cancelamento, indique que deve entrar em contato com o suporte ao cliente diretamente.',
   },
   tour: {
     dialogLabel: 'Tutorial',

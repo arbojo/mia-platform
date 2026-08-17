@@ -421,7 +421,7 @@ export interface Database {
           customer_id: string | null
           type: 'training' | 'live' | 'simulation'
           status: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
-          outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
+          outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | 'needs_follow_up' | null
           deal_value: number | null
           potential_value: number | null
           outcome_updated_at: string | null
@@ -429,6 +429,7 @@ export interface Database {
           assigned_to: string | null
           handover_reason: string | null
           media_sent_products: string[]
+          sales_cancelled_at: string | null
           created_at: string
         }
         Insert: {
@@ -437,7 +438,7 @@ export interface Database {
           customer_id?: string | null
           type: 'training' | 'live' | 'simulation'
           status?: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
-          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
+          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | 'needs_follow_up' | null
           deal_value?: number | null
           potential_value?: number | null
           outcome_updated_at?: string | null
@@ -445,6 +446,7 @@ export interface Database {
           assigned_to?: string | null
           handover_reason?: string | null
           media_sent_products?: string[]
+          sales_cancelled_at?: string | null
           created_at?: string
         }
         Update: {
@@ -453,7 +455,7 @@ export interface Database {
           customer_id?: string | null
           type?: 'training' | 'live' | 'simulation'
           status?: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
-          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
+          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | 'needs_follow_up' | null
           deal_value?: number | null
           potential_value?: number | null
           outcome_updated_at?: string | null
@@ -461,6 +463,7 @@ export interface Database {
           assigned_to?: string | null
           handover_reason?: string | null
           media_sent_products?: string[]
+          sales_cancelled_at?: string | null
           created_at?: string
         }
         Relationships: []
@@ -800,6 +803,8 @@ export interface Database {
             | 'CUSTOMER_HESITATION'
             | 'PRICE_ACCEPTED'
             | 'PRICE_REJECTED'
+            | 'SALE_CONFIRMED'
+            | 'SALE_CANCELLED'
           product_id: string | null
           amount: number | null
           metadata: Json
@@ -824,6 +829,8 @@ export interface Database {
             | 'CUSTOMER_HESITATION'
             | 'PRICE_ACCEPTED'
             | 'PRICE_REJECTED'
+            | 'SALE_CONFIRMED'
+            | 'SALE_CANCELLED'
           product_id?: string | null
           amount?: number | null
           metadata?: Json
@@ -848,12 +855,87 @@ export interface Database {
             | 'CUSTOMER_HESITATION'
             | 'PRICE_ACCEPTED'
             | 'PRICE_REJECTED'
+            | 'SALE_CONFIRMED'
+            | 'SALE_CANCELLED'
           product_id?: string | null
           amount?: number | null
           metadata?: Json
           created_at?: string
         }
         Relationships: []
+      }
+      business_sales_config: {
+        Row: {
+          business_id: string
+          confirmation_message: string
+          cancellation_message: string
+          ask_address: boolean
+          ask_phone: boolean
+          allow_cancellation: boolean
+          cancellation_window_hours: number
+          follow_up_hours: number
+          timezone: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          confirmation_message?: string
+          cancellation_message?: string
+          ask_address?: boolean
+          ask_phone?: boolean
+          allow_cancellation?: boolean
+          cancellation_window_hours?: number
+          follow_up_hours?: number
+          timezone?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          confirmation_message?: string
+          cancellation_message?: string
+          ask_address?: boolean
+          ask_phone?: boolean
+          allow_cancellation?: boolean
+          cancellation_window_hours?: number
+          follow_up_hours?: number
+          timezone?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'business_sales_config_business_id_fkey'
+            columns: ['business_id']
+            isOneToOne: true
+            referencedRelation: 'businesses'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      sales_order_counters: {
+        Row: {
+          business_id: string
+          last_number: number
+        }
+        Insert: {
+          business_id: string
+          last_number?: number
+        }
+        Update: {
+          business_id?: string
+          last_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'sales_order_counters_business_id_fkey'
+            columns: ['business_id']
+            isOneToOne: true
+            referencedRelation: 'businesses'
+            referencedColumns: ['id']
+          }
+        ]
       }
       channel_messages: {
         Row: {

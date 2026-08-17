@@ -31,6 +31,8 @@ export const en: Dict = {
     inventory: 'Inventory',
     inventoryQuestion: 'stock and restocking',
     settings: 'Settings',
+    salesSettings: 'Sales Settings',
+    salesSettingsQuestion: 'how MIA confirms orders and cancellations',
     adjustments: 'Adjustments',
     connections: 'Connections',
     connectionsTitle: 'channels and integrations',
@@ -102,6 +104,24 @@ export const en: Dict = {
     weekSales: 'Sales this week',
     conversion: 'Conversion',
     topProducts: 'Best-selling products',
+  },
+  settings: {
+    title: 'Sales Settings',
+    subtitle: 'Manage how MIA confirms orders and handles cancellations',
+    orderSection: 'Order',
+    askAddress: 'Ask for shipping address',
+    askPhone: 'Ask for phone number',
+    confirmationSection: 'Confirmation',
+    confirmationMessage: 'Confirmation message',
+    cancellationSection: 'Cancellation',
+    allowCancellation: 'Allow cancellation from chat',
+    cancellationWindow: 'Cancellation window (hours)',
+    cancellationMessage: 'Cancellation message',
+    variables: 'Available variables',
+    preview: 'Preview',
+    save: 'Save settings',
+    saved: 'Settings saved',
+    error: 'Error saving settings',
   },
   signals: {
     calm: 'MIA is calm',
@@ -322,6 +342,21 @@ export const en: Dict = {
       '- If the customer declines informally ("no", "no thanks", "better not", "not now", "I was leaving") or diverts the conversation to another topic, accept it naturally, address what they asked, and do NOT repeat the confirmation question or the closing hook.\n' +
       '- A clear decline ends the closing attempt: do not insist, do not re-ask the same thing, and do not pressure. Stay available and follow the conversation.\n' +
       '- If the customer only changes subject without declining, answer their new question naturally; you may return to the close later, once, without repeating the same wording.',
+    salesClosingControl: 'Closing Control',
+    closingMaxAttempts:
+      'Maximum 1 closing attempt per conversation. If declined, do NOT retry.',
+    closingDeclineStop:
+      'If the customer says "no", "no thanks", "I don\'t want it", "not anymore", "better not" or any decline variation, STOP immediately. Do NOT return to the purchase topic.',
+    closingTopicShift:
+      'If the customer changes the subject (asks about something else), answer the question and do NOT return to the purchase topic unless the customer brings it up first.',
+    salesAskAddress:
+      '- Ask for the shipping address when confirming the order. Format: "Street and number, Neighborhood, City, State". Do not invent addresses.',
+    salesAskPhone:
+      '- Ask for the phone number when confirming the order. Digits and + only. Do not invent numbers.',
+    salesCancellationAllowed:
+      'The customer can cancel orders within {hours} hours of purchase. If they request cancellation within the window, confirm once. If outside the window, indicate you will escalate to human support.',
+    salesCancellationDenied:
+      'Cancellations are not available via chat. If the customer requests cancellation, indicate they should contact customer support directly.',
   },
   tour: {
     dialogLabel: 'Tutorial',

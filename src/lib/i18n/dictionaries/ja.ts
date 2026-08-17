@@ -31,6 +31,8 @@ export const ja: Dict = {
     inventory: '在庫',
     inventoryQuestion: '在庫と補充',
     settings: '設定',
+    salesSettings: '販売設定',
+    salesSettingsQuestion: 'MIAが注文とキャンセルをどう確認するか',
     adjustments: '調整',
     connections: '接続',
     connectionsTitle: 'チャネルと統合',
@@ -100,6 +102,24 @@ export const ja: Dict = {
     weekSales: '今週の売上',
     conversion: 'コンバージョン',
     topProducts: 'ベストセラー商品',
+  },
+  settings: {
+    title: '販売設定',
+    subtitle: 'MIAが注文を確認し、キャンセルを処理する方法を管理',
+    orderSection: '注文',
+    askAddress: '配送先住所を寻ねる',
+    askPhone: '電話番号を寻ねる',
+    confirmationSection: '確認',
+    confirmationMessage: '確認メッセージ',
+    cancellationSection: 'キャンセル',
+    allowCancellation: 'チャットからのキャンセルを許可',
+    cancellationWindow: 'キャンセル猶予時間（時間）',
+    cancellationMessage: 'キャンセルメッセージ',
+    variables: '利用可能な変数',
+    preview: 'プレビュー',
+    save: '設定を保存',
+    saved: '設定が保存されました',
+    error: '設定の保存中にエラーが発生しました',
   },
   signals: {
     calm: 'MIAは落ち着いています',
@@ -318,6 +338,21 @@ export const ja: Dict = {
       '- 顧客が「いえ」「結構です」「やめておきます」「今はやめておきます」「帰るところでした」などと軽く断ったり、別の話題に話をそらしたりした場合は、自然に受け止め、依頼されたことに答え、確認の質問やクロージングのフックを繰り返さないでください。\n' +
       '- 明確な拒否でクロージングの試みは終了です。押しつけず、同じことを繰り返し尋ねず、プレッシャーをかけないでください。引き続き対応し、会話を続けます。\n' +
       '- 顧客が断らずに話題を変えただけの場合は、その新しい質問に自然に答え、後で一度だけ、同じ文言を繰り返さずにクロージングに戻っても構いません。',
+    salesClosingControl: 'クロージング制御',
+    closingMaxAttempts:
+      '会話ごとにクロージングの試みは最大1回。断られた場合は再試行しないでください。',
+    closingDeclineStop:
+      '顧客が「いいえ」「結構です」「要りません」「もういいです」「やっぱりいい」など、拒否のバリエーションを示した場合は、即座にやめてください。購入の話題に戻らないでください。',
+    closingTopicShift:
+      '顧客が話題を変えた場合（別のことを聞いている場合）、その質問に答えて、顧客が先に購入の話題を持ち出さない限り、購入の話題に戻らないでください。',
+    salesAskAddress:
+      '- 注文確認時に配送先住所を尋ねる。形式：「通りと番地、地区、市区町村、都道府県」。住所を捏造しないでください。',
+    salesAskPhone:
+      '- 注文確認時に電話番号を尋ねる。数字と+のみ。番号を捏造しないでください。',
+    salesCancellationAllowed:
+      '顧客は購入から{hours}時間以内に注文をキャンセルできます。猶予时间内にキャンセルを依頼された場合は、1回だけ確認してください。猶予時間を過ぎている場合は、人間のサポートにエスカレートすると伝えしてください。',
+    salesCancellationDenied:
+      'チャットからのキャンセルは利用できません。顧客がキャンセルを依頼した場合は、カスタマーサポートに直接連絡するよう伝えてください。',
   },
   tour: {
     dialogLabel: 'チュートリアル',

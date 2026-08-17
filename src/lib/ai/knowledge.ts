@@ -29,7 +29,7 @@ export function authorityTag(entity: {
 export async function getBusinessContext(businessId: string) {
   const supabase = createAdminClient()
 
-  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult] =
+  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult, salesConfigResult] =
     await Promise.all([
       supabase
         .from('brand_identities')
@@ -64,6 +64,11 @@ export async function getBusinessContext(businessId: string) {
         .select('*')
         .eq('business_id', businessId)
         .eq('is_active', true),
+      supabase
+        .from('business_sales_config')
+        .select('*')
+        .eq('business_id', businessId)
+        .maybeSingle(),
     ])
 
   const knowledgeSourceOrder: Record<string, number> = {
@@ -99,6 +104,7 @@ export async function getBusinessContext(businessId: string) {
     instructions: instructionsResult.data ?? [],
     knowledge,
     memory,
+    salesConfig: salesConfigResult.data,
   }
 }
 
@@ -283,6 +289,67 @@ export async function getAssistantWithBusiness(assistantId: string) {
   if (error) throw error
 
   return assistant
+}
+
+export type SalesConfig = {
+  business_id: string
+  confirmation_message: string
+  cancellation_message: string
+  ask_address: boolean
+  ask_phone: boolean
+  allow_cancellation: boolean
+  cancellation_window_hours: number
+  follow_up_hours: number
+  timezone: string
+  created_at: string
+  updated_at: string
+}
+
+export const SALES_CONFIG_DEFAULTS: Omit<SalesConfig, 'business_id' | 'created_at' | 'updated_at'> = {
+  confirmation_message:
+    '¡Gracias por tu compra, {customer_name}! Tu pedido {order_id} está confirmado. Resumen: {productos}. Total: {total}.',
+  cancellation_message:
+    'Tu pedido {order_id} ha sido cancelado. Si realizaste un pago, nos pondremos en contacto contigo.',
+  ask_address: true,
+  ask_phone: true,
+  allow_cancellation: true,
+  cancellation_window_hours: 24,
+  follow_up_hours: 48,
+  timezone: 'America/Argentina/Buenos_Aires',
+}
+
+export async function getSalesConfig(businessId: string): Promise<SalesConfig> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('business_sales_config')
+    .select('*')
+    .eq('business_id', businessId)
+    .maybeSingle()
+
+  if (data) return data as SalesConfig
+
+  const now = new Date().toISOString()
+  return {
+    business_id: businessId,
+    ...SALES_CONFIG_DEFAULTS,
+    created_at: now,
+    updated_at: now,
+  }
+}
+
+export async function upsertSalesConfig(
+  businessId: string,
+  config: Partial<Omit<SalesConfig, 'business_id' | 'created_at' | 'updated_at'>>
+): Promise<SalesConfig> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('business_sales_config')
+    .upsert({ business_id: businessId, ...config }, { onConflict: 'business_id' })
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data as SalesConfig
 }
 
 export async function recordAiUsage(params: {

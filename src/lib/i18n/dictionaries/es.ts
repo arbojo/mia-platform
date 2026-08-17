@@ -29,6 +29,8 @@ export const es = {
     inventory: 'Inventario',
     inventoryQuestion: 'stock y reposición',
     settings: 'Configuración',
+    salesSettings: 'Configuración de Ventas',
+    salesSettingsQuestion: 'cómo MIA confirma pedidos y cancelaciones',
     adjustments: 'Ajustes',
     connections: 'Conexiones',
     connectionsTitle: 'canales e integraciones',
@@ -101,6 +103,24 @@ export const es = {
     weekSales: 'Ventas esta semana',
     conversion: 'Conversión',
     topProducts: 'Productos más vendidos',
+  },
+  settings: {
+    title: 'Configuración de Ventas',
+    subtitle: 'Administra cómo MIA confirma pedidos y maneja cancelaciones',
+    orderSection: 'Pedido',
+    askAddress: 'Preguntar dirección de envío',
+    askPhone: 'Preguntar teléfono de contacto',
+    confirmationSection: 'Confirmación',
+    confirmationMessage: 'Mensaje de confirmación',
+    cancellationSection: 'Cancelación',
+    allowCancellation: 'Permitir cancelación desde el chat',
+    cancellationWindow: 'Ventana de cancelación (horas)',
+    cancellationMessage: 'Mensaje de cancelación',
+    variables: 'Variables disponibles',
+    preview: 'Vista previa',
+    save: 'Guardar configuración',
+    saved: 'Configuración guardada',
+    error: 'Error al guardar la configuración',
   },
   signals: {
     calm: 'MIA está tranquila',
@@ -319,6 +339,21 @@ export const es = {
       '- Si el cliente rechaza de forma informal ("no", "no gracias", "mejor no", "ahora no", "ya me iba") o desvía la conversación a otro tema, acéptalo con naturalidad, responde a lo que pidió y NO repitas la pregunta de confirmación ni el gancho de cierre.\n' +
       '- Una negativa clara detiene el intento de cierre: no insistas, no vuelvas a preguntar lo mismo y no presiones. Quédate disponible y sigue la conversación.\n' +
       '- Si el cliente solo cambia de tema sin negarse, responde su nueva pregunta con naturalidad; puedes retomar el cierre más adelante, una sola vez, sin repetir el mismo texto.',
+    salesClosingControl: 'Control de Cierre',
+    closingMaxAttempts:
+      'Máximo 1 intento de cierre por conversación. Si fue rechazado, NO reintentes.',
+    closingDeclineStop:
+      'Si el cliente dice "no", "no gracias", "no quiero", "ya no", "mejor no" o cualquier variación de rechazo, DETENTE inmediatamente. NO vuelvas al tema de compra.',
+    closingTopicShift:
+      'Si el cliente se desvía del tema (pregunta otra cosa), responde la pregunta y NO vuelvas al tema de compra a menos que el cliente lo mencione primero.',
+    salesAskAddress:
+      '- Pide la dirección de envío al confirmar el pedido. Formato: "Calle y número, Colonia, Ciudad, Estado". No inventes direcciones.',
+    salesAskPhone:
+      '- Pide el número de teléfono al confirmar el pedido. Solo dígitos y +. No inventes números.',
+    salesCancellationAllowed:
+      'El cliente puede cancelar pedidos dentro de las {hours} horas posteriores a la compra. Si solicita cancelación dentro de la ventana, confirma una vez. Si está fuera de ventana, indica que escalarás a atención humana.',
+    salesCancellationDenied:
+      'Las cancelaciones no están habilitadas desde el chat. Si el cliente solicita cancelación, indica que debe contactar atención al cliente directamente.',
   },
   tour: {
     dialogLabel: 'Tutorial',

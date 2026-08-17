@@ -214,3 +214,54 @@ export async function getCustomerData(customerId: string): Promise<{
     ? { name: data.name, phone: data.phone, city: data.city, address: data.address }
     : null
 }
+
+export async function fetchOrderNumber(saleEventId: string): Promise<string> {
+  const supabase = createAdminClient()
+
+  try {
+    const { data } = await supabase
+      .schema('delivery')
+      .from('orders')
+      .select('order_number')
+      .eq('sales_event_id', saleEventId)
+      .single()
+    if (data?.order_number) return data.order_number
+  } catch {
+    // Delivery schema not available or no order — use fallback
+  }
+
+  return `VTA-${saleEventId.slice(0, 6).toUpperCase()}`
+}
+
+export async function emitSaleConfirmed(params: {
+  businessId: string
+  assistantId?: string | null
+  conversationId: string
+  customerId?: string | null
+  saleEventId: string
+  orderNumber: string
+  confirmationMessage: string
+}): Promise<void> {
+  await emitSalesEvent({
+    businessId: params.businessId,
+    assistantId: params.assistantId,
+    conversationId: params.conversationId,
+    customerId: params.customerId,
+    eventType: 'SALE_CONFIRMED',
+    metadata: {
+      original_sale_event_id: params.saleEventId,
+      order_number: params.orderNumber,
+      confirmation_message: params.confirmationMessage,
+    },
+  })
+}
+
+export async function hasCancellationLock(conversationId: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('conversations')
+    .select('sales_cancelled_at')
+    .eq('id', conversationId)
+    .maybeSingle()
+  return Boolean(data?.sales_cancelled_at)
+}

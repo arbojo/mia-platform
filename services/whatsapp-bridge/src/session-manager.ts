@@ -19,7 +19,7 @@ import QRCode from 'qrcode'
 import P from 'pino'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia } from './mia-client.js'
-import { sendReply } from './media-url.js'
+import { sendReply, sanitizeForWhatsApp } from './media-url.js'
 import { withTypingPresence } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import type { BridgeConfig } from './config.js'
@@ -762,12 +762,13 @@ function sendInteractive(
   text: string,
   interactive: InteractiveComponent
 ): Promise<unknown> {
+  const safe = sanitizeForWhatsApp(text)
   const userJid = socket.user?.id
   if (!userJid) throw new Error('Cannot send interactive message: socket user not ready')
   const messageContent: proto.IMessage = interactive.type === 'quick_reply'
     ? {
         interactiveMessage: {
-          body: { text },
+          body: { text: safe },
           footer: { text: interactive.text },
           nativeFlowMessage: {
             messageVersion: 3,
@@ -783,7 +784,7 @@ function sendInteractive(
       }
     : {
         listMessage: {
-          title: text,
+          title: safe,
           description: interactive.text,
           buttonText: interactive.buttonText,
           listType: proto.Message.ListMessage.ListType.SINGLE_SELECT,

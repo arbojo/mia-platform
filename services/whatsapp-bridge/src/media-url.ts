@@ -69,6 +69,26 @@ export interface SendReplyResult {
 }
 
 /**
+ * Strips Unicode characters that WhatsApp cannot render correctly.
+ *
+ * LLMs sometimes emit zero-width spaces, directional marks, or other
+ * invisible Unicode artefacts. WhatsApp's protocol is rigid and does not
+ * parse these — they show up as grey bubbles or broken wrapping on the
+ * client side.
+ */
+export function sanitizeForWhatsApp(text: string): string {
+  return text
+    .replace(/[\u200B\u200C\u200D]/g, '')   // ZWSP, ZWNJ, ZWJ
+    .replace(/[\u200E\u200F]/g, '')           // LTR / RTL marks
+    .replace(/[\u2028\u2029]/g, '\n')        // line / paragraph separator → newline
+    .replace(/\uFEFF/g, '')                   // BOM
+    .replace(/\r\n/g, '\n')                   // CRLF → LF
+    .replace(/\r/g, '\n')                     // CR → LF
+    .replace(/\n{3,}/g, '\n\n')              // collapse 3+ blank lines
+    .replace(/[ \t]+$/gm, '')                 // trailing whitespace per line
+}
+
+/**
  * Envía la respuesta del bot intentando adjuntar la imagen cuando la URL es
  * segura. Si el envío de la imagen falla (por ejemplo, Baileys no logra
  * descargar la URL temporal), hace fallback a texto puro para que la
@@ -80,9 +100,11 @@ export async function sendReply(
   response: string,
   imageUrl?: string
 ): Promise<SendReplyResult> {
+  const safe = sanitizeForWhatsApp(response)
+
   if (imageUrl && isSafeMediaUrl(imageUrl)) {
     try {
-      await socket.sendMessage(jid, { image: { url: imageUrl }, caption: response })
+      await socket.sendMessage(jid, { image: { url: imageUrl }, caption: safe })
       return { sent: true, asImage: true }
     } catch (err) {
       console.error(
@@ -93,6 +115,6 @@ export async function sendReply(
     console.warn(`[media] unsafe media URL omitted for ${jid}: ${imageUrl}`)
   }
 
-  await socket.sendMessage(jid, { text: response })
+  await socket.sendMessage(jid, { text: safe })
   return { sent: true, asImage: false }
 }

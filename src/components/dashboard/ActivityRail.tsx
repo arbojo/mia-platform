@@ -18,6 +18,7 @@ import {
   Package,
   Sparkles,
   CircleHelp,
+  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
@@ -115,6 +116,12 @@ export function ActivityRail() {
     {
       name: t.nav.settings,
       items: [
+        {
+          href: '/dashboard/settings',
+          label: t.nav.salesSettings,
+          question: t.nav.salesSettingsQuestion,
+          icon: SlidersHorizontal,
+        },
         {
           href: '/dashboard/connections',
           label: t.nav.connections,

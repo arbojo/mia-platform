@@ -1,12 +1,17 @@
-import { detectSaleOutcome, hasSalesTrigger } from './detect'
+import { detectSaleOutcome, hasCancellationTrigger, hasSalesTrigger } from './detect'
+import { processCancellation } from './cancel'
 import {
   applyConversationOutcome,
+  emitSaleConfirmed,
   emitSalesEvent,
+  fetchOrderNumber,
   getCustomerData,
   getCustomerName,
+  hasCancellationLock,
   hasClosingEvent,
   notifySaleToOwner,
 } from './events'
+import { getSalesConfig } from '@/lib/ai/knowledge'
 
 export async function processSaleClosing(params: {
   businessId: string
@@ -20,6 +25,28 @@ export async function processSaleClosing(params: {
   const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
   if (!lastUserMessage) return
 
+  // === STEP 0: Cancellation check (before sales detection) ===
+  if (hasCancellationTrigger(lastUserMessage.content)) {
+    const alreadyCancelled = await hasCancellationLock(conversationId)
+    if (alreadyCancelled) return
+
+    await processCancellation({
+      businessId,
+      assistantId,
+      conversationId,
+      customerId,
+      lastUserMessage: lastUserMessage.content,
+      messages,
+    })
+    // Blindaje: cancelación tiene prioridad absoluta sobre detección de ventas
+    return
+  }
+
+  // === STEP 1: Anti-loop — skip if closing event already exists ===
+  const hasClosed = await hasClosingEvent(conversationId)
+  if (hasClosed) return
+
+  // === STEP 2: Sales detection (existing flow) ===
   if (!hasSalesTrigger(lastUserMessage.content)) return
 
   const result = await detectSaleOutcome({
@@ -29,8 +56,6 @@ export async function processSaleClosing(params: {
   })
 
   if (!result.outcome && result.events.length === 0) return
-
-  const hasClosed = await hasClosingEvent(conversationId)
 
   for (const event of result.events) {
     const isClosing = event.type === 'SALE_WON' || event.type === 'SALE_LOST'
@@ -47,6 +72,7 @@ export async function processSaleClosing(params: {
     })
   }
 
+  // === STEP 3: Outcome application ===
   if (result.outcome && !hasClosed) {
     await applyConversationOutcome({
       conversationId,
@@ -104,6 +130,49 @@ export async function processSaleClosing(params: {
           productName: product,
           metadata: { reason: 'missing_address' },
         })
+      }
+
+      // === STEP 4: Post-SALE_WON confirmation ===
+      if (result.outcome === 'sold') {
+        const saleWonEvent = result.events.find((e) => e.type === 'SALE_WON')
+        if (saleWonEvent) {
+          const { data: saleEventRecord } = await supabase
+            .from('sales_events')
+            .select('id')
+            .eq('conversation_id', conversationId)
+            .eq('event_type', 'SALE_WON')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+          if (saleEventRecord) {
+            const orderNumber = await fetchOrderNumber(saleEventRecord.id)
+            const config = await getSalesConfig(businessId)
+
+            const productList = result.products
+              ?.map((p) => `${p.name}${p.amount ? ` x${p.amount}` : ''}`)
+              .join(', ') ?? product ?? 'N/A'
+
+            const totalAmount = deal?.amount ?? 0
+            const formattedTotal = totalAmount > 0 ? `$${totalAmount.toLocaleString('es-AR')}` : 'N/A'
+
+            const confirmationMessage = config.confirmation_message
+              .replace(/\{order_id\}/g, orderNumber)
+              .replace(/\{customer_name\}/g, customerName ?? 'Cliente')
+              .replace(/\{productos\}/g, productList)
+              .replace(/\{total\}/g, formattedTotal)
+
+            await emitSaleConfirmed({
+              businessId,
+              assistantId,
+              conversationId,
+              customerId,
+              saleEventId: saleEventRecord.id,
+              orderNumber,
+              confirmationMessage,
+            })
+          }
+        }
       }
     }
   }
