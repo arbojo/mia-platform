@@ -238,6 +238,7 @@ export class SessionManager {
     await this.store.updateStatus(businessId, { status: 'connecting' })
 
     socket.ev.on('creds.update', () => {
+      if (this.sessions.get(businessId) !== session) return
       saveCreds().catch((err) => {
         logger.error(err, 'saveCreds failed')
       })
@@ -425,6 +426,14 @@ export class SessionManager {
     update: Partial<ConnectionState>,
     saveCreds: () => Promise<void>
   ): Promise<void> {
+    // Guard: ignore events from stale sockets. When a reconnect destroys the
+    // old socket, its 'close' event fires asynchronously. By that time a NEW
+    // session already exists in the map. Processing the stale event would
+    // delete the new session and schedule a conflicting third connection.
+    if (this.sessions.get(session.businessId) !== session) {
+      return
+    }
+
     const { connection, lastDisconnect, qr } = update
 
     if (qr) {
