@@ -18,7 +18,26 @@ function main(): void {
       console.log(`[mia-bridge] received ${signal}, shutting down`)
       healthMonitor.stop()
       followUpMonitor.stop()
-      process.exit(0)
+
+      const active = manager.listHealth().filter((h) => h.status === 'connected')
+      if (active.length === 0) {
+        process.exit(0)
+        return
+      }
+
+      console.log(`[mia-bridge] closing ${active.length} active session(s) gracefully`)
+      const flushes = active.map((h) => manager.getStore().flushWrites(h.businessId))
+      const teardowns = active.map((h) => manager.disconnect(h.businessId).catch(() => undefined))
+
+      const deadline = setTimeout(() => {
+        console.warn('[mia-bridge] shutdown deadline exceeded, forcing exit')
+        process.exit(1)
+      }, 8_000)
+
+      Promise.allSettled([...flushes, ...teardowns]).then(() => {
+        clearTimeout(deadline)
+        process.exit(0)
+      })
     })
   }
 }

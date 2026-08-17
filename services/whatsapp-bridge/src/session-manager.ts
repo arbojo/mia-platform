@@ -329,7 +329,6 @@ export class SessionManager {
     this.clearReconnectTimer(session)
     try {
       session.socket.end(undefined)
-      session.socket.logout().catch(() => undefined)
     } catch {
       // ignore
     }

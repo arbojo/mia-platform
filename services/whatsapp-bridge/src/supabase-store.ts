@@ -18,18 +18,37 @@ interface SessionRow {
   status: string
 }
 
+function serializeValue(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value, BufferJSON.replacer))
+}
+
+function deserializeValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value), BufferJSON.reviver) as T
+}
+
 /**
  * Persists a Baileys AuthenticationState in Supabase (whatsapp_sessions).
  * `keys` is stored as `{ [type]: { [id]: value } }` in a JSONB column.
  * The bridge connects with the service role key, which bypasses RLS.
+ *
+ * All writes are serialized per-business via a promise chain to prevent
+ * last-write-wins races between concurrent keys.set() and saveCreds() calls.
  */
 export class SupabaseAuthStore {
   private readonly client: SupabaseClient
+  private readonly writeQueues = new Map<string, Promise<void>>()
 
   constructor(private readonly config: BridgeConfig) {
     this.client = createClient(config.supabaseUrl, config.supabaseServiceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
+  }
+
+  private enqueueWrite(businessId: string, fn: () => Promise<void>): Promise<void> {
+    const prev = this.writeQueues.get(businessId) ?? Promise.resolve()
+    const next = prev.then(fn, fn)
+    this.writeQueues.set(businessId, next)
+    return next
   }
 
   async load(businessId: string): Promise<{ state: AuthenticationState; saveCreds: () => Promise<void> }> {
@@ -45,13 +64,26 @@ export class SupabaseAuthStore {
 
     let creds: AuthenticationCreds
     if (data && data.creds && Object.keys(data.creds as Record<string, unknown>).length > 0) {
-      creds = JSON.parse(JSON.stringify(data.creds), BufferJSON.reviver) as AuthenticationCreds
+      creds = deserializeValue(data.creds) as AuthenticationCreds
     } else {
       creds = initAuthCreds()
     }
 
-    const keysRow: Record<string, Record<string, unknown>> =
+    const rawKeys: Record<string, Record<string, unknown>> =
       data && data.keys ? (data.keys as Record<string, Record<string, unknown>>) : {}
+
+    const keysRow: Record<string, Record<string, unknown>> = {}
+    for (const type of Object.keys(rawKeys)) {
+      const bucket = rawKeys[type]
+      if (!bucket) continue
+      keysRow[type] = {}
+      for (const id of Object.keys(bucket)) {
+        const raw = bucket[id]
+        if (raw !== undefined && raw !== null) {
+          keysRow[type][id] = deserializeValue(raw)
+        }
+      }
+    }
 
     const state: AuthenticationState = {
       creds,
@@ -86,28 +118,32 @@ export class SupabaseAuthStore {
               if (value === null || value === undefined) {
                 delete bucket[id]
               } else {
-                bucket[id] = value
+                bucket[id] = serializeValue(value)
               }
             }
             keysRow[type] = bucket
           }
-          await this.writeKeys(businessId, keysRow)
+          const snapshot = serializeValue(keysRow) as Record<string, Record<string, unknown>>
+          await this.enqueueWrite(businessId, () => this.writeKeys(businessId, snapshot))
         },
 
         clear: async (): Promise<void> => {
           await this.client
             .from('whatsapp_sessions')
-            .update({ keys: {} })
+            .update({ keys: {}, updated_at: new Date().toISOString() })
             .eq('business_id', businessId)
         },
       },
     }
 
     const saveCreds = async (): Promise<void> => {
-      await this.upsert(businessId, {
-        creds: JSON.parse(JSON.stringify(creds, BufferJSON.replacer)) as Record<string, unknown>,
-        keys: keysRow,
-      })
+      const serializedKeys = serializeValue(keysRow) as Record<string, Record<string, unknown>>
+      await this.enqueueWrite(businessId, () =>
+        this.upsert(businessId, {
+          creds: serializeValue(creds) as Record<string, unknown>,
+          keys: serializedKeys,
+        })
+      )
     }
 
     return { state, saveCreds }
@@ -146,6 +182,11 @@ export class SupabaseAuthStore {
     }
   }
 
+  async flushWrites(businessId: string): Promise<void> {
+    const queue = this.writeQueues.get(businessId)
+    if (queue) await queue
+  }
+
   async updateStatus(
     businessId: string,
     fields: Partial<Pick<SessionRow, 'status'>> & {
@@ -171,6 +212,7 @@ export class SupabaseAuthStore {
   }
 
   async delete(businessId: string): Promise<void> {
+    this.writeQueues.delete(businessId)
     await this.client.from('whatsapp_sessions').delete().eq('business_id', businessId)
   }
 }

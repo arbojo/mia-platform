@@ -31,5 +31,5 @@ primary_region = "dfw"
     path = "/healthz"
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "512mb"
+  size = "shared-cpu-2x"
+  memory = "1gb"
