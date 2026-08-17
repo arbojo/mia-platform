@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b45ad56`.
+> Fuente de verdad: este repositorio en `1275bb9`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b45ad56` |
+| **Commit HEAD** | `1275bb9` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T13:31:47-06:00 |
+| **Generado** | 2026-08-17T16:08:50-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-65 tablas definidas en `supabase/migrations/`:
+67 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -141,6 +141,8 @@ Patrón de cliente Supabase:
 | inventory | 044_eta_cx.sql |
 | inventory | 044_eta_cx.sql |
 | inventory | 044_eta_cx.sql |
+| business_sales_config | 045_sales_config.sql |
+| sales_order_counters | 045_sales_config.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -192,6 +194,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 42 | 042_polymorphic_variants.sql |
 | 43 | 043_rop_purchasing.sql |
 | 44 | 044_eta_cx.sql |
+| 45 | 045_sales_config.sql |
 
 ---
 
@@ -229,7 +232,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-83 rutas en `src/app/api/`:
+84 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -306,6 +309,7 @@ laboratorio/teach
 onboarding/chat
 pixel/track
 profile/language
+sales/config
 sales/events
 sales/metrics
 signals/[id]
@@ -321,7 +325,7 @@ widget/close
 
 ## 8. Páginas
 
-27 páginas en `src/app/`:
+28 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -345,6 +349,7 @@ dashboard/knowledge
 dashboard/laboratorio
 dashboard/onboarding
 dashboard
+dashboard/settings
 demo
 driver/deliveries/[id]
 driver/login
@@ -357,7 +362,7 @@ widget
 
 ## 9. Componentes
 
-115 componentes en `src/components/`:
+116 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -465,6 +470,7 @@ laboratorio/UsageBar.tsx
 layout/AppLayout.tsx
 onboarding/ConversationalOnboarding.tsx
 onboarding/OnboardingWizard.tsx
+sales/SalesConfigForm.tsx
 signals/MIAInbox.tsx
 signals/SignalIndicator.tsx
 studio/AnalysisReport.tsx
@@ -481,7 +487,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-104 módulos:
+105 módulos:
 
 ```
 ai/client.ts
@@ -571,6 +577,7 @@ runtime/product-recommendation.ts
 runtime/runtime.ts
 runtime/stream-response.ts
 runtime/types.ts
+sales/cancel.ts
 sales/detect.ts
 sales/events.ts
 sales/process.ts
@@ -776,6 +783,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1275bb9 feat: sales closing blindaje + WhatsApp sanitization + settings
+183dd5b docs: regenerate MASTER.md at b45ad56
 b45ad56 feat: add real-time WhatsApp debug panel + stale socket guard
 d2a0162 fix: guard stale socket events to prevent session destruction race condition
 e62e77d docs: regenerate MASTER.md at 6e1abc2
@@ -794,8 +803,6 @@ e4aa2e9 subaru: checkpoint 5 - en-progreso
 3c9cb10 subaru: checkpoint 5 - en-progreso
 16ed4ec subaru: checkpoint 5 - en-progreso
 e0db83e subaru: checkpoint 5 - en-progreso
-89e49e2 docs: regenerate MASTER.md at cb615fd
-cb615fd subaru: checkpoint 5 - listo
 ```
 
 ---
