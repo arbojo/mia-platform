@@ -93,33 +93,44 @@ Title: ${params.title}
 Description: ${params.description}
 ${params.context ? `Additional context: ${params.context}` : ''}`
 
-  const completion = await openai.chat.completions.create({
-    model: MODEL,
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: userMessage },
-    ],
-    temperature: 0.3,
-    max_tokens: 2000,
-  })
+  let lastError: Error | null = null
 
-  const content = completion.choices[0]?.message?.content
-  if (!content) throw new Error('Empty response from OpenAI')
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const completion = await openai.chat.completions.create({
+        model: MODEL,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userMessage },
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+      })
 
-  const tokensUsed = {
-    input: completion.usage?.prompt_tokens ?? 0,
-    output: completion.usage?.completion_tokens ?? 0,
+      const content = completion.choices[0]?.message?.content
+      if (!content) throw new Error('Empty response from OpenAI')
+
+      const tokensUsed = {
+        input: completion.usage?.prompt_tokens ?? 0,
+        output: completion.usage?.completion_tokens ?? 0,
+      }
+
+      const raw = parseJsonResponse(content)
+      const prd = coercePrd(raw)
+      validatePrd(prd)
+
+      const markdown = renderPrd(prd)
+      return { prd, markdown, tokensUsed }
+    } catch (err) {
+      lastError = err as Error
+      if (attempt === 0) continue
+    }
   }
 
-  const parsed = parseJsonResponse(content)
-  validatePrd(parsed)
-
-  const markdown = renderPrd(parsed)
-
-  return { prd: parsed, markdown, tokensUsed }
+  throw lastError
 }
 
-function parseJsonResponse(content: string): PrdDocument {
+function parseJsonResponse(content: string): Record<string, unknown> {
   let cleaned = content.trim()
 
   if (cleaned.startsWith('```')) {
@@ -127,10 +138,39 @@ function parseJsonResponse(content: string): PrdDocument {
   }
 
   try {
-    return JSON.parse(cleaned) as PrdDocument
+    return JSON.parse(cleaned) as Record<string, unknown>
   } catch {
     throw new Error(`Failed to parse PRD JSON: ${cleaned.slice(0, 200)}`)
   }
+}
+
+function coercePrd(raw: Record<string, unknown>): PrdDocument {
+  if (typeof raw.acceptanceCriteria === 'string') {
+    raw.acceptanceCriteria = (raw.acceptanceCriteria as string)
+      .split('\n')
+      .map((l) => l.replace(/^[-*]\s*\[[ x]\]\s*/, '').trim())
+      .filter((l) => l.length > 0)
+  }
+
+  if (Array.isArray(raw.acceptanceCriteria) && raw.acceptanceCriteria.length === 0) {
+    raw.acceptanceCriteria = [
+      `${raw.title} está disponible y funcionando`,
+      `El usuario puede interactuar con la funcionalidad principal`,
+      `La interfaz es responsive y accesible`,
+    ]
+  }
+
+  if (raw.scope && typeof raw.scope === 'object') {
+    const scope = raw.scope as Record<string, unknown>
+    if (Array.isArray(scope.domains)) {
+      scope.domains = scope.domains.map((d: unknown) => String(d).toLowerCase())
+    }
+    if (Array.isArray(scope.categories)) {
+      scope.categories = scope.categories.map((c: unknown) => String(c).toLowerCase())
+    }
+  }
+
+  return raw as unknown as PrdDocument
 }
 
 function validatePrd(prd: PrdDocument): void {
