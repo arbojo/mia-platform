@@ -118,6 +118,7 @@ export async function loadConversationContext(
     channel,
     intentTag,
     landingContext,
+    salesConfig: 'salesConfig' in context ? context.salesConfig : undefined,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

@@ -610,16 +610,7 @@ export class SessionManager {
 
         if (miaReply?.response && session.socket.user?.id) {
           try {
-            if (miaReply.interactive) {
-              await sendInteractive(
-                session.socket,
-                remoteJid,
-                miaReply.response,
-                miaReply.interactive
-              )
-            } else {
-              await sendReply(session.socket, remoteJid, miaReply.response, miaReply.imageUrl)
-            }
+            await sendReply(session.socket, remoteJid, miaReply.response, miaReply.imageUrl)
             session.consecutiveSendFailures = 0
           } catch (sendErr) {
             session.consecutiveSendFailures += 1
@@ -633,6 +624,21 @@ export class SessionManager {
               )
               void this.restart(session.businessId)
               return
+            }
+          }
+
+          if (miaReply.interactive) {
+            try {
+              await sendInteractive(
+                session.socket,
+                remoteJid,
+                miaReply.response,
+                miaReply.interactive
+              )
+            } catch (interactiveErr) {
+              console.warn(
+                `[session-manager] interactive send failed for ${remoteJid}, text was already delivered: ${interactiveErr instanceof Error ? interactiveErr.message : interactiveErr}`
+              )
             }
           }
         }
