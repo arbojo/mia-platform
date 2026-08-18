@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 export async function GET(
   request: Request,
@@ -127,6 +128,10 @@ export async function PATCH(
     .from('learning_reports')
     .update({ [extractedKey]: items })
     .eq('id', id)
+
+  if (action === 'approve') {
+    invalidateSystemContext(report.business_id)
+  }
 
   return NextResponse.json({ success: true })
 }

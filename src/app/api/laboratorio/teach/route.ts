@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 const KNOWLEDGE_CATEGORIES = ['business_info', 'faq', 'objection', 'process', 'tip'] as const
 const RULE_CATEGORIES = ['zones', 'payment', 'schedule', 'promotions', 'restrictions', 'escalation'] as const
@@ -133,6 +134,10 @@ export async function POST(request: Request) {
         })
       }
     }
+  }
+
+  if (created.length > 0) {
+    invalidateSystemContext(business_id)
   }
 
   return NextResponse.json({ created, count: created.length })

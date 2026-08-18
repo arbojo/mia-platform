@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 import {
   buildApprovalPayload,
   type SuggestionEdits,
@@ -144,5 +145,6 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  invalidateSystemContext(existing.business_id)
   return NextResponse.json({ success: true, knowledge_item_id })
 }

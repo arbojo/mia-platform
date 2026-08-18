@@ -49,6 +49,11 @@ export function CatalogGrid({ businessId, initialProducts }: CatalogGridProps) {
     const { error } = await supabase.from('products').delete().eq('id', deleteTarget.id)
     if (!error) {
       setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id))
+      fetch('/api/cache/invalidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business_id: businessId }),
+      }).catch(() => {})
     }
     setDeleteTarget(null)
   }

@@ -44,6 +44,14 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
 
   const supabase = createClient()
 
+  const invalidateCache = () => {
+    fetch('/api/cache/invalidate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_id: businessId }),
+    }).catch(() => {})
+  }
+
   const resetForm = () => {
     setContent('')
     setCategory('zones')
@@ -76,6 +84,7 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
           prev.map((r) => (r.id === editingId ? { ...r, ...payload } : r))
         )
         resetForm()
+        invalidateCache()
       }
     } else {
       const { data, error } = await supabase
@@ -87,6 +96,7 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
       if (!error && data) {
         setRules((prev) => [data, ...prev])
         resetForm()
+        invalidateCache()
       }
     }
 
@@ -98,6 +108,7 @@ export function RulesManager({ businessId, initialRules }: RulesManagerProps) {
     await supabase.from('sales_rules').delete().eq('id', deleteTarget.id)
     setRules((prev) => prev.filter((r) => r.id !== deleteTarget.id))
     setDeleteTarget(null)
+    invalidateCache()
   }
 
   return (

@@ -145,6 +145,11 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
 
     setStep(1)
     setLoading(false)
+    fetch('/api/cache/invalidate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_id: activeBusinessId }),
+    }).catch(() => {})
   }
 
   const handleSaveBusiness = async () => {
@@ -175,6 +180,11 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
 
     setStep(2)
     setLoading(false)
+    fetch('/api/cache/invalidate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_id: businessId }),
+    }).catch(() => {})
   }
 
   const handleAddProduct = () => {
@@ -221,6 +231,11 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
 
     setStep(3)
     setLoading(false)
+    fetch('/api/cache/invalidate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_id: businessId }),
+    }).catch(() => {})
   }
 
   const handleAddRule = () => {
@@ -257,6 +272,11 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
 
     router.push('/dashboard/assistants')
     setLoading(false)
+    fetch('/api/cache/invalidate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_id: businessId }),
+    }).catch(() => {})
   }
 
   const steps = [

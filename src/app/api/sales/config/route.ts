@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { handleApiError } from '@/lib/api-error'
 import { getSalesConfig, upsertSalesConfig } from '@/lib/ai/knowledge'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 export async function GET() {
   try {
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
     }
 
     const config = await upsertSalesConfig(businessIds[0], updates)
+    invalidateSystemContext(businessIds[0])
     return NextResponse.json({ config })
   } catch (err) {
     return handleApiError(err)

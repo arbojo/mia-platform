@@ -51,6 +51,11 @@ export function ProductDetail({ businessId, product, availability }: ProductDeta
     if (!error) {
       router.push('/dashboard/catalog')
       router.refresh()
+      fetch('/api/cache/invalidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business_id: businessId }),
+      }).catch(() => {})
     }
   }
 

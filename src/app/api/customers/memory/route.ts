@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCustomerMemory, extractCustomerMemory } from '@/lib/ai/customer-memory'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 async function verifyCustomerAccess(customerId: string): Promise<boolean> {
   const supabase = await createClient()
@@ -56,6 +57,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 })
   }
 
+  const { data: assistant } = await supabase
+    .from('assistants')
+    .select('business_id')
+    .eq('id', assistantId)
+    .single()
+
   const memory = await extractCustomerMemory(customerId, assistantId)
+  if (assistant?.business_id) {
+    invalidateSystemContext(assistant.business_id)
+  }
   return NextResponse.json({ memory })
 }

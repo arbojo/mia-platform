@@ -5,6 +5,7 @@ import { parseImportFile, isXlsxBuffer, looksLikeCsv, UnsupportedFormatError } f
 import { normalizeRows, mergeErrorCounts } from '@/lib/import/validators'
 import { upsertRows, TooManyRowsError } from '@/lib/import/engine'
 import { emptySummary } from '@/lib/import/types'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 export const runtime = 'nodejs'
 
@@ -119,6 +120,7 @@ export async function POST(request: Request) {
       admin: createAdminClient(),
       initialSummary: summary,
     })
+    invalidateSystemContext(businessId)
     return NextResponse.json({ summary: result })
   } catch (error) {
     if (error instanceof TooManyRowsError) {

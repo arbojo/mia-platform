@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 export async function GET(
   request: Request,
@@ -95,6 +96,7 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  invalidateSystemContext(existing.business_id)
   return NextResponse.json({ item: data })
 }
 
@@ -142,5 +144,6 @@ export async function DELETE(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  invalidateSystemContext(existing.business_id)
   return NextResponse.json({ success: true })
 }

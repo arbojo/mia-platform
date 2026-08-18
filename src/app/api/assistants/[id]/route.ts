@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAuth } from '@/lib/auth'
 import { handleApiError } from '@/lib/api-error'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 export async function PATCH(
   request: NextRequest,
@@ -78,6 +79,7 @@ export async function PATCH(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    invalidateSystemContext(assistant.business_id as string)
     return NextResponse.json({ success: true })
   } catch (err) {
     return handleApiError(err)

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 export async function GET(request: Request) {
   const supabase = await createClient()
@@ -89,5 +90,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  invalidateSystemContext(business_id)
   return NextResponse.json({ item: data }, { status: 201 })
 }
