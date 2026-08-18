@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `515e1fb`.
+> Fuente de verdad: este repositorio en `932e8cf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `515e1fb` |
+| **Commit HEAD** | `932e8cf` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T19:52:20-06:00 |
+| **Generado** | 2026-08-17T20:23:23-06:00 |
 
 ---
 
@@ -232,7 +232,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-84 rutas en `src/app/api/`:
+85 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -261,6 +261,7 @@ business/memory
 business/product-intelligence
 business/skills
 business/weekly-report
+cache/invalidate
 catalog/import/file
 catalog/import/source
 channels/baileys/followup
@@ -487,7 +488,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-105 módulos:
+106 módulos:
 
 ```
 ai/client.ts
@@ -508,6 +509,7 @@ api-error.ts
 auth.ts
 baileys/bridge.ts
 baileys/config.ts
+cache/invalidator.ts
 channels/adapters/baileys.ts
 channels/adapters/web.ts
 channels/adapters/whatsapp.ts
@@ -783,6 +785,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+932e8cf feat: centralized context cache invalidation across all API routes and client components
+18c7556 docs: regenerate MASTER.md at 515e1fb
 515e1fb fix: send text first then interactive, pass salesConfig to prompt
 0d94cfe fix(bridge): add in-memory state cache to survive reconnects
 07a1953 fix: deserialize signal keys in get() and snapshot inside write queue callbacks
@@ -801,8 +805,6 @@ e62e77d docs: regenerate MASTER.md at 6e1abc2
 294724a docs: regenerate MASTER.md at 04bf7c9
 04bf7c9 fix: whatsapp baileys send failure detection + session cleanup
 8a532b5 docs: regenerate MASTER.md at 9f14f92
-9f14f92 chore: governance completion artifacts - glass loader task
-6a4a975 feat: glass overlay blur como transicion de carga al cambiar de vista
 ```
 
 ---
