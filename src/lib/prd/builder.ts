@@ -1,5 +1,12 @@
-import { getOpenAIClient, MODEL, TOKEN_COSTS } from '@/lib/ai/client'
+import { MODEL, TOKEN_COSTS } from '@/lib/ai/client'
+import OpenAI from 'openai'
 import { renderPrd, type PrdDocument } from './template'
+
+function getPrdClient(): OpenAI {
+  const apiKey = process.env.OPENAI_PRD_API_KEY
+  if (!apiKey) throw new Error('Missing OPENAI_PRD_API_KEY')
+  return new OpenAI({ apiKey })
+}
 
 const SYSTEM_PROMPT = `You are the PRD Generator for MIA Platform — an AI sales assistant platform.
 
@@ -79,7 +86,7 @@ interface BuildPrdResult {
 }
 
 export async function buildPrd(params: BuildPrdParams): Promise<BuildPrdResult> {
-  const openai = getOpenAIClient()
+  const openai = getPrdClient()
 
   const userMessage = `Feature idea:
 Title: ${params.title}
