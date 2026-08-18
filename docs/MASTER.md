@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4087537`.
+> Fuente de verdad: este repositorio en `515e1fb`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4087537` |
+| **Commit HEAD** | `515e1fb` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T16:36:03-06:00 |
+| **Generado** | 2026-08-17T19:52:20-06:00 |
 
 ---
 
@@ -783,6 +783,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+515e1fb fix: send text first then interactive, pass salesConfig to prompt
+0d94cfe fix(bridge): add in-memory state cache to survive reconnects
+07a1953 fix: deserialize signal keys in get() and snapshot inside write queue callbacks
+f21ffc7 fix: WhatsApp bridge auth state corruption - serialize signal keys, remove logout from restart, write queue, graceful shutdown
+36d34a2 docs: regenerate MASTER.md at 4087537
 4087537 fix: refresh connections on waStatus error/idle so clean button stays visible
 ece0222 docs: regenerate MASTER.md at 1275bb9
 1275bb9 feat: sales closing blindaje + WhatsApp sanitization + settings
@@ -798,11 +803,6 @@ e62e77d docs: regenerate MASTER.md at 6e1abc2
 8a532b5 docs: regenerate MASTER.md at 9f14f92
 9f14f92 chore: governance completion artifacts - glass loader task
 6a4a975 feat: glass overlay blur como transicion de carga al cambiar de vista
-05994fa docs: regenerate MASTER.md at e506f23
-e506f23 subaru: checkpoint 5 - completado
-05c287b subaru: checkpoint 5 - en-progreso
-e4aa2e9 subaru: checkpoint 5 - en-progreso
-3c9cb10 subaru: checkpoint 5 - en-progreso
 ```
 
 ---
