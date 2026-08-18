@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `6a62eb6`.
+> Fuente de verdad: este repositorio en `2349b50`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `6a62eb6` |
+| **Commit HEAD** | `2349b50` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T14:09:57-06:00 |
+| **Generado** | 2026-08-18T14:20:10-06:00 |
 
 ---
 
@@ -788,6 +788,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+2349b50 fix: coerce PRD scope fields (filesAffected, booleans, descriptions)
+b8e325b docs: regenerate MASTER.md at 6a62eb6
 6a62eb6 fix: coerce PRD acceptance criteria and add retry
 2e5a86b docs: regenerate MASTER.md at b2970ec
 b2970ec fix: use separate OPENAI_PRD_API_KEY for PRD generator
@@ -806,8 +808,6 @@ f21ffc7 fix: WhatsApp bridge auth state corruption - serialize signal keys, remo
 4087537 fix: refresh connections on waStatus error/idle so clean button stays visible
 ece0222 docs: regenerate MASTER.md at 1275bb9
 1275bb9 feat: sales closing blindaje + WhatsApp sanitization + settings
-183dd5b docs: regenerate MASTER.md at b45ad56
-b45ad56 feat: add real-time WhatsApp debug panel + stale socket guard
 ```
 
 ---
