@@ -168,6 +168,14 @@ function coercePrd(raw: Record<string, unknown>): PrdDocument {
     if (Array.isArray(scope.categories)) {
       scope.categories = scope.categories.map((c: unknown) => String(c).toLowerCase())
     }
+    const filesNum = Number(scope.filesAffected)
+    scope.filesAffected = filesNum >= 1 ? filesNum : 3
+    if (typeof scope.hasSchemaChanges !== 'boolean') scope.hasSchemaChanges = false
+    if (typeof scope.hasAIChanges !== 'boolean') scope.hasAIChanges = false
+    if (typeof scope.hasSecurityImplications !== 'boolean') scope.hasSecurityImplications = false
+    if (typeof scope.schemaDescription !== 'string') scope.schemaDescription = ''
+    if (typeof scope.aiChangesDescription !== 'string') scope.aiChangesDescription = ''
+    if (typeof scope.securityDescription !== 'string') scope.securityDescription = ''
   }
 
   return raw as unknown as PrdDocument
