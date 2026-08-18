@@ -96,12 +96,13 @@ export class SupabaseAuthStore {
           const bucket = keysRow[type] ?? {}
           for (const id of ids) {
             let value = bucket[id]
-            if (value && type === 'app-state-sync-key') {
-              value = proto.Message.AppStateSyncKeyData.fromObject(
-                value as Record<string, unknown>
-              ) as unknown
-            }
             if (value !== undefined && value !== null) {
+              value = deserializeValue(value)
+              if (type === 'app-state-sync-key') {
+                value = proto.Message.AppStateSyncKeyData.fromObject(
+                  value as Record<string, unknown>
+                ) as unknown
+              }
               out[id] = value
             }
           }
@@ -123,8 +124,9 @@ export class SupabaseAuthStore {
             }
             keysRow[type] = bucket
           }
-          const snapshot = serializeValue(keysRow) as Record<string, Record<string, unknown>>
-          await this.enqueueWrite(businessId, () => this.writeKeys(businessId, snapshot))
+          await this.enqueueWrite(businessId, () =>
+            this.writeKeys(businessId, serializeValue(keysRow) as Record<string, Record<string, unknown>>)
+          )
         },
 
         clear: async (): Promise<void> => {
@@ -137,11 +139,10 @@ export class SupabaseAuthStore {
     }
 
     const saveCreds = async (): Promise<void> => {
-      const serializedKeys = serializeValue(keysRow) as Record<string, Record<string, unknown>>
       await this.enqueueWrite(businessId, () =>
         this.upsert(businessId, {
           creds: serializeValue(creds) as Record<string, unknown>,
-          keys: serializedKeys,
+          keys: serializeValue(keysRow) as Record<string, Record<string, unknown>>,
         })
       )
     }
