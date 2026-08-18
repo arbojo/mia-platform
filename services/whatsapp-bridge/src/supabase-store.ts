@@ -34,9 +34,15 @@ function deserializeValue<T>(value: T): T {
  * All writes are serialized per-business via a promise chain to prevent
  * last-write-wins races between concurrent keys.set() and saveCreds() calls.
  */
+interface CachedState {
+  creds: AuthenticationCreds
+  keysRow: Record<string, Record<string, unknown>>
+}
+
 export class SupabaseAuthStore {
   private readonly client: SupabaseClient
   private readonly writeQueues = new Map<string, Promise<void>>()
+  private readonly stateCache = new Map<string, CachedState>()
 
   constructor(private readonly config: BridgeConfig) {
     this.client = createClient(config.supabaseUrl, config.supabaseServiceRoleKey, {
@@ -52,37 +58,47 @@ export class SupabaseAuthStore {
   }
 
   async load(businessId: string): Promise<{ state: AuthenticationState; saveCreds: () => Promise<void> }> {
-    const { data, error } = await this.client
-      .from('whatsapp_sessions')
-      .select('creds, keys')
-      .eq('business_id', businessId)
-      .maybeSingle()
-
-    if (error) {
-      throw new Error(`Failed to load WhatsApp session for ${businessId}: ${error.message}`)
-    }
-
     let creds: AuthenticationCreds
-    if (data && data.creds && Object.keys(data.creds as Record<string, unknown>).length > 0) {
-      creds = deserializeValue(data.creds) as AuthenticationCreds
+    let keysRow: Record<string, Record<string, unknown>>
+
+    const cached = this.stateCache.get(businessId)
+    if (cached) {
+      creds = cached.creds
+      keysRow = cached.keysRow
     } else {
-      creds = initAuthCreds()
-    }
+      const { data, error } = await this.client
+        .from('whatsapp_sessions')
+        .select('creds, keys')
+        .eq('business_id', businessId)
+        .maybeSingle()
 
-    const rawKeys: Record<string, Record<string, unknown>> =
-      data && data.keys ? (data.keys as Record<string, Record<string, unknown>>) : {}
+      if (error) {
+        throw new Error(`Failed to load WhatsApp session for ${businessId}: ${error.message}`)
+      }
 
-    const keysRow: Record<string, Record<string, unknown>> = {}
-    for (const type of Object.keys(rawKeys)) {
-      const bucket = rawKeys[type]
-      if (!bucket) continue
-      keysRow[type] = {}
-      for (const id of Object.keys(bucket)) {
-        const raw = bucket[id]
-        if (raw !== undefined && raw !== null) {
-          keysRow[type][id] = deserializeValue(raw)
+      if (data && data.creds && Object.keys(data.creds as Record<string, unknown>).length > 0) {
+        creds = deserializeValue(data.creds) as AuthenticationCreds
+      } else {
+        creds = initAuthCreds()
+      }
+
+      const rawKeys: Record<string, Record<string, unknown>> =
+        data && data.keys ? (data.keys as Record<string, Record<string, unknown>>) : {}
+
+      keysRow = {}
+      for (const type of Object.keys(rawKeys)) {
+        const bucket = rawKeys[type]
+        if (!bucket) continue
+        keysRow[type] = {}
+        for (const id of Object.keys(bucket)) {
+          const raw = bucket[id]
+          if (raw !== undefined && raw !== null) {
+            keysRow[type][id] = deserializeValue(raw)
+          }
         }
       }
+
+      this.stateCache.set(businessId, { creds, keysRow })
     }
 
     const state: AuthenticationState = {
@@ -130,6 +146,8 @@ export class SupabaseAuthStore {
         },
 
         clear: async (): Promise<void> => {
+          keysRow = {}
+          this.stateCache.delete(businessId)
           await this.client
             .from('whatsapp_sessions')
             .update({ keys: {}, updated_at: new Date().toISOString() })
@@ -139,6 +157,7 @@ export class SupabaseAuthStore {
     }
 
     const saveCreds = async (): Promise<void> => {
+      this.stateCache.set(businessId, { creds, keysRow })
       await this.enqueueWrite(businessId, () =>
         this.upsert(businessId, {
           creds: serializeValue(creds) as Record<string, unknown>,
@@ -214,6 +233,7 @@ export class SupabaseAuthStore {
 
   async delete(businessId: string): Promise<void> {
     this.writeQueues.delete(businessId)
+    this.stateCache.delete(businessId)
     await this.client.from('whatsapp_sessions').delete().eq('business_id', businessId)
   }
 }
