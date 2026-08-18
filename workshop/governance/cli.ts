@@ -1,8 +1,12 @@
 import * as readline from 'node:readline'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { Orchestrator, type OrchestratorInput } from './orchestrator'
 import { WorkflowEngine } from './workflow'
 import type { TaskManifest, GovernanceStatus, AgentRole } from './types'
 import { AGENT_LABELS } from './types'
+
+const PRD_DIR = path.resolve(process.cwd(), 'docs', 'prd')
 
 const orchestrator = new Orchestrator()
 const workflow = new WorkflowEngine()
@@ -34,6 +38,7 @@ USAGE:
 
 COMMANDS:
   classify     Classify a new engineering task
+  prd          Generate a PRD from a feature idea
   status       Show task manifest status
   list         List all task manifests
   approve      Approve a task (mark decision)
@@ -46,6 +51,9 @@ COMMANDS:
 EXAMPLES:
   npx tsx workshop/governance/cli.ts classify
     → Interactive classification wizard
+
+  npx tsx workshop/governance/cli.ts prd "sistema de entregas"
+    → Generate PRD + auto-classify + create TaskManifest
 
   npx tsx workshop/governance/cli.ts validate TASK-20260729-123456
     → Check if a specific task is approved for implementation
@@ -164,6 +172,115 @@ async function cmdClassify(): Promise<void> {
     }
     console.log()
   }
+}
+
+async function cmdPrd(): Promise<void> {
+  console.log()
+  console.log('╔══════════════════════════════════════════════╗')
+  console.log('║       MIA PRD GENERATOR                     ║')
+  console.log('╚══════════════════════════════════════════════╝')
+  console.log()
+
+  const title = await ask('Feature title: ')
+  const description = await ask('Feature description: ')
+  const context = await ask('Additional context (optional, press Enter to skip): ')
+
+  console.log()
+  console.log('Generating PRD via OpenAI...')
+
+  const { buildPrd, computePrdCost } = await import('../../src/lib/prd/builder')
+
+  const result = await buildPrd({
+    title,
+    description,
+    context: context || undefined,
+  })
+
+  const cost = computePrdCost(result.tokensUsed)
+  console.log(`✓ PRD generated (${result.tokensUsed.input} in / ${result.tokensUsed.output} out / ~$${cost.toFixed(4)})`)
+  console.log()
+
+  if (!result.prd.domainAlignment.inDomain) {
+    console.log('⚠  WARNING: This feature is flagged as OUT-OF-DOMAIN per ADR-010.')
+    console.log(`   Reason: ${result.prd.domainAlignment.explanation}`)
+    console.log()
+  }
+
+  const taskId = `TASK-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Date.now().toString().slice(-6)}`
+  const filename = `${taskId}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}.md`
+
+  if (!fs.existsSync(PRD_DIR)) {
+    fs.mkdirSync(PRD_DIR, { recursive: true })
+  }
+
+  const prdPath = path.join(PRD_DIR, filename)
+  fs.writeFileSync(prdPath, result.markdown, 'utf-8')
+  console.log(`✓ PRD saved: ${prdPath}`)
+  console.log()
+
+  console.log('Scope extracted from PRD:')
+  console.log(`  Categories: ${result.prd.scope.categories.join(', ')}`)
+  console.log(`  Files affected: ${result.prd.scope.filesAffected}`)
+  console.log(`  Schema changes: ${result.prd.scope.hasSchemaChanges}`)
+  console.log(`  AI changes: ${result.prd.scope.hasAIChanges}`)
+  console.log(`  Security: ${result.prd.scope.hasSecurityImplications}`)
+  console.log(`  Domains: ${result.prd.scope.domains.join(', ')}`)
+  console.log()
+
+  const autoClassify = await confirm('Auto-classify with governance?')
+  if (!autoClassify) {
+    console.log('PRD ready. Run classify manually when ready.')
+    return
+  }
+
+  const input: OrchestratorInput = {
+    title: result.prd.title || title,
+    description: result.markdown,
+    categories: result.prd.scope.categories as OrchestratorInput['categories'],
+    filesAffected: result.prd.scope.filesAffected,
+    hasSchemaChanges: result.prd.scope.hasSchemaChanges,
+    hasAIConsumerChanges: result.prd.scope.hasAIChanges,
+    hasSecurityImplications: result.prd.scope.hasSecurityImplications,
+    affectedDomains: result.prd.scope.domains,
+  }
+
+  const classifyResult = orchestrator.classify(input)
+
+  console.log(orchestrator.generatePreFlightSummary(classifyResult))
+  console.log()
+
+  const manifest = workflow.createManifest(
+    input.title,
+    input.description,
+    {
+      categories: input.categories,
+      filesAffected: input.filesAffected,
+      hasSchemaChanges: input.hasSchemaChanges,
+      hasAIConsumerChanges: input.hasAIConsumerChanges,
+      hasSecurityImplications: input.hasSecurityImplications,
+      isCrossCutting: input.affectedDomains.length > 1,
+      domains: input.affectedDomains,
+    },
+    classifyResult
+  )
+
+  console.log(`✓ TaskManifest created: ${manifest.id}`)
+  console.log(`  Status: ${manifest.status}`)
+  console.log(`  File: .governance/tasks/${manifest.id}.json`)
+  console.log()
+
+  if (classifyResult.complexity === 'complex') {
+    console.log('⚠  Council review required before implementation.')
+    console.log('  Required agents:')
+    for (const agent of classifyResult.requiredAgents) {
+      console.log(`    → ${AGENT_LABELS[agent] ?? agent}`)
+    }
+    console.log()
+  } else {
+    console.log('→ SIMPLE TASK: Direct delegation approved.')
+    console.log('  You may proceed with implementation.')
+  }
+  console.log()
 }
 
 function cmdList(): void {
@@ -397,6 +514,9 @@ async function main(): Promise<void> {
   switch (command) {
     case 'classify':
       await cmdClassify()
+      break
+    case 'prd':
+      await cmdPrd()
       break
     case 'list':
       cmdList()
