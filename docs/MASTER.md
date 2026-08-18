@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `932e8cf`.
+> Fuente de verdad: este repositorio en `b3d3942`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `932e8cf` |
+| **Commit HEAD** | `b3d3942` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-17T20:23:23-06:00 |
+| **Generado** | 2026-08-17T20:55:23-06:00 |
 
 ---
 
@@ -785,6 +785,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b3d3942 feat: front-load cancellation interception in WhatsApp webhook
+f5dd96f docs: regenerate MASTER.md at 932e8cf
 932e8cf feat: centralized context cache invalidation across all API routes and client components
 18c7556 docs: regenerate MASTER.md at 515e1fb
 515e1fb fix: send text first then interactive, pass salesConfig to prompt
@@ -803,8 +805,6 @@ e62e77d docs: regenerate MASTER.md at 6e1abc2
 6129de9 docs: regenerate MASTER.md at 323b96a
 323b96a fix: recover whatsapp connection when bridge is connected but DB has no record
 294724a docs: regenerate MASTER.md at 04bf7c9
-04bf7c9 fix: whatsapp baileys send failure detection + session cleanup
-8a532b5 docs: regenerate MASTER.md at 9f14f92
 ```
 
 ---
