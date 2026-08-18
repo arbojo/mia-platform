@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b2970ec`.
+> Fuente de verdad: este repositorio en `6a62eb6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b2970ec` |
+| **Commit HEAD** | `6a62eb6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T13:51:55-06:00 |
+| **Generado** | 2026-08-18T14:09:57-06:00 |
 
 ---
 
@@ -788,6 +788,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+6a62eb6 fix: coerce PRD acceptance criteria and add retry
+2e5a86b docs: regenerate MASTER.md at b2970ec
 b2970ec fix: use separate OPENAI_PRD_API_KEY for PRD generator
 a85ee04 docs: regenerate MASTER.md at f84ee65
 f84ee65 feat: PRD Generator Agent — AI-powered feature spec generation
@@ -806,8 +808,6 @@ ece0222 docs: regenerate MASTER.md at 1275bb9
 1275bb9 feat: sales closing blindaje + WhatsApp sanitization + settings
 183dd5b docs: regenerate MASTER.md at b45ad56
 b45ad56 feat: add real-time WhatsApp debug panel + stale socket guard
-d2a0162 fix: guard stale socket events to prevent session destruction race condition
-e62e77d docs: regenerate MASTER.md at 6e1abc2
 ```
 
 ---
