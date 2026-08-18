@@ -1,3 +1,4 @@
+import { createAdminClient } from '@/lib/supabase/admin'
 import { detectSaleOutcome, hasCancellationTrigger, hasSalesTrigger } from './detect'
 import { processCancellation } from './cancel'
 import {
@@ -12,6 +13,114 @@ import {
   notifySaleToOwner,
 } from './events'
 import { getSalesConfig } from '@/lib/ai/knowledge'
+import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
+import { resolveCustomer } from '@/lib/channels/identity'
+import type { WireMessage } from '@/lib/runtime/types'
+
+/**
+ * Early cancellation interception for the WhatsApp webhook.
+ *
+ * When a cancellation keyword is detected, handles the entire flow
+ * (resolution, persistence, cancellation processing) and returns a
+ * response — bypassing executeAI() entirely. Returns null if the message
+ * is NOT a cancellation, so the caller proceeds with the normal flow.
+ */
+export async function handleCancellationWebhook(
+  wireMessage: WireMessage
+): Promise<{
+  response: string
+  customerId: string
+  conversationId: string
+  deliver: boolean
+} | null> {
+  if (!hasCancellationTrigger(wireMessage.content)) return null
+
+  const supabase = createAdminClient()
+  const connection = await resolveConnection('whatsapp', wireMessage)
+  if (connection.mode === 'paused') return null
+
+  const businessId = connection.business_id
+  const assistantId = connection.assistant_id
+  const customer = await resolveCustomer(businessId, wireMessage)
+  const conversationId = await resolveConversation(assistantId, customer.id)
+  if (!conversationId) return null
+
+  try {
+    await supabase.from('messages').insert({
+      conversation_id: conversationId,
+      role: 'user',
+      content: wireMessage.content,
+    })
+  } catch (err) {
+    console.error('Failed to persist cancellation user message:', err)
+  }
+
+  await supabase.from('channel_messages').insert({
+    business_id: businessId,
+    customer_id: customer.id,
+    channel: 'whatsapp',
+    direction: 'incoming',
+    content: wireMessage.content,
+    external_id: wireMessage.externalId,
+    external_customer_id: wireMessage.customerExternalId,
+    status: 'received',
+  })
+
+  const chatHistory = await supabase
+    .from('messages')
+    .select('role, content')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true })
+    .limit(20)
+
+  const messages = (chatHistory.data ?? []).map((m) => ({
+    role: m.role as 'user' | 'assistant',
+    content: m.content,
+  }))
+
+  const result = await processCancellation({
+    businessId,
+    assistantId,
+    conversationId,
+    customerId: customer.id,
+    lastUserMessage: wireMessage.content,
+    messages,
+  })
+
+  const response = result.message ?? 'Tu solicitud de cancelación ha sido procesada.'
+
+  try {
+    await supabase.from('messages').insert({
+      conversation_id: conversationId,
+      role: 'assistant',
+      content: response,
+    })
+  } catch (err) {
+    console.error('Failed to persist cancellation response:', err)
+  }
+
+  await supabase.from('channel_messages').insert({
+    business_id: businessId,
+    customer_id: customer.id,
+    channel: 'whatsapp',
+    direction: 'outgoing',
+    content: response,
+    status: 'sent',
+    sent_at: new Date().toISOString(),
+  })
+
+  await supabase
+    .from('customers')
+    .update({ last_interaction: new Date().toISOString() })
+    .eq('id', customer.id)
+
+  return {
+    response,
+    customerId: customer.id,
+    conversationId,
+    deliver: true,
+  }
+}
 
 export async function processSaleClosing(params: {
   businessId: string
@@ -25,7 +134,9 @@ export async function processSaleClosing(params: {
   const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
   if (!lastUserMessage) return
 
-  // === STEP 0: Cancellation check (before sales detection) ===
+  // SAFETY NET: primary interception is in webhook/route.ts via
+  // handleCancellationWebhook(). This check exists as belt-and-suspenders
+  // in case a cancellation message reaches this path (e.g., training chat).
   if (hasCancellationTrigger(lastUserMessage.content)) {
     const alreadyCancelled = await hasCancellationLock(conversationId)
     if (alreadyCancelled) return

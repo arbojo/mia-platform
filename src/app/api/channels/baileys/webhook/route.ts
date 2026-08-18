@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { BaileysAdapter } from '@/lib/channels/adapters/baileys'
+import { handleCancellationWebhook } from '@/lib/sales/process'
 import { processIncomingMessage, RuntimeError } from '@/lib/runtime/runtime'
 import { getBridgeSecret } from '@/lib/baileys/config'
 import type { WireMessage } from '@/lib/runtime/types'
@@ -21,6 +22,21 @@ export async function POST(request: Request) {
 
     const adapter = new BaileysAdapter()
     const wireMessage = (await adapter.receiveMessage(body)) as WireMessage
+
+    // Early cancellation interception: skip AI entirely
+    const cancellationResult = await handleCancellationWebhook(wireMessage)
+    if (cancellationResult) {
+      return NextResponse.json({
+        success: true,
+        response: cancellationResult.response,
+        customerId: cancellationResult.customerId,
+        conversationId: cancellationResult.conversationId,
+        imageUrl: null,
+        mediaType: null,
+        interactive: null,
+        deliver: cancellationResult.deliver,
+      })
+    }
 
     const result = await processIncomingMessage('whatsapp', wireMessage, adapter)
 
