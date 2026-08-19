@@ -36,6 +36,7 @@ export interface EditionCapabilities {
   connections: boolean
   deliveryHub: boolean
   inventoryHub: boolean
+  analyticsDashboard: boolean
 }
 
 export interface Edition {
@@ -83,6 +84,7 @@ const EVALUATION: Edition = {
     connections: true,
     deliveryHub: false,
     inventoryHub: false,
+    analyticsDashboard: true,
   },
 }
 
@@ -125,6 +127,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       connections: true,
       deliveryHub: false,
       inventoryHub: false,
+      analyticsDashboard: true,
     },
   },
   enterprise: {
@@ -164,6 +167,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       connections: true,
       deliveryHub: true,
       inventoryHub: true,
+      analyticsDashboard: true,
     },
   },
   cloud: {
@@ -203,6 +207,7 @@ const EDITIONS: Record<EditionName, Edition> = {
       connections: true,
       deliveryHub: true,
       inventoryHub: true,
+      analyticsDashboard: true,
     },
   },
 }
@@ -386,4 +391,12 @@ export async function canBusinessUseDeliveryHub(businessId: string): Promise<boo
 
 export async function canBusinessUseInventoryHub(businessId: string): Promise<boolean> {
   return (await getEffectiveEdition(businessId)).capabilities.inventoryHub
+}
+
+export function canUseAnalyticsDashboard(): boolean {
+  return getEdition().capabilities.analyticsDashboard
+}
+
+export async function canBusinessUseAnalyticsDashboard(businessId: string): Promise<boolean> {
+  return (await getEffectiveEdition(businessId)).capabilities.analyticsDashboard
 }

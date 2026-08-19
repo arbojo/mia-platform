@@ -19,6 +19,7 @@ import {
   Sparkles,
   CircleHelp,
   SlidersHorizontal,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
@@ -110,6 +111,12 @@ export function ActivityRail() {
           label: t.nav.inventory,
           question: t.nav.inventoryQuestion,
           icon: Package,
+        },
+        {
+          href: '/dashboard/analytics',
+          label: t.nav.analytics,
+          question: t.nav.analyticsQuestion,
+          icon: BarChart3,
         },
       ],
     },

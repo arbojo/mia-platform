@@ -30,6 +30,8 @@ export const ja: Dict = {
     deliveryQuestion: '配達員と配達',
     inventory: '在庫',
     inventoryQuestion: '在庫と補充',
+    analytics: 'アナリティクス',
+    analyticsQuestion: 'ビジネスの指標とインサイト',
     settings: '設定',
     salesSettings: '販売設定',
     salesSettingsQuestion: 'MIAが注文とキャンセルをどう確認するか',

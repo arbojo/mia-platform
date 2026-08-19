@@ -28,6 +28,8 @@ export const es = {
     deliveryQuestion: 'repartidores y entregas',
     inventory: 'Inventario',
     inventoryQuestion: 'stock y reposición',
+    analytics: 'Analytics',
+    analyticsQuestion: 'métricas e insights de mi negocio',
     settings: 'Configuración',
     salesSettings: 'Configuración de Ventas',
     salesSettingsQuestion: 'cómo MIA confirma pedidos y cancelaciones',

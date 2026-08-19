@@ -30,6 +30,8 @@ export const en: Dict = {
     deliveryQuestion: 'drivers and deliveries',
     inventory: 'Inventory',
     inventoryQuestion: 'stock and restocking',
+    analytics: 'Analytics',
+    analyticsQuestion: 'business metrics and insights',
     settings: 'Settings',
     salesSettings: 'Sales Settings',
     salesSettingsQuestion: 'how MIA confirms orders and cancellations',
