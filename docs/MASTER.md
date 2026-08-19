@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b22904a`.
+> Fuente de verdad: este repositorio en `ed0a588`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b22904a` |
+| **Commit HEAD** | `ed0a588` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T20:14:35-06:00 |
+| **Generado** | 2026-08-18T20:50:19-06:00 |
 
 ---
 
@@ -364,7 +364,7 @@ widget
 
 ## 9. Componentes
 
-116 componentes en `src/components/`:
+117 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -385,6 +385,7 @@ chat/TrainingChat.tsx
 chat/TypingIndicator.tsx
 connections/ConnectionFollowUpConfig.tsx
 connections/ConnectionsManager.tsx
+conversations/ConversationDetailModal.tsx
 conversations/ConversationFilters.tsx
 conversations/ConversationList.tsx
 customers/MemoryPanel.tsx
@@ -789,6 +790,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ed0a588 feat: add conversation detail modal with last 5 messages and knowledge attachment
+3920e5c docs: regenerate MASTER.md at b22904a
 b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generator and Governance
 080d51d docs: regenerate MASTER.md at 2349b50
 2349b50 fix: coerce PRD scope fields (filesAffected, booleans, descriptions)
@@ -807,8 +810,6 @@ f5dd96f docs: regenerate MASTER.md at 932e8cf
 0d94cfe fix(bridge): add in-memory state cache to survive reconnects
 07a1953 fix: deserialize signal keys in get() and snapshot inside write queue callbacks
 f21ffc7 fix: WhatsApp bridge auth state corruption - serialize signal keys, remove logout from restart, write queue, graceful shutdown
-36d34a2 docs: regenerate MASTER.md at 4087537
-4087537 fix: refresh connections on waStatus error/idle so clean button stays visible
 ```
 
 ---
