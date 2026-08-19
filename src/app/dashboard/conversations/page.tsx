@@ -175,6 +175,7 @@ export default async function ConversationsPage({
       <ConversationList
         conversations={filteredList}
         lastMessages={lastMessagesMap}
+        businessId={business.id}
       />
     </div>
   )

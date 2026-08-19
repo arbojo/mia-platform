@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { User, Bot, Clock, ChevronRight, Archive, RotateCcw, CheckCircle2, MessageSquare, XCircle, StickyNote } from 'lucide-react'
-import { MemoryPanel } from '@/components/customers/MemoryPanel'
+import { User, Bot, Clock, Archive, RotateCcw, CheckCircle2, MessageSquare, XCircle, StickyNote } from 'lucide-react'
+import { ConversationDetailModal } from '@/components/conversations/ConversationDetailModal'
 import { Button } from '@/components/ui/button'
 
 interface CustomerData {
@@ -73,9 +73,11 @@ function getLastMessagePreview(lastMessages: Map<string, MessageRow>, conversati
 export function ConversationList({
   conversations,
   lastMessages,
+  businessId,
 }: {
   conversations: ConversationRow[]
   lastMessages: Map<string, MessageRow>
+  businessId: string
 }) {
   const router = useRouter()
   const [toggling, setToggling] = useState<Set<string>>(new Set())
@@ -133,6 +135,7 @@ export function ConversationList({
             lastMessageTime={getLastMessageTime(lastMessages.get(conv.id)?.created_at, conv.created_at)}
             isToggling={toggling.has(conv.id)}
             onChangeStatus={(s) => changeStatus(conv.id, s)}
+            businessId={businessId}
           />
         )
       })}
@@ -147,6 +150,7 @@ function ConversationCard({
   lastMessageTime,
   isToggling,
   onChangeStatus,
+  businessId,
 }: {
   conv: ConversationRow
   statusBadge: { label: string; className: string }
@@ -154,9 +158,10 @@ function ConversationCard({
   lastMessageTime: string
   isToggling: boolean
   onChangeStatus: (status: string) => void
+  businessId: string
 }) {
-  const [expanded, setExpanded] = useState(false)
   const [showingActions, setShowingActions] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
   const [notes, setNotes] = useState(conv.notes ?? '')
   const [savingNotes, setSavingNotes] = useState(false)
   const router = useRouter()
@@ -180,18 +185,7 @@ function ConversationCard({
       className="rounded-xl transition-all duration-200"
       style={{ backgroundColor: 'var(--elevation-2)' }}
     >
-      <div className="flex items-center gap-4 p-4">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex shrink-0 items-center justify-center transition-transform duration-200"
-          style={{ transform: expanded ? 'rotate(90deg)' : 'none' }}
-        >
-          <ChevronRight
-            className="h-4 w-4"
-            style={{ color: 'var(--atmosphere-text-secondary)' }}
-          />
-        </button>
-
+      <div className="flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-black/[.02]" onClick={() => setModalOpen(true)}>
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
           style={{
@@ -237,7 +231,7 @@ function ConversationCard({
         </div>
 
         <button
-          onClick={() => setShowingActions(!showingActions)}
+          onClick={(e) => { e.stopPropagation(); setShowingActions(!showingActions) }}
           className="shrink-0 rounded-lg p-2 text-xs font-medium transition-all duration-200 hover:opacity-70"
           style={{ color: 'var(--atmosphere-text-secondary)' }}
         >
@@ -297,11 +291,17 @@ function ConversationCard({
         </div>
       )}
 
-      {expanded && conv.customer_id && (
-        <div className="border-t px-4 pb-4 pt-3" style={{ borderColor: 'var(--elevation-3, rgba(0,0,0,0.05))' }}>
-          <MemoryPanel customerId={conv.customer_id} assistantId={conv.assistant_id} />
-        </div>
-      )}
+      <ConversationDetailModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        conversationId={conv.id}
+        customerName={getCustomerLabel(conv.customers)}
+        assistantName={conv.assistants?.name ?? '—'}
+        status={conv.status}
+        customerId={conv.customer_id}
+        assistantId={conv.assistant_id}
+        businessId={businessId}
+      />
     </div>
   )
 }
