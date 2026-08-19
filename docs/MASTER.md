@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `316b070`.
+> Fuente de verdad: este repositorio en `881e66f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `316b070` |
+| **Commit HEAD** | `881e66f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T01:42:16-06:00 |
+| **Generado** | 2026-08-19T03:00:37-06:00 |
 
 ---
 
@@ -794,6 +794,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+881e66f fix: conditional-media no devuelve genéricos cuando productId es conocido — evita imagen de otro producto
+f5dbc45 docs: regenerate MASTER.md at 316b070
 316b070 fix: resolveRecommendedProduct matchea nombre de producto en mensaje para imagen correcta
 85ba4c1 docs: regenerate MASTER.md at aafdb04
 aafdb04 fix: cancellation flow — outcome cancelled + discount acceptance + AI context
@@ -812,8 +814,6 @@ b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generat
 080d51d docs: regenerate MASTER.md at 2349b50
 2349b50 fix: coerce PRD scope fields (filesAffected, booleans, descriptions)
 b8e325b docs: regenerate MASTER.md at 6a62eb6
-6a62eb6 fix: coerce PRD acceptance criteria and add retry
-2e5a86b docs: regenerate MASTER.md at b2970ec
 ```
 
 ---
