@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `9a51143`.
+> Fuente de verdad: este repositorio en `435451b`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `9a51143` |
+| **Commit HEAD** | `435451b` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T10:44:28-06:00 |
+| **Generado** | 2026-08-19T12:59:27-06:00 |
 
 ---
 
@@ -43,7 +43,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 | Testing | Playwright (e2e) + Vitest (unit) |
 | CI | GitHub Actions |
 
-**Dependencias de producción** (23): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, read-excel-file, shadcn, tailwind-merge, tw-animate-css, zod
+**Dependencias de producción** (26): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, shadcn, tailwind-merge, tw-animate-css, zod
 
 **DevDependencies** (18): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest, ws, wscat
 
@@ -195,6 +195,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 43 | 043_rop_purchasing.sql |
 | 44 | 044_eta_cx.sql |
 | 45 | 045_sales_config.sql |
+| 46 | 046_products_cost_and_gps_freshness.sql |
 
 ---
 
@@ -232,11 +233,12 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-89 rutas en `src/app/api/`:
+90 rutas en `src/app/api/`:
 
 ```
 accessibility
 admin/delivery/closures
+admin/delivery/command-center
 admin/delivery/drivers/[id]
 admin/delivery/drivers/[id]/token
 admin/delivery/drivers
@@ -367,7 +369,7 @@ widget
 
 ## 9. Componentes
 
-118 componentes en `src/components/`:
+122 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -423,6 +425,8 @@ dashboard/ThemeProvider.tsx
 dashboard/TodaysActivity.tsx
 dashboard/VitalPresence.tsx
 dashboard/WeeklyReportCard.tsx
+delivery/CommandCenterMap.tsx
+delivery/CommandCenterPanel.tsx
 delivery/DeliveryAdmin.tsx
 delivery/DeliveryClosuresPanel.tsx
 delivery/DeliveryDriversPanel.tsx
@@ -430,6 +434,8 @@ delivery/DeliveryOrdersPanel.tsx
 delivery/DeliveryPaywall.tsx
 delivery/DeliveryRoutesPanel.tsx
 delivery/DeliverySettingsPanel.tsx
+delivery/DriverDetailModal.tsx
+delivery/KPICard.tsx
 delivery/admin-api.ts
 demo/DemoPaywall.tsx
 driver/DeliverForm.tsx
@@ -794,6 +800,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+435451b feat: Delivery Hub Command Center — mapa, KPIs financieros y detalle por repartidor
+9bb3782 docs: regenerate MASTER.md at 9a51143
 9a51143 feat: reduce shell tour to 3 steps, add delivery tour, simplify onboarding to 3 steps
 e5d6993 docs: regenerate MASTER.md at 881e66f
 881e66f fix: conditional-media no devuelve genéricos cuando productId es conocido — evita imagen de otro producto
@@ -812,8 +820,6 @@ fe274fd feat: memory suggestions panel with approval flow + modal fixes
 284c34d docs: regenerate MASTER.md at ed0a588
 ed0a588 feat: add conversation detail modal with last 5 messages and knowledge attachment
 3920e5c docs: regenerate MASTER.md at b22904a
-b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generator and Governance
-080d51d docs: regenerate MASTER.md at 2349b50
 ```
 
 ---
