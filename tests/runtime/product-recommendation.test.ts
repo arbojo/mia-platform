@@ -180,6 +180,52 @@ describe('resolveRecommendedProduct', () => {
     expect(result?.productId).toBe('prod-1')
   })
 
+  it('match por nombre de producto en el mensaje resuelve el producto', async () => {
+    mockSupabase({
+      knowledge_items: { data: [] },
+      products: { data: [product()], single: product() },
+    })
+
+    const result = await resolveRecommendedProduct({
+      ...baseParams,
+      userMessage: 'dame información del Clean Nails',
+    })
+
+    expect(result?.productId).toBe('prod-1')
+    expect(result?.name).toBe('Clean Nails')
+  })
+
+  it('match por nombre con acentos funciona correctamente', async () => {
+    mockSupabase({
+      knowledge_items: { data: [] },
+      products: { data: [product({ name: 'Uñas Felices' })], single: product({ name: 'Uñas Felices' }) },
+    })
+
+    const result = await resolveRecommendedProduct({
+      ...baseParams,
+      userMessage: 'cuanto cuesta las uñas felices',
+    })
+
+    expect(result?.productId).toBe('prod-1')
+  })
+
+  it('match por nombre con varios productos ambiguos devuelve null', async () => {
+    mockSupabase({
+      knowledge_items: { data: [] },
+      products: {
+        data: [product(), product({ id: 'prod-2', name: 'Neurofeet' })],
+        single: product(),
+      },
+    })
+
+    const result = await resolveRecommendedProduct({
+      ...baseParams,
+      userMessage: 'quiero información del Clean Nails y del Neurofeet',
+    })
+
+    expect(result).toBeNull()
+  })
+
   it('fallback de intención catalog con varios productos es ambiguo y devuelve null', async () => {
     mockSupabase({
       knowledge_items: { data: [] },

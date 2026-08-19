@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { triggerMatches, intentMatchesTrigger } from './media'
+import { normalizeText, triggerMatches, intentMatchesTrigger } from './media'
 import { detectIntent } from './intents'
 import type { ProductReference } from '@/lib/channels/types'
 import type { Database } from '@/lib/types'
@@ -63,6 +63,23 @@ export async function resolveRecommendedProduct(
     return null
   }
   if (matchedProductIds.length > 1) return null
+
+  // 2b. Match por nombre de producto en el mensaje (ej. "información del Clean Nails").
+  const normalizedMessage = normalizeText(userMessage)
+  const { data: allProducts } = await supabase
+    .from('products')
+    .select('*')
+    .eq('business_id', businessId)
+    .eq('is_active', true)
+
+  const nameMatches = (allProducts ?? []).filter((p) => {
+    const normalizedName = normalizeText(p.name)
+    return normalizedName.length > 0 && normalizedMessage.includes(normalizedName)
+  })
+
+  if (nameMatches.length === 1) {
+    return buildProductReference(supabase, nameMatches[0])
+  }
 
   // 3. Fallback: intención de catálogo/precio sobre productos activos.
   const intent = intentTag ?? detectIntent(userMessage)
