@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `aafdb04`.
+> Fuente de verdad: este repositorio en `316b070`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `aafdb04` |
+| **Commit HEAD** | `316b070` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T23:51:40-06:00 |
+| **Generado** | 2026-08-19T01:42:16-06:00 |
 
 ---
 
@@ -794,6 +794,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+316b070 fix: resolveRecommendedProduct matchea nombre de producto en mensaje para imagen correcta
+85ba4c1 docs: regenerate MASTER.md at aafdb04
 aafdb04 fix: cancellation flow — outcome cancelled + discount acceptance + AI context
 674defa docs: regenerate MASTER.md at 7410ed3
 7410ed3 fix: two-step cancellation flow with discount offer
@@ -812,8 +814,6 @@ b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generat
 b8e325b docs: regenerate MASTER.md at 6a62eb6
 6a62eb6 fix: coerce PRD acceptance criteria and add retry
 2e5a86b docs: regenerate MASTER.md at b2970ec
-b2970ec fix: use separate OPENAI_PRD_API_KEY for PRD generator
-a85ee04 docs: regenerate MASTER.md at f84ee65
 ```
 
 ---
