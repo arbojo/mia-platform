@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MessageSquare } from 'lucide-react'
 import { ConversationFilters } from '@/components/conversations/ConversationFilters'
 import { ConversationList } from '@/components/conversations/ConversationList'
+import { MemorySuggestionsPanel } from '@/components/conversations/MemorySuggestionsPanel'
 
 interface CustomerData {
   name: string | null
@@ -162,6 +163,8 @@ export default async function ConversationsPage({
       </div>
 
       <ConversationFilters assistants={assistants as { id: string; name: string | null }[]} />
+
+      <MemorySuggestionsPanel />
 
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
         <span>Total: <strong>{filteredList.length}</strong></span>

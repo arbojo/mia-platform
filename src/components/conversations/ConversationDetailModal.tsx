@@ -18,6 +18,7 @@ interface ConversationDetailModalProps {
   onClose: () => void
   conversationId: string
   customerName: string
+  customerPhone: string | null
   assistantName: string
   status: string
   customerId: string | null
@@ -54,6 +55,7 @@ export function ConversationDetailModal({
   onClose,
   conversationId,
   customerName,
+  customerPhone,
   assistantName,
   status,
   customerId,
@@ -160,7 +162,7 @@ export function ConversationDetailModal({
     <DialogPrimitive.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/40" />
-        <DialogPrimitive.Popup className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border shadow-xl overflow-hidden" style={{ backgroundColor: 'var(--elevation-1)', borderColor: 'var(--elevation-3)' }}>
+        <DialogPrimitive.Popup className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border shadow-xl overflow-hidden" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--elevation-3)' }}>
           {/* Header */}
           <div className="flex items-center justify-between border-b px-5 py-4" style={{ borderColor: 'var(--elevation-3)' }}>
             <div className="flex items-center gap-3 min-w-0">
@@ -179,6 +181,11 @@ export function ConversationDetailModal({
                 <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
                   {assistantName}
                 </p>
+                {customerPhone && (
+                  <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.7 }}>
+                    {customerPhone}
+                  </p>
+                )}
               </div>
             </div>
             <DialogPrimitive.Close className="rounded-lg p-1.5 transition-colors hover:bg-black/5">

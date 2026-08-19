@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getCustomerMemory, extractCustomerMemory } from '@/lib/ai/customer-memory'
+import { getCustomerMemory, extractAndSaveCustomerMemory } from '@/lib/ai/customer-memory'
 import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 async function verifyCustomerAccess(customerId: string): Promise<boolean> {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     .eq('id', assistantId)
     .single()
 
-  const memory = await extractCustomerMemory(customerId, assistantId)
+  const memory = await extractAndSaveCustomerMemory(customerId, assistantId)
   if (assistant?.business_id) {
     invalidateSystemContext(assistant.business_id)
   }

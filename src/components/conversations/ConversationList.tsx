@@ -296,6 +296,7 @@ function ConversationCard({
         onClose={() => setModalOpen(false)}
         conversationId={conv.id}
         customerName={getCustomerLabel(conv.customers)}
+        customerPhone={conv.customers?.phone ?? null}
         assistantName={conv.assistants?.name ?? '—'}
         status={conv.status}
         customerId={conv.customer_id}

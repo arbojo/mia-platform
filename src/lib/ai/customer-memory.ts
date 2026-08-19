@@ -12,6 +12,25 @@ export interface CustomerMemory {
   summary: string
 }
 
+export interface MemoryDiff {
+  newInterests: string[]
+  newObjections: string[]
+  newPreferences: string[]
+  newQuestions: string[]
+  summaryChanged: boolean
+}
+
+export interface MemorySuggestion {
+  customerId: string
+  customerName: string | null
+  phone: string | null
+  existingMemory: CustomerMemory | null
+  proposedMemory: CustomerMemory
+  diff: MemoryDiff
+  conversationCount: number
+  messageCount: number
+}
+
 export async function getCustomerMemory(customerId: string): Promise<CustomerMemory | null> {
   const supabase = createAdminClient()
 
@@ -42,7 +61,53 @@ export async function getCustomerMemory(customerId: string): Promise<CustomerMem
   }
 }
 
-export async function extractCustomerMemory(
+export async function extractMemorySuggestion(
+  customerId: string,
+  assistantId: string,
+): Promise<MemorySuggestion> {
+  const supabase = createAdminClient()
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('name, phone, memory')
+    .eq('id', customerId)
+    .maybeSingle()
+
+  const { data: conversations } = await supabase
+    .from('conversations')
+    .select('id, created_at')
+    .eq('customer_id', customerId)
+    .eq('assistant_id', assistantId)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  const conversationIds = conversations?.map((c) => c.id) ?? []
+
+  const { data: messages } = await supabase
+    .from('messages')
+    .select('role, content, created_at')
+    .in('conversation_id', conversationIds.length > 0 ? conversationIds : ['none'])
+    .order('created_at', { ascending: true })
+    .limit(50)
+
+  const existingRaw = customer?.memory as Record<string, unknown> | undefined
+  const existingMemory = existingRaw ? parseMemory(existingRaw) : null
+  const proposedMemory = mergeMemory(existingRaw, customer?.name ?? null, messages ?? [])
+  const diff = calculateDiff(existingMemory, proposedMemory)
+
+  return {
+    customerId,
+    customerName: customer?.name ?? null,
+    phone: customer?.phone ?? null,
+    existingMemory,
+    proposedMemory,
+    diff,
+    conversationCount: conversations?.length ?? 0,
+    messageCount: messages?.length ?? 0,
+  }
+}
+
+export async function extractAndSaveCustomerMemory(
   customerId: string,
   assistantId: string,
 ): Promise<CustomerMemory> {
@@ -83,6 +148,60 @@ export async function extractCustomerMemory(
     .eq('id', customerId)
 
   return memory
+}
+
+export async function approveMemorySuggestion(
+  customerId: string,
+  memory: CustomerMemory,
+): Promise<void> {
+  const supabase = createAdminClient()
+
+  await supabase
+    .from('customers')
+    .update({
+      memory: JSON.parse(JSON.stringify(memory)),
+      last_interaction: new Date().toISOString(),
+    })
+    .eq('id', customerId)
+}
+
+function parseMemory(raw: Record<string, unknown>): CustomerMemory {
+  return {
+    interests: Array.isArray(raw.interests) ? raw.interests as string[] : [],
+    objections: Array.isArray(raw.objections) ? raw.objections as string[] : [],
+    questions: Array.isArray(raw.questions) ? raw.questions as string[] : [],
+    preferences: Array.isArray(raw.preferences) ? raw.preferences as string[] : [],
+    summary: typeof raw.summary === 'string' ? raw.summary : '',
+    lastInteraction: typeof raw.lastInteraction === 'string' ? raw.lastInteraction : null,
+  }
+}
+
+function calculateDiff(
+  existing: CustomerMemory | null,
+  proposed: CustomerMemory,
+): MemoryDiff {
+  if (!existing) {
+    return {
+      newInterests: proposed.interests,
+      newObjections: proposed.objections,
+      newPreferences: proposed.preferences,
+      newQuestions: proposed.questions,
+      summaryChanged: proposed.summary.length > 0,
+    }
+  }
+
+  const existingInterests = new Set(existing.interests)
+  const existingObjections = new Set(existing.objections)
+  const existingPreferences = new Set(existing.preferences)
+  const existingQuestions = new Set(existing.questions)
+
+  return {
+    newInterests: proposed.interests.filter((i) => !existingInterests.has(i)),
+    newObjections: proposed.objections.filter((o) => !existingObjections.has(o)),
+    newPreferences: proposed.preferences.filter((p) => !existingPreferences.has(p)),
+    newQuestions: proposed.questions.filter((q) => !existingQuestions.has(q)),
+    summaryChanged: proposed.summary !== existing.summary,
+  }
 }
 
 function mergeMemory(
