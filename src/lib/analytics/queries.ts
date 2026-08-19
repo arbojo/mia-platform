@@ -38,10 +38,25 @@ export interface AiCostDailyRow {
   cost_by_type: Record<string, { count: number; cost: number }>
 }
 
+export interface CustomerInsightRow {
+  business_id: string
+  customer_id: string
+  customer_name: string
+  customer_city: string | null
+  customer_status: string | null
+  conversations_started: number
+  sales_won: number
+  sales_lost: number
+  sales_cancelled: number
+  total_value: number
+  last_purchase_at: string | null
+}
+
 export interface AnalyticsOverview {
   salesDaily: SalesDailyRow[]
   topProducts: ProductPerformanceRow[]
   aiCostDaily: AiCostDailyRow[]
+  topCustomers: CustomerInsightRow[]
   summary: {
     totalRevenue: number
     totalOrders: number
@@ -49,12 +64,15 @@ export interface AnalyticsOverview {
     avgOrderValue: number
     totalAiCost: number
     aiCostToday: number
+    costPerSale: number
+    activeCustomers: number
   }
 }
 
 function daysAgo(n: number): string {
   const d = new Date()
   d.setDate(d.getDate() - n)
+  d.setHours(0, 0, 0, 0)
   return d.toISOString().slice(0, 10)
 }
 
@@ -64,8 +82,9 @@ export async function getAnalyticsOverview(
 ): Promise<AnalyticsOverview> {
   const supabase = createAnalyticsAdmin()
   const since = daysAgo(days)
+  const today = daysAgo(0)
 
-  const [{ data: salesDaily }, { data: topProducts }, { data: aiCostDaily }] =
+  const [{ data: salesDaily }, { data: topProducts }, { data: aiCostDaily }, { data: topCustomers }] =
     await Promise.all([
       supabase
         .from('sales_daily' as never)
@@ -85,11 +104,18 @@ export async function getAnalyticsOverview(
         .eq('business_id', businessId)
         .gte('date', since)
         .order('date', { ascending: true }) as never,
+      supabase
+        .from('customer_insights' as never)
+        .select('*')
+        .eq('business_id', businessId)
+        .order('total_value', { ascending: false })
+        .limit(10) as never,
     ])
 
   const sd = (salesDaily ?? []) as unknown as SalesDailyRow[]
   const pp = (topProducts ?? []) as unknown as ProductPerformanceRow[]
   const ac = (aiCostDaily ?? []) as unknown as AiCostDailyRow[]
+  const ci = (topCustomers ?? []) as unknown as CustomerInsightRow[]
 
   const totalRevenue = sd.reduce((s, r) => s + (r.revenue ?? 0), 0)
   const totalOrders = sd.reduce((s, r) => s + (r.won_count ?? 0), 0)
@@ -100,13 +126,15 @@ export async function getAnalyticsOverview(
   const avgOrderValue =
     totalOrders > 0 ? Math.round((totalRevenue / totalOrders) * 100) / 100 : 0
   const totalAiCost = ac.reduce((s, r) => s + (r.total_cost ?? 0), 0)
-  const today = new Date().toISOString().slice(0, 10)
   const aiCostToday = ac.find((r) => r.date === today)?.total_cost ?? 0
+  const costPerSale = totalOrders > 0 ? Math.round((totalAiCost / totalOrders) * 10000) / 10000 : 0
+  const activeCustomers = ci.length
 
   return {
     salesDaily: sd,
     topProducts: pp,
     aiCostDaily: ac,
+    topCustomers: ci,
     summary: {
       totalRevenue,
       totalOrders,
@@ -114,6 +142,8 @@ export async function getAnalyticsOverview(
       avgOrderValue,
       totalAiCost: Math.round(totalAiCost * 10000) / 10000,
       aiCostToday: Math.round(aiCostToday * 10000) / 10000,
+      costPerSale,
+      activeCustomers,
     },
   }
 }
