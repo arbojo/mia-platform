@@ -210,6 +210,7 @@ export async function GET(req: NextRequest) {
         v.status !== 'entregado' &&
         v.status !== 'incidencia'
     )
+    const circulationUnits = ordersInActiveRoutes.length
     const circulationValue = ordersInActiveRoutes.reduce(
       (sum, v) => sum + (v.orders?.amount ?? 0),
       0
@@ -232,7 +233,8 @@ export async function GET(req: NextRequest) {
         products_without_cost: productsWithoutCost,
       },
       circulation: {
-        orders_in_active_routes: ordersInActiveRoutes.length,
+        total_units: circulationUnits,
+        orders_in_active_routes: circulationUnits,
         total_value: Math.round(circulationValue * 100) / 100,
       },
       today_summary: {

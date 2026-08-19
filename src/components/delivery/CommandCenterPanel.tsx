@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { DollarSign, Target, TrendingUp, Package, AlertTriangle } from 'lucide-react'
+import { DollarSign, Target, TrendingUp, Package, AlertTriangle, Truck, MapPin } from 'lucide-react'
 import { adminFetch } from '@/components/delivery/admin-api'
 import { KPICard } from '@/components/delivery/KPICard'
 import { CommandCenterMap, DriverStalenessIndicator } from '@/components/delivery/CommandCenterMap'
@@ -56,6 +56,7 @@ interface CommandCenterData {
     }>
   }
   circulation: {
+    total_units: number
     orders_in_active_routes: number
     total_value: number
   }
@@ -129,7 +130,7 @@ export function CommandCenterPanel({ businessId }: { businessId: string }) {
     <div className="space-y-5">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KPICard
-          label="Lana en la calle"
+          label="Cobranza en ruta"
           value={`$${financials.total_collected.toLocaleString()}`}
           subtitle={`${today_summary.delivered} entregas hoy`}
           icon={DollarSign}
@@ -163,8 +164,8 @@ export function CommandCenterPanel({ businessId }: { businessId: string }) {
 
         <KPICard
           label="Producto en circulación"
-          value={`$${circulation.total_value.toLocaleString()}`}
-          subtitle={`${circulation.orders_in_active_routes} órdenes en ruta`}
+          value={`${circulation.total_units} pzas`}
+          subtitle={`Valuado en $${circulation.total_value.toLocaleString()} · ${circulation.orders_in_active_routes} órdenes activas`}
           icon={Package}
           color="var(--atmosphere-accent)"
         />
@@ -278,15 +279,55 @@ export function CommandCenterPanel({ businessId }: { businessId: string }) {
 
       {drivers_with_route.length === 0 && driversWithLocation.length === 0 && (
         <div
-          className="flex flex-col items-center justify-center rounded-xl py-12"
+          className="relative overflow-hidden rounded-xl"
           style={{
-            border: '1px dashed var(--atmosphere-border)',
+            border: '1px solid var(--atmosphere-border)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 70%, transparent)',
           }}
         >
-          <Package className="mb-2 h-8 w-8" style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.3 }} />
-          <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.5 }}>
-            Sin repartidores activos hoy
-          </p>
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'radial-gradient(ellipse at 50% 0%, var(--atmosphere-accent) 08, transparent 70%)',
+              opacity: 0.4,
+            }}
+          />
+          <div className="relative z-10 flex flex-col items-center px-6 py-16 text-center">
+            <div
+              className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--atmosphere-accent) 10%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--atmosphere-accent) 15%, transparent)',
+              }}
+            >
+              <Truck className="h-6 w-6" style={{ color: 'var(--atmosphere-accent)', opacity: 0.6 }} />
+            </div>
+            <h3
+              className="text-base font-semibold"
+              style={{ color: 'var(--atmosphere-text)' }}
+            >
+              Sin actividad de reparto hoy
+            </h3>
+            <p
+              className="mt-1.5 max-w-sm text-sm leading-relaxed"
+              style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}
+            >
+              No hay rutas activas ni repartidores en campo para el día de hoy.
+              Las métricas se actualizarán cuando se assignen pedidos a repartidores.
+            </p>
+            <div
+              className="mt-5 flex items-center gap-2 rounded-lg px-3 py-2"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--atmosphere-accent) 6%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--atmosphere-accent) 12%, transparent)',
+              }}
+            >
+              <MapPin className="h-3.5 w-3.5" style={{ color: 'var(--atmosphere-accent)', opacity: 0.5 }} />
+              <span className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)', opacity: 0.6 }}>
+                Programá rutas desde la pestaña <strong>Rutas</strong> para comenzar
+              </span>
+            </div>
+          </div>
         </div>
       )}
 
