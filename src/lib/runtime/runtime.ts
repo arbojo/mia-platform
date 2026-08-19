@@ -192,6 +192,36 @@ export async function processIncomingMessage(
 
   const customer = await resolveCustomer(businessId, wireMessage)
 
+  let cancellationContext: { orderNumber: string; hoursAgo: number } | null = null
+  if (customer.id) {
+    const { data: lastConv } = await supabase
+      .from('conversations')
+      .select('id, sales_cancelled_at')
+      .eq('customer_id', customer.id)
+      .eq('status', 'completed')
+      .not('sales_cancelled_at', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (lastConv?.sales_cancelled_at) {
+      const cancelledAt = new Date(lastConv.sales_cancelled_at).getTime()
+      const hoursAgo = (Date.now() - cancelledAt) / (1000 * 60 * 60)
+      if (hoursAgo < 24) {
+        const { data: cancelEvent } = await supabase
+          .from('sales_events')
+          .select('metadata')
+          .eq('conversation_id', lastConv.id)
+          .eq('event_type', 'SALE_CANCELLED')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        const orderNumber = (cancelEvent?.metadata as Record<string, unknown>)?.order_number as string | undefined
+        cancellationContext = { orderNumber: orderNumber ?? 'desconocido', hoursAgo: Math.round(hoursAgo * 10) / 10 }
+      }
+    }
+  }
+
   const conversationId = await resolveConversation(assistantId, customer.id)
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
@@ -254,7 +284,8 @@ export async function processIncomingMessage(
       : undefined,
     intentTag,
     undefined,
-    conversationOutcome
+    conversationOutcome,
+    cancellationContext
   )
 
   const chatHistory = conversationId

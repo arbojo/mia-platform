@@ -200,6 +200,7 @@ export function buildMasterPrompt(params: {
   intentTag?: string | null
   salesConfig?: SalesPromptConfig
   conversationOutcome?: string | null
+  cancellationContext?: { orderNumber: string; hoursAgo: number } | null
   landingContext?: {
     brand?: string
     product?: string
@@ -222,6 +223,7 @@ export function buildMasterPrompt(params: {
     intentTag,
     salesConfig,
     conversationOutcome,
+    cancellationContext,
     landingContext,
   } = params
 
@@ -323,17 +325,30 @@ ${brand?.elevator_pitch ?? ai.noBusinessInfo}
 ${brand?.target_customers ? `\n${ai.targetCustomers}: ${brand.target_customers}` : ''}
 ${brand?.differentiators ? `\n${ai.differentiators}: ${brand.differentiators}` : ''}
 
-## ${ai.products}
+${conversationOutcome === 'cancelled'
+  ? `## Estado de la conversación
+Esta conversación está CANCELADA. El cliente ya no quiere el producto.
+ESTÁ PROHIBIDO mencionar pedidos, productos, precios, descuentos o procesos de compra.
+NO uses el catálogo de productos ni las reglas de venta.
+Responde SOLO con ayuda general, de forma amable y servicial.
+Si el cliente pregunta por su pedido cancelado, confirma que fue cancelado y ofrece ayuda con otra cosa.`
+  : `## ${ai.products}
 ${formatProducts(products, ai)}
 
 ## ${ai.salesRules}
-${formatRules(rules, ai)}
+${formatRules(rules, ai)}`
+}
 ${formatInstructions(instructions) ? `\n## ${ai.additionalInstructions}\n${formatInstructions(instructions)}` : ''}
 ${formatKnowledge(knowledge, ai, landingContext?.productId, channel) ? `\n## ${ai.additionalKnowledge}\n${formatKnowledge(knowledge, ai, landingContext?.productId, channel)}` : ''}
 ${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemory(memory, ai)}` : ''}
 ${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
 ${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}
-${conversationOutcome === 'cancelled' ? `\n## Estado de la conversación\nEsta conversación está CANCELADA. El cliente ya no quiere el producto. NO intentes vender, confirmar pedidos ni ofrecer productos. Si el cliente menciona un descuento activo, confirma la compra con el descuento aplicado. Si no, responde de forma amable sin intentar cerrar la venta. Solo ofrece ayuda general.` : ''}
+${cancellationContext && conversationOutcome !== 'cancelled'
+  ? `\n## Contexto importante
+Este cliente canceló recientemente el pedido ${cancellationContext.orderNumber} (hace ${cancellationContext.hoursAgo} horas).
+NO menciones la cancelación a menos que el cliente lo pregunte directamente.
+Si el cliente muestra intención de compra, continúa con el flujo normal de ventas como si fuera una nueva oportunidad.`
+  : ''}
 
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`

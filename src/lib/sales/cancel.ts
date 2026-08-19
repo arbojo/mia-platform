@@ -119,6 +119,7 @@ export async function processCancellation(
   await supabase
     .from('conversations')
     .update({
+      status: 'completed',
       outcome: 'cancelled',
       sales_cancelled_at: new Date().toISOString(),
       outcome_updated_at: new Date().toISOString(),
