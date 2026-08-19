@@ -63,6 +63,7 @@ MIA uses a **specialized engineering agent system** with 18 distinct roles. The 
 | QA Engineer | `.agents/qa.md` | Quality verification, testing |
 | Release Manager | `.agents/release.md` | Git operations, repository integrity, Vercel deployment |
 | **Memory Engineer** | `.agents/memory-engineer.md` | Engineering memory: decisions, incidents, patterns, lessons |
+| **Godzilla** | `.agents/godzilla.md` | Adversarial stress testing: attempts to break the system before production with hostile inputs, edge cases, and boundary conditions |
 
 ### 2.2 Mandatory Workflow
 
@@ -100,8 +101,10 @@ G. Governance Gate (MANDATORY — see Section 23)
 13. Analytics Engineer (measurement strategy)
    ↓
 14. QA Engineer (lint, build, Playwright, DevTools)
-   ↓
-15. Release Manager (git verification, commit, push, Vercel deploy + verification, final report)
+    ↓
+15. Godzilla (adversarial stress testing — tries to break the system)
+    ↓
+16. Release Manager (git verification, commit, push, Vercel deploy + verification, final report)
 ```
 
 **No agent may skip this workflow.** The Governance Gate (G) MUST be the first action before ANY code modification. See Section 23 for complete governance enforcement rules.
@@ -141,6 +144,7 @@ Certain agents hold **guardian authority** — the power to block progress when 
 | **Security Engineer** | May block releases if security risks are detected | Any release with security vulnerabilities |
 | **Performance Engineer** | May request optimization before release when measurable performance or cost improvements exist | Releases with known performance issues |
 | **QA Engineer** | May block releases if quality gates fail | Releases that fail lint, build, or tests |
+| **Godzilla** | May block releases if CRITICAL or HIGH stress test findings exist | Releases with adversarial vulnerabilities |
 | **Release Manager** | May refuse deployment if any guardian has unresolved blocking issues | Any deployment |
 
 ### 2.5 Agent Rules
@@ -250,6 +254,18 @@ Certain agents hold **guardian authority** — the power to block progress when 
 - Checks console, errors, warnings, failed requests
 - No exceptions to quality gates
 - Delegates performance to Performance Engineer, security to Security Engineer
+
+#### Godzilla Rules
+- Every modified file must be audited — no exceptions based on "it looks simple"
+- Execute all applicable attack vectors with real code execution (active mode)
+- CRITICAL or HIGH findings block release — no override
+- MEDIUM findings are documented but do not block
+- Report must include file:line for every finding
+- Re-run only failed vectors after fixes (regression check)
+- Godzilla does not fix code — it reports what breaks and delegates fixes to engineers
+- Cross-domain changes require cross-domain attack vectors
+- Prompt injection tests are mandatory when AI-facing code is modified
+- Godzilla is the final adversarial gate — after QA, before Release
 
 #### Release Manager Rules
 - Only one who commits/pushes
@@ -505,6 +521,7 @@ mia/
 │   ├── security-engineer.md
 │   ├── analytics-engineer.md
 │   ├── qa.md
+│   ├── godzilla.md
 │   └── release.md
 ├── docs/
 │   └── adr/                     # Architecture Decision Records
@@ -999,13 +1016,13 @@ The Orchestrator classifies every task as **Simple** or **Complex**:
 
 3. **QUALITY GATES**: Before marking a task as `completed`, all required quality gates must pass:
    - Simple tasks must pass: `lint`, `build`
-   - Complex tasks must pass: `lint`, `build`, `unit_tests`, `e2e_tests`, `chrome_devtools`, `security_review`
+   - Complex tasks must pass: `lint`, `build`, `unit_tests`, `e2e_tests`, `chrome_devtools`, `security_review`, `stress_test`
 
 4. **COUNCIL SEQUENCE**: For complex tasks, agents must approve in order:
    ```
-   CTO (if large feature) → Architect → Domain Expert → Product Manager →
-   Database (if schema) → Backend → Frontend → AI Engineer (if AI) →
-   Performance → Security → Analytics → QA → Release Manager
+    CTO (if large feature) → Architect → Domain Expert → Product Manager →
+    Database (if schema) → Backend → Frontend → AI Engineer (if AI) →
+    Performance → Security → Analytics → QA → Godzilla → Release Manager
    ```
    Each agent records their decision via:
    ```bash
@@ -1036,6 +1053,7 @@ Before a task can transition to `completed`, run each required quality gate:
 | chrome_devtools | Run Chrome DevTools MCP checks |
 | security_review | Security Engineer approves |
 | performance_review | Performance Engineer approves |
+| stress_test | Godzilla Stress Test (adversarial) — CRITICAL/HIGH findings block release |
 
 ### 23.8 Governance Artifacts
 

@@ -121,6 +121,7 @@ export class Orchestrator {
     if (complexity === 'complex') {
       agentSet.add('architect')
       agentSet.add('qa')
+      agentSet.add('godzilla')
       agentSet.add('release')
     }
 
@@ -143,6 +144,7 @@ export class Orchestrator {
       'security',
       'analytics',
       'qa',
+      'godzilla',
       'release',
       'infrastructure_bootstrap',
       'infrastructure_guardian',

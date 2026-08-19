@@ -29,6 +29,7 @@ export type AgentRole =
   | 'infrastructure_bootstrap'
   | 'infrastructure_guardian'
   | 'memory_engineer'
+  | 'godzilla'
 
 export type TaskCategory =
   | 'bugfix'
@@ -53,6 +54,7 @@ export type QualityGate =
   | 'chrome_devtools'
   | 'security_review'
   | 'performance_review'
+  | 'stress_test'
 
 export const AGENT_LABELS: Record<AgentRole, string> = {
   cto: 'CTO',
@@ -71,6 +73,7 @@ export const AGENT_LABELS: Record<AgentRole, string> = {
   infrastructure_bootstrap: 'Infrastructure Bootstrap',
   infrastructure_guardian: 'Infrastructure Guardian',
   memory_engineer: 'Memory Engineer',
+  godzilla: 'Godzilla',
 }
 
 export const QUALITY_GATE_LABELS: Record<QualityGate, string> = {
@@ -83,22 +86,23 @@ export const QUALITY_GATE_LABELS: Record<QualityGate, string> = {
   chrome_devtools: 'Chrome DevTools console and network check',
   security_review: 'Security Engineer review',
   performance_review: 'Performance Engineer review',
+  stress_test: 'Godzilla Stress Test (adversarial)',
 }
 
 export const DEFAULT_QUALITY_GATES: Record<TaskComplexity, QualityGate[]> = {
   simple: ['lint', 'build'],
-  complex: ['lint', 'build', 'unit_tests', 'e2e_tests', 'chrome_devtools', 'security_review'],
+  complex: ['lint', 'build', 'unit_tests', 'e2e_tests', 'chrome_devtools', 'security_review', 'stress_test'],
 }
 
 export const AGENT_TASK_MAP: Record<TaskCategory, AgentRole[]> = {
-  bugfix: ['backend', 'frontend', 'qa'],
-  feature: ['architect', 'backend', 'frontend', 'qa', 'release'],
+  bugfix: ['backend', 'frontend', 'qa', 'godzilla'],
+  feature: ['architect', 'backend', 'frontend', 'qa', 'godzilla', 'release'],
   refactor: ['architect', 'backend', 'frontend'],
-  schema_change: ['database', 'backend', 'security'],
-  ai_behaviour: ['ai_engineer', 'backend', 'qa', 'performance'],
+  schema_change: ['database', 'backend', 'security', 'godzilla'],
+  ai_behaviour: ['ai_engineer', 'backend', 'qa', 'performance', 'godzilla'],
   ui_change: ['frontend', 'qa'],
-  api_change: ['backend', 'security', 'frontend'],
-  security: ['security', 'backend', 'qa'],
+  api_change: ['backend', 'security', 'frontend', 'godzilla'],
+  security: ['security', 'backend', 'qa', 'godzilla'],
   documentation: ['memory_engineer'],
   infrastructure: ['infrastructure_bootstrap', 'infrastructure_guardian', 'backend'],
   other: ['architect'],
