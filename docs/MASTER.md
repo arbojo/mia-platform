@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `881e66f`.
+> Fuente de verdad: este repositorio en `9a51143`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `881e66f` |
+| **Commit HEAD** | `9a51143` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T03:00:37-06:00 |
+| **Generado** | 2026-08-19T10:44:28-06:00 |
 
 ---
 
@@ -794,6 +794,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9a51143 feat: reduce shell tour to 3 steps, add delivery tour, simplify onboarding to 3 steps
+e5d6993 docs: regenerate MASTER.md at 881e66f
 881e66f fix: conditional-media no devuelve genéricos cuando productId es conocido — evita imagen de otro producto
 f5dbc45 docs: regenerate MASTER.md at 316b070
 316b070 fix: resolveRecommendedProduct matchea nombre de producto en mensaje para imagen correcta
@@ -812,8 +814,6 @@ ed0a588 feat: add conversation detail modal with last 5 messages and knowledge a
 3920e5c docs: regenerate MASTER.md at b22904a
 b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generator and Governance
 080d51d docs: regenerate MASTER.md at 2349b50
-2349b50 fix: coerce PRD scope fields (filesAffected, booleans, descriptions)
-b8e325b docs: regenerate MASTER.md at 6a62eb6
 ```
 
 ---
