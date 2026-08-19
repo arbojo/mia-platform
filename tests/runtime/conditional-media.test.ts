@@ -78,14 +78,28 @@ describe('resolveConditionalMedia product scoping', () => {
     expect(result?.knowledgeItemId).toBe('clean-nails-1')
   })
 
-  it('falls back to generic media when productId matches no specific item', async () => {
+  it('does NOT fall back to generic media when productId is known but has no specific item', async () => {
     const neurofeet = item({ id: 'neurofeet-1', product_id: 'prod-neurofeet' })
     const generic = item({ id: 'generic-1', product_id: null })
     mockSupabase([neurofeet, generic])
 
     const result = await resolveConditionalMedia({ ...baseParams, productId: 'prod-clean-nails' })
 
-    expect(result?.knowledgeItemId).toBe('generic-1')
+    expect(result).toBeNull()
+  })
+
+  it('does NOT return a generic item with another product image when productId is known', async () => {
+    const neurotinGeneric = item({
+      id: 'neurotin-img',
+      product_id: null,
+      image_url: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/neurotin.jpg',
+      trigger_condition: 'informacion',
+    })
+    mockSupabase([neurotinGeneric])
+
+    const result = await resolveConditionalMedia({ ...baseParams, productId: 'prod-clean-nails' })
+
+    expect(result).toBeNull()
   })
 
   it('uses generic media when no product context is present', async () => {
@@ -163,13 +177,13 @@ describe('resolveConditionalMedia once-per-product/session', () => {
     expect(second).toBeNull()
   })
 
-  it('does not deduplicate generic media by product (only by knowledge item)', async () => {
+  it('does not serve generic media when productId is known, even if not yet sent', async () => {
     const generic = item({ id: 'generic-1', product_id: null })
     mockSupabase([generic], [], ['prod-x'])
 
     const result = await resolveConditionalMedia({ ...baseParams, productId: 'prod-x' })
 
-    expect(result?.knowledgeItemId).toBe('generic-1')
+    expect(result).toBeNull()
   })
 
   it('rejects a media URL that is not safe (relative path)', async () => {

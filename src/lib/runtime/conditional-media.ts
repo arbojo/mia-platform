@@ -59,17 +59,14 @@ export async function resolveConditionalMedia(params: {
     if (pending.length === 0) return null
   }
 
-  // Prioridad de producto: medio del producto activo > medio genérico (NULL).
-  // El product_context elimina la ambigüedad de keywords compartidas
-  // (ej. "precio" pertenece a varios productos).
+  // Prioridad de producto: cuando el productId es conocido, SOLO servimos
+  // imagen de ese producto. NUNCA caemos a genéricos (product_id = NULL)
+  // porque podrían pertenecer a otro producto (ej. imagen de Neurotin
+  // apareciendo cuando el cliente pregunta por Clean Nails).
   const byProduct = productId
-    ? pending.find((item) => item.product_id === productId) ??
-      pending.find((item) => item.product_id === null)
+    ? pending.find((item) => item.product_id === productId)
     : pending.find((item) => item.product_id === null)
 
-  // Cuando el producto es conocido, solo servimos imagen de ese producto (o genérica).
-  // Si la imagen del producto correcto ya fue despachada, NO caemos en pending[0]
-  // que podría pertenecer a un producto diferente (ej. Bella Patch en vez de Clean Nails).
   const selected = byProduct ?? (productId ? null : pending[0])
   if (!selected?.image_url) return null
 
