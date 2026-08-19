@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `442da76`.
+> Fuente de verdad: este repositorio en `f7753f6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `442da76` |
+| **Commit HEAD** | `f7753f6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T16:17:58-06:00 |
+| **Generado** | 2026-08-19T16:37:09-06:00 |
 
 ---
 
@@ -808,6 +808,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+f7753f6 feat: Analytics dashboard dual view — Simple + Completa with quick time filters
+30cf1f3 docs: regenerate MASTER.md at 442da76
 442da76 feat: MIA Analytics Phase 1 — Sales Analytics dashboard with Recharts
 af2a92a docs: regenerate MASTER.md at 912a73a
 912a73a feat: add Godzilla agent — adversarial stress testing
@@ -826,8 +828,6 @@ e5d6993 docs: regenerate MASTER.md at 881e66f
 f5dbc45 docs: regenerate MASTER.md at 316b070
 316b070 fix: resolveRecommendedProduct matchea nombre de producto en mensaje para imagen correcta
 85ba4c1 docs: regenerate MASTER.md at aafdb04
-aafdb04 fix: cancellation flow — outcome cancelled + discount acceptance + AI context
-674defa docs: regenerate MASTER.md at 7410ed3
 ```
 
 ---
