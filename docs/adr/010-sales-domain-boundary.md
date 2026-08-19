@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-025: MIA Platform Multi-Domain Architecture](025-multi-domain-architecture.md)
 
 ## Date
 

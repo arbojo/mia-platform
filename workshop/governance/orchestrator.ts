@@ -5,6 +5,7 @@ import type {
   TaskComplexity,
   AgentRole,
   QualityGate,
+  BusinessDomain,
 } from './types'
 import {
   AGENT_TASK_MAP,
@@ -20,7 +21,9 @@ export interface OrchestratorInput {
   hasSchemaChanges: boolean
   hasAIConsumerChanges: boolean
   hasSecurityImplications: boolean
+  primaryDomain?: string
   affectedDomains: string[]
+  technicalDomains?: string[]
 }
 
 export class Orchestrator {
@@ -39,14 +42,30 @@ export class Orchestrator {
   }
 
   private assessScope(input: OrchestratorInput): TaskScope {
+    const VALID_DOMAINS: BusinessDomain[] = ['sales', 'inventory', 'delivery', 'analytics', 'platform']
+    const primaryDomain = VALID_DOMAINS.includes(input.primaryDomain as BusinessDomain)
+      ? input.primaryDomain as BusinessDomain
+      : 'sales'
+    const businessDomains = input.affectedDomains.filter((d) =>
+      VALID_DOMAINS.includes(d as BusinessDomain),
+    )
+    const affectedDomains = businessDomains.length > 0
+      ? businessDomains as BusinessDomain[]
+      : [primaryDomain]
+    const technicalDomains = Array.isArray(input.technicalDomains)
+      ? input.technicalDomains
+      : input.affectedDomains.filter((d) => !VALID_DOMAINS.includes(d as BusinessDomain))
+
     return {
       categories: input.categories,
       filesAffected: input.filesAffected,
       hasSchemaChanges: input.hasSchemaChanges,
       hasAIConsumerChanges: input.hasAIConsumerChanges,
       hasSecurityImplications: input.hasSecurityImplications,
-      isCrossCutting: input.affectedDomains.length > 1,
-      domains: input.affectedDomains,
+      isCrossCutting: affectedDomains.length > 1,
+      primaryDomain,
+      affectedDomains,
+      technicalDomains: technicalDomains.length > 0 ? technicalDomains : ['backend'],
     }
   }
 
@@ -162,7 +181,12 @@ export class Orchestrator {
   ): string {
     const parts: string[] = [
       `Classified as ${complexity.toUpperCase()} complexity.`,
+      `Primary domain: ${scope.primaryDomain}.`,
     ]
+
+    if (scope.affectedDomains.length > 1) {
+      parts.push(`Affected domains: ${scope.affectedDomains.join(', ')}.`)
+    }
 
     if (complexity === 'complex') {
       const drivers: string[] = []

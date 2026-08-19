@@ -1,5 +1,7 @@
 export type TaskComplexity = 'simple' | 'complex'
 
+export type BusinessDomain = 'sales' | 'inventory' | 'delivery' | 'analytics' | 'platform'
+
 export type GovernanceStatus =
   | 'pending_classification'
   | 'classified'
@@ -117,7 +119,9 @@ export interface TaskScope {
   hasAIConsumerChanges: boolean
   hasSecurityImplications: boolean
   isCrossCutting: boolean
-  domains: string[]
+  primaryDomain: BusinessDomain
+  affectedDomains: BusinessDomain[]
+  technicalDomains: string[]
 }
 
 export interface ClassificationResult {

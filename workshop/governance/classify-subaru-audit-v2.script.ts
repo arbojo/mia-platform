@@ -29,7 +29,9 @@ const manifest = workflow.createManifest(input.title, input.description, {
   hasAIConsumerChanges: input.hasAIConsumerChanges,
   hasSecurityImplications: input.hasSecurityImplications,
   isCrossCutting: input.affectedDomains.length > 1,
-  domains: input.affectedDomains,
+  primaryDomain: 'sales',
+    affectedDomains: [],
+    technicalDomains: input.affectedDomains,
 }, result)
 
 console.log(`✓ Manifest created: ${manifest.id}`)

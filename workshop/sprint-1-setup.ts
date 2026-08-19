@@ -46,7 +46,9 @@ const manifest = workflow.createManifest(
     hasAIConsumerChanges: true,
     hasSecurityImplications: true,
     isCrossCutting: true,
-    domains: ['frontend', 'backend', 'database', 'ai', 'security'],
+    primaryDomain: 'sales',
+    affectedDomains: ['sales'],
+    technicalDomains: ['frontend', 'backend', 'database', 'ai', 'security'],
   },
   result
 )

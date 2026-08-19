@@ -58,6 +58,9 @@ bruno/.env
 # infra doctor report (generated artifact)
 docs/doctor-report.md
 
+# PRD generator output (generated artifacts)
+docs/prd/
+
 # IDE
 .vscode/
 .idea/

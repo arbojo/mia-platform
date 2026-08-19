@@ -1,6 +1,6 @@
 import { MODEL, TOKEN_COSTS } from '@/lib/ai/client'
 import OpenAI from 'openai'
-import { renderPrd, type PrdDocument } from './template'
+import { renderPrd, type PrdDocument, type BusinessDomain } from './template'
 
 function getPrdClient(): OpenAI {
   const apiKey = process.env.OPENAI_PRD_API_KEY
@@ -8,28 +8,42 @@ function getPrdClient(): OpenAI {
   return new OpenAI({ apiKey })
 }
 
-const SYSTEM_PROMPT = `You are the PRD Generator for MIA Platform — an AI sales assistant platform.
+const SYSTEM_PROMPT = `You are the PRD Generator for MIA Platform — a multi-domain AI platform.
 
 Your job: transform an informal feature idea into a structured PRD (Product Requirements Document).
 
-## MIA Domain Model (15 entities)
-Business, BrandIdentity, KnowledgeBase, KnowledgeVersions, AiInstructions,
-Assistants, Products, SalesRules, Customers, AssistantMemory, Conversations,
-Messages, LearningEvents, AiUsage, LabSessions
+## MIA Platform Architecture (5 domains)
 
-## ADR-010 Domain Boundary
-MIA is a Conversational Sales Intelligence platform. Its responsibility:
-- Conversation, Rapport, Need Discovery, Product Presentation
-- Objection Handling, Closing, Customer Recovery
-- Intelligent Follow-up, Consultative Selling, Upselling/Cross-selling
-- Data Capture, Sales Events
+MIA Platform has independent domains, each with own schema, API, UI:
 
-MIA does NOT: ERP, inventory, routing, delivery, payments, billing, invoicing.
+### Platform/Core (public schema — shared infrastructure)
+- Businesses, Brand Identity, AI Instructions, Assistants, Channels
+- Boundary test: "Does this serve the platform infrastructure?"
+
+### Sales (public schema — conversation + sales intelligence)
+- Products, Knowledge, Customers, Conversations, Messages, Sales Events
+- Boundary test: "Does this help converse with or sell to customers?"
+- ALWAYS enabled (core entry point)
+
+### Inventory (inventory schema — optional)
+- Stock Items, Assets, Predictions, Suppliers, Purchase Orders
+- Boundary test: "Does this manage stock, catalog, purchasing, or suppliers?"
+- Optional module, gated by edition + enabled
+
+### Delivery (delivery schema — optional)
+- Drivers, Routes, Orders, Visits, Closures
+- Boundary test: "Does this fulfill orders, manage drivers, or plan routes?"
+- Optional module, gated by edition + enabled
+
+### Analytics (analytics schema — optional, FUTURE)
+- Cross-domain insights, business intelligence
+- Boundary test: "Does this generate cross-domain business insights?"
+- Read-only observer of all enabled modules
 
 ## Sales Intelligence Events
 SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED,
 UPSELL_ACCEPTED, CROSSSELL_ACCEPTED, FOLLOWUP_REQUIRED, SALE_WON, SALE_LOST,
-CUSTOMER_HESITATION, PRICE_ACCEPTED, PRICE_REJECTED
+CUSTOMER_HESITATION, PRICE_ACCEPTED, PRICE_REJECTED, SALE_CONFIRMED, SALE_CANCELLED
 
 ## Tech Stack
 Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4,
@@ -42,10 +56,11 @@ Return a JSON object with exactly these fields (no markdown, no code fences):
   "problemStatement": "string (2-4 sentences describing the problem)",
   "proposedSolution": "string (2-4 sentences describing the solution)",
   "domainAlignment": {
-    "helpsSellBetter": boolean,
+    "primaryDomain": "sales | inventory | delivery | analytics | platform",
+    "affectedDomains": ["sales", "inventory", ...],
     "explanation": "string",
-    "inDomain": boolean,
-    "salesEvents": ["string"] or []
+    "salesEvents": ["string"] or [],
+    "moduleEvents": ["string"] or []
   },
   "scope": {
     "categories": ["feature", "bugfix", "refactor", "schema_change", "ai_behaviour", "ui_change", "api_change", "security", "documentation", "infrastructure"],
@@ -56,7 +71,7 @@ Return a JSON object with exactly these fields (no markdown, no code fences):
     "aiChangesDescription": "string",
     "hasSecurityImplications": boolean,
     "securityDescription": "string",
-    "domains": ["frontend", "backend", "database", "ai", "infrastructure"]
+    "technicalDomains": ["frontend", "backend", "database", "ai", "infrastructure"]
   },
   "impactAnalysis": "string (2-4 sentences on dependencies and blast radius)",
   "acceptanceCriteria": ["string", "string"],
@@ -66,10 +81,11 @@ Return a JSON object with exactly these fields (no markdown, no code fences):
 }
 
 Rules:
-- If the idea does NOT help MIA sell better, set inDomain=false and explain why in explanation
+- Classify the feature into the correct primary domain using the boundary tests
+- If the feature spans multiple domains, list ALL affected domains
 - Acceptance criteria must be testable and specific (no vague criteria)
 - categories must be from the allowed list
-- domains must be from the allowed list
+- technicalDomains must be from the allowed list
 - filesAffected is an estimate (use your best judgment based on scope)
 - Return ONLY the JSON object, no additional text`
 
@@ -160,23 +176,81 @@ function coercePrd(raw: Record<string, unknown>): PrdDocument {
     ]
   }
 
-  if (raw.scope && typeof raw.scope === 'object') {
-    const scope = raw.scope as Record<string, unknown>
-    if (Array.isArray(scope.domains)) {
-      scope.domains = scope.domains.map((d: unknown) => String(d).toLowerCase())
+  if (!raw.scope || typeof raw.scope !== 'object' || Array.isArray(raw.scope)) {
+    raw.scope = {
+      categories: ['feature'],
+      filesAffected: 3,
+      hasSchemaChanges: false,
+      schemaDescription: '',
+      hasAIChanges: false,
+      aiChangesDescription: '',
+      hasSecurityImplications: false,
+      securityDescription: '',
+      technicalDomains: ['backend'],
     }
-    if (Array.isArray(scope.categories)) {
-      scope.categories = scope.categories.map((c: unknown) => String(c).toLowerCase())
-    }
-    const filesNum = Number(scope.filesAffected)
-    scope.filesAffected = filesNum >= 1 ? filesNum : 3
-    if (typeof scope.hasSchemaChanges !== 'boolean') scope.hasSchemaChanges = false
-    if (typeof scope.hasAIChanges !== 'boolean') scope.hasAIChanges = false
-    if (typeof scope.hasSecurityImplications !== 'boolean') scope.hasSecurityImplications = false
-    if (typeof scope.schemaDescription !== 'string') scope.schemaDescription = ''
-    if (typeof scope.aiChangesDescription !== 'string') scope.aiChangesDescription = ''
-    if (typeof scope.securityDescription !== 'string') scope.securityDescription = ''
   }
+
+  const scope = raw.scope as Record<string, unknown>
+
+  if (Array.isArray(scope.domains) && !Array.isArray(scope.technicalDomains)) {
+    scope.technicalDomains = scope.domains
+  }
+  delete scope.domains
+
+  if (Array.isArray(scope.technicalDomains)) {
+    scope.technicalDomains = scope.technicalDomains.map((d: unknown) => String(d).toLowerCase())
+  }
+  if (!Array.isArray(scope.technicalDomains) || scope.technicalDomains.length === 0) {
+    scope.technicalDomains = ['backend']
+  }
+  if (Array.isArray(scope.categories)) {
+    scope.categories = scope.categories.map((c: unknown) => String(c).toLowerCase())
+  }
+  if (!Array.isArray(scope.categories) || scope.categories.length === 0) {
+    scope.categories = ['feature']
+  }
+  const filesNum = Number(scope.filesAffected)
+  scope.filesAffected = filesNum >= 1 ? filesNum : 3
+  if (typeof scope.hasSchemaChanges !== 'boolean') scope.hasSchemaChanges = false
+  if (typeof scope.hasAIChanges !== 'boolean') scope.hasAIChanges = false
+  if (typeof scope.hasSecurityImplications !== 'boolean') scope.hasSecurityImplications = false
+  if (typeof scope.schemaDescription !== 'string') scope.schemaDescription = ''
+  if (typeof scope.aiChangesDescription !== 'string') scope.aiChangesDescription = ''
+  if (typeof scope.securityDescription !== 'string') scope.securityDescription = ''
+
+  const VALID_DOMAINS: BusinessDomain[] = ['sales', 'inventory', 'delivery', 'analytics', 'platform']
+
+  if (!raw.domainAlignment || typeof raw.domainAlignment !== 'object' || Array.isArray(raw.domainAlignment)) {
+    raw.domainAlignment = {}
+  }
+
+  const da = raw.domainAlignment as Record<string, unknown>
+
+  if (typeof da.inDomain === 'boolean' && typeof da.primaryDomain !== 'string') {
+    da.primaryDomain = da.inDomain ? 'sales' : 'platform'
+  }
+  if (!VALID_DOMAINS.includes(da.primaryDomain as BusinessDomain)) {
+    da.primaryDomain = 'sales'
+  }
+
+  if (typeof da.helpsSellBetter === 'boolean' && !Array.isArray(da.affectedDomains)) {
+    da.affectedDomains = da.helpsSellBetter ? ['sales'] : ['platform']
+  }
+  if (!Array.isArray(da.affectedDomains)) {
+    da.affectedDomains = []
+  }
+  if ((da.affectedDomains as unknown[]).length === 0) {
+    da.affectedDomains = [da.primaryDomain]
+  }
+  da.affectedDomains = (da.affectedDomains as unknown[]).filter((d: unknown) =>
+    VALID_DOMAINS.includes(d as BusinessDomain),
+  )
+
+  delete da.helpsSellBetter
+  delete da.inDomain
+
+  if (!Array.isArray(da.salesEvents)) da.salesEvents = []
+  if (!Array.isArray(da.moduleEvents)) da.moduleEvents = []
 
   return raw as unknown as PrdDocument
 }
@@ -198,8 +272,8 @@ function validatePrd(prd: PrdDocument): void {
     throw new Error('PRD must have at least one acceptance criterion')
   }
 
-  if (prd.scope.filesAffected < 1) {
-    throw new Error('PRD scope.filesAffected must be >= 1')
+  if (typeof prd.scope.filesAffected !== 'number' || prd.scope.filesAffected < 1) {
+    prd.scope.filesAffected = 3
   }
 
   const validCategories = [
@@ -212,10 +286,20 @@ function validatePrd(prd: PrdDocument): void {
     }
   }
 
-  const validDomains = ['frontend', 'backend', 'database', 'ai', 'infrastructure']
-  for (const dom of prd.scope.domains) {
-    if (!validDomains.includes(dom)) {
-      throw new Error(`Invalid domain: ${dom}`)
+  const validTechDomains = ['frontend', 'backend', 'database', 'ai', 'infrastructure']
+  for (const dom of prd.scope.technicalDomains) {
+    if (!validTechDomains.includes(dom)) {
+      throw new Error(`Invalid technical domain: ${dom}`)
+    }
+  }
+
+  const VALID_DOMAINS: BusinessDomain[] = ['sales', 'inventory', 'delivery', 'analytics', 'platform']
+  if (!VALID_DOMAINS.includes(prd.domainAlignment.primaryDomain)) {
+    throw new Error(`Invalid primaryDomain: ${prd.domainAlignment.primaryDomain}`)
+  }
+  for (const dom of prd.domainAlignment.affectedDomains) {
+    if (!VALID_DOMAINS.includes(dom)) {
+      throw new Error(`Invalid affectedDomain: ${dom}`)
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Orchestrator, type OrchestratorInput } from './orchestrator'
 import { WorkflowEngine } from './workflow'
+import type { BusinessDomain } from './types'
 
 const orchestrator = new Orchestrator()
 const workflow = new WorkflowEngine()
@@ -14,7 +15,7 @@ const tasks: OrchestratorInput[] = [
     hasSchemaChanges: false,
     hasAIConsumerChanges: false,
     hasSecurityImplications: true,
-    affectedDomains: ['backend', 'infrastructure', 'frontend'],
+    affectedDomains: ['platform', 'sales'],
   },
 ]
 
@@ -29,7 +30,9 @@ for (const input of tasks) {
     hasAIConsumerChanges: input.hasAIConsumerChanges,
     hasSecurityImplications: input.hasSecurityImplications,
     isCrossCutting: input.affectedDomains.length > 1,
-    domains: input.affectedDomains,
+    primaryDomain: 'platform',
+    affectedDomains: input.affectedDomains as BusinessDomain[],
+    technicalDomains: ['backend', 'infrastructure', 'frontend'],
   }, result)
   console.log(`V Manifest created: ${manifest.id} (${manifest.status})`)
 }

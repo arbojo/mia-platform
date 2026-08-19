@@ -1,3 +1,5 @@
+export type BusinessDomain = 'sales' | 'inventory' | 'delivery' | 'analytics' | 'platform'
+
 export interface PrdDocument {
   title: string
   problemStatement: string
@@ -12,10 +14,11 @@ export interface PrdDocument {
 }
 
 export interface DomainAlignment {
-  helpsSellBetter: boolean
+  primaryDomain: BusinessDomain
+  affectedDomains: BusinessDomain[]
   explanation: string
-  inDomain: boolean
   salesEvents: string[]
+  moduleEvents: string[]
 }
 
 export interface PrdScope {
@@ -27,7 +30,7 @@ export interface PrdScope {
   aiChangesDescription: string
   hasSecurityImplications: boolean
   securityDescription: string
-  domains: string[]
+  technicalDomains: string[]
 }
 
 export const PRD_TEMPLATE = `# PRD: {title}
@@ -38,11 +41,12 @@ export const PRD_TEMPLATE = `# PRD: {title}
 ## 2. Proposed Solution
 {proposedSolution}
 
-## 3. Domain Alignment (ADR-010 Check)
-- **Helps MIA sell better**: {sellsBetter}
+## 3. Domain Alignment (ADR-025)
+- **Primary domain**: {primaryDomain}
+- **Affected domains**: {affectedDomains}
 - **Explanation**: {domainExplanation}
-- **In-domain / Out-of-domain**: {inDomain}
 - **Sales Intelligence events**: {salesEvents}
+- **Module events**: {moduleEvents}
 
 ## 4. Scope Definition
 - **Categories**: {categories}
@@ -53,7 +57,7 @@ export const PRD_TEMPLATE = `# PRD: {title}
   - {aiDescription}
 - **Security implications**: {securityImplications}
   - {securityDescription}
-- **Affected domains**: {domains}
+- **Technical domains**: {technicalDomains}
 
 ## 5. Impact Analysis
 {impactAnalysis}
@@ -78,18 +82,23 @@ export function renderPrd(doc: PrdDocument): string {
     .map((c) => `- [ ] ${c}`)
     .join('\n')
 
-  const eventsList = doc.domainAlignment.salesEvents.length > 0
+  const salesEventsList = doc.domainAlignment.salesEvents.length > 0
     ? doc.domainAlignment.salesEvents.join(', ')
+    : 'None identified'
+
+  const moduleEventsList = doc.domainAlignment.moduleEvents.length > 0
+    ? doc.domainAlignment.moduleEvents.join(', ')
     : 'None identified'
 
   return PRD_TEMPLATE
     .replace('{title}', doc.title)
     .replace('{problemStatement}', doc.problemStatement)
     .replace('{proposedSolution}', doc.proposedSolution)
-    .replace('{sellsBetter}', yesNo(doc.domainAlignment.helpsSellBetter))
+    .replace('{primaryDomain}', doc.domainAlignment.primaryDomain)
+    .replace('{affectedDomains}', doc.domainAlignment.affectedDomains.join(', '))
     .replace('{domainExplanation}', doc.domainAlignment.explanation)
-    .replace('{inDomain}', doc.domainAlignment.inDomain ? 'In-domain' : 'Out-of-domain')
-    .replace('{salesEvents}', eventsList)
+    .replace('{salesEvents}', salesEventsList)
+    .replace('{moduleEvents}', moduleEventsList)
     .replace('{categories}', doc.scope.categories.join(', '))
     .replace('{filesAffected}', String(doc.scope.filesAffected))
     .replace('{schemaChanges}', yesNo(doc.scope.hasSchemaChanges))
@@ -98,7 +107,7 @@ export function renderPrd(doc: PrdDocument): string {
     .replace('{aiDescription}', doc.scope.aiChangesDescription)
     .replace('{securityImplications}', yesNo(doc.scope.hasSecurityImplications))
     .replace('{securityDescription}', doc.scope.securityDescription)
-    .replace('{domains}', doc.scope.domains.join(', '))
+    .replace('{technicalDomains}', doc.scope.technicalDomains.join(', '))
     .replace('{impactAnalysis}', doc.impactAnalysis)
     .replace('{acceptanceCriteria}', criteriaLines)
     .replace('{outOfScope}', doc.outOfScope)

@@ -6,27 +6,34 @@ This file is the permanent reference for any AI agent (OpenCode or others) worki
 
 ## 1. What is MIA?
 
-MIA is **not** a chatbot. It is an **AI sales assistant platform** that enables businesses to:
+MIA is **not** a chatbot. It is a **multi-domain AI platform** that enables businesses to:
 
 - **Learn** a business through structured knowledge, products, and rules
 - **Conversate** with customers in natural language
 - **Remember** interactions, preferences, and context over time
 - **Train** through simulation and correction workflows
 - **Operate** across multiple channels from one intelligent core
+- **Manage** inventory, delivery, and analytics through independent modules
 
 The platform is designed as a future SaaS multi-tenant product. The first client is Vitanova (the team's own business), which serves as the live test environment.
 
 **Core philosophy**: MIA should feel like **hiring and training a new employee**, not configuring software.
 
-### Domain Boundary
+### Multi-Domain Architecture
 
-MIA is a **Conversational Sales Intelligence** platform. Its responsibility begins when a conversation with a customer starts. Its responsibility ends when:
+MIA Platform consists of **independent domains**, each with its own responsibilities, data, and logic:
 
-1. The sale is closed or discarded,
-2. Customer data is structured,
-3. Sales Intelligence events are emitted.
+| Domain | Schema | Responsibility | Boundary Test |
+|--------|--------|---------------|---------------|
+| **Platform/Core** | `public` (shared) | Identity, configuration, shared infrastructure | "Does this serve the platform infrastructure?" |
+| **Sales** | `public` (sales tables) | Customer conversations, product presentation, closing | "Does this help converse with or sell to customers?" |
+| **Inventory** | `inventory` | Stock management, catalog availability, purchasing | "Does this manage stock, catalog, purchasing, or suppliers?" |
+| **Delivery** | `delivery` | Order fulfillment, driver management, route planning | "Does this fulfill orders, manage drivers, or plan routes?" |
+| **Analytics** | `analytics` (FUTURE) | Cross-domain insights, business intelligence | "Does this generate cross-domain business insights?" |
 
-MIA does **not** perform operational, logistical, or administrative tasks. No inventory, no billing, no routing, no collections, no ERP. See [ADR-010](docs/adr/010-sales-domain-boundary.md) for the complete domain boundary definition.
+Sales is always the entry point for customer conversations. Inventory, Delivery, and Analytics are optional modules that a business can contract independently. Domains communicate via events and explicit read-only interfaces. No domain directly modifies another domain's internal data.
+
+See [ADR-025](docs/adr/025-multi-domain-architecture.md) for the complete multi-domain architecture definition. See [ADR-010](docs/adr/010-sales-domain-boundary.md) (Superseded) for the historical Sales-only boundary.
 
 ---
 
@@ -370,6 +377,30 @@ Business → Assistants → Customers → Conversations → Messages
 | **Learning Events** | Corrections: pending → approved/rejected/modified |
 | **AI Usage** | Token tracking with request_type |
 | **Lab Sessions** | Laboratorio MIA simulation sessions |
+
+#### Inventory Domain Entities (Schema: `inventory`)
+
+| Entity | Purpose |
+|--------|---------|
+| **Stock Items** | Current stock levels per product (quantity, thresholds) |
+| **Stock Movements** | Append-only ledger of all stock changes |
+| **Assets** | Universal items (SKU, materials, assets) with tracking modes |
+| **Asset Products** | Bridge between inventory assets and public products |
+| **Predictions** | Hybrid prediction engine output (velocity, forecast, confidence) |
+| **Suppliers** | Supplier registry with reliability scores |
+| **Purchase Orders** | Autonomous buyer suggestions (suggested → approved → ordered) |
+| **Restock Suggestions** | AI-powered restock recommendations |
+
+#### Delivery Domain Entities (Schema: `delivery`)
+
+| Entity | Purpose |
+|--------|---------|
+| **Drivers** | Delivery personnel profiles |
+| **Routes** | Daily routes per driver |
+| **Orders** | Replicated from SALE_WON events |
+| **Visits** | Visit state machine within a route |
+| **Driver Events** | Every driver action with GPS + timestamp |
+| **Daily Closures** | End-of-day reconciliation per driver |
 
 ### 5.3 Key Design Decisions
 

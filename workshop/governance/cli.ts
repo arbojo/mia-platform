@@ -3,7 +3,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Orchestrator, type OrchestratorInput } from './orchestrator'
 import { WorkflowEngine } from './workflow'
-import type { TaskManifest, GovernanceStatus, AgentRole } from './types'
+import type { TaskManifest, GovernanceStatus, AgentRole, BusinessDomain } from './types'
 import { AGENT_LABELS } from './types'
 
 function loadEnvLocal(): void {
@@ -95,6 +95,8 @@ EXAMPLES:
 `)
 }
 
+const VALID_BUSINESS_DOMAINS = ['sales', 'inventory', 'delivery', 'analytics', 'platform']
+
 async function cmdClassify(): Promise<void> {
   console.log()
   console.log('╔══════════════════════════════════════════════╗')
@@ -108,8 +110,16 @@ async function cmdClassify(): Promise<void> {
   const filesInput = await ask('Files affected (approximate count): ')
   const filesAffected = parseInt(filesInput) || 1
 
-  const domainsInput = await ask('Affected domains (comma-separated: frontend,backend,database,ai,infrastructure): ')
-  const affectedDomains = domainsInput ? domainsInput.split(',').map((s) => s.trim()) : ['unknown']
+  const primaryDomainInput = await ask('Primary domain (sales|inventory|delivery|analytics|platform): ')
+  const primaryDomain = (primaryDomainInput || 'sales') as OrchestratorInput['primaryDomain']
+
+  const affectedDomainsInput = await ask('Affected domains (comma-separated): ')
+  const affectedDomains: string[] = affectedDomainsInput
+    ? affectedDomainsInput.split(',').map((s) => s.trim())
+    : [primaryDomain ?? 'sales']
+
+  const technicalDomainsInput = await ask('Technical domains (comma-separated: frontend,backend,database,ai,infrastructure): ')
+  const technicalDomains = technicalDomainsInput ? technicalDomainsInput.split(',').map((s) => s.trim()) : ['backend']
 
   const categoriesInput = await ask(
     'Categories (comma-separated): bugfix,feature,refactor,schema_change,ai_behaviour,ui_change,api_change,security,documentation,infrastructure,other\n> '
@@ -128,7 +138,9 @@ async function cmdClassify(): Promise<void> {
     hasSchemaChanges,
     hasAIConsumerChanges,
     hasSecurityImplications,
+    primaryDomain,
     affectedDomains,
+    technicalDomains,
   }
 
   const result = orchestrator.classify(input)
@@ -149,7 +161,9 @@ async function cmdClassify(): Promise<void> {
       hasAIConsumerChanges: input.hasAIConsumerChanges,
       hasSecurityImplications: input.hasSecurityImplications,
       isCrossCutting: input.affectedDomains.length > 1,
-      domains: input.affectedDomains,
+      primaryDomain: (input.primaryDomain ?? 'sales') as BusinessDomain,
+      affectedDomains: input.affectedDomains.filter((d) => VALID_BUSINESS_DOMAINS.includes(d)) as BusinessDomain[],
+      technicalDomains: input.technicalDomains ?? ['backend'],
     }, result)
 
     console.log(`✓ Manifest created: ${manifest.id}`)
@@ -174,7 +188,9 @@ async function cmdClassify(): Promise<void> {
       hasAIConsumerChanges: input.hasAIConsumerChanges,
       hasSecurityImplications: input.hasSecurityImplications,
       isCrossCutting: input.affectedDomains.length > 1,
-      domains: input.affectedDomains,
+      primaryDomain: (input.primaryDomain ?? 'sales') as BusinessDomain,
+      affectedDomains: input.affectedDomains.filter((d) => VALID_BUSINESS_DOMAINS.includes(d)) as BusinessDomain[],
+      technicalDomains: input.technicalDomains ?? ['backend'],
     }, result)
 
     console.log(`✓ Manifest created: ${manifest.id}`)
@@ -217,11 +233,11 @@ async function cmdPrd(): Promise<void> {
   console.log(`✓ PRD generated (${result.tokensUsed.input} in / ${result.tokensUsed.output} out / ~$${cost.toFixed(4)})`)
   console.log()
 
-  if (!result.prd.domainAlignment.inDomain) {
-    console.log('⚠  WARNING: This feature is flagged as OUT-OF-DOMAIN per ADR-010.')
-    console.log(`   Reason: ${result.prd.domainAlignment.explanation}`)
-    console.log()
+  console.log(`  Primary domain: ${result.prd.domainAlignment.primaryDomain}`)
+  if (result.prd.domainAlignment.affectedDomains.length > 1) {
+    console.log(`  Affected domains: ${result.prd.domainAlignment.affectedDomains.join(', ')}`)
   }
+  console.log()
 
   const taskId = `TASK-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Date.now().toString().slice(-6)}`
   const filename = `${taskId}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}.md`
@@ -241,7 +257,7 @@ async function cmdPrd(): Promise<void> {
   console.log(`  Schema changes: ${result.prd.scope.hasSchemaChanges}`)
   console.log(`  AI changes: ${result.prd.scope.hasAIChanges}`)
   console.log(`  Security: ${result.prd.scope.hasSecurityImplications}`)
-  console.log(`  Domains: ${result.prd.scope.domains.join(', ')}`)
+  console.log(`  Technical domains: ${result.prd.scope.technicalDomains.join(', ')}`)
   console.log()
 
   const autoClassify = await confirm('Auto-classify with governance?')
@@ -258,7 +274,9 @@ async function cmdPrd(): Promise<void> {
     hasSchemaChanges: result.prd.scope.hasSchemaChanges,
     hasAIConsumerChanges: result.prd.scope.hasAIChanges,
     hasSecurityImplications: result.prd.scope.hasSecurityImplications,
-    affectedDomains: result.prd.scope.domains,
+    primaryDomain: result.prd.domainAlignment.primaryDomain,
+    affectedDomains: result.prd.domainAlignment.affectedDomains,
+    technicalDomains: result.prd.scope.technicalDomains,
   }
 
   const classifyResult = orchestrator.classify(input)
@@ -276,7 +294,9 @@ async function cmdPrd(): Promise<void> {
       hasAIConsumerChanges: input.hasAIConsumerChanges,
       hasSecurityImplications: input.hasSecurityImplications,
       isCrossCutting: input.affectedDomains.length > 1,
-      domains: input.affectedDomains,
+      primaryDomain: (input.primaryDomain ?? 'sales') as BusinessDomain,
+      affectedDomains: input.affectedDomains.filter((d) => VALID_BUSINESS_DOMAINS.includes(d)) as BusinessDomain[],
+      technicalDomains: input.technicalDomains ?? ['backend'],
     },
     classifyResult
   )
@@ -486,7 +506,7 @@ function printManifest(manifest: TaskManifest): void {
   console.log(`    Schema changes: ${manifest.scope.hasSchemaChanges}`)
   console.log(`    AI changes: ${manifest.scope.hasAIConsumerChanges}`)
   console.log(`    Security implications: ${manifest.scope.hasSecurityImplications}`)
-  console.log(`    Domains: ${manifest.scope.domains.join(', ')}`)
+  console.log(`    Domains: ${manifest.scope.affectedDomains.join(', ')}`)
   console.log()
   console.log('  Required agents:')
   for (const agent of manifest.classification.requiredAgents) {
