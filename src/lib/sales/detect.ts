@@ -187,8 +187,28 @@ const CANCELLATION_KEYWORDS = [
   'dame de baja', 'baja', 'reembolso', 'revertir', 'deshacer',
   'cambié de opinión', 'cambie de opinion', 'no lo quiero más',
   'quiero cancelar', 'necesito cancelar', 'puedo cancelar',
-  'olvídalo', 'olvidalo', 'no sigas',
+  'olvídalo', 'olvidalo', 'no sigas', 'no gracias',
 ]
+
+const DISCOUNT_ACCEPTANCE_KEYWORDS = [
+  'quiero el descuento', 'si quiero el descuento', 'sí quiero el descuento',
+  'dame el descuento', 'si dame el descuento', 'sí dame el descuento',
+  'aplícame el descuento', 'aplicame el descuento',
+  'dale descuento', 'dale con descuento',
+  'si, quiero el descuento', 'si, dame el descuento',
+  'sí, quiero el descuento', 'sí, dame el descuento',
+]
+
+export function hasDiscountAcceptanceTrigger(lastUserMessage: string): boolean {
+  const normalized = lastUserMessage
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+  return DISCOUNT_ACCEPTANCE_KEYWORDS.some((kw) => {
+    const kn = kw.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return normalized.includes(kn)
+  })
+}
 
 export function hasCancellationTrigger(lastUserMessage: string): boolean {
   const normalized = lastUserMessage

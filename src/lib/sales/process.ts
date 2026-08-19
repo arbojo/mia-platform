@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { detectSaleOutcome, hasCancellationTrigger, hasSalesTrigger } from './detect'
+import { detectSaleOutcome, hasCancellationTrigger, hasDiscountAcceptanceTrigger, hasSalesTrigger } from './detect'
 import { processCancellation } from './cancel'
 import {
   applyConversationOutcome,
@@ -39,6 +39,46 @@ export async function handleCancellationWebhook(
   conversationId: string
   deliver: boolean
 } | null> {
+  // === DISCOUNT ACCEPTANCE: re-activate conversation ===
+  if (hasDiscountAcceptanceTrigger(wireMessage.content)) {
+    const supabase = createAdminClient()
+    const connection = await resolveConnection('whatsapp', wireMessage)
+    if (connection.mode === 'paused') return null
+
+    const businessId = connection.business_id
+    const assistantId = connection.assistant_id
+    const customer = await resolveCustomer(businessId, wireMessage)
+    const conversationId = await resolveConversation(assistantId, customer.id)
+    if (!conversationId) return null
+
+    const { data: conv } = await supabase
+      .from('conversations')
+      .select('sales_cancelled_at, outcome')
+      .eq('id', conversationId)
+      .maybeSingle()
+
+    if (conv?.sales_cancelled_at === DISCOUNT_OFFERED_SENTINEL) {
+      // Re-activate conversation
+      await supabase.from('conversations').update({
+        outcome: 'interested',
+        sales_cancelled_at: null,
+        outcome_updated_at: new Date().toISOString(),
+      }).eq('id', conversationId)
+
+      // Remove SALE_CANCELLED event so sales pipeline can resume
+      await supabase.from('sales_events')
+        .delete()
+        .eq('conversation_id', conversationId)
+        .eq('event_type', 'SALE_CANCELLED')
+
+      // Return null → normal AI flow handles confirmation with discount
+      return null
+    }
+
+    // No pending discount offer — fall through to normal flow
+    return null
+  }
+
   if (!hasCancellationTrigger(wireMessage.content)) return null
 
   const supabase = createAdminClient()
@@ -109,11 +149,42 @@ export async function handleCancellationWebhook(
     } else {
       response =
         'Entiendo tu preocupación. Para agradecerte tu interés, puedo ofrecerte un *10% de descuento* en tu pedido. ¿Te gustaría que te aplique el descuento y confirmemos tu compra?'
-      // Mark discount as offered using sentinel value
-      await supabase
+
+      // Mark conversation as cancelled immediately — the customer expressed
+      // intent to cancel. The discount is a rescue attempt, not a state revert.
+      const { data: convHistory } = await supabase
         .from('conversations')
-        .update({ sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL })
+        .select('outcome, outcome_history')
         .eq('id', conversationId)
+        .maybeSingle()
+
+      const history = Array.isArray(convHistory?.outcome_history) ? convHistory.outcome_history : []
+
+      await supabase.from('conversations').update({
+        outcome: 'cancelled',
+        sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
+        outcome_updated_at: new Date().toISOString(),
+        outcome_history: [
+          ...history,
+          {
+            outcome: 'cancelled',
+            previous: convHistory?.outcome ?? null,
+            event_type: 'SALE_CANCELLED',
+            reason: 'discount_offered',
+            at: new Date().toISOString(),
+          },
+        ],
+      }).eq('id', conversationId)
+
+      // Create SALE_CANCELLED event — blocks sales pipeline via hasClosingEvent
+      await emitSalesEvent({
+        businessId,
+        assistantId,
+        conversationId,
+        customerId: customer.id,
+        eventType: 'SALE_CANCELLED',
+        metadata: { reason: 'discount_offered' },
+      })
     }
   } else {
     // === SECOND CANCEL ATTEMPT: proceed with cancellation ===

@@ -45,13 +45,24 @@ export async function processStreaming(params: {
     }
   }
 
+  let conversationOutcome: string | null = null
+  if (conversationId) {
+    const { data: conv } = await supabase
+      .from('conversations')
+      .select('outcome')
+      .eq('id', conversationId)
+      .maybeSingle()
+    conversationOutcome = conv?.outcome ?? null
+  }
+
   const { systemPrompt, usedContext } = await loadConversationContext(
     businessId,
     assistantId,
     customerId,
     channel,
     intentTag ?? undefined,
-    landingContext
+    landingContext,
+    conversationOutcome
   )
 
   let chatMessages = messages
@@ -224,6 +235,16 @@ export async function processIncomingMessage(
     }
   }
 
+  let conversationOutcome: string | null = null
+  if (conversationId) {
+    const { data: convOutcome } = await supabase
+      .from('conversations')
+      .select('outcome')
+      .eq('id', conversationId)
+      .maybeSingle()
+    conversationOutcome = convOutcome?.outcome ?? null
+  }
+
   const { systemPrompt, usedContext, productId } = await loadConversationContext(
     businessId,
     assistantId,
@@ -231,7 +252,9 @@ export async function processIncomingMessage(
     channel === 'whatsapp' || channel === 'web' || channel === 'widget' || channel === 'messenger' || channel === 'instagram'
       ? channel
       : undefined,
-    intentTag
+    intentTag,
+    undefined,
+    conversationOutcome
   )
 
   const chatHistory = conversationId

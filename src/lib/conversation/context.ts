@@ -64,7 +64,8 @@ export async function loadConversationContext(
   customerId?: string,
   channel?: ChannelType | 'simulation',
   intentTag?: string | null,
-  landingContext?: LandingContext
+  landingContext?: LandingContext,
+  conversationOutcome?: string | null
 ): Promise<LoadedContext> {
   const key = `${cacheKey(businessId, assistantId, customerId, landingContext)}:${channel ?? 'default'}:${intentTag ?? ''}`
   const cached = contextCache.get(key)
@@ -119,6 +120,7 @@ export async function loadConversationContext(
     intentTag,
     landingContext,
     salesConfig: 'salesConfig' in context ? context.salesConfig : undefined,
+    conversationOutcome,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

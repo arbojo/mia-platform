@@ -199,6 +199,7 @@ export function buildMasterPrompt(params: {
   channel?: ChannelType | 'simulation'
   intentTag?: string | null
   salesConfig?: SalesPromptConfig
+  conversationOutcome?: string | null
   landingContext?: {
     brand?: string
     product?: string
@@ -220,6 +221,7 @@ export function buildMasterPrompt(params: {
     channel,
     intentTag,
     salesConfig,
+    conversationOutcome,
     landingContext,
   } = params
 
@@ -331,6 +333,7 @@ ${formatKnowledge(knowledge, ai, landingContext?.productId, channel) ? `\n## ${a
 ${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemory(memory, ai)}` : ''}
 ${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
 ${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}
+${conversationOutcome === 'cancelled' ? `\n## Estado de la conversación\nEsta conversación está CANCELADA. El cliente ya no quiere el producto. NO intentes vender, confirmar pedidos ni ofrecer productos. Si el cliente menciona un descuento activo, confirma la compra con el descuento aplicado. Si no, responde de forma amable sin intentar cerrar la venta. Solo ofrece ayuda general.` : ''}
 
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`
