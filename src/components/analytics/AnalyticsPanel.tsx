@@ -5,6 +5,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts'
+import { Tooltip as UITooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { adminFetch } from '@/components/analytics/admin-api'
 
 interface SalesDailyRow {
@@ -50,24 +51,35 @@ interface CustomerInsightRow {
   last_purchase_at: string | null
 }
 
+interface AnalyticsSummary {
+  totalRevenue: number
+  totalOrders: number
+  avgConversion: number
+  avgOrderValue: number
+  totalAiCost: number
+  aiCostToday: number
+  costPerSale: number
+  activeCustomers: number
+  ltv: number
+  cac: number
+  ltvCacRatio: number
+  ltvCacHealth: 'healthy' | 'warning' | 'critical'
+  revenueDelta: number | null
+  ordersDelta: number | null
+  conversionDelta: number | null
+  avgOrderValueDelta: number | null
+}
+
 interface AnalyticsData {
   salesDaily: SalesDailyRow[]
   topProducts: ProductPerformanceRow[]
   aiCostDaily: AiCostDailyRow[]
   topCustomers: CustomerInsightRow[]
-  summary: {
-    totalRevenue: number
-    totalOrders: number
-    avgConversion: number
-    avgOrderValue: number
-    totalAiCost: number
-    aiCostToday: number
-    costPerSale: number
-    activeCustomers: number
-  }
+  summary: AnalyticsSummary
 }
 
 const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6']
+const tooltipStyle = { backgroundColor: 'var(--atmosphere-card)', border: '1px solid var(--atmosphere-border)', borderRadius: 8 }
 
 function formatCurrency(n: number): string {
   return `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -79,30 +91,129 @@ function formatDate(d: React.ReactNode): string {
   return date.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })
 }
 
-const tooltipStyle = { backgroundColor: 'var(--atmosphere-card)', border: '1px solid var(--atmosphere-border)', borderRadius: 8 }
+function DeltaBadge({ delta }: { delta: number | null }) {
+  if (delta === null || delta === 0) return null
+  const positive = delta > 0
+  return (
+    <span
+      className="ml-1.5 inline-flex items-center text-xs font-medium"
+      style={{ color: positive ? '#10b981' : '#ef4444' }}
+    >
+      {positive ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
+    </span>
+  )
+}
 
-function KPICard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+function InfoTip({ text }: { text: string }) {
+  return (
+    <UITooltip>
+      <TooltipTrigger
+        className="ml-1 inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full text-xs"
+        style={{ color: 'var(--atmosphere-text-secondary)', backgroundColor: 'var(--atmosphere-border)' }}
+      >
+        i
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-64 text-xs">
+        {text}
+      </TooltipContent>
+    </UITooltip>
+  )
+}
+
+function KPICard({ label, value, sub, color, delta, tip }: {
+  label: string; value: string; sub?: string; color?: string; delta?: number | null; tip?: string
+}) {
   return (
     <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
-      <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--atmosphere-text-secondary)' }}>{label}</p>
-      <p className="mt-1 text-2xl font-bold" style={{ color: color ?? 'var(--atmosphere-text)' }}>{value}</p>
+      <p className="flex items-center text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+        {label}
+        {tip && <InfoTip text={tip} />}
+      </p>
+      <div className="mt-1 flex items-baseline gap-1">
+        <p className="text-2xl font-bold" style={{ color: color ?? 'var(--atmosphere-text)' }}>{value}</p>
+        {delta != null && <DeltaBadge delta={delta} />}
+      </div>
       {sub && <p className="mt-0.5 text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>{sub}</p>}
     </div>
   )
 }
 
-function FunnelCard({ label, value, arrow }: { label: string; value: string; arrow?: boolean }) {
+function RatioCard({ ratio, health, ltv, cac }: { ratio: number; health: 'healthy' | 'warning' | 'critical'; ltv: number; cac: number }) {
+  const colors = { healthy: '#10b981', warning: '#f59e0b', critical: '#ef4444' }
+  const labels = { healthy: 'Saludable', warning: 'Precaución', critical: 'Riesgo' }
+  const barWidth = Math.min(ratio / 5 * 100, 100)
+
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 rounded-xl border p-3 text-center" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
-        <p className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--atmosphere-text-secondary)' }}>{label}</p>
-        <p className="mt-1 text-xl font-bold" style={{ color: 'var(--atmosphere-text)' }}>{value}</p>
+    <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
+      <p className="flex items-center text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+        LTV / CAC
+        <InfoTip text="Relación entre el valor de vida del cliente y el costo de adquisición. ≥3x es saludable, <2x es riesgo." />
+      </p>
+      <div className="mt-1 flex items-baseline gap-2">
+        <p className="text-2xl font-bold" style={{ color: colors[health] }}>{ratio.toFixed(1)}x</p>
+        <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: `${colors[health]}22`, color: colors[health] }}>
+          {labels[health]}
+        </span>
       </div>
-      {arrow && (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="flex-shrink-0" style={{ color: 'var(--atmosphere-text-secondary)' }}>
-          <path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: 'var(--atmosphere-border)' }}>
+        <div className="h-full rounded-full transition-all" style={{ width: `${barWidth}%`, backgroundColor: colors[health] }} />
+      </div>
+      <p className="mt-1 text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+        LTV ${ltv.toFixed(0)} · CAC ${cac.toFixed(4)}
+      </p>
+    </div>
+  )
+}
+
+function FunnelChart({ started, selected, won }: { started: number; selected: number; won: number }) {
+  const max = Math.max(started, 1)
+  const stages = [
+    { label: 'Iniciadas', value: started, pct: 100 },
+    { label: 'Seleccionadas', value: selected, pct: Math.round((selected / max) * 100) },
+    { label: 'Ganadas', value: won, pct: Math.round((won / max) * 100) },
+  ]
+
+  return (
+    <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
+      <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Embudo de Ventas</h2>
+      <div className="space-y-3">
+        {stages.map((s, i) => (
+          <div key={s.label}>
+            <div className="mb-1 flex items-center justify-between text-xs">
+              <span style={{ color: 'var(--atmosphere-text-secondary)' }}>{s.label}</span>
+              <span className="font-medium" style={{ color: 'var(--atmosphere-text)' }}>
+                {s.value} {i > 0 && i < stages.length ? `(${s.pct}%)` : ''}
+              </span>
+            </div>
+            <div className="h-6 w-full overflow-hidden rounded-md" style={{ backgroundColor: 'var(--atmosphere-border)' }}>
+              <div
+                className="flex h-full items-center rounded-md pl-2 text-xs font-medium text-white transition-all"
+                style={{
+                  width: `${Math.max(s.pct, 8)}%`,
+                  backgroundColor: i === 2 ? '#10b981' : i === 1 ? '#6366f1' : '#94a3b8',
+                }}
+              >
+                {s.pct >= 20 && `${s.pct}%`}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {started > 0 && (
+        <p className="mt-3 text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+          Tasa de cierre: {Math.round((won / started) * 100)}% de iniciadas → ganadas
+        </p>
       )}
+    </div>
+  )
+}
+
+function EmptyChart({ label }: { label: string }) {
+  return (
+    <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed p-4" style={{ borderColor: 'var(--atmosphere-border)' }}>
+      <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+        {label}
+      </p>
     </div>
   )
 }
@@ -118,25 +229,29 @@ function SimpleView({ data }: { data: AnalyticsData }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KPICard label="Ingresos" value={formatCurrency(summary.totalRevenue)} color="#10b981" />
-        <KPICard label="Pedidos" value={String(summary.totalOrders)} sub={`${summary.avgConversion}% cierre`} />
-        <KPICard label="Ticket Prom." value={formatCurrency(summary.avgOrderValue)} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KPICard label="Ingresos" value={formatCurrency(summary.totalRevenue)} color="#10b981" delta={summary.revenueDelta} />
+        <KPICard label="Pedidos" value={String(summary.totalOrders)} sub={`${summary.avgConversion}% cierre`} delta={summary.ordersDelta} />
+        <KPICard label="Ticket Prom." value={formatCurrency(summary.avgOrderValue)} delta={summary.avgOrderValueDelta} tip="Valor promedio de cada pedido ganado en el periodo seleccionado." />
         <KPICard label="Costo IA Hoy" value={`$${summary.aiCostToday.toFixed(2)}`} sub={`$${summary.totalAiCost.toFixed(2)} total`} color="#f59e0b" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
           <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Ingresos Diarios</h2>
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={salesDaily}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
-              <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <Tooltip formatter={(v) => formatCurrency(Number(v))} labelFormatter={formatDate} contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b98133" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          {salesDaily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={salesDaily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
+                <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <Tooltip formatter={(v) => formatCurrency(Number(v))} labelFormatter={formatDate} contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b98133" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="Tus métricas de ingresos aparecerán cuando empiecen las ventas." />
+          )}
         </div>
 
         <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
@@ -151,7 +266,7 @@ function SimpleView({ data }: { data: AnalyticsData }) {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="py-10 text-center text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>Sin datos</p>
+            <EmptyChart label="Sin actividad de ventas en este periodo." />
           )}
         </div>
       </div>
@@ -159,29 +274,37 @@ function SimpleView({ data }: { data: AnalyticsData }) {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
           <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Pedidos por Día</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={salesDaily}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
-              <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <Tooltip formatter={(v) => [String(v), 'Pedidos']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
-              <Bar dataKey="won_count" fill="#10b981" radius={[4, 4, 0, 0]} name="Ganadas" />
-              <Bar dataKey="lost_count" fill="#ef4444" radius={[4, 4, 0, 0]} name="Perdidas" />
-            </BarChart>
-          </ResponsiveContainer>
+          {salesDaily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={salesDaily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
+                <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <Tooltip formatter={(v) => [String(v), 'Pedidos']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
+                <Bar dataKey="won_count" fill="#10b981" radius={[4, 4, 0, 0]} name="Ganadas" />
+                <Bar dataKey="lost_count" fill="#ef4444" radius={[4, 4, 0, 0]} name="Perdidas" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="Sin pedidos registrados en este periodo." />
+          )}
         </div>
 
         <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
           <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Costo de IA Diario</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={aiCostDaily}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
-              <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <Tooltip formatter={(v) => [`$${Number(v).toFixed(4)}`, 'Costo']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="total_cost" stroke="#f59e0b" fill="#f59e0b33" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          {aiCostDaily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={aiCostDaily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
+                <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <Tooltip formatter={(v) => [`$${Number(v).toFixed(4)}`, 'Costo']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="total_cost" stroke="#f59e0b" fill="#f59e0b33" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="Sin uso de IA registrado en este periodo." />
+          )}
         </div>
       </div>
 
@@ -244,37 +367,38 @@ function DetailedView({ data }: { data: AnalyticsData }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KPICard label="Ingresos" value={formatCurrency(summary.totalRevenue)} color="#10b981" />
-        <KPICard label="Pedidos" value={String(summary.totalOrders)} sub={`${summary.avgConversion}% cierre`} />
-        <KPICard label="Ticket Prom." value={formatCurrency(summary.avgOrderValue)} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KPICard label="Ingresos" value={formatCurrency(summary.totalRevenue)} color="#10b981" delta={summary.revenueDelta} />
+        <KPICard label="Pedidos" value={String(summary.totalOrders)} sub={`${summary.avgConversion}% cierre`} delta={summary.ordersDelta} />
+        <KPICard label="Ticket Prom." value={formatCurrency(summary.avgOrderValue)} delta={summary.avgOrderValueDelta} tip="Valor promedio de cada pedido ganado en el periodo seleccionado." />
         <KPICard label="Costo IA Hoy" value={`$${summary.aiCostToday.toFixed(2)}`} sub={`$${summary.totalAiCost.toFixed(2)} total`} color="#f59e0b" />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <FunnelCard label="Iniciadas" value={String(totalStarted)} arrow />
-        <FunnelCard label="Seleccionadas" value={String(totalSelected)} arrow />
-        <FunnelCard label="Ganadas" value={String(totalWon)} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KPICard label="Costo por Venta" value={`$${summary.costPerSale.toFixed(4)}`} sub="IA cost ÷ pedidos" color="#f59e0b" tip="Costo total de IA dividido entre ventas ganadas. Mide cuánto cuesta generar cada venta." />
+        <KPICard label="Clientes Activos" value={String(summary.activeCustomers)} sub="conversaciones recientes" />
+        <KPICard label="Tasa de Conversión" value={`${summary.avgConversion}%`} sub="iniciadas → ganadas" color="#10b981" tip="Porcentaje de conversaciones que terminaron en venta ganada." />
+        <RatioCard ratio={summary.ltvCacRatio} health={summary.ltvCacHealth} ltv={summary.ltv} cac={summary.cac} />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <KPICard label="Costo por Venta" value={`$${summary.costPerSale.toFixed(4)}`} sub="IA cost ÷ pedidos" color="#f59e0b" />
-        <KPICard label="Clientes Activos" value={String(summary.activeCustomers)} sub="conversaciones recientes" />
-        <KPICard label="Tasa de Conversión" value={`${summary.avgConversion}%`} sub="iniciadas → ganadas" color="#10b981" />
-      </div>
+      <FunnelChart started={totalStarted} selected={totalSelected} won={totalWon} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
           <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Ingresos Diarios</h2>
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={salesDaily}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
-              <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <Tooltip formatter={(v) => formatCurrency(Number(v))} labelFormatter={formatDate} contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b98133" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          {salesDaily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={salesDaily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
+                <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <Tooltip formatter={(v) => formatCurrency(Number(v))} labelFormatter={formatDate} contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b98133" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="Tus métricas de ingresos aparecerán cuando empiecen las ventas." />
+          )}
         </div>
 
         <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
@@ -289,7 +413,7 @@ function DetailedView({ data }: { data: AnalyticsData }) {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="py-10 text-center text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>Sin datos</p>
+            <EmptyChart label="Sin actividad de ventas en este periodo." />
           )}
         </div>
       </div>
@@ -297,29 +421,37 @@ function DetailedView({ data }: { data: AnalyticsData }) {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
           <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Pedidos por Día</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={salesDaily}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
-              <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <Tooltip formatter={(v) => [String(v), 'Pedidos']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
-              <Bar dataKey="won_count" fill="#10b981" radius={[4, 4, 0, 0]} name="Ganadas" />
-              <Bar dataKey="lost_count" fill="#ef4444" radius={[4, 4, 0, 0]} name="Perdidas" />
-            </BarChart>
-          </ResponsiveContainer>
+          {salesDaily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={salesDaily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
+                <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <Tooltip formatter={(v) => [String(v), 'Pedidos']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
+                <Bar dataKey="won_count" fill="#10b981" radius={[4, 4, 0, 0]} name="Ganadas" />
+                <Bar dataKey="lost_count" fill="#ef4444" radius={[4, 4, 0, 0]} name="Perdidas" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="Sin pedidos registrados en este periodo." />
+          )}
         </div>
 
         <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)', backgroundColor: 'var(--atmosphere-card)' }}>
           <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>Costo de IA Diario</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={aiCostDaily}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
-              <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
-              <Tooltip formatter={(v) => [`$${Number(v).toFixed(4)}`, 'Costo']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="total_cost" stroke="#f59e0b" fill="#f59e0b33" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          {aiCostDaily.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={aiCostDaily}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--atmosphere-border)" />
+                <XAxis dataKey="date" tickFormatter={formatDate} tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--atmosphere-text-secondary)" />
+                <Tooltip formatter={(v) => [`$${Number(v).toFixed(4)}`, 'Costo']} labelFormatter={formatDate} contentStyle={tooltipStyle} />
+                <Area type="monotone" dataKey="total_cost" stroke="#f59e0b" fill="#f59e0b33" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="Sin uso de IA registrado en este periodo." />
+          )}
         </div>
       </div>
 
