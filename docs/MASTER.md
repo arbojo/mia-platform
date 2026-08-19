@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c30e1b9`.
+> Fuente de verdad: este repositorio en `7410ed3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c30e1b9` |
+| **Commit HEAD** | `7410ed3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T23:09:43-06:00 |
+| **Generado** | 2026-08-18T23:24:10-06:00 |
 
 ---
 
@@ -794,6 +794,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+7410ed3 fix: two-step cancellation flow with discount offer
+93d99e2 docs: regenerate MASTER.md at c30e1b9
 c30e1b9 fix: prevent price queries from triggering sales closing pipeline
 54120b4 docs: regenerate MASTER.md at d25b99c
 d25b99c fix: correct product image resolution in conditional media
@@ -812,8 +814,6 @@ b2970ec fix: use separate OPENAI_PRD_API_KEY for PRD generator
 a85ee04 docs: regenerate MASTER.md at f84ee65
 f84ee65 feat: PRD Generator Agent — AI-powered feature spec generation
 a8039fc docs: regenerate MASTER.md at b3d3942
-b3d3942 feat: front-load cancellation interception in WhatsApp webhook
-f5dd96f docs: regenerate MASTER.md at 932e8cf
 ```
 
 ---
