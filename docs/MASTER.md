@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2349b50`.
+> Fuente de verdad: este repositorio en `b22904a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2349b50` |
+| **Commit HEAD** | `b22904a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T14:20:10-06:00 |
+| **Generado** | 2026-08-18T20:14:35-06:00 |
 
 ---
 
@@ -745,7 +745,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-25 ADRs en `docs/adr/`:
+26 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -772,6 +772,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 020-inventory-hub | 020: Inventory Hub — Módulo de Inventario, Catálogo y Probabilidad/Demanda (Schema `inventory`) |
 | 021-subaru-checkpoint | 021: Protocolo Subaru — Checkpoint de Misión Multi-máquina |
 | 024-whatsapp-bridge-defensive-block | 024: WhatsApp Bridge — Bloque Defensivo (Llamadas y Notas de Voz) |
+| 025-multi-domain-architecture | 025: MIA Platform Multi-Domain Architecture |
 | ADR-022 | 022: Environment Runtime Normalization |
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 
@@ -788,6 +789,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generator and Governance
+080d51d docs: regenerate MASTER.md at 2349b50
 2349b50 fix: coerce PRD scope fields (filesAffected, booleans, descriptions)
 b8e325b docs: regenerate MASTER.md at 6a62eb6
 6a62eb6 fix: coerce PRD acceptance criteria and add retry
@@ -806,8 +809,6 @@ f5dd96f docs: regenerate MASTER.md at 932e8cf
 f21ffc7 fix: WhatsApp bridge auth state corruption - serialize signal keys, remove logout from restart, write queue, graceful shutdown
 36d34a2 docs: regenerate MASTER.md at 4087537
 4087537 fix: refresh connections on waStatus error/idle so clean button stays visible
-ece0222 docs: regenerate MASTER.md at 1275bb9
-1275bb9 feat: sales closing blindaje + WhatsApp sanitization + settings
 ```
 
 ---
