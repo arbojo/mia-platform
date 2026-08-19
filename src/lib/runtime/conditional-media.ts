@@ -67,7 +67,10 @@ export async function resolveConditionalMedia(params: {
       pending.find((item) => item.product_id === null)
     : pending.find((item) => item.product_id === null)
 
-  const selected = byProduct ?? pending[0]
+  // Cuando el producto es conocido, solo servimos imagen de ese producto (o genérica).
+  // Si la imagen del producto correcto ya fue despachada, NO caemos en pending[0]
+  // que podría pertenecer a un producto diferente (ej. Bella Patch en vez de Clean Nails).
+  const selected = byProduct ?? (productId ? null : pending[0])
   if (!selected?.image_url) return null
 
   // Envío único por PRODUCTO/sesión: si la imagen de este producto ya se

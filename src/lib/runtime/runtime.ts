@@ -303,13 +303,29 @@ export async function processIncomingMessage(
     }
   }
 
+  // Resolver producto recomendado para asociar la imagen correcta al producto
+  // que el cliente está preguntando (sin esto, la imagen podía ser de otro producto).
+  let resolvedProduct: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
+  if (wireMessage.content) {
+    try {
+      resolvedProduct = await resolveRecommendedProduct({
+        businessId,
+        userMessage: wireMessage.content,
+        intentTag: intentTag ?? null,
+        productId: productId ?? null,
+      })
+    } catch (err) {
+      console.error('Failed to resolve recommended product:', err)
+    }
+  }
+
   const media = mode === 'shadow' ? undefined : await resolveConditionalMedia({
     businessId,
     customerId: customer.id,
     conversationId: conversationId ?? null,
     userMessage: wireMessage.content,
     intentTag: intentTag ?? null,
-    productId: productId ?? null,
+    productId: resolvedProduct?.productId ?? productId ?? null,
   })
 
   // SHADOW: the reply is generated and stored for learning but never sent.
