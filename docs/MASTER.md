@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bfebcc2`.
+> Fuente de verdad: este repositorio en `d9f6a10`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bfebcc2` |
+| **Commit HEAD** | `d9f6a10` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T17:12:28-06:00 |
+| **Generado** | 2026-08-19T17:27:08-06:00 |
 
 ---
 
@@ -808,6 +808,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-toggle popup
+11abf5b docs: regenerate MASTER.md at bfebcc2
 bfebcc2 feat: Analytics dashboard strategic upgrade — deltas, LTV/CAC, funnel, tooltips
 add8335 docs: regenerate MASTER.md at f7753f6
 f7753f6 feat: Analytics dashboard dual view — Simple + Completa with quick time filters
@@ -826,8 +828,6 @@ b843f72 fix: post-cancelación — fresh start con contexto
 9bb3782 docs: regenerate MASTER.md at 9a51143
 9a51143 feat: reduce shell tour to 3 steps, add delivery tour, simplify onboarding to 3 steps
 e5d6993 docs: regenerate MASTER.md at 881e66f
-881e66f fix: conditional-media no devuelve genéricos cuando productId es conocido — evita imagen de otro producto
-f5dbc45 docs: regenerate MASTER.md at 316b070
 ```
 
 ---
