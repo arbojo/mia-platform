@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `912a73a`.
+> Fuente de verdad: este repositorio en `442da76`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `912a73a` |
+| **Commit HEAD** | `442da76` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T15:46:58-06:00 |
+| **Generado** | 2026-08-19T16:17:58-06:00 |
 
 ---
 
@@ -43,7 +43,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 | Testing | Playwright (e2e) + Vitest (unit) |
 | CI | GitHub Actions |
 
-**Dependencias de producción** (26): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, shadcn, tailwind-merge, tw-animate-css, zod
+**Dependencias de producción** (27): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, recharts, shadcn, tailwind-merge, tw-animate-css, zod
 
 **DevDependencies** (18): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest, ws, wscat
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-67 tablas definidas en `supabase/migrations/`:
+68 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -143,6 +143,7 @@ Patrón de cliente Supabase:
 | inventory | 044_eta_cx.sql |
 | business_sales_config | 045_sales_config.sql |
 | sales_order_counters | 045_sales_config.sql |
+| IF | 047_analytics_schema.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -196,6 +197,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 44 | 044_eta_cx.sql |
 | 45 | 045_sales_config.sql |
 | 46 | 046_products_cost_and_gps_freshness.sql |
+| 47 | 047_analytics_schema.sql |
 
 ---
 
@@ -233,10 +235,11 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-90 rutas en `src/app/api/`:
+91 rutas en `src/app/api/`:
 
 ```
 accessibility
+admin/analytics/overview
 admin/delivery/closures
 admin/delivery/command-center
 admin/delivery/drivers/[id]
@@ -332,12 +335,13 @@ widget/close
 
 ## 8. Páginas
 
-28 páginas en `src/app/`:
+29 páginas en `src/app/`:
 
 ```
 (auth)/login
 (auth)/signup
 dashboard/accessibility
+dashboard/analytics
 dashboard/assistants/[id]
 dashboard/assistants/[id]/products
 dashboard/assistants/[id]/rules
@@ -369,10 +373,12 @@ widget
 
 ## 9. Componentes
 
-122 componentes en `src/components/`:
+124 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
+analytics/AnalyticsPanel.tsx
+analytics/admin-api.ts
 billing/UpgradeCheckout.tsx
 catalog/CatalogGrid.tsx
 catalog/ProductCard.tsx
@@ -500,7 +506,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-108 módulos:
+110 módulos:
 
 ```
 ai/client.ts
@@ -517,6 +523,8 @@ ai/readiness.ts
 ai/skills.ts
 ai/usage-report.ts
 ai/weekly-report.ts
+analytics/db.ts
+analytics/queries.ts
 api-error.ts
 auth.ts
 baileys/bridge.ts
@@ -800,6 +808,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+442da76 feat: MIA Analytics Phase 1 — Sales Analytics dashboard with Recharts
+af2a92a docs: regenerate MASTER.md at 912a73a
 912a73a feat: add Godzilla agent — adversarial stress testing
 e87ccbb docs: regenerate MASTER.md at b843f72
 b843f72 fix: post-cancelación — fresh start con contexto
@@ -818,8 +828,6 @@ f5dbc45 docs: regenerate MASTER.md at 316b070
 85ba4c1 docs: regenerate MASTER.md at aafdb04
 aafdb04 fix: cancellation flow — outcome cancelled + discount acceptance + AI context
 674defa docs: regenerate MASTER.md at 7410ed3
-7410ed3 fix: two-step cancellation flow with discount offer
-93d99e2 docs: regenerate MASTER.md at c30e1b9
 ```
 
 ---
