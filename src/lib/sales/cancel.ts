@@ -119,13 +119,13 @@ export async function processCancellation(
   await supabase
     .from('conversations')
     .update({
-      outcome: 'not_interested',
+      outcome: 'cancelled',
       sales_cancelled_at: new Date().toISOString(),
       outcome_updated_at: new Date().toISOString(),
       outcome_history: [
         ...history,
         {
-          outcome: 'not_interested',
+          outcome: 'cancelled',
           previous: conversation?.outcome ?? null,
           event_type: 'SALE_CANCELLED',
           reason: detection.reason,

@@ -55,7 +55,7 @@ export async function hasClosingEvent(conversationId: string): Promise<boolean> 
     .from('sales_events')
     .select('id')
     .eq('conversation_id', conversationId)
-    .in('event_type', ['SALE_WON', 'SALE_LOST'])
+    .in('event_type', ['SALE_WON', 'SALE_LOST', 'SALE_CANCELLED'])
     .limit(1)
     .maybeSingle()
   return Boolean(data)

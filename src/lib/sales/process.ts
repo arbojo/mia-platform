@@ -8,7 +8,6 @@ import {
   fetchOrderNumber,
   getCustomerData,
   getCustomerName,
-  hasCancellationLock,
   hasClosingEvent,
   notifySaleToOwner,
 } from './events'
@@ -18,12 +17,19 @@ import { resolveCustomer } from '@/lib/channels/identity'
 import type { WireMessage } from '@/lib/runtime/types'
 
 /**
+ * Sentinel value for sales_cancelled_at indicating a discount offer was
+ * extended but the customer hasn't confirmed or declined yet.
+ */
+const DISCOUNT_OFFERED_SENTINEL = '0001-01-01T00:00:01Z'
+
+/**
  * Early cancellation interception for the WhatsApp webhook.
  *
- * When a cancellation keyword is detected, handles the entire flow
- * (resolution, persistence, cancellation processing) and returns a
- * response — bypassing executeAI() entirely. Returns null if the message
- * is NOT a cancellation, so the caller proceeds with the normal flow.
+ * Two-step flow:
+ * 1. First cancel attempt → offer 10% discount to try to save the sale.
+ *    Sets sales_cancelled_at to a sentinel value to track the offer.
+ * 2. Second cancel attempt (or already cancelled) → proceed with normal
+ *    cancellation processing via processCancellation().
  */
 export async function handleCancellationWebhook(
   wireMessage: WireMessage
@@ -66,28 +72,76 @@ export async function handleCancellationWebhook(
     status: 'received',
   })
 
-  const chatHistory = await supabase
-    .from('messages')
-    .select('role, content')
-    .eq('conversation_id', conversationId)
-    .order('created_at', { ascending: true })
-    .limit(20)
+  // --- Check conversation state for two-step flow ---
+  const { data: conversationState } = await supabase
+    .from('conversations')
+    .select('sales_cancelled_at, outcome')
+    .eq('id', conversationId)
+    .maybeSingle()
 
-  const messages = (chatHistory.data ?? []).map((m) => ({
-    role: m.role as 'user' | 'assistant',
-    content: m.content,
-  }))
+  const alreadyCancelled =
+    conversationState?.sales_cancelled_at &&
+    conversationState.sales_cancelled_at !== DISCOUNT_OFFERED_SENTINEL
 
-  const result = await processCancellation({
-    businessId,
-    assistantId,
-    conversationId,
-    customerId: customer.id,
-    lastUserMessage: wireMessage.content,
-    messages,
-  })
+  const discountAlreadyOffered =
+    conversationState?.sales_cancelled_at === DISCOUNT_OFFERED_SENTINEL
 
-  const response = result.message ?? 'Tu solicitud de cancelación ha sido procesada.'
+  let response: string
+
+  if (alreadyCancelled) {
+    // Already fully cancelled — just acknowledge
+    response = 'Tu pedido ya fue cancelado anteriormente. ¿Hay algo más en lo que te pueda ayudar?'
+  } else if (!discountAlreadyOffered) {
+    // === FIRST CANCEL ATTEMPT: offer 10% discount ===
+    // Check if there's an active sale to save
+    const { data: lastWonEvent } = await supabase
+      .from('sales_events')
+      .select('id')
+      .eq('conversation_id', conversationId)
+      .eq('event_type', 'SALE_WON')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (!lastWonEvent) {
+      // No active sale — just acknowledge
+      response = 'Entiendo. ¿Hay algo más en lo que te pueda ayudar?'
+    } else {
+      response =
+        'Entiendo tu preocupación. Para agradecerte tu interés, puedo ofrecerte un *10% de descuento* en tu pedido. ¿Te gustaría que te aplique el descuento y confirmemos tu compra?'
+      // Mark discount as offered using sentinel value
+      await supabase
+        .from('conversations')
+        .update({ sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL })
+        .eq('id', conversationId)
+    }
+  } else {
+    // === SECOND CANCEL ATTEMPT: proceed with cancellation ===
+    const messages = (
+      await supabase
+        .from('messages')
+        .select('role, content')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+        .limit(20)
+    ).data ?? []
+
+    const chatMessages = messages.map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    }))
+
+    const result = await processCancellation({
+      businessId,
+      assistantId,
+      conversationId,
+      customerId: customer.id,
+      lastUserMessage: wireMessage.content,
+      messages: chatMessages,
+    })
+
+    response = result.message ?? 'Tu solicitud de cancelación ha sido procesada.'
+  }
 
   try {
     await supabase.from('messages').insert({
@@ -138,8 +192,17 @@ export async function processSaleClosing(params: {
   // handleCancellationWebhook(). This check exists as belt-and-suspenders
   // in case a cancellation message reaches this path (e.g., training chat).
   if (hasCancellationTrigger(lastUserMessage.content)) {
-    const alreadyCancelled = await hasCancellationLock(conversationId)
-    if (alreadyCancelled) return
+    const supabaseClient = createAdminClient()
+    const { data: convState } = await supabaseClient
+      .from('conversations')
+      .select('sales_cancelled_at')
+      .eq('id', conversationId)
+      .maybeSingle()
+
+    const isFullyCancelled =
+      convState?.sales_cancelled_at &&
+      convState.sales_cancelled_at !== DISCOUNT_OFFERED_SENTINEL
+    if (isFullyCancelled) return
 
     await processCancellation({
       businessId,
