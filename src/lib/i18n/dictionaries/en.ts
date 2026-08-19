@@ -475,5 +475,23 @@ export const en: Dict = {
         desc: 'MIA proposes concrete knowledge improvements. Filter, review, and approve the ones you like.',
       },
     },
+    delivery: {
+      routes: {
+        title: 'Routes',
+        desc: 'Create and manage delivery routes. Assign pending orders to a driver and a date.',
+      },
+      drivers: {
+        title: 'Drivers',
+        desc: 'Add delivery personnel, generate access links and manage their status.',
+      },
+      orders: {
+        title: 'Orders',
+        desc: 'View orders by status: pending, assigned, delivered, with incidence or cancelled.',
+      },
+      closures: {
+        title: 'Closures',
+        desc: 'Close a delivery day: count cash, reconcile expected vs. collected and add notes.',
+      },
+    },
   },
 }

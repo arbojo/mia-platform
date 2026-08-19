@@ -68,7 +68,7 @@ export function DeliveryOrdersPanel({ businessId }: { businessId: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour="delivery-orders">
       <div className="flex flex-wrap gap-2">
         {STATUS_OPTIONS.map((opt) => (
           <button

@@ -62,6 +62,7 @@ describe('loadConversationContext', () => {
       instructions: [],
       knowledge: [],
       memory: [],
+      salesConfig: null,
     })
 
     const result = await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -82,6 +83,7 @@ describe('loadConversationContext', () => {
       instructions: mockInstructions,
       knowledge: mockKnowledgeItems,
       memory: [],
+      salesConfig: null,
     })
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -100,6 +102,7 @@ describe('loadConversationContext', () => {
       instructions: [],
       knowledge: [],
       memory: [],
+      salesConfig: null,
     })
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -118,6 +121,7 @@ describe('loadConversationContext', () => {
       instructions: mockInstructions,
       knowledge: mockKnowledgeItems,
       memory: [],
+      salesConfig: null,
     })
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -143,6 +147,7 @@ describe('loadConversationContext', () => {
       instructions: mockInstructions,
       knowledge: mockKnowledgeItems,
       memory: [],
+      salesConfig: null,
     })
 
     const result = await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -188,6 +193,7 @@ describe('loadConversationContext', () => {
         instructions: [],
         knowledge: [],
         memory: [],
+        salesConfig: null,
       })
     })
 
@@ -224,6 +230,7 @@ describe('loadConversationContext', () => {
         instructions: [],
         knowledge: [],
         memory: [],
+        salesConfig: null,
       })
 
       const result2 = await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)

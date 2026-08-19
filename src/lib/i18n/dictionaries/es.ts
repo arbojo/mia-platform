@@ -472,6 +472,24 @@ export const es = {
         desc: 'MIA propone mejoras concretas a tu conocimiento. Filtra, revisa y aprueba las que te sirvan.',
       },
     },
+    delivery: {
+      routes: {
+        title: 'Rutas',
+        desc: 'Crea y gestiona rutas de delivery. Asigná pedidos pendientes a un repartidor y una fecha.',
+      },
+      drivers: {
+        title: 'Repartidores',
+        desc: 'Agregá personal de delivery, generá enlaces de acceso y gestioná su estado.',
+      },
+      orders: {
+        title: 'Pedidos',
+        desc: 'Visualizá pedidos por estado: sin asignar, asignados, entregados, con incidencia o cancelados.',
+      },
+      closures: {
+        title: 'Cierres',
+        desc: 'Cerrá la jornada de delivery: contá efectivo, conciliá lo esperado vs. recaudado y agregá notas.',
+      },
+    },
   },
 }
 export type Dict = typeof es

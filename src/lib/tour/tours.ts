@@ -5,9 +5,6 @@ export const SHELL_TOUR: TourDef = {
   steps: [
     { target: 'aside[aria-label="Navegación"]', titleKey: 'shell.nav.title', descKey: 'shell.nav.desc' },
     { target: '[data-tour="module-chip"]', titleKey: 'shell.module.title', descKey: 'shell.module.desc' },
-    { target: '[data-tour="theme-toggle"]', titleKey: 'shell.theme.title', descKey: 'shell.theme.desc' },
-    { target: '[data-tour="language-button"]', titleKey: 'shell.language.title', descKey: 'shell.language.desc' },
-    { target: '[data-tour="signals-bell"]', titleKey: 'shell.signals.title', descKey: 'shell.signals.desc' },
     { target: '[data-tour="mia-indicator"]', titleKey: 'shell.mia.title', descKey: 'shell.mia.desc' },
   ],
 }
@@ -53,6 +50,15 @@ const pageTours: Record<string, TourDef> = {
     steps: [
       { target: '[data-tour="catalog-actions"]', titleKey: 'catalog.actions.title', descKey: 'catalog.actions.desc' },
       { target: '[data-tour="catalog-grid"]', titleKey: 'catalog.grid.title', descKey: 'catalog.grid.desc' },
+    ],
+  },
+  '/dashboard/delivery': {
+    key: 'delivery',
+    steps: [
+      { target: '[data-tour="delivery-routes"]', titleKey: 'delivery.tour.routes.title', descKey: 'delivery.tour.routes.desc' },
+      { target: '[data-tour="delivery-drivers"]', titleKey: 'delivery.tour.drivers.title', descKey: 'delivery.tour.drivers.desc' },
+      { target: '[data-tour="delivery-orders"]', titleKey: 'delivery.tour.orders.title', descKey: 'delivery.tour.orders.desc' },
+      { target: '[data-tour="delivery-closures"]', titleKey: 'delivery.tour.closures.title', descKey: 'delivery.tour.closures.desc' },
     ],
   },
 }

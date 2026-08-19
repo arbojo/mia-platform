@@ -218,14 +218,12 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
   const stepLabels: Record<string, string> = {
     business_info: 'Negocio',
     products: 'Productos',
-    rules: 'Reglas',
     personality: 'Asistente',
   }
 
   const stepIcons: Record<string, string> = {
     business_info: '🏢',
     products: '📦',
-    rules: '📋',
     personality: '🤖',
   }
 
@@ -250,8 +248,8 @@ Estoy lista para seguir aprendiendo. Vamos al dashboard para que me enseñes má
         <p className="text-xs text-zinc-400 text-center">
           {completedSteps.size === 0
             ? "Estoy conociéndote"
-            : completedSteps.size < 4
-              ? `Ya sé ${completedSteps.size} de 4 cosas sobre tu negocio`
+            : completedSteps.size < 3
+              ? `Ya sé ${completedSteps.size} de 3 cosas sobre tu negocio`
               : "Estoy lista para empezar a trabajar"}
         </p>
       </div>

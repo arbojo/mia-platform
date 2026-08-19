@@ -97,7 +97,7 @@ export function DeliveryDriversPanel({ businessId }: { businessId: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour="delivery-drivers">
       <div className="rounded-xl border p-4" style={{ borderColor: 'var(--atmosphere-border)' }}>
         <h3 className="text-sm font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
           Nuevo repartidor

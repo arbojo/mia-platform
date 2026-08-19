@@ -475,5 +475,23 @@ export const pt: Dict = {
         desc: 'A MIA propõe melhorias concretas de conhecimento. Filtre, revise e aprove as que servir.',
       },
     },
+    delivery: {
+      routes: {
+        title: 'Rotas',
+        desc: 'Crie e gerencie rotas de delivery. Atribua pedidos pendentes a um motoboy e uma data.',
+      },
+      drivers: {
+        title: 'Motoboys',
+        desc: 'Adicione pessoal de delivery, gere links de acesso e gerencie o status deles.',
+      },
+      orders: {
+        title: 'Pedidos',
+        desc: 'Visualize pedidos por status: sem atribuir, atribuídos, entregues, com incidência ou cancelados.',
+      },
+      closures: {
+        title: 'Fechamentos',
+        desc: 'Feche o dia de delivery: conte o dinheiro, concilie o esperado vs. arrecadado e adicione notas.',
+      },
+    },
   },
 }
