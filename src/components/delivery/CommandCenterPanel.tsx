@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { DollarSign, Target, TrendingUp, Package, AlertTriangle, Truck, MapPin } from 'lucide-react'
+import { DollarSign, Target, TrendingUp, Package, AlertTriangle, Truck, MapPin, RefreshCw } from 'lucide-react'
 import { adminFetch } from '@/components/delivery/admin-api'
 import { KPICard } from '@/components/delivery/KPICard'
 import { CommandCenterMap, DriverStalenessIndicator } from '@/components/delivery/CommandCenterMap'
@@ -29,6 +29,14 @@ interface DriverWithRoute {
     total_orders: number
     collected: number
   }
+  route_visits?: Array<{
+    order_number: string
+    customer_name: string
+    address: string | null
+    status: string
+    amount: number | null
+    sequence: number
+  }>
 }
 
 interface CommandCenterData {
@@ -93,16 +101,39 @@ export function CommandCenterPanel({ businessId }: { businessId: string }) {
 
   if (error && !data) {
     return (
-      <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+      <div className="rounded-xl p-6 text-center" style={{ border: '1px solid color-mix(in srgb, var(--mia-orange) 20%, transparent)', backgroundColor: 'color-mix(in srgb, var(--mia-orange) 5%, transparent)' }}>
+        <AlertTriangle className="mx-auto mb-3 h-6 w-6" style={{ color: 'var(--mia-orange)' }} />
+        <p className="text-sm font-medium" style={{ color: 'var(--atmosphere-text)' }}>{error}</p>
+        <p className="mt-1 text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>No se pudo cargar el centro de mando</p>
+        <button
+          onClick={load}
+          className="mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+          style={{ backgroundColor: 'var(--atmosphere-accent)', color: 'white' }}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Reintentar
+        </button>
+      </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="flex h-40 items-center justify-center">
-        <span className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
-          Cargando centro de mando…
-        </span>
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="animate-pulse rounded-xl p-5"
+              style={{ border: '1px solid var(--atmosphere-border)', backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)' }}
+            >
+              <div className="h-3 w-20 rounded" style={{ backgroundColor: 'var(--atmosphere-border)' }} />
+              <div className="mt-3 h-7 w-24 rounded" style={{ backgroundColor: 'var(--atmosphere-border)' }} />
+              <div className="mt-2 h-2 w-16 rounded" style={{ backgroundColor: 'var(--atmosphere-border)' }} />
+            </div>
+          ))}
+        </div>
+        <div className="animate-pulse rounded-xl" style={{ height: 360, border: '1px solid var(--atmosphere-border)', backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 60%, transparent)' }} />
       </div>
     )
   }
@@ -188,7 +219,7 @@ export function CommandCenterPanel({ businessId }: { businessId: string }) {
           <div className="mt-1.5 space-y-1">
             {financials.products_without_cost.map((item) => (
               <p key={item.order_id} className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
-                {item.product_name} — ${item.amount} (excluido del cálculo de margen)
+                {item.product_name} — ${item.amount.toLocaleString()} (excluido del cálculo de margen)
               </p>
             ))}
           </div>
@@ -267,7 +298,7 @@ export function CommandCenterPanel({ businessId }: { businessId: string }) {
                       ·
                     </span>
                     <span className="text-[11px] font-medium" style={{ color: 'var(--atmosphere-accent)' }}>
-                      ${driver.today_stats.collected}
+                      ${driver.today_stats.collected.toLocaleString()}
                     </span>
                   </div>
                 </div>

@@ -147,6 +147,14 @@ export async function GET(req: NextRequest) {
           total_orders: routeVisits.length,
           collected: Math.round(collected * 100) / 100,
         },
+        route_visits: routeVisits.map((v) => ({
+          order_number: v.orders?.order_number ?? '—',
+          customer_name: v.orders?.customer_name ?? '—',
+          address: v.orders?.address ?? null,
+          status: v.status,
+          amount: v.orders?.amount ?? null,
+          sequence: v.sequence,
+        })),
       }
     })
 

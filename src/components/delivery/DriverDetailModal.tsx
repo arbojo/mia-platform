@@ -144,7 +144,7 @@ export function DriverDetailModal({ driver, onClose }: DriverDetailModalProps) {
 
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label: 'Cobrado', value: `$${stats.collected}`, color: 'var(--atmosphere-accent)' },
+              { label: 'Cobrado', value: `$${stats.collected.toLocaleString()}`, color: 'var(--atmosphere-accent)' },
               { label: 'Entregadas', value: `${stats.delivered}/${stats.total_orders}`, color: 'var(--mia-green)' },
               { label: 'Efectividad', value: `${effectiveness}%`, color: effectiveness >= 80 ? 'var(--mia-green)' : 'var(--mia-orange)' },
             ].map((item) => (
