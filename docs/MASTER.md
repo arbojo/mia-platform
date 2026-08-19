@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ed0a588`.
+> Fuente de verdad: este repositorio en `fe274fd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ed0a588` |
+| **Commit HEAD** | `fe274fd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T20:50:19-06:00 |
+| **Generado** | 2026-08-18T21:53:06-06:00 |
 
 ---
 
@@ -232,7 +232,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-86 rutas en `src/app/api/`:
+89 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -276,6 +276,9 @@ conversations/[id]/messages
 conversations/[id]/notes
 conversations/[id]/outcome
 conversations/[id]/status
+customers/memory/approve
+customers/memory/batch
+customers/memory/extract
 customers/memory
 demo/chat
 driver/auth/logout
@@ -364,7 +367,7 @@ widget
 
 ## 9. Componentes
 
-117 componentes en `src/components/`:
+118 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -388,6 +391,7 @@ connections/ConnectionsManager.tsx
 conversations/ConversationDetailModal.tsx
 conversations/ConversationFilters.tsx
 conversations/ConversationList.tsx
+conversations/MemorySuggestionsPanel.tsx
 customers/MemoryPanel.tsx
 dashboard/AIOperationsCard.tsx
 dashboard/AccessibilityProvider.tsx
@@ -790,6 +794,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+fe274fd feat: memory suggestions panel with approval flow + modal fixes
+284c34d docs: regenerate MASTER.md at ed0a588
 ed0a588 feat: add conversation detail modal with last 5 messages and knowledge attachment
 3920e5c docs: regenerate MASTER.md at b22904a
 b22904a feat: formalize multi-domain architecture (ADR-025) + update PRD Generator and Governance
@@ -808,8 +814,6 @@ f5dd96f docs: regenerate MASTER.md at 932e8cf
 18c7556 docs: regenerate MASTER.md at 515e1fb
 515e1fb fix: send text first then interactive, pass salesConfig to prompt
 0d94cfe fix(bridge): add in-memory state cache to survive reconnects
-07a1953 fix: deserialize signal keys in get() and snapshot inside write queue callbacks
-f21ffc7 fix: WhatsApp bridge auth state corruption - serialize signal keys, remove logout from restart, write queue, graceful shutdown
 ```
 
 ---
