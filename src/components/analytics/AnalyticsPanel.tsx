@@ -1,11 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts'
-import { Tooltip as UITooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { adminFetch } from '@/components/analytics/admin-api'
 
 interface SalesDailyRow {
@@ -105,18 +104,53 @@ function DeltaBadge({ delta }: { delta: number | null }) {
 }
 
 function InfoTip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    if (open) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
+
   return (
-    <UITooltip>
-      <TooltipTrigger
-        className="ml-1 inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full text-xs"
-        style={{ color: 'var(--atmosphere-text-secondary)', backgroundColor: 'var(--atmosphere-border)' }}
+    <div ref={ref} className="relative ml-1 inline-flex">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-colors hover:opacity-80"
+        style={{
+          color: 'var(--atmosphere-text-secondary)',
+          backgroundColor: 'var(--atmosphere-border)',
+          border: '1.5px solid var(--atmosphere-text-secondary)',
+        }}
+        aria-label="Más información"
       >
-        i
-      </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-64 text-xs">
-        {text}
-      </TooltipContent>
-    </UITooltip>
+        ?
+      </button>
+      {open && (
+        <div
+          className="absolute bottom-full left-1/2 z-50 mb-2 w-56 -translate-x-1/2 rounded-lg px-3 py-2 text-xs leading-relaxed shadow-lg"
+          style={{
+            backgroundColor: 'var(--atmosphere-card)',
+            border: '1px solid var(--atmosphere-border)',
+            color: 'var(--atmosphere-text)',
+          }}
+        >
+          {text}
+          <div
+            className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 rotate-45"
+            style={{
+              backgroundColor: 'var(--atmosphere-card)',
+              borderRight: '1px solid var(--atmosphere-border)',
+              borderBottom: '1px solid var(--atmosphere-border)',
+            }}
+          />
+        </div>
+      )}
+    </div>
   )
 }
 
