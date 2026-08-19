@@ -46,14 +46,23 @@ Reglas:
 - Si no hay suficiente información para clasificar, devuelve outcome "pending" y events [].`
 
 export function hasSalesTrigger(lastUserMessage: string): boolean {
+  // Solo disparadores de intención de compra REAL.
+  // Palabras de información/consulta (precio, cuánto, cuesta, costo) se excluyen
+  // para que una simple pregunta de precios no active el pipeline de ventas.
   const triggers = [
+    // Compra explícita
     'compr', 'quiero', 'llevo', 'confirmo', 'me llevo', 'lo llevo', 'pedido',
-    'cuánto', 'cuanto', 'precio', 'cuesta', 'costo', 'pago', 'pagar', 'tarjeta',
-    'transferencia', 'depósito', 'deposito', 'efectivo', 'dirección', 'direccion',
-    'envío', 'envio', 'entrega', 'listo', 'dalo', 'dámelo', 'damelo', 'lo quiero',
+    // Pago (cuando el cliente ya está en proceso de compra)
+    'pago', 'pagar', 'tarjeta', 'transferencia', 'depósito', 'deposito', 'efectivo',
+    // Logística de entrega
+    'dirección', 'direccion', 'envío', 'envio', 'entrega',
+    // Cierre / aceptación
+    'listo', 'dalo', 'dámelo', 'damelo', 'lo quiero',
     'si quiero', 'sí quiero', 'acepto', 'acepto el pedido', 'confirmar', 'me interesa',
+    // Rechazo / objeción
     'no me interesa', 'no gracias', 'mejor no', 'rechazo', 'caro', 'cara', 'no me alcanza',
     'necesito pensarlo', 'lo pienso', 'lo voy a pensar',
+    // Datos personales del cliente (captura de pedido)
     'teléfono', 'telefono', 'celular', 'mi número', 'mi numero', 'te paso mi',
     'me llamo', 'vivo en', 'mi dirección', 'mi direccion', 'domicilio',
   ]
