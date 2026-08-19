@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `435451b`.
+> Fuente de verdad: este repositorio en `51fb82b`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `435451b` |
+| **Commit HEAD** | `51fb82b` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T12:59:27-06:00 |
+| **Generado** | 2026-08-19T13:13:05-06:00 |
 
 ---
 
@@ -800,6 +800,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+51fb82b fix: refinamiento UX del Command Center — copywriting, métricas de circulación y empty state
+2f31bf0 docs: regenerate MASTER.md at 435451b
 435451b feat: Delivery Hub Command Center — mapa, KPIs financieros y detalle por repartidor
 9bb3782 docs: regenerate MASTER.md at 9a51143
 9a51143 feat: reduce shell tour to 3 steps, add delivery tour, simplify onboarding to 3 steps
@@ -818,8 +820,6 @@ d25b99c fix: correct product image resolution in conditional media
 14596d3 docs: regenerate MASTER.md at fe274fd
 fe274fd feat: memory suggestions panel with approval flow + modal fixes
 284c34d docs: regenerate MASTER.md at ed0a588
-ed0a588 feat: add conversation detail modal with last 5 messages and knowledge attachment
-3920e5c docs: regenerate MASTER.md at b22904a
 ```
 
 ---
