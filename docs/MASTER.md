@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7c2c1f3`.
+> Fuente de verdad: este repositorio en `b843f72`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7c2c1f3` |
+| **Commit HEAD** | `b843f72` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T14:35:18-06:00 |
+| **Generado** | 2026-08-19T15:27:24-06:00 |
 
 ---
 
@@ -800,6 +800,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+b843f72 fix: post-cancelación — fresh start con contexto
+19012e2 docs: regenerate MASTER.md at 7c2c1f3
 7c2c1f3 fix: Godzilla audit — format amounts, add route visits to modal, retry button, loading skeleton
 70d9276 docs: regenerate MASTER.md at 51fb82b
 51fb82b fix: refinamiento UX del Command Center — copywriting, métricas de circulación y empty state
@@ -818,8 +820,6 @@ aafdb04 fix: cancellation flow — outcome cancelled + discount acceptance + AI 
 93d99e2 docs: regenerate MASTER.md at c30e1b9
 c30e1b9 fix: prevent price queries from triggering sales closing pipeline
 54120b4 docs: regenerate MASTER.md at d25b99c
-d25b99c fix: correct product image resolution in conditional media
-14596d3 docs: regenerate MASTER.md at fe274fd
 ```
 
 ---
