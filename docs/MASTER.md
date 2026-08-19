@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `fe274fd`.
+> Fuente de verdad: este repositorio en `d25b99c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `fe274fd` |
+| **Commit HEAD** | `d25b99c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-18T21:53:06-06:00 |
+| **Generado** | 2026-08-18T22:46:05-06:00 |
 
 ---
 
@@ -794,6 +794,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d25b99c fix: correct product image resolution in conditional media
+14596d3 docs: regenerate MASTER.md at fe274fd
 fe274fd feat: memory suggestions panel with approval flow + modal fixes
 284c34d docs: regenerate MASTER.md at ed0a588
 ed0a588 feat: add conversation detail modal with last 5 messages and knowledge attachment
@@ -812,8 +814,6 @@ b3d3942 feat: front-load cancellation interception in WhatsApp webhook
 f5dd96f docs: regenerate MASTER.md at 932e8cf
 932e8cf feat: centralized context cache invalidation across all API routes and client components
 18c7556 docs: regenerate MASTER.md at 515e1fb
-515e1fb fix: send text first then interactive, pass salesConfig to prompt
-0d94cfe fix(bridge): add in-memory state cache to survive reconnects
 ```
 
 ---
