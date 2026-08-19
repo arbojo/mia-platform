@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b843f72`.
+> Fuente de verdad: este repositorio en `912a73a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b843f72` |
+| **Commit HEAD** | `912a73a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T15:27:24-06:00 |
+| **Generado** | 2026-08-19T15:46:58-06:00 |
 
 ---
 
@@ -800,6 +800,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+912a73a feat: add Godzilla agent — adversarial stress testing
+e87ccbb docs: regenerate MASTER.md at b843f72
 b843f72 fix: post-cancelación — fresh start con contexto
 19012e2 docs: regenerate MASTER.md at 7c2c1f3
 7c2c1f3 fix: Godzilla audit — format amounts, add route visits to modal, retry button, loading skeleton
@@ -818,8 +820,6 @@ aafdb04 fix: cancellation flow — outcome cancelled + discount acceptance + AI 
 674defa docs: regenerate MASTER.md at 7410ed3
 7410ed3 fix: two-step cancellation flow with discount offer
 93d99e2 docs: regenerate MASTER.md at c30e1b9
-c30e1b9 fix: prevent price queries from triggering sales closing pipeline
-54120b4 docs: regenerate MASTER.md at d25b99c
 ```
 
 ---
