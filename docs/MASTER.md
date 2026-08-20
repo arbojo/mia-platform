@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0cc93f3`.
+> Fuente de verdad: este repositorio en `03d3e4a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0cc93f3` |
+| **Commit HEAD** | `03d3e4a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T19:23:11-06:00 |
+| **Generado** | 2026-08-19T21:27:07-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-69 tablas definidas en `supabase/migrations/`:
+70 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -145,6 +145,7 @@ Patrón de cliente Supabase:
 | sales_order_counters | 045_sales_config.sql |
 | IF | 047_analytics_schema.sql |
 | IF | 048_inventory_analytics.sql |
+| IF | 051_purchase_advisor_foundation.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -200,6 +201,12 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 46 | 046_products_cost_and_gps_freshness.sql |
 | 47 | 047_analytics_schema.sql |
 | 48 | 048_inventory_analytics.sql |
+| 49 | 050_analytics_foundation.sql |
+| 50 | 051_purchase_advisor_foundation.sql |
+| 51 | 20260820000000_analytics_public_wrapper.sql |
+| 52 | 20260820000001_analytics_grant_permissions.sql |
+| 53 | 20260820000002_analytics_security_definer.sql |
+| 54 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -237,7 +244,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-92 rutas en `src/app/api/`:
+94 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -260,6 +267,7 @@ admin/inventory/items
 admin/inventory/items/threshold
 admin/inventory/movements
 admin/inventory/predictions
+admin/inventory/purchase-advisor
 admin/inventory/settings
 admin/inventory/suggestions/ai
 admin/inventory/suggestions
@@ -284,6 +292,7 @@ conversations/[id]/messages
 conversations/[id]/notes
 conversations/[id]/outcome
 conversations/[id]/status
+cron/margin-audit
 customers/memory/approve
 customers/memory/batch
 customers/memory/extract
@@ -376,12 +385,13 @@ widget
 
 ## 9. Componentes
 
-125 componentes en `src/components/`:
+126 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
 analytics/AnalyticsPanel.tsx
 analytics/InventoryPanel.tsx
+analytics/PurchaseAdvisorPanel.tsx
 analytics/admin-api.ts
 billing/UpgradeCheckout.tsx
 catalog/CatalogGrid.tsx
@@ -510,7 +520,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-112 módulos:
+115 módulos:
 
 ```
 ai/client.ts
@@ -530,6 +540,7 @@ ai/task-routing.ts
 ai/usage-report.ts
 ai/weekly-report.ts
 analytics/db.ts
+analytics/margin-audit.ts
 analytics/queries.ts
 api-error.ts
 auth.ts
@@ -586,9 +597,11 @@ inventory/ai.ts
 inventory/db.ts
 inventory/errors.ts
 inventory/eta.ts
+inventory/forecasting.ts
 inventory/import.ts
 inventory/licensing.ts
 inventory/predictions.ts
+inventory/purchase-advisor.ts
 inventory/purchasing.ts
 inventory/rop.ts
 inventory/rules.ts
@@ -814,6 +827,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+03d3e4a feat: Purchase Advisor MVP — margin audit, forecasting, budget-aware recommendations + dashboard
+9a2d10a feat: Purchase Advisor foundation — analytics refresh + data corrections + schema additions
+34e01b3 chore: mark Gemini/Groq API keys as tech debt in .env.example
+59a5975 docs: regenerate MASTER.md at 0cc93f3
 0cc93f3 feat: implement model routing + failover across 3 AI providers
 afd7b5d docs: regenerate MASTER.md at 41c3a17
 41c3a17 fix(migration): combine 047+048 into single self-contained migration
@@ -830,10 +847,6 @@ f7753f6 feat: Analytics dashboard dual view — Simple + Completa with quick tim
 af2a92a docs: regenerate MASTER.md at 912a73a
 912a73a feat: add Godzilla agent — adversarial stress testing
 e87ccbb docs: regenerate MASTER.md at b843f72
-b843f72 fix: post-cancelación — fresh start con contexto
-19012e2 docs: regenerate MASTER.md at 7c2c1f3
-7c2c1f3 fix: Godzilla audit — format amounts, add route visits to modal, retry button, loading skeleton
-70d9276 docs: regenerate MASTER.md at 51fb82b
 ```
 
 ---
