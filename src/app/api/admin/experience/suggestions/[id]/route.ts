@@ -11,9 +11,10 @@ interface PatchBody {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params
     const { user } = await requireAuth()
     const admin = createAdminClient()
 
@@ -36,7 +37,7 @@ export async function PATCH(
     const { data: suggestion, error: fetchError } = await admin
       .from('experience_suggestions')
       .select('*, parent:experience_memory(*)')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('business_id', business.id)
       .single()
 
@@ -87,7 +88,7 @@ export async function PATCH(
         customized_response: body.customizedResponse ?? null,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
