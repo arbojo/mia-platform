@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `12b2d84`.
+> Fuente de verdad: este repositorio en `775f20c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `12b2d84` |
+| **Commit HEAD** | `775f20c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T22:58:35-06:00 |
+| **Generado** | 2026-08-19T23:20:04-06:00 |
 
 ---
 
@@ -657,7 +657,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (118)**:
+**Tareas registradas (120)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -779,6 +779,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-220813618 | Efecto Scale & Elastic Pop en modales y ventanas flotantes de edición | completed |
 | TASK-20260816-223701336 | Fix layout del Laboratorio: tarjeta Escenarios cortada y encogida | completed |
 | TASK-20260816-224949925 | Glass Overlay Blur — transición de carga al cambiar de vista | completed |
+| TASK-20260819-091751659 | Fix imagen incorrecta — resolveRecommendedProduct no resuelve productId por nombre, conditional-media devuelve genéricos de otros productos | approved |
+| TASK-20260819-093136293 | Módulo Delivery Autónomo — App repartidor, geofencing, motor de rutas nativo, IA de re-enrutamiento y dashboard financiero | awaiting_council |
 
 ---
 
@@ -828,6 +830,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+775f20c chore: governance artifacts + classification scripts for delivery module and image resolution fix
+3ecc60f test: governance infrastructure tests + evidence-first file:line validation + sk-proj regex fix
+b821495 docs: regenerate MASTER.md at 12b2d84
 12b2d84 fix: delivery + inventory triggers — 5 discrepancies corrected
 f745d55 docs: regenerate MASTER.md at 03d3e4a
 03d3e4a feat: Purchase Advisor MVP — margin audit, forecasting, budget-aware recommendations + dashboard
@@ -845,9 +850,6 @@ d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-togg
 bfebcc2 feat: Analytics dashboard strategic upgrade — deltas, LTV/CAC, funnel, tooltips
 add8335 docs: regenerate MASTER.md at f7753f6
 f7753f6 feat: Analytics dashboard dual view — Simple + Completa with quick time filters
-30cf1f3 docs: regenerate MASTER.md at 442da76
-442da76 feat: MIA Analytics Phase 1 — Sales Analytics dashboard with Recharts
-af2a92a docs: regenerate MASTER.md at 912a73a
 ```
 
 ---
