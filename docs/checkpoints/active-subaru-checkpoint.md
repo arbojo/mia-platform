@@ -2,13 +2,13 @@
 task_id: TASK-20260820-EXPERIENCE
 title: Experience Memory — Modelo C 70/30
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260820-105134487
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-20T11:06:38.618Z
+updated: 2026-08-20T11:12:32.881Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: (qué logra el paso 4)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260820-EXPERIENCE 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260820-EXPERIENCE 5`.
 
 ## Constraints
 
