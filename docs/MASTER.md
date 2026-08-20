@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8703526`.
+> Fuente de verdad: este repositorio en `41c3a17`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8703526` |
+| **Commit HEAD** | `41c3a17` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T18:08:03-06:00 |
+| **Generado** | 2026-08-19T18:22:35-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-68 tablas definidas en `supabase/migrations/`:
+69 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -144,6 +144,7 @@ Patrón de cliente Supabase:
 | business_sales_config | 045_sales_config.sql |
 | sales_order_counters | 045_sales_config.sql |
 | IF | 047_analytics_schema.sql |
+| IF | 048_inventory_analytics.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -811,6 +812,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+41c3a17 fix(migration): combine 047+048 into single self-contained migration
+d5f6aff docs: regenerate MASTER.md at 8703526
 8703526 feat(analytics): add inventory analytics integration
 40aba18 docs: regenerate MASTER.md at d9f6a10
 d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-toggle popup
@@ -829,8 +832,6 @@ b843f72 fix: post-cancelación — fresh start con contexto
 70d9276 docs: regenerate MASTER.md at 51fb82b
 51fb82b fix: refinamiento UX del Command Center — copywriting, métricas de circulación y empty state
 2f31bf0 docs: regenerate MASTER.md at 435451b
-435451b feat: Delivery Hub Command Center — mapa, KPIs financieros y detalle por repartidor
-9bb3782 docs: regenerate MASTER.md at 9a51143
 ```
 
 ---
