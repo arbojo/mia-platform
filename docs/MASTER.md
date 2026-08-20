@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d9f6a10`.
+> Fuente de verdad: este repositorio en `8703526`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d9f6a10` |
+| **Commit HEAD** | `8703526` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T17:27:08-06:00 |
+| **Generado** | 2026-08-19T18:08:03-06:00 |
 
 ---
 
@@ -198,6 +198,7 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 45 | 045_sales_config.sql |
 | 46 | 046_products_cost_and_gps_freshness.sql |
 | 47 | 047_analytics_schema.sql |
+| 48 | 048_inventory_analytics.sql |
 
 ---
 
@@ -235,10 +236,11 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-91 rutas en `src/app/api/`:
+92 rutas en `src/app/api/`:
 
 ```
 accessibility
+admin/analytics/inventory
 admin/analytics/overview
 admin/delivery/closures
 admin/delivery/command-center
@@ -373,11 +375,12 @@ widget
 
 ## 9. Componentes
 
-124 componentes en `src/components/`:
+125 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
 analytics/AnalyticsPanel.tsx
+analytics/InventoryPanel.tsx
 analytics/admin-api.ts
 billing/UpgradeCheckout.tsx
 catalog/CatalogGrid.tsx
@@ -808,6 +811,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+8703526 feat(analytics): add inventory analytics integration
+40aba18 docs: regenerate MASTER.md at d9f6a10
 d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-toggle popup
 11abf5b docs: regenerate MASTER.md at bfebcc2
 bfebcc2 feat: Analytics dashboard strategic upgrade — deltas, LTV/CAC, funnel, tooltips
@@ -826,8 +831,6 @@ b843f72 fix: post-cancelación — fresh start con contexto
 2f31bf0 docs: regenerate MASTER.md at 435451b
 435451b feat: Delivery Hub Command Center — mapa, KPIs financieros y detalle por repartidor
 9bb3782 docs: regenerate MASTER.md at 9a51143
-9a51143 feat: reduce shell tour to 3 steps, add delivery tour, simplify onboarding to 3 steps
-e5d6993 docs: regenerate MASTER.md at 881e66f
 ```
 
 ---
