@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `03d3e4a`.
+> Fuente de verdad: este repositorio en `12b2d84`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `03d3e4a` |
+| **Commit HEAD** | `12b2d84` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T21:27:07-06:00 |
+| **Generado** | 2026-08-19T22:58:35-06:00 |
 
 ---
 
@@ -203,10 +203,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 48 | 048_inventory_analytics.sql |
 | 49 | 050_analytics_foundation.sql |
 | 50 | 051_purchase_advisor_foundation.sql |
-| 51 | 20260820000000_analytics_public_wrapper.sql |
-| 52 | 20260820000001_analytics_grant_permissions.sql |
-| 53 | 20260820000002_analytics_security_definer.sql |
-| 54 | 20260820000003_analytics_security_definer.sql |
+| 51 | 052_fix_triggers.sql |
+| 52 | 20260820000000_analytics_public_wrapper.sql |
+| 53 | 20260820000001_analytics_grant_permissions.sql |
+| 54 | 20260820000002_analytics_security_definer.sql |
+| 55 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -827,6 +828,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+12b2d84 fix: delivery + inventory triggers — 5 discrepancies corrected
+f745d55 docs: regenerate MASTER.md at 03d3e4a
 03d3e4a feat: Purchase Advisor MVP — margin audit, forecasting, budget-aware recommendations + dashboard
 9a2d10a feat: Purchase Advisor foundation — analytics refresh + data corrections + schema additions
 34e01b3 chore: mark Gemini/Groq API keys as tech debt in .env.example
@@ -845,8 +848,6 @@ f7753f6 feat: Analytics dashboard dual view — Simple + Completa with quick tim
 30cf1f3 docs: regenerate MASTER.md at 442da76
 442da76 feat: MIA Analytics Phase 1 — Sales Analytics dashboard with Recharts
 af2a92a docs: regenerate MASTER.md at 912a73a
-912a73a feat: add Godzilla agent — adversarial stress testing
-e87ccbb docs: regenerate MASTER.md at b843f72
 ```
 
 ---
