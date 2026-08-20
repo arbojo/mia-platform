@@ -1,0 +1,131 @@
+{
+  "id": "TASK-20260820-105134487",
+  "title": "Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests",
+  "description": "Implementar el motor completo de Experience Memory para el dominio Sales: sistema de memoria acumulada de objeciones con modelo C híbrido (70% Global/Industria, 30% Negocio). La migración 053, blender, suggester, PATCH endpoint, tipos y 11 tests ya existen (commit 3fd5154). Falta: seed data de patrones, API routes GET/POST, integración con prompt builder, frontend UI \"Tinder de Objeciones\", y tests e2e. Blueprint completo en .agents/experience-memory-blueprint-v4.md.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "api_change",
+      "ai_behaviour",
+      "ui_change"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "primaryDomain": "sales",
+    "affectedDomains": [
+      "sales",
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend",
+      "frontend",
+      "database",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Affected domains: sales, platform. Complexity drivers: 10 files affected, schema changes required, AI behaviour changes, security implications, cross-cutting (multi-domain), category requires council. Required agents (11): architect, database, backend, frontend, ai_engineer, performance, security, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Multi-layer feature with clean separation: DB schema, backend API, AI integration, frontend UI. Blueprint is well-structured with atomic steps.",
+      "timestamp": "2026-08-20T10:52:48.494Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migration 053 already exists and is solid: proper RLS, partial unique indexes, enum type, ALTER knowledge_items. Seed data is safe to add.",
+      "timestamp": "2026-08-20T10:52:48.499Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "GET/POST routes follow existing patterns (see suggestions/[id]/route.ts). Admin client for writes, server client for reads. Auth via requireAuth().",
+      "timestamp": "2026-08-20T10:52:48.500Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Server Components by default, shadcn/ui components, card-based UI for suggestion review. Components under 150 lines. Accessible and responsive.",
+      "timestamp": "2026-08-20T10:52:48.502Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Prompt integration adds experience context without hardcoding. Limits to top-10 patterns for token control. Blended patterns from existing blender.ts.",
+      "timestamp": "2026-08-20T10:52:48.503Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Blender queries are efficient (2 parallel queries). Prompt section limited to top-10 patterns. No premature optimization needed.",
+      "timestamp": "2026-08-20T10:52:48.505Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "RLS on both tables, auth on all endpoints, admin client for writes. No cross-tenant access possible. experience_memory source already in CHECK constraint.",
+      "timestamp": "2026-08-20T10:52:48.506Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Full quality gate suite: lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, stress_test, typecheck, performance_review.",
+      "timestamp": "2026-08-20T10:52:48.508Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Will adversarial-test: prompt injection via objection text, RLS bypass attempts, cross-tenant suggestion access, malformed PATCH bodies.",
+      "timestamp": "2026-08-20T10:52:48.511Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Atomic commits per step, conventional commit format, push to main, Vercel deploy with verification.",
+      "timestamp": "2026-08-20T10:52:48.514Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Experience Memory is a new capability that should be documented in engineering memory. ADR-010 boundary respected (sales domain).",
+      "timestamp": "2026-08-20T10:52:48.516Z"
+    }
+  ],
+  "createdAt": "2026-08-20T10:51:34.295Z",
+  "classifiedAt": "2026-08-20T10:51:34.295Z",
+  "approvedAt": "2026-08-20T10:52:48.516Z",
+  "startedAt": "2026-08-20T10:53:24.558Z"
+}
