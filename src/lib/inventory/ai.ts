@@ -1,10 +1,10 @@
 import { generateObject } from 'ai'
-import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createInventoryAdmin } from './db'
 import { recordAiUsage } from '@/lib/ai/knowledge'
 import { InventoryError } from './errors'
+import { getProviderModel } from '@/lib/ai/task-routing'
 
 const noteSchema = z.object({
   note: z
@@ -52,8 +52,10 @@ CANTIDAD SUGERIDA POR REGLA: ${input.suggestedQty} unidades
 ESCRIBE una nota breve y accionable para el equipo de reposición (2-4 oraciones, en español),
 justificando la cantidad a reponer con datos. NO inventes información. No menciones precios ni costos.`
 
+  const { model, modelName } = getProviderModel('extraction')
+
   const result = await generateObject({
-    model: openai('gpt-4o-mini'),
+    model,
     schema: noteSchema,
     prompt,
   })
@@ -63,7 +65,7 @@ justificando la cantidad a reponer con datos. NO inventes información. No menci
   await recordAiUsage({
     business_id: input.businessId,
     assistant_id: assistant.id,
-    model: 'gpt-4o-mini',
+    model: modelName,
     request_type: 'inventory',
     tokens_input: result.usage.inputTokens ?? 0,
     tokens_output: result.usage.outputTokens ?? 0,

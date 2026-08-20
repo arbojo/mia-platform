@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getOpenAIClient, MODEL } from '@/lib/ai/client'
+import { executeAI } from '@/lib/runtime/execute-ai'
 import { getSkillsSnapshot } from '@/lib/ai/skills'
 import { getProductIntelligence } from '@/lib/ai/product-intelligence'
 
@@ -103,15 +103,13 @@ export async function generateWeeklyReport(businessId: string): Promise<Generate
   const preparationBefore = Math.max(0, (skillsSnapshot.overall_level || 50) - 5)
   const preparationAfter = skillsSnapshot.overall_level || 50
 
-  const openai = getOpenAIClient()
-
-  const completion = await openai.chat.completions.create({
-    model: MODEL,
-    temperature: 0.7,
-    messages: [
-      {
-        role: 'system',
-        content: `Eres MIA, una asistente de ventas IA escribiendo tu reporte semanal para tu jefe (el dueño del negocio).
+  const result = await executeAI({
+    mode: 'complete',
+    taskType: 'generation',
+    businessId,
+    assistantId: '00000000-0000-0000-0000-000000000000',
+    requestType: 'training',
+    system: `Eres MIA, una asistente de ventas IA escribiendo tu reporte semanal para tu jefe (el dueño del negocio).
 
 Escribe en PRIMERA PERSONA. Tu jefe es dueño del negocio en México.
 Tono: cálido, profesional, como una empleada dedicada que quiere demostrar su progreso.
@@ -141,11 +139,10 @@ Responde SOLO con el JSON:
       "priority": "high|medium|low"
     }
   ]
-}`
-      },
-      {
-        role: 'user',
-        content: `Genera mi reporte semanal con estos datos:
+}`,
+    messages: [{
+      role: 'user',
+      content: `Genera mi reporte semanal con estos datos:
 
 SEMANA: ${formatDate(weekStart)} - ${formatDate(weekEnd)}
 
@@ -171,14 +168,14 @@ INTELIGENCIA DE PRODUCTOS:
 MEMORIAS DETECTADAS ESTA SEMANA:
 ${memories.length > 0 ? memories.map((m) => `- ${m.category}: ${m.content} (confianza: ${m.confidence}%)`).join('\n') : 'Ninguna memoria nueva esta semana.'}
 
-PREPARACIÓN: ${preparationBefore}% → ${preparationAfter}%`
-      }
-    ],
-    response_format: { type: 'json_object' },
-    max_tokens: 2000,
+PREPARACIÓN: ${preparationBefore}% → ${preparationAfter}%`,
+    }],
+    maxTokens: 2000,
+    temperature: 0.7,
+    responseFormat: 'json',
   })
 
-  const content = completion.choices[0]?.message?.content ?? '{"narrative":"Reporte no disponible.","recommendations":[]}'
+  const content = result.content || '{"narrative":"Reporte no disponible.","recommendations":[]}'
   const parsed = JSON.parse(content) as { narrative: string; recommendations: WeeklyReportData['recommendations'] }
 
   const { data: report, error } = await supabase

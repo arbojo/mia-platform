@@ -1,8 +1,8 @@
-import { MODEL, TOKEN_COSTS } from '@/lib/ai/client'
+import { TOKEN_COSTS } from '@/lib/ai/client'
 import { recordAiUsage } from '@/lib/ai/knowledge'
 
-export function calculateCost(promptTokens: number, completionTokens: number): number {
-  const costs = TOKEN_COSTS[MODEL] ?? TOKEN_COSTS['gpt-4o-mini']
+export function calculateCost(promptTokens: number, completionTokens: number, model: string): number {
+  const costs = TOKEN_COSTS[model] ?? TOKEN_COSTS['gpt-4o-mini']
   return (promptTokens * costs.input + completionTokens * costs.output) / 1000
 }
 
@@ -22,14 +22,15 @@ export async function trackAiUsage(params: {
   assistant_id: string
   promptTokens: number
   completionTokens: number
+  model: string
   request_type?: string
 }): Promise<void> {
-  const { promptTokens, completionTokens, ...rest } = params
+  const { promptTokens, completionTokens, model, ...rest } = params
   if (promptTokens > 0 || completionTokens > 0) {
-    const cost = calculateCost(promptTokens, completionTokens)
+    const cost = calculateCost(promptTokens, completionTokens, model)
     await recordAiUsage({
       ...rest,
-      model: MODEL,
+      model,
       tokens_input: promptTokens,
       tokens_output: completionTokens,
       cost,

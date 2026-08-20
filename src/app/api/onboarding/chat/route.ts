@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getOpenAIClient, MODEL } from '@/lib/ai/client'
-import { recordAiUsage } from '@/lib/ai/knowledge'
+import { executeAI } from '@/lib/runtime/execute-ai'
 
 interface OnboardingMessage {
   role: 'user' | 'assistant'
@@ -94,37 +93,20 @@ export async function POST(request: Request) {
       })),
     ]
 
-    const completion = await getOpenAIClient().chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: 'system', content: ONBOARDING_SYSTEM_PROMPT },
-        ...chatMessages,
-      ],
+    const result = await executeAI({
+      mode: 'complete',
+      taskType: 'chat',
+      businessId: businessId ?? '00000000-0000-0000-0000-000000000000',
+      assistantId: '00000000-0000-0000-0000-000000000000',
+      requestType: 'onboarding',
+      system: ONBOARDING_SYSTEM_PROMPT,
+      messages: chatMessages.map((m) => ({ role: m.role, content: m.content })),
       temperature: 0.7,
-      max_tokens: 500,
+      maxTokens: 500,
     })
 
-    const assistantMessage = completion.choices[0]?.message?.content ?? ''
+    const assistantMessage = result.content
     const { data: extractedData, cleanMessage } = extractJsonFromResponse(assistantMessage)
-
-    const tokensInput = completion.usage?.prompt_tokens ?? 0
-    const tokensOutput = completion.usage?.completion_tokens ?? 0
-
-    if (tokensInput > 0 || tokensOutput > 0) {
-      const cost = (tokensInput * 0.00015 + tokensOutput * 0.0006) / 1000
-      const record = {
-        business_id: businessId ?? '00000000-0000-0000-0000-000000000000',
-        assistant_id: '00000000-0000-0000-0000-000000000000',
-        model: MODEL,
-        request_type: 'onboarding',
-        tokens_input: tokensInput,
-        tokens_output: tokensOutput,
-        cost,
-      }
-      if (businessId) {
-        await recordAiUsage(record).catch(() => console.warn('Onboarding usage tracking failed'))
-      }
-    }
 
     return NextResponse.json({
       message: cleanMessage,

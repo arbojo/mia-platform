@@ -1,7 +1,7 @@
 import { generateObject } from 'ai'
-import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { recordAiUsage } from '@/lib/ai/knowledge'
+import { getProviderModel } from '@/lib/ai/task-routing'
 
 export interface ExtractedProduct {
   name: string
@@ -119,8 +119,10 @@ ${text}
 
 IMPORTANTE: Responde SOLO con el JSON estructurado. No incluyas explicaciones fuera del JSON.`
 
+  const { model, modelName } = getProviderModel('extraction')
+
   const result = await generateObject({
-    model: openai('gpt-4o-mini'),
+    model,
     schema: extractionSchema,
     prompt,
   })
@@ -130,7 +132,7 @@ IMPORTANTE: Responde SOLO con el JSON estructurado. No incluyas explicaciones fu
   await recordAiUsage({
     business_id: businessId,
     assistant_id: assistantId,
-    model: 'gpt-4o-mini',
+    model: modelName,
     request_type: 'training',
     tokens_input: result.usage.inputTokens ?? 0,
     tokens_output: result.usage.outputTokens ?? 0,

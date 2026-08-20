@@ -1,5 +1,4 @@
-import { getOpenAIClient, MODEL } from '@/lib/ai/client'
-import { trackAiUsage } from '@/lib/ai/cost'
+import { executeAI } from '@/lib/runtime/execute-ai'
 import type { DetectedSaleEvent } from './events'
 
 export interface SaleDetectionResult {
@@ -82,28 +81,19 @@ export async function detectSaleOutcome(params: {
     .map((m) => `${m.role === 'user' ? 'Cliente' : 'Vendedor'}: ${m.content}`)
     .join('\n')
 
-  const completion = await getOpenAIClient().chat.completions.create({
-    model: MODEL,
-    messages: [
-      { role: 'system', content: DETECTION_SYSTEM_PROMPT },
-      { role: 'user', content: transcript },
-    ],
-    max_tokens: 300,
+  const result = await executeAI({
+    mode: 'complete',
+    taskType: 'detection',
+    businessId,
+    assistantId,
+    requestType: 'live_customer',
+    system: DETECTION_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: transcript }],
+    maxTokens: 300,
     temperature: 0,
   })
 
-  const promptTokens = completion.usage?.prompt_tokens ?? 0
-  const completionTokens = completion.usage?.completion_tokens ?? 0
-
-  await trackAiUsage({
-    business_id: businessId,
-    assistant_id: assistantId,
-    promptTokens,
-    completionTokens,
-    request_type: 'live_customer',
-  })
-
-  const raw = completion.choices[0]?.message?.content ?? ''
+  const raw = result.content
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
     return { outcome: null, events: [] }
@@ -249,28 +239,19 @@ export async function detectCancellation(params: {
     .join('\n')
 
   try {
-    const completion = await getOpenAIClient().chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: 'system', content: CANCELLATION_SYSTEM_PROMPT },
-        { role: 'user', content: transcript },
-      ],
-      max_tokens: 150,
+    const result = await executeAI({
+      mode: 'complete',
+      taskType: 'detection',
+      businessId,
+      assistantId,
+      requestType: 'live_customer',
+      system: CANCELLATION_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: transcript }],
+      maxTokens: 150,
       temperature: 0,
     })
 
-    const promptTokens = completion.usage?.prompt_tokens ?? 0
-    const completionTokens = completion.usage?.completion_tokens ?? 0
-
-    await trackAiUsage({
-      business_id: businessId,
-      assistant_id: assistantId,
-      promptTokens,
-      completionTokens,
-      request_type: 'live_customer',
-    })
-
-    const raw = completion.choices[0]?.message?.content ?? ''
+    const raw = result.content
     const jsonMatch = raw.match(/\{[\s\S]*\}/)
     if (!jsonMatch) return { confirmed: false, reason: null }
 

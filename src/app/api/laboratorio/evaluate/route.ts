@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import { openai } from '@ai-sdk/openai'
 import { generateObject } from 'ai'
 import { z } from 'zod'
+import { getProviderModel } from '@/lib/ai/task-routing'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -43,8 +43,10 @@ export async function POST(request: Request) {
     .join('\n\n')
 
   try {
+    const { model, modelName } = getProviderModel('analysis')
+
     const result = await generateObject({
-      model: openai('gpt-4o-mini'),
+      model,
       schema: z.object({
         score: z.number().min(1).max(10),
         criteria: z.object({
@@ -88,7 +90,7 @@ Identifica fortalezas, debilidades y sugerencias concretas de mejora.`,
           strengths: evaluation.strengths,
           weaknesses: evaluation.weaknesses,
           suggestions: evaluation.suggestions,
-          evaluation_model: 'gpt-4o-mini',
+          evaluation_model: modelName,
           message_count: messages.length,
         })
         .eq('id', sessionId)

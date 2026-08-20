@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getOpenAIClient, MODEL } from '@/lib/ai/client'
+import { executeAI } from '@/lib/runtime/execute-ai'
 
 export interface BusinessMemoryItem {
   id: string
@@ -139,15 +139,13 @@ export async function analyzeConversationPatterns(businessId: string) {
   if (error) throw error
   if (!messages || messages.length === 0) return []
 
-  const openai = getOpenAIClient()
-
-  const completion = await openai.chat.completions.create({
-    model: MODEL,
-    temperature: 0.3,
-    messages: [
-      {
-        role: 'system',
-        content: `Eres MIA, una asistente de ventas IA analizando conversaciones recientes con clientes.
+  const result = await executeAI({
+    mode: 'complete',
+    taskType: 'analysis',
+    businessId,
+    assistantId: '00000000-0000-0000-0000-000000000000',
+    requestType: 'training',
+    system: `Eres MIA, una asistente de ventas IA analizando conversaciones recientes con clientes.
 
 Analiza las conversaciones y detecta patrones. Responde SOLO con un JSON válido.
 
@@ -180,20 +178,19 @@ REGLAS:
 - Solo detecta patrones que aparezcan 2+ veces
 - Si no hay patrones claros, devuelve patterns: []
 - Nunca inventes información
-- La confianza refleja cuán seguro estás del patrón`
-      },
-      {
-        role: 'user',
-        content: `Analiza estas ${messages.length} mensajes de clientes de la última semana:
+- La confianza refleja cuán seguro estás del patrón`,
+    messages: [{
+      role: 'user',
+      content: `Analiza estas ${messages.length} mensajes de clientes de la última semana:
 
-${messages.slice(0, 100).map((m, i) => `[${i + 1}] ${m.content}`).join('\n')}`
-      }
-    ],
-    response_format: { type: 'json_object' },
-    max_tokens: 2000,
+${messages.slice(0, 100).map((m, i) => `[${i + 1}] ${m.content}`).join('\n')}`,
+    }],
+    maxTokens: 2000,
+    temperature: 0.3,
+    responseFormat: 'json',
   })
 
-  const content = completion.choices[0]?.message?.content ?? '{"patterns":[]}'
+  const content = result.content || '{"patterns":[]}'
   const parsed = JSON.parse(content) as {
     patterns: Array<{
       memory_type: string

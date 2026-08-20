@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { generateObject } from 'ai'
-import { openai } from '@ai-sdk/openai'
+import { getProviderModel } from '@/lib/ai/task-routing'
 import { z } from 'zod'
 
 const analysisSchema = z.object({
@@ -141,8 +141,10 @@ export async function POST(request: Request) {
     : '(Sin identidad de marca)'
 
   try {
+    const { model, modelName } = getProviderModel('analysis')
+
     const result = await generateObject({
-      model: openai('gpt-4o-mini'),
+      model,
       schema: analysisSchema,
       prompt: `Eres un experto en preparación de asistentes de ventas con IA. Analiza la siguiente información de un negocio y evalúa qué tan preparado está su asistente para vender.
 
@@ -188,7 +190,7 @@ Sé específico y práctico. Cada sugerencia debe ser accionable.`,
         gaps: analysisResult.gaps,
         conflicts: analysisResult.conflicts,
         readiness_issues: analysisResult.readiness_issues,
-        analysis_model: 'gpt-4o-mini',
+        analysis_model: modelName,
         tokens_used: 0,
         cost: 0,
         completed_at: new Date().toISOString(),

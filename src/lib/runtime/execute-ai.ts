@@ -1,12 +1,12 @@
-import { openai } from '@ai-sdk/openai'
-import { streamText, type AsyncIterableStream } from 'ai'
-import { getOpenAIClient, MODEL } from '@/lib/ai/client'
+import { streamText, generateText, type AsyncIterableStream } from 'ai'
+import { getProviderModelWithFallback, type AITaskType } from '@/lib/ai/task-routing'
 import { trackAiUsage } from '@/lib/ai/cost'
 
 export type AIMode = 'stream' | 'complete'
 
 export interface ExecuteAIParams {
   mode: AIMode
+  taskType?: AITaskType
   businessId: string
   assistantId: string
   requestType: string
@@ -14,6 +14,7 @@ export interface ExecuteAIParams {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>
   maxTokens?: number
   temperature?: number
+  responseFormat?: 'text' | 'json'
   onFinish?: (result: { text: string; usage: { promptTokens: number; completionTokens: number } }) => Promise<void>
 }
 
@@ -40,69 +41,170 @@ export class AiExecutionError extends Error {
   }
 }
 
-export async function executeAI(params: ExecuteAIParams & { mode: 'stream' }): Promise<StreamResult>
-export async function executeAI(params: ExecuteAIParams & { mode: 'complete' }): Promise<CompleteResult>
-export async function executeAI(params: ExecuteAIParams): Promise<ExecuteAIResult> {
-  const { mode, businessId, assistantId, requestType, system, messages, maxTokens, temperature, onFinish: externalOnFinish } = params
+function isRateLimitError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const e = error as Record<string, unknown>
+  if (typeof e.status === 'number' && e.status === 429) return true
+  if (typeof e.message === 'string' && e.message.toLowerCase().includes('rate limit')) return true
+  if (typeof e.message === 'string' && e.message.toLowerCase().includes('429')) return true
+  return false
+}
 
-  if (mode === 'stream') {
-    const result = streamText({
-      model: openai(MODEL),
-      system,
-      messages,
-      temperature: temperature ?? 0.7,
-      onFinish: async ({ usage, text }) => {
-        const u = usage as { promptTokens?: number; completionTokens?: number }
-        const promptTokens = u.promptTokens ?? 0
-        const completionTokens = u.completionTokens ?? 0
+async function executeStream(params: {
+  model: ReturnType<typeof import('@/lib/ai/task-routing').getProviderModelWithFallback>['primary']['model']
+  modelName: string
+  system: string
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>
+  temperature: number
+  businessId: string
+  assistantId: string
+  requestType: string
+  onFinish?: ExecuteAIParams['onFinish']
+}): Promise<StreamResult> {
+  const { model, modelName, system, messages, temperature, businessId, assistantId, requestType, onFinish: externalOnFinish } = params
 
-        await trackAiUsage({
-          business_id: businessId,
-          assistant_id: assistantId,
-          promptTokens,
-          completionTokens,
-          request_type: requestType,
-        })
+  const result = streamText({
+    model,
+    system,
+    messages,
+    temperature,
+    onFinish: async ({ usage, text }) => {
+      const u = usage as { inputTokens?: number; outputTokens?: number }
+      const promptTokens = u.inputTokens ?? 0
+      const completionTokens = u.outputTokens ?? 0
 
-        if (externalOnFinish) {
-          await externalOnFinish({ text, usage: { promptTokens, completionTokens } })
-        }
-      },
-    })
+      await trackAiUsage({
+        business_id: businessId,
+        assistant_id: assistantId,
+        promptTokens,
+        completionTokens,
+        model: modelName,
+        request_type: requestType,
+      })
 
-    return result as unknown as StreamResult
-  }
-
-  const messagesWithSystem: Array<{ role: string; content: string }> = [
-    { role: 'system', content: system },
-    ...messages,
-  ]
-
-  const completion = await getOpenAIClient().chat.completions.create({
-    model: MODEL,
-    messages: messagesWithSystem as never,
-    max_tokens: maxTokens ?? 500,
-    temperature: temperature ?? 0.7,
+      if (externalOnFinish) {
+        await externalOnFinish({ text, usage: { promptTokens, completionTokens } })
+      }
+    },
   })
 
-  const content = completion.choices[0]?.message?.content ?? ''
-  const promptTokens = completion.usage?.prompt_tokens ?? 0
-  const completionTokens = completion.usage?.completion_tokens ?? 0
+  return result as unknown as StreamResult
+}
+
+async function executeComplete(params: {
+  model: ReturnType<typeof import('@/lib/ai/task-routing').getProviderModelWithFallback>['primary']['model']
+  modelName: string
+  system: string
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>
+  maxTokens: number
+  temperature: number
+  responseFormat?: 'text' | 'json'
+  businessId: string
+  assistantId: string
+  requestType: string
+  onFinish?: ExecuteAIParams['onFinish']
+}): Promise<CompleteResult> {
+  const { model, modelName, system, messages, maxTokens, temperature, responseFormat, businessId, assistantId, requestType, onFinish: externalOnFinish } = params
+
+  const result = await generateText({
+    model,
+    system,
+    messages,
+    maxOutputTokens: maxTokens,
+    temperature,
+    ...(responseFormat === 'json' ? { responseFormat: { type: 'json' } as never } : {}),
+  })
+
+  const promptTokens = result.usage.inputTokens ?? 0
+  const completionTokens = result.usage.outputTokens ?? 0
 
   await trackAiUsage({
     business_id: businessId,
     assistant_id: assistantId,
     promptTokens,
     completionTokens,
+    model: modelName,
     request_type: requestType,
   })
 
   if (externalOnFinish) {
-    await externalOnFinish({ text: content, usage: { promptTokens, completionTokens } })
+    await externalOnFinish({ text: result.text, usage: { promptTokens, completionTokens } })
   }
 
   return {
-    content,
+    content: result.text,
     usage: { promptTokens, completionTokens },
+  }
+}
+
+export async function executeAI(params: ExecuteAIParams & { mode: 'stream' }): Promise<StreamResult>
+export async function executeAI(params: ExecuteAIParams & { mode: 'complete' }): Promise<CompleteResult>
+export async function executeAI(params: ExecuteAIParams): Promise<ExecuteAIResult> {
+  const {
+    mode,
+    taskType = 'chat',
+    businessId,
+    assistantId,
+    requestType,
+    system,
+    messages,
+    maxTokens = 500,
+    temperature = 0.7,
+    responseFormat,
+    onFinish: externalOnFinish,
+  } = params
+
+  const { primary, fallback } = getProviderModelWithFallback(taskType)
+
+  const sharedParams = {
+    system,
+    messages,
+    temperature,
+    businessId,
+    assistantId,
+    requestType,
+    onFinish: externalOnFinish,
+  }
+
+  if (mode === 'stream') {
+    try {
+      return await executeStream({
+        model: primary.model,
+        modelName: primary.modelName,
+        ...sharedParams,
+      })
+    } catch (error) {
+      if (isRateLimitError(error) && fallback) {
+        console.warn(`[AI Router] ${primary.modelName} rate limited, falling back to ${fallback.modelName}`)
+        return await executeStream({
+          model: fallback.model,
+          modelName: fallback.modelName,
+          ...sharedParams,
+        })
+      }
+      throw error
+    }
+  }
+
+  try {
+    return await executeComplete({
+      model: primary.model,
+      modelName: primary.modelName,
+      maxTokens,
+      responseFormat,
+      ...sharedParams,
+    })
+  } catch (error) {
+    if (isRateLimitError(error) && fallback) {
+      console.warn(`[AI Router] ${primary.modelName} rate limited, falling back to ${fallback.modelName}`)
+      return await executeComplete({
+        model: fallback.model,
+        modelName: fallback.modelName,
+        maxTokens,
+        responseFormat,
+        ...sharedParams,
+      })
+    }
+    throw error
   }
 }
