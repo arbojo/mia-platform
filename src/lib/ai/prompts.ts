@@ -199,6 +199,7 @@ export function buildMasterPrompt(params: {
   channel?: ChannelType | 'simulation'
   intentTag?: string | null
   salesConfig?: SalesPromptConfig
+  experienceContext?: string
   conversationOutcome?: string | null
   cancellationContext?: { orderNumber: string; hoursAgo: number } | null
   landingContext?: {
@@ -224,6 +225,7 @@ export function buildMasterPrompt(params: {
     salesConfig,
     conversationOutcome,
     cancellationContext,
+    experienceContext,
     landingContext,
   } = params
 
@@ -343,6 +345,7 @@ ${formatKnowledge(knowledge, ai, landingContext?.productId, channel) ? `\n## ${a
 ${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemory(memory, ai)}` : ''}
 ${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
 ${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}
+${experienceContext ? `\n## Experiencia de Ventas\nUsa estas respuestas probadas como guía cuando el cliente plantee objeciones similares. Puedes adaptar el texto al contexto de la conversación, pero mantén la esencia de la respuesta recomendada:\n${experienceContext}` : ''}
 ${cancellationContext && conversationOutcome !== 'cancelled'
   ? `\n## Contexto importante
 Este cliente canceló recientemente el pedido ${cancellationContext.orderNumber} (hace ${cancellationContext.hoursAgo} horas).

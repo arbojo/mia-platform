@@ -318,6 +318,23 @@ export const SALES_CONFIG_DEFAULTS: Omit<SalesConfig, 'business_id' | 'created_a
   timezone: 'America/Argentina/Buenos_Aires',
 }
 
+export async function getExperienceContext(businessId: string, industry: string): Promise<string> {
+  const { getBlendedPatterns } = await import('@/lib/heuristic/blender')
+  const patterns = await getBlendedPatterns(businessId, industry)
+
+  if (patterns.length === 0) return ''
+
+  const top = patterns
+    .sort((a, b) => b.blendedProbability - a.blendedProbability)
+    .slice(0, 10)
+
+  const lines = top.map((p) =>
+    `- [EXPERIENCIA][Prob: ${(p.blendedProbability * 100).toFixed(0)}%] Objeción: "${p.customerObjection}" → Respuesta recomendada: "${p.finalResponse}"`,
+  )
+
+  return lines.join('\n')
+}
+
 export async function getSalesConfig(businessId: string): Promise<SalesConfig> {
   const supabase = createAdminClient()
   const { data } = await supabase

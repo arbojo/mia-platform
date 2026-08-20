@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getBusinessContext, getLandingContext, getRecentLessons, type LandingContext } from '@/lib/ai/knowledge'
+import { getBusinessContext, getExperienceContext, getLandingContext, getRecentLessons, type LandingContext } from '@/lib/ai/knowledge'
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
 import { getProfileLanguage } from '@/lib/system/language'
@@ -86,9 +86,17 @@ export async function loadConversationContext(
     throw new ContextError('Assistant not found', 'ASSISTANT_NOT_FOUND', 404)
   }
 
-  const [context, recentLessons] = await Promise.all([
+  const [context, recentLessons, experienceContext] = await Promise.all([
     landingContext ? getLandingContext(businessId, landingContext) : getBusinessContext(businessId),
     getRecentLessons(assistantId, 10),
+    (async () => {
+      try {
+        const industry = fullAssistant.businesses?.industry ?? 'general'
+        return await getExperienceContext(businessId, industry)
+      } catch {
+        return ''
+      }
+    })(),
   ])
 
   const productId = landingContext ? (context as { productId?: string }).productId : undefined
@@ -123,6 +131,7 @@ export async function loadConversationContext(
     salesConfig: 'salesConfig' in context ? context.salesConfig : undefined,
     conversationOutcome,
     cancellationContext,
+    experienceContext,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []
