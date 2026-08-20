@@ -12,6 +12,7 @@ export interface InventoryBusinessSettings {
   late_delivery_threshold_days: number
   late_delivery_discount_percent: number
   compensation_max_amount: number | null
+  monthly_purchase_budget: number | null
   updated_at: string
 }
 
@@ -46,6 +47,7 @@ export interface InventoryAsset {
   current_qty: number
   min_qty: number | null
   max_qty: number | null
+  unit_cost: number | null
   version: number
   is_active: boolean
   created_at: string
@@ -164,6 +166,8 @@ export interface PurchaseOrder {
   status: PurchaseOrderStatus
   qty_suggested: number
   qty_ordered: number | null
+  estimated_cost: number | null
+  unit_cost_at_suggestion: number | null
   expected_at: string | null
   search_metadata: Record<string, unknown>
   suggestion_reason: Record<string, unknown>
@@ -241,6 +245,17 @@ export interface Transfer {
   shipped_at: string
   arrived_at: string | null
   created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface DeliveryZone {
+  id: string
+  business_id: string
+  name: string
+  delivery_cost: number
+  cities: string[]
+  is_active: boolean
   created_at: string
   updated_at: string
 }

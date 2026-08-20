@@ -1,0 +1,2 @@
+-- Placeholder: original migration was renamed to 20260820000002
+-- This file exists only for migration history repair
