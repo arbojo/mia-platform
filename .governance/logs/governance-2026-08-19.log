@@ -1,0 +1,2 @@
+[2026-08-19T09:17:51.881Z] CREATED: TASK-20260819-091751659 — SIMPLE — Fix imagen incorrecta — resolveRecommendedProduct no resuelve productId por nombre, conditional-media devuelve genéricos de otros productos
+[2026-08-19T09:31:36.956Z] CREATED: TASK-20260819-093136293 — COMPLEX — Módulo Delivery Autónomo — App repartidor, geofencing, motor de rutas nativo, IA de re-enrutamiento y dashboard financiero
