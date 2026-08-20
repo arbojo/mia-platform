@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `775f20c`.
+> Fuente de verdad: este repositorio en `3fd5154`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `775f20c` |
+| **Commit HEAD** | `3fd5154` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T23:20:04-06:00 |
+| **Generado** | 2026-08-20T01:12:31-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-70 tablas definidas en `supabase/migrations/`:
+72 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -146,6 +146,8 @@ Patrón de cliente Supabase:
 | IF | 047_analytics_schema.sql |
 | IF | 048_inventory_analytics.sql |
 | IF | 051_purchase_advisor_foundation.sql |
+| IF | 053_experience_memory.sql |
+| IF | 053_experience_memory.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -204,10 +206,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 49 | 050_analytics_foundation.sql |
 | 50 | 051_purchase_advisor_foundation.sql |
 | 51 | 052_fix_triggers.sql |
-| 52 | 20260820000000_analytics_public_wrapper.sql |
-| 53 | 20260820000001_analytics_grant_permissions.sql |
-| 54 | 20260820000002_analytics_security_definer.sql |
-| 55 | 20260820000003_analytics_security_definer.sql |
+| 52 | 053_experience_memory.sql |
+| 53 | 20260820000000_analytics_public_wrapper.sql |
+| 54 | 20260820000001_analytics_grant_permissions.sql |
+| 55 | 20260820000002_analytics_security_definer.sql |
+| 56 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -245,7 +248,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-94 rutas en `src/app/api/`:
+95 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -262,6 +265,7 @@ admin/delivery/orders
 admin/delivery/routes/[id]/assign
 admin/delivery/routes
 admin/delivery/settings
+admin/experience/suggestions/[id]
 admin/inventory/adjustments
 admin/inventory/import
 admin/inventory/items
@@ -521,7 +525,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-115 módulos:
+118 módulos:
 
 ```
 ai/client.ts
@@ -575,6 +579,9 @@ delivery/request.ts
 delivery/token.ts
 delivery/types.ts
 delivery/whatsapp.ts
+heuristic/blender.ts
+heuristic/suggester.ts
+heuristic/types.ts
 hooks/use-hover-intent.ts
 i18n/config.ts
 i18n/dictionaries/en.ts
@@ -830,6 +837,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+3fd5154 feat: Experience Memory engine — hybrid model C (70/30) objection recommendation system
+8bc2846 docs: regenerate MASTER.md at 775f20c
 775f20c chore: governance artifacts + classification scripts for delivery module and image resolution fix
 3ecc60f test: governance infrastructure tests + evidence-first file:line validation + sk-proj regex fix
 b821495 docs: regenerate MASTER.md at 12b2d84
@@ -848,8 +857,6 @@ d5f6aff docs: regenerate MASTER.md at 8703526
 d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-toggle popup
 11abf5b docs: regenerate MASTER.md at bfebcc2
 bfebcc2 feat: Analytics dashboard strategic upgrade — deltas, LTV/CAC, funnel, tooltips
-add8335 docs: regenerate MASTER.md at f7753f6
-f7753f6 feat: Analytics dashboard dual view — Simple + Completa with quick time filters
 ```
 
 ---
