@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `41806e7`.
+> Fuente de verdad: este repositorio en `5ace2a0`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `41806e7` |
+| **Commit HEAD** | `5ace2a0` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T01:22:12-06:00 |
+| **Generado** | 2026-08-20T05:20:24-06:00 |
 
 ---
 
@@ -248,7 +248,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-95 rutas en `src/app/api/`:
+97 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -265,7 +265,9 @@ admin/delivery/orders
 admin/delivery/routes/[id]/assign
 admin/delivery/routes
 admin/delivery/settings
+admin/experience/patterns
 admin/experience/suggestions/[id]
+admin/experience/suggestions
 admin/inventory/adjustments
 admin/inventory/import
 admin/inventory/items
@@ -352,13 +354,14 @@ widget/close
 
 ## 8. Páginas
 
-29 páginas en `src/app/`:
+30 páginas en `src/app/`:
 
 ```
 (auth)/login
 (auth)/signup
 dashboard/accessibility
 dashboard/analytics
+dashboard/assistants/[id]/experience
 dashboard/assistants/[id]
 dashboard/assistants/[id]/products
 dashboard/assistants/[id]/rules
@@ -390,7 +393,7 @@ widget
 
 ## 9. Componentes
 
-126 componentes en `src/components/`:
+128 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -474,6 +477,8 @@ driver/geolocation.ts
 driver/offline.ts
 driver/outbox.ts
 driver/types.ts
+experience/SuggestionCard.tsx
+experience/SuggestionList.tsx
 health/HealthDashboard.tsx
 inventory/InventoryAdmin.tsx
 inventory/InventoryImportPanel.tsx
@@ -664,7 +669,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (120)**:
+**Tareas registradas (121)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -788,6 +793,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-224949925 | Glass Overlay Blur — transición de carga al cambiar de vista | completed |
 | TASK-20260819-091751659 | Fix imagen incorrecta — resolveRecommendedProduct no resuelve productId por nombre, conditional-media devuelve genéricos de otros productos | approved |
 | TASK-20260819-093136293 | Módulo Delivery Autónomo — App repartidor, geofencing, motor de rutas nativo, IA de re-enrutamiento y dashboard financiero | awaiting_council |
+| TASK-20260820-105134487 | Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests | in_progress |
 
 ---
 
@@ -837,6 +843,17 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+5ace2a0 subaru: checkpoint TASK-20260820-EXPERIENCE - completado
+b16924c chore: governance classification + approval scripts for experience memory
+1559066 feat: Experience Memory engine — API routes, prompt integration, suggestion UI, e2e tests
+f440ec2 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
+956a07a subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
+2133670 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
+8740762 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
+fb04977 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
+99ec3ed chore: experience memory blueprint + governance manifest TASK-20260820-105134487
+a9d2fe4 subaru: checkpoint TASK-20260820-EXPERIENCE - listo
+1d0f313 docs: regenerate MASTER.md at 41806e7
 41806e7 fix: await Promise params in Next.js 16 route handler
 e54cef8 docs: regenerate MASTER.md at 3fd5154
 3fd5154 feat: Experience Memory engine — hybrid model C (70/30) objection recommendation system
@@ -846,17 +863,6 @@ e54cef8 docs: regenerate MASTER.md at 3fd5154
 b821495 docs: regenerate MASTER.md at 12b2d84
 12b2d84 fix: delivery + inventory triggers — 5 discrepancies corrected
 f745d55 docs: regenerate MASTER.md at 03d3e4a
-03d3e4a feat: Purchase Advisor MVP — margin audit, forecasting, budget-aware recommendations + dashboard
-9a2d10a feat: Purchase Advisor foundation — analytics refresh + data corrections + schema additions
-34e01b3 chore: mark Gemini/Groq API keys as tech debt in .env.example
-59a5975 docs: regenerate MASTER.md at 0cc93f3
-0cc93f3 feat: implement model routing + failover across 3 AI providers
-afd7b5d docs: regenerate MASTER.md at 41c3a17
-41c3a17 fix(migration): combine 047+048 into single self-contained migration
-d5f6aff docs: regenerate MASTER.md at 8703526
-8703526 feat(analytics): add inventory analytics integration
-40aba18 docs: regenerate MASTER.md at d9f6a10
-d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-toggle popup
 ```
 
 ---
