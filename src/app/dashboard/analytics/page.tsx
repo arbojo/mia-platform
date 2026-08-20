@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requirePageAuth } from '@/lib/auth'
-import { AnalyticsPanel } from '@/components/analytics/AnalyticsPanel'
+import { canBusinessUseInventoryHub } from '@/lib/system/edition'
+import { AnalyticsClient } from './AnalyticsClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,9 +20,11 @@ export default async function AnalyticsPage() {
     redirect('/dashboard/onboarding')
   }
 
+  const hasInventory = await canBusinessUseInventoryHub(business.id)
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      <AnalyticsPanel businessId={business.id} />
+      <AnalyticsClient businessId={business.id} hasInventory={hasInventory} />
     </div>
   )
 }

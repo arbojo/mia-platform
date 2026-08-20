@@ -226,3 +226,124 @@ export async function refreshAnalyticsViews(): Promise<void> {
   const supabase = createAnalyticsAdmin()
   await supabase.rpc('refresh_analytics_views' as never)
 }
+
+// ============================================================
+// Inventory Analytics
+// ============================================================
+
+export interface InventoryDailyRow {
+  business_id: string
+  date: string
+  stock_in: number
+  stock_out: number
+  net_change: number
+  adjustments: number
+  waste: number
+  items_sold: number
+  total_cost_in: number
+  total_cost_out: number
+}
+
+export interface ProductMarginRow {
+  business_id: string
+  product_id: string
+  product_name: string
+  revenue: number
+  cogs: number
+  gross_margin: number
+  gross_margin_pct: number
+  units_sold: number
+  avg_unit_cost: number
+  avg_selling_price: number
+}
+
+export interface StockHealthRow {
+  business_id: string
+  total_items: number
+  items_green: number
+  items_yellow: number
+  items_red: number
+  total_stock_value: number
+  low_stock_count: number
+  out_of_stock_count: number
+  health_score: number
+}
+
+export interface InventoryOverview {
+  daily: InventoryDailyRow[]
+  productMargins: ProductMarginRow[]
+  stockHealth: StockHealthRow
+  summary: {
+    totalStockValue: number
+    outOfStockCount: number
+    healthScore: number
+    avgGrossMargin: number
+    totalCOGS: number
+    wasteCount: number
+  }
+}
+
+export async function getInventoryOverview(
+  businessId: string,
+  days = 30
+): Promise<InventoryOverview> {
+  const supabase = createAnalyticsAdmin()
+  const since = daysAgo(days)
+
+  const [{ data: daily }, { data: productMargins }, { data: stockHealthArr }] = await Promise.all([
+    supabase
+      .from('inventory_daily' as never)
+      .select('*')
+      .eq('business_id', businessId)
+      .gte('date', since)
+      .order('date', { ascending: true }) as never,
+    supabase
+      .from('product_margin' as never)
+      .select('*')
+      .eq('business_id', businessId)
+      .order('gross_margin', { ascending: false })
+      .limit(10) as never,
+    supabase
+      .from('stock_health' as never)
+      .select('*')
+      .eq('business_id', businessId)
+      .limit(1) as never,
+  ])
+
+  const d = (daily ?? []) as unknown as InventoryDailyRow[]
+  const pm = (productMargins ?? []) as unknown as ProductMarginRow[]
+  const sh = ((stockHealthArr ?? [])[0] as unknown as StockHealthRow) ?? {
+    business_id: businessId,
+    total_items: 0,
+    items_green: 0,
+    items_yellow: 0,
+    items_red: 0,
+    total_stock_value: 0,
+    low_stock_count: 0,
+    out_of_stock_count: 0,
+    health_score: 0,
+  }
+
+  const totalStockValue = sh.total_stock_value
+  const outOfStockCount = sh.out_of_stock_count
+  const healthScore = sh.health_score
+  const totalCOGS = pm.reduce((s, r) => s + (r.cogs ?? 0), 0)
+  const wasteCount = d.reduce((s, r) => s + (r.waste ?? 0), 0)
+  const avgGrossMargin = pm.length > 0
+    ? Math.round(pm.reduce((s, r) => s + (r.gross_margin_pct ?? 0), 0) / pm.length * 10) / 10
+    : 0
+
+  return {
+    daily: d,
+    productMargins: pm,
+    stockHealth: sh,
+    summary: {
+      totalStockValue: Math.round(totalStockValue * 100) / 100,
+      outOfStockCount,
+      healthScore,
+      avgGrossMargin,
+      totalCOGS: Math.round(totalCOGS * 100) / 100,
+      wasteCount,
+    },
+  }
+}
