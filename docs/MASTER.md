@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3fd5154`.
+> Fuente de verdad: este repositorio en `41806e7`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3fd5154` |
+| **Commit HEAD** | `41806e7` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T01:12:31-06:00 |
+| **Generado** | 2026-08-20T01:22:12-06:00 |
 
 ---
 
@@ -837,6 +837,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+41806e7 fix: await Promise params in Next.js 16 route handler
+e54cef8 docs: regenerate MASTER.md at 3fd5154
 3fd5154 feat: Experience Memory engine — hybrid model C (70/30) objection recommendation system
 8bc2846 docs: regenerate MASTER.md at 775f20c
 775f20c chore: governance artifacts + classification scripts for delivery module and image resolution fix
@@ -855,8 +857,6 @@ d5f6aff docs: regenerate MASTER.md at 8703526
 8703526 feat(analytics): add inventory analytics integration
 40aba18 docs: regenerate MASTER.md at d9f6a10
 d9f6a10 fix: InfoTip clickable — replace hover-only tooltip with click-to-toggle popup
-11abf5b docs: regenerate MASTER.md at bfebcc2
-bfebcc2 feat: Analytics dashboard strategic upgrade — deltas, LTV/CAC, funnel, tooltips
 ```
 
 ---
