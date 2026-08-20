@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { AnalyticsPanel } from '@/components/analytics/AnalyticsPanel'
 import { InventoryPanel } from '@/components/analytics/InventoryPanel'
+import PurchaseAdvisorPanel from '@/components/analytics/PurchaseAdvisorPanel'
 
 export function AnalyticsClient({
   businessId,
@@ -23,6 +24,7 @@ export function AnalyticsClient({
       <TabsList>
         <TabsTrigger value="ventas">Ventas</TabsTrigger>
         <TabsTrigger value="inventario">Inventario</TabsTrigger>
+        <TabsTrigger value="compras">Compras</TabsTrigger>
       </TabsList>
 
       <TabsContent value="ventas">
@@ -31,6 +33,10 @@ export function AnalyticsClient({
 
       <TabsContent value="inventario">
         <InventoryPanel businessId={businessId} />
+      </TabsContent>
+
+      <TabsContent value="compras">
+        <PurchaseAdvisorPanel businessId={businessId} />
       </TabsContent>
     </Tabs>
   )
