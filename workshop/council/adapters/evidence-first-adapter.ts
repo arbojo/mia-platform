@@ -26,6 +26,25 @@ export interface EvidenceFirstAdapterOptions {
   repoPath?: string;
 }
 
+const FILE_LINE_RE = /^(.+):(\d+)$/;
+
+export function parseFileLine(reference: string): { filePath: string; line: number } | null {
+  const match = reference.match(FILE_LINE_RE);
+  if (!match) return null;
+  return { filePath: match[1], line: parseInt(match[2], 10) };
+}
+
+export function validateFileLineReference(reference: string): { valid: boolean; error?: string } {
+  const parsed = parseFileLine(reference);
+  if (!parsed) {
+    return { valid: false, error: `Invalid file:line format: "${reference}" — expected "path/to/file.ts:42"` };
+  }
+  if (parsed.line < 1) {
+    return { valid: false, error: `Line number must be >= 1, got ${parsed.line}` };
+  }
+  return { valid: true };
+}
+
 export class EvidenceFirstAdapter {
   private readonly reportsDir: string;
   private readonly repoPath: string;
@@ -89,7 +108,25 @@ export class EvidenceFirstAdapter {
       };
     }
 
-    const fullPath = path.join(this.repoPath, filePath);
+    // Validate file:line format if line number is present
+    const parsed = parseFileLine(filePath);
+    const actualFilePath = parsed ? parsed.filePath : filePath;
+
+    if (parsed && parsed.line < 1) {
+      return {
+        updated: { ...finding, state: 'invalidated', headCommit: currentHead },
+        log: {
+          findingId: finding.id,
+          previousState,
+          newState: 'invalidated',
+          reason: `Invalid line number: ${parsed.line} in "${filePath}"`,
+          filePath,
+          headCommit: currentHead,
+        },
+      };
+    }
+
+    const fullPath = path.join(this.repoPath, actualFilePath);
 
     if (!existsSync(fullPath)) {
       return {
@@ -98,14 +135,37 @@ export class EvidenceFirstAdapter {
           findingId: finding.id,
           previousState,
           newState: 'superseded',
-          reason: `File deleted: ${filePath}`,
+          reason: `File deleted: ${actualFilePath}`,
           filePath,
           headCommit: currentHead,
         },
       };
     }
 
-    const fileChanged = this.fileChangedSince(filePath, finding.headCommit ?? 'HEAD~1');
+    // If file:line format, verify the line exists in the file
+    if (parsed) {
+      try {
+        const content = readFileSync(fullPath, 'utf8');
+        const lines = content.split('\n');
+        if (parsed.line > lines.length) {
+          return {
+            updated: { ...finding, state: 'invalidated', headCommit: currentHead },
+            log: {
+              findingId: finding.id,
+              previousState,
+              newState: 'invalidated',
+              reason: `Line ${parsed.line} does not exist in ${actualFilePath} (${lines.length} lines)`,
+              filePath,
+              headCommit: currentHead,
+            },
+          };
+        }
+      } catch {
+        // If we can't read the file, fall through to git diff check
+      }
+    }
+
+    const fileChanged = this.fileChangedSince(actualFilePath, finding.headCommit ?? 'HEAD~1');
 
     if (fileChanged) {
       return {
@@ -114,7 +174,7 @@ export class EvidenceFirstAdapter {
           findingId: finding.id,
           previousState,
           newState: 'resolved',
-          reason: `File modified since last audit: ${filePath}`,
+          reason: `File modified since last audit: ${actualFilePath}`,
           filePath,
           headCommit: currentHead,
         },

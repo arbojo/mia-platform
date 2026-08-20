@@ -57,10 +57,19 @@ export default defineConfig({
       {
         test: {
           name: 'workshop',
-          include: ['workshop/subaru/**/*.test.ts'],
-          exclude: ['node_modules', '.next'],
+          include: ['workshop/**/*.test.ts'],
+          exclude: ['node_modules', '.next', 'workshop/tests/*.test.ts', 'workshop/council/tests/*.test.ts', 'workshop/intelligence/tests/*.test.ts'],
           environment: 'node',
           testTimeout: 60000,
+        },
+      },
+      {
+        test: {
+          name: 'scripts',
+          include: ['scripts/__tests__/**/*.test.ts'],
+          exclude: ['node_modules', '.next'],
+          environment: 'node',
+          testTimeout: 30000,
         },
       },
     ],

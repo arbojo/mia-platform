@@ -53,6 +53,26 @@ function checkEnvVars(env: Record<string, string>): EnvCheckResult[] {
   )
 }
 
+export function parseNodeVersion(version: string): { major: number; minor: number; patch: number } | null {
+  const match = version.match(/^v(\d+)\.(\d+)\.(\d+)/)
+  if (!match) return null
+  return { major: parseInt(match[1], 10), minor: parseInt(match[2], 10), patch: parseInt(match[3], 10) }
+}
+
+function checkNodeVersion(versionString: string): EnvCheckResult {
+  const parsed = parseNodeVersion(versionString)
+  if (!parsed) return bad('node:version', `No se pudo parsear la versión: ${versionString}`)
+
+  const { major } = parsed
+  if (major < 22 || major >= 23) {
+    return bad(
+      'node:version',
+      `v${parsed.major}.${parsed.minor}.${parsed.patch} — se requiere Node 22 LTS (>=22.0.0 <23.0.0). Usa .nvmrc o "fnm use 22"`,
+    )
+  }
+  return ok('node:version', `v${parsed.major}.${parsed.minor}.${parsed.patch} (Node 22 LTS)`)
+}
+
 export function runEnvironmentChecks(): {
   results: EnvCheckResult[]
   pass: boolean
@@ -63,6 +83,10 @@ export function runEnvironmentChecks(): {
   results.push(
     nodeVersion ? ok('node', nodeVersion) : bad('node', 'node no encontrado'),
   )
+
+  if (nodeVersion) {
+    results.push(checkNodeVersion(nodeVersion))
+  }
 
   results.push(
     existsSync(resolve(process.cwd(), 'node_modules'))
@@ -98,4 +122,6 @@ function main() {
   process.exit(pass ? 0 : 1)
 }
 
-main()
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main()
+}

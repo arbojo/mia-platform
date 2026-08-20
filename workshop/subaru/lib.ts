@@ -45,7 +45,7 @@ export interface StepAttributes {
 const STEP_ATTR_RE = /^  - (Objetivo|Archivos|Acción|Dependencia|Criterio de terminación|Gate\/verificación): ?(.*)$/
 
 const SECRET_PATTERNS: { label: string; re: RegExp }[] = [
-  { label: 'clave API sk-', re: /\bsk-[A-Za-z0-9]{6,}/g },
+  { label: 'clave API sk-', re: /\bsk-[A-Za-z0-9_-]{6,}/g },
   { label: 'clave AWS AKIA', re: /\bAKIA[0-9A-Z]{16}\b/g },
   { label: 'clave privada', re: /-----BEGIN (?:RSA|OPENSSH|EC) PRIVATE KEY-----/g },
   { label: 'password=', re: /\bpassword\s*[=:]\s*[^\s<]{4,}/gi },
