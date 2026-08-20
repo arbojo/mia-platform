@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `41c3a17`.
+> Fuente de verdad: este repositorio en `0cc93f3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `41c3a17` |
+| **Commit HEAD** | `0cc93f3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-19T18:22:35-06:00 |
+| **Generado** | 2026-08-19T19:23:11-06:00 |
 
 ---
 
@@ -43,7 +43,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 | Testing | Playwright (e2e) + Vitest (unit) |
 | CI | GitHub Actions |
 
-**Dependencias de producción** (27): @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, recharts, shadcn, tailwind-merge, tw-animate-css, zod
+**Dependencias de producción** (29): @ai-sdk/google, @ai-sdk/groq, @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, recharts, shadcn, tailwind-merge, tw-animate-css, zod
 
 **DevDependencies** (18): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest, ws, wscat
 
@@ -510,7 +510,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-110 módulos:
+112 módulos:
 
 ```
 ai/client.ts
@@ -523,8 +523,10 @@ ai/maturity.ts
 ai/memory.ts
 ai/product-intelligence.ts
 ai/prompts.ts
+ai/providers.ts
 ai/readiness.ts
 ai/skills.ts
+ai/task-routing.ts
 ai/usage-report.ts
 ai/weekly-report.ts
 analytics/db.ts
@@ -812,6 +814,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+0cc93f3 feat: implement model routing + failover across 3 AI providers
+afd7b5d docs: regenerate MASTER.md at 41c3a17
 41c3a17 fix(migration): combine 047+048 into single self-contained migration
 d5f6aff docs: regenerate MASTER.md at 8703526
 8703526 feat(analytics): add inventory analytics integration
@@ -830,8 +834,6 @@ b843f72 fix: post-cancelación — fresh start con contexto
 19012e2 docs: regenerate MASTER.md at 7c2c1f3
 7c2c1f3 fix: Godzilla audit — format amounts, add route visits to modal, retry button, loading skeleton
 70d9276 docs: regenerate MASTER.md at 51fb82b
-51fb82b fix: refinamiento UX del Command Center — copywriting, métricas de circulación y empty state
-2f31bf0 docs: regenerate MASTER.md at 435451b
 ```
 
 ---
