@@ -1,0 +1,105 @@
+{
+  "id": "TASK-20260820-ADR026",
+  "title": "ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower",
+  "description": "Implement the Super Admin Platform Dashboard for cross-tenant monitoring: business overview (maturity stage, sales counts), WhatsApp bridge status, and AI usage billing telemetry. Platform/Core domain per ADR-025 §3.1. No new tables — uses existing businesses, whatsapp_sessions, ai_usage, readiness_snapshots, sales_events. Auth guard requirePlatformOwner() with fail-closed PLATFORM_OWNER_ID env check. Three API endpoints via createAdminClient(). Frontend with Quiet Chrome aesthetic (Slate dark, glassmorphism, indigo accents). Security tests verifying 403 for unauthorized users.",
+  "scope": {
+    "categories": [
+      "feature",
+      "security",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 12,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend",
+      "frontend",
+      "security"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "performance",
+      "qa",
+      "godzilla",
+      "release"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX. Primary domain: platform. New cross-tenant API surface with security implications (PLATFORM_OWNER_ID guard, admin client bypassing RLS). 8+ new files. No schema changes (existing tables). No AI behavior changes. Security is the critical concern — unauthorized access exposes all tenant data."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "ADR-026 is well-scoped within Platform/Core domain (ADR-025 §3.1). No new tables needed — leverages existing schema. Auth guard pattern mirrors requireDeliveryAdmin(). Quiet Chrome aesthetic is consistent. 3 endpoints are focused and well-defined.",
+      "timestamp": "2026-08-21T00:31:14.389Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "All 3 endpoints follow existing patterns: requirePageAuth + inline owner check + createAdminClient for cross-tenant reads. Column names corrected (tokens_input/output, not prompt/completion). whatsapp_sessions creds column never selected. Error handling via handleApiError.",
+      "timestamp": "2026-08-21T00:31:29.095Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Server Component → Client Component pattern matches analytics/page.tsx. shadcn Card/Badge available. No table.tsx in shadcn — using styled HTML table matching ADR vision. Glassmorphism Quiet Chrome aesthetic. Components under 150 lines. Accessible and responsive.",
+      "timestamp": "2026-08-21T00:31:41.406Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "PLATFORM_OWNER_ID env-based identity with fail-closed guard. ApiForbiddenError for clean 403. whatsapp_sessions creds never selected. createAdminClient bypasses RLS by design but guarded by requirePlatformOwner(). No raw messages or customer data exposed — only aggregated metrics. Defense in depth: proxy + route-level guard.",
+      "timestamp": "2026-08-21T00:31:56.234Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Cross-tenant queries are aggregation-only (SUM, COUNT). ai_usage has indexes on business_id and created_at. readiness_snapshots ordered by calculated_at DESC — may need index review at scale but acceptable for v1 with few tenants. No real-time push needed — polling sufficient. No premature optimization.",
+      "timestamp": "2026-08-21T00:32:08.599Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Full quality gate suite: lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, stress_test. Security tests verifying 403 for unauthorized users and 200 for authorized. Cost calculation unit tests. maturity_stage nullable handling tests.",
+      "timestamp": "2026-08-21T00:32:23.794Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Will stress-test: (1) PLATFORM_OWNER_ID env spoofing, (2) cross-tenant data leakage via api routes, (3) whatsapp_sessions creds column access attempts, (4) race conditions on concurrent admin queries, (5) malformed env vars (undefined PLATFORM_OWNER_ID), (6) unauthorized user hitting /dashboard/platform-admin page directly.",
+      "timestamp": "2026-08-21T00:32:46.579Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Atomic commits per step. ADR-026 document committed first. Conventional commit format. PLATFORM_OWNER_ID must be added to .env.local manually (not committed). Push to main, Vercel deploy with verification.",
+      "timestamp": "2026-08-21T00:32:59.714Z"
+    }
+  ],
+  "createdAt": "2026-08-20T11:30:00.000Z",
+  "classifiedAt": "2026-08-20T11:30:00.000Z",
+  "approvedAt": "2026-08-21T00:32:59.716Z",
+  "startedAt": "2026-08-21T00:33:28.735Z"
+}
