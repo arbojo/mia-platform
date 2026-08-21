@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7be845b`.
+> Fuente de verdad: este repositorio en `ba04446`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7be845b` |
+| **Commit HEAD** | `ba04446` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T19:41:24-06:00 |
+| **Generado** | 2026-08-20T20:49:21-06:00 |
 
 ---
 
@@ -248,7 +248,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-100 rutas en `src/app/api/`:
+102 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -278,6 +278,8 @@ admin/inventory/purchase-advisor
 admin/inventory/settings
 admin/inventory/suggestions/ai
 admin/inventory/suggestions
+admin/platform/actions/reconnect
+admin/platform/actions/update-edition
 admin/platform/billing-telemetry
 admin/platform/channels
 admin/platform/overview
@@ -853,6 +855,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ba04446 feat: ADR-026 v3 — monocromo + acciones reconnect/edition
+c97dcec docs: regenerate MASTER.md at 7be845b
 7be845b feat: add platform admin nav link + logout button to sidebar
 2c9d3a8 docs: regenerate MASTER.md at 310b2a5
 310b2a5 fix: ADR-026 convert connectedBridges to string for MetricCard type
@@ -871,8 +875,6 @@ fd88a9b docs: regenerate MASTER.md at 500c8e5
 1b74907 subaru: checkpoint TASK-20260820-ADR026 - listo
 cbc956d docs: regenerate MASTER.md at 5ace2a0
 5ace2a0 subaru: checkpoint TASK-20260820-EXPERIENCE - completado
-b16924c chore: governance classification + approval scripts for experience memory
-1559066 feat: Experience Memory engine — API routes, prompt integration, suggestion UI, e2e tests
 ```
 
 ---
