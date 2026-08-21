@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ba04446`.
+> Fuente de verdad: este repositorio en `11bc7ff`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ba04446` |
+| **Commit HEAD** | `11bc7ff` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T20:49:21-06:00 |
+| **Generado** | 2026-08-21T00:25:06-06:00 |
 
 ---
 
@@ -810,7 +810,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-27 ADRs en `docs/adr/`:
+28 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -839,6 +839,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 024-whatsapp-bridge-defensive-block | 024: WhatsApp Bridge — Bloque Defensivo (Llamadas y Notas de Voz) |
 | 025-multi-domain-architecture | 025: MIA Platform Multi-Domain Architecture |
 | 026-super-admin-platform-dashboard | 026: Super Admin Platform Dashboard |
+| 027-mia-cloud-architecture | 027: MIA Cloud Architecture |
 | ADR-022 | 022: Environment Runtime Normalization |
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 
@@ -855,6 +856,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+11bc7ff docs: add ADR-027 MIA Cloud Architecture
+7648059 docs: regenerate MASTER.md at ba04446
 ba04446 feat: ADR-026 v3 — monocromo + acciones reconnect/edition
 c97dcec docs: regenerate MASTER.md at 7be845b
 7be845b feat: add platform admin nav link + logout button to sidebar
@@ -873,8 +876,6 @@ dfbee97 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
 fd88a9b docs: regenerate MASTER.md at 500c8e5
 500c8e5 chore: ADR-026 governance classify + council approvals (8/8 approved)
 1b74907 subaru: checkpoint TASK-20260820-ADR026 - listo
-cbc956d docs: regenerate MASTER.md at 5ace2a0
-5ace2a0 subaru: checkpoint TASK-20260820-EXPERIENCE - completado
 ```
 
 ---
