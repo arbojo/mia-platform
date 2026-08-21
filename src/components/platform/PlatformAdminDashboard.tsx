@@ -92,7 +92,7 @@ export function PlatformAdminDashboard() {
         <MetricCard label="Total Clientes Activos" value={String(tenants.length)} />
         <MetricCard
           label="Puentes WhatsApp Conectados"
-          value={connectedBridges}
+          value={String(connectedBridges)}
           suffix={`/ ${bridges.length}`}
           accent="text-emerald-400"
         />
