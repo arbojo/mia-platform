@@ -2,13 +2,13 @@
 task_id: TASK-20260820-ADR026
 title: ADR-026: Super Admin Platform Dashboard
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260820-ADR026
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-21T00:45:23.853Z
+updated: 2026-08-21T00:45:45.579Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260820-ADR026 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260820-ADR026 3`.
 
 ## Constraints
 
