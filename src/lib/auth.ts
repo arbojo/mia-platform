@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { ApiAuthError } from '@/lib/api-error'
+import { ApiAuthError, ApiForbiddenError } from '@/lib/api-error'
 import type { User } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -32,4 +32,15 @@ export async function requirePageAuth(): Promise<AuthResult> {
     }
     throw error
   }
+}
+
+export async function requirePlatformOwner(): Promise<AuthResult> {
+  const { supabase, user } = await requireAuth()
+
+  const ownerId = process.env.PLATFORM_OWNER_ID
+  if (!ownerId || user.id !== ownerId) {
+    throw new ApiForbiddenError()
+  }
+
+  return { supabase, user }
 }

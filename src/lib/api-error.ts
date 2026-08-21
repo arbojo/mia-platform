@@ -7,9 +7,20 @@ export class ApiAuthError extends Error {
   }
 }
 
+export class ApiForbiddenError extends Error {
+  constructor() {
+    super('Acceso denegado')
+    this.name = 'ApiForbiddenError'
+  }
+}
+
 export function handleApiError(err: unknown, fallback = 'Error interno'): NextResponse {
   if (err instanceof ApiAuthError) {
     return NextResponse.json({ error: err.message }, { status: 401 })
+  }
+
+  if (err instanceof ApiForbiddenError) {
+    return NextResponse.json({ error: err.message }, { status: 403 })
   }
 
   return NextResponse.json(
