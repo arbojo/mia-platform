@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `9a8654f`.
+> Fuente de verdad: este repositorio en `bb3ebf3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `9a8654f` |
+| **Commit HEAD** | `bb3ebf3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T18:46:19-06:00 |
+| **Generado** | 2026-08-20T18:48:56-06:00 |
 
 ---
 
@@ -802,7 +802,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260819-091751659 | Fix imagen incorrecta — resolveRecommendedProduct no resuelve productId por nombre, conditional-media devuelve genéricos de otros productos | approved |
 | TASK-20260819-093136293 | Módulo Delivery Autónomo — App repartidor, geofencing, motor de rutas nativo, IA de re-enrutamiento y dashboard financiero | awaiting_council |
 | TASK-20260820-105134487 | Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests | completed |
-| TASK-20260820-ADR026 | ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower | in_progress |
+| TASK-20260820-ADR026 | ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower | completed |
 
 ---
 
@@ -853,6 +853,12 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+bb3ebf3 chore: ADR-026 governance complete + Subaru checkpoint closed
+2b75d57 subaru: checkpoint TASK-20260820-ADR026 - completado
+dfbee97 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
+6c1a36b subaru: checkpoint TASK-20260820-ADR026 - en-progreso
+588bc3b subaru: checkpoint TASK-20260820-ADR026 - en-progreso
+09c7a0b docs: regenerate MASTER.md at 9a8654f
 9a8654f feat: ADR-026 Super Admin Platform Dashboard — cross-tenant control tower
 5db3870 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
 6550a76 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
@@ -867,12 +873,6 @@ f440ec2 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
 956a07a subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
 2133670 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
 8740762 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
-fb04977 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
-99ec3ed chore: experience memory blueprint + governance manifest TASK-20260820-105134487
-a9d2fe4 subaru: checkpoint TASK-20260820-EXPERIENCE - listo
-1d0f313 docs: regenerate MASTER.md at 41806e7
-41806e7 fix: await Promise params in Next.js 16 route handler
-e54cef8 docs: regenerate MASTER.md at 3fd5154
 ```
 
 ---
