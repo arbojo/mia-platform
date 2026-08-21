@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bb3ebf3`.
+> Fuente de verdad: este repositorio en `310b2a5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bb3ebf3` |
+| **Commit HEAD** | `310b2a5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T18:48:56-06:00 |
+| **Generado** | 2026-08-20T19:04:22-06:00 |
 
 ---
 
@@ -853,6 +853,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+310b2a5 fix: ADR-026 convert connectedBridges to string for MetricCard type
+82ce95e docs: regenerate MASTER.md at bb3ebf3
 bb3ebf3 chore: ADR-026 governance complete + Subaru checkpoint closed
 2b75d57 subaru: checkpoint TASK-20260820-ADR026 - completado
 dfbee97 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
@@ -871,8 +873,6 @@ b16924c chore: governance classification + approval scripts for experience memor
 1559066 feat: Experience Memory engine — API routes, prompt integration, suggestion UI, e2e tests
 f440ec2 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
 956a07a subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
-2133670 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
-8740762 subaru: checkpoint TASK-20260820-EXPERIENCE - en-progreso
 ```
 
 ---
