@@ -2,13 +2,13 @@
 task_id: TASK-20260820-ADR027
 title: ADR-027: MIA Cloud Architecture
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260820-ADR027
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-21T08:15:00.000Z
+updated: 2026-08-21T09:10:11.259Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -73,7 +73,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: §4.1.1 Council Decision Record en ADR + manifest approved + `governance validate` PASSED
   - Gate/verificación: `npx tsx workshop/governance/cli.ts validate TASK-20260820-ADR027`
 
-- [ ] **Paso 5:** Implementación Cloud MVP Phase 1 (Core)
+- [x] **Paso 5:** Implementación Cloud MVP Phase 1 (Core)
   - Objetivo: JWT bridge auth + session restoration + deployment_model/status columns
   - Archivos: §18 File Impact Matrix — Phase 1 tasks 1-4 (ADR §14.2)
   - Acción: Migration → jwt.ts → bridge changes → graceful shutdown
@@ -90,7 +90,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar Paso 5 — Phase 1 Core (§14.2 tasks 1-4). Al completar: `subaru mark TASK-20260820-ADR027 5`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260820-ADR027` cuando pasen los gates de verificación.
 
 ## Constraints
 
