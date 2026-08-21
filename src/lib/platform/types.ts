@@ -1,8 +1,10 @@
+export type PlatformEdition = 'evaluation' | 'professional' | 'enterprise' | 'cloud'
+
 export interface PlatformTenant {
   id: string
   name: string
   createdAt: string
-  edition: string | null
+  edition: PlatformEdition | null
   maturityStage: string
   salesWon: number
   salesLost: number

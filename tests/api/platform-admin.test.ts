@@ -78,3 +78,26 @@ describe('ApiForbiddenError', () => {
     expect(err.message).toBe('Acceso denegado')
   })
 })
+
+describe('Action endpoint security', () => {
+  it('reconnect: rejects when PLATFORM_OWNER_ID is missing', async () => {
+    vi.stubEnv('PLATFORM_OWNER_ID', undefined)
+    getUserMock.mockResolvedValue({ data: { user: regularUser } })
+
+    await expect(requirePlatformOwner()).rejects.toBeInstanceOf(ApiForbiddenError)
+  })
+
+  it('reconnect: rejects non-owner user', async () => {
+    vi.stubEnv('PLATFORM_OWNER_ID', 'owner-uuid-123')
+    getUserMock.mockResolvedValue({ data: { user: regularUser } })
+
+    await expect(requirePlatformOwner()).rejects.toBeInstanceOf(ApiForbiddenError)
+  })
+
+  it('update-edition: rejects non-owner for edition mutation', async () => {
+    vi.stubEnv('PLATFORM_OWNER_ID', 'owner-uuid-123')
+    getUserMock.mockResolvedValue({ data: { user: regularUser } })
+
+    await expect(requirePlatformOwner()).rejects.toBeInstanceOf(ApiForbiddenError)
+  })
+})
