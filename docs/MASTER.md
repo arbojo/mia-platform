@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2e92f90`.
+> Fuente de verdad: este repositorio en `1f2f7a3`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2e92f90` |
+| **Commit HEAD** | `1f2f7a3` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-21T01:11:08-06:00 |
+| **Generado** | 2026-08-21T01:41:45-06:00 |
 
 ---
 
@@ -856,6 +856,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+1f2f7a3 subaru: checkpoint TASK-20260820-ADR027 - en-progreso
+6914ed3 subaru: checkpoint TASK-20260820-ADR027 - en-progreso
+1ad0150 docs: regenerate MASTER.md at 2e92f90
 2e92f90 subaru: checkpoint TASK-20260820-ADR027 - en-progreso
 90a765e subaru: checkpoint TASK-20260820-ADR027 - listo
 d90842f docs: regenerate MASTER.md at 472b1c6
@@ -873,9 +876,6 @@ bb3ebf3 chore: ADR-026 governance complete + Subaru checkpoint closed
 2b75d57 subaru: checkpoint TASK-20260820-ADR026 - completado
 dfbee97 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
 6c1a36b subaru: checkpoint TASK-20260820-ADR026 - en-progreso
-588bc3b subaru: checkpoint TASK-20260820-ADR026 - en-progreso
-09c7a0b docs: regenerate MASTER.md at 9a8654f
-9a8654f feat: ADR-026 Super Admin Platform Dashboard — cross-tenant control tower
 ```
 
 ---
