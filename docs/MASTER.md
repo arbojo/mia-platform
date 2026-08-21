@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `500c8e5`.
+> Fuente de verdad: este repositorio en `9a8654f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `500c8e5` |
+| **Commit HEAD** | `9a8654f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T18:34:28-06:00 |
+| **Generado** | 2026-08-20T18:46:19-06:00 |
 
 ---
 
@@ -248,7 +248,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-97 rutas en `src/app/api/`:
+100 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -278,6 +278,9 @@ admin/inventory/purchase-advisor
 admin/inventory/settings
 admin/inventory/suggestions/ai
 admin/inventory/suggestions
+admin/platform/billing-telemetry
+admin/platform/channels
+admin/platform/overview
 assistants/[id]
 business/memory/analyze
 business/memory
@@ -354,7 +357,7 @@ widget/close
 
 ## 8. Páginas
 
-30 páginas en `src/app/`:
+31 páginas en `src/app/`:
 
 ```
 (auth)/login
@@ -380,6 +383,7 @@ dashboard/knowledge
 dashboard/laboratorio
 dashboard/onboarding
 dashboard
+dashboard/platform-admin
 dashboard/settings
 demo
 driver/deliveries/[id]
@@ -393,7 +397,7 @@ widget
 
 ## 9. Componentes
 
-128 componentes en `src/components/`:
+131 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -513,6 +517,9 @@ laboratorio/UsageBar.tsx
 layout/AppLayout.tsx
 onboarding/ConversationalOnboarding.tsx
 onboarding/OnboardingWizard.tsx
+platform/BridgeMonitor.tsx
+platform/PlatformAdminDashboard.tsx
+platform/TenantTable.tsx
 sales/SalesConfigForm.tsx
 signals/MIAInbox.tsx
 signals/SignalIndicator.tsx
@@ -530,7 +537,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-118 módulos:
+119 módulos:
 
 ```
 ai/client.ts
@@ -622,6 +629,7 @@ inventory/stock.ts
 inventory/suggestions.ts
 inventory/types.ts
 knowledge/suggestions.ts
+platform/types.ts
 prd/builder.ts
 prd/template.ts
 runtime/conditional-media.ts
@@ -845,6 +853,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9a8654f feat: ADR-026 Super Admin Platform Dashboard — cross-tenant control tower
+5db3870 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
+6550a76 subaru: checkpoint TASK-20260820-ADR026 - en-progreso
+fd88a9b docs: regenerate MASTER.md at 500c8e5
 500c8e5 chore: ADR-026 governance classify + council approvals (8/8 approved)
 1b74907 subaru: checkpoint TASK-20260820-ADR026 - listo
 cbc956d docs: regenerate MASTER.md at 5ace2a0
@@ -861,10 +873,6 @@ a9d2fe4 subaru: checkpoint TASK-20260820-EXPERIENCE - listo
 1d0f313 docs: regenerate MASTER.md at 41806e7
 41806e7 fix: await Promise params in Next.js 16 route handler
 e54cef8 docs: regenerate MASTER.md at 3fd5154
-3fd5154 feat: Experience Memory engine — hybrid model C (70/30) objection recommendation system
-8bc2846 docs: regenerate MASTER.md at 775f20c
-775f20c chore: governance artifacts + classification scripts for delivery module and image resolution fix
-3ecc60f test: governance infrastructure tests + evidence-first file:line validation + sk-proj regex fix
 ```
 
 ---
