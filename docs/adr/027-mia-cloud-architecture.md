@@ -101,7 +101,7 @@ This token has **no expiration**, **no audience separation**, **no revocation me
 
 | Risk | Severity | Status | Evidence |
 |------|----------|--------|----------|
-| Legacy Supabase project `aveusacpaexwrfoyinas` | **CRITICAL** | OPEN | 10 tables WITHOUT RLS, `_secrets` table with plaintext credentials |
+| Legacy Supabase project `aveusacpaexwrfoyinas` | **CRITICAL** | RESOLVED (2026-08-21) | Deleted via `supabase projects delete` |
 
 This is an independent pre-existing risk that must be resolved before opening the platform commercially.
 
@@ -629,17 +629,13 @@ function getEffectiveDeploymentModel(businessId: string): DeploymentModel {
 | Bridge restart = all sessions down | **ALL tenants** | Manual re-pair ❌ | Session restoration ✅ |
 | Tenant abuse (spam, abuse) | 1 tenant | None | Suspend/recover ✅ |
 
-### 11.1 Legacy Supabase Project (Prerequisite)
+### 11.1 Legacy Supabase Project (Resolved)
 
-The legacy Supabase project `aveusacpaexwrfoyinas` contains:
+The legacy Supabase project `aveusacpaexwrfoyinas` contained:
 - 10 tables **without RLS**
 - `_secrets` table with **plaintext credentials**
-- Status: **OPEN** — documented in `docs/audits/legacy-project-security-report.md`
 
-**This must be resolved BEFORE opening the platform commercially.** Options:
-1. Delete the legacy project entirely
-2. Enable RLS on all tables and rotate all exposed credentials
-3. Migrate any needed data to the active project and decommission
+**RESOLVED on 2026-08-21:** Project deleted via `supabase projects delete aveusacpaexwrfoyinas`. No remaining risk.
 
 ---
 
@@ -707,7 +703,7 @@ Cloud (custom):     managed infrastructure, SLA, dedicated resources
 
 | # | Task | Description | Effort |
 |---|------|-------------|--------|
-| 0a | Clean legacy Supabase project | Resolve `aveusacpaexwrfoyinas` (delete, enable RLS, or decommission) | Medium |
+| 0a | ~~Clean legacy Supabase project~~ | ~~Resolve `aveusacpaexwrfoyinas`~~ **RESOLVED** — deleted 2026-08-21 | ✅ Done |
 | 0b | Audit admin-client call sites | Review 79 `createAdminClient()` usages for unnecessary cross-tenant reads | Medium |
 
 ### 14.2 Phase 1: Core

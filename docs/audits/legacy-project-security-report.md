@@ -1,7 +1,7 @@
 # Security Report — Legacy Supabase Project
 
 **Date**: 2026-08-01
-**Status**: OPEN
+**Status**: RESOLVED (2026-08-21)
 **Agent**: Security Engineer (via governance workflow)
 **Severity**: Critical
 
@@ -49,6 +49,6 @@ During the Supabase CLI migration push for the Knowledge Media module (migration
 
 ## Remediation Tracking
 
-| State | Owner | Target date |
-|-------|-------|-------------|
-| OPEN | Security Engineer | TBD — requires Dashboard access decision |
+| State | Owner | Target date | Resolution |
+|-------|-------|-------------|------------|
+| RESOLVED | Security Engineer | 2026-08-21 | Project deleted via `supabase projects delete aveusacpaexwrfoyinas` |
