@@ -1,0 +1,151 @@
+{
+  "id": "TASK-20260820-ADR027",
+  "title": "ADR-027: MIA Cloud Architecture — Cloud MVP Implementation",
+  "description": "Implement MIA Cloud extensions per ADR-027: per-tenant JWT bridge auth, session restoration on boot, graceful shutdown, Platform Admin tenant lifecycle (suspend/recover/delete), hybrid provisioning API, deployment_model and status columns on businesses. Council §4.1 decision: Model A (Shared Everything) for Cloud MVP with evolution path to Model B/C via deployment_model flag. Platform/Core domain per ADR-025 §3.1.",
+  "scope": {
+    "categories": [
+      "feature",
+      "schema_change",
+      "security",
+      "infrastructure",
+      "api_change",
+      "ui_change"
+    ],
+    "filesAffected": 18,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend",
+      "frontend",
+      "database",
+      "infrastructure",
+      "security"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "domain_expert",
+      "product_manager",
+      "database",
+      "backend",
+      "frontend",
+      "performance",
+      "security",
+      "qa",
+      "godzilla",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "typecheck"
+    ],
+    "rationale": "Classified as COMPLEX. Primary domain: platform. Complexity drivers: 18 files affected, schema changes required, security implications (JWT bridge auth, cross-tenant isolation), infrastructure topology decision, category requires council. Council §4.1 selects Model A for MVP. Required agents (14): architect, domain_expert, product_manager, database, backend, frontend, performance, security, qa, godzilla, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "§4.1 Council Decision: Model A (Shared Everything) for Cloud MVP. RLS proven, JWT closes bridge gap, deployment_model enables evolution to B/C without rewrite. Aligns with §13.1 MVP phase and §15 deferrals.",
+      "timestamp": "2026-08-21T08:14:03.424Z"
+    },
+    {
+      "agentRole": "domain_expert",
+      "decision": "approve",
+      "rationale": "Platform/Core domain boundary preserved. Tenant lifecycle states (§3.4) map cleanly to deployment_model managed/dedicated-db/dedicated. No Sales domain leakage.",
+      "timestamp": "2026-08-21T08:14:06.541Z"
+    },
+    {
+      "agentRole": "product_manager",
+      "decision": "approve",
+      "rationale": "Product promise satisfied: client consumes MIA without administering infrastructure. Model A is simplest onboarding path. Enterprise escape hatch via deployment_model override.",
+      "timestamp": "2026-08-21T08:14:09.769Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Schema change minimal: deployment_model + status columns on businesses. RLS unchanged. Model A requires no per-tenant Supabase provisioning automation.",
+      "timestamp": "2026-08-21T08:14:12.577Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "JWT bridge auth (jose), session restoration, lifecycle APIs follow existing admin patterns from ADR-026. Model A keeps single Supabase admin client.",
+      "timestamp": "2026-08-21T08:14:15.223Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "TenantLifecyclePanel + ProvisioningWizard extend Platform Admin. deployment_model visible in TenantTable for admin override to B/C.",
+      "timestamp": "2026-08-21T08:14:18.737Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Model A: single DB, indexed RLS function acceptable to 100 tenants per §13.2. Re-evaluate read replicas at 50+ tenants.",
+      "timestamp": "2026-08-21T08:14:22.106Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Model A acceptable with per-tenant JWT (§5), audit of 79 admin call sites (0b), and Platform Admin fail-closed guard. Blast radius mitigated not eliminated.",
+      "timestamp": "2026-08-21T08:14:24.898Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Full quality gates: lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, stress_test. platform-admin.test.ts extended for lifecycle endpoints.",
+      "timestamp": "2026-08-21T08:14:27.975Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Stress vectors: JWT cross-tenant spoofing, bridge secret fallback during migration, session restoration race, suspend bypass via admin client, deployment_model escalation without auth.",
+      "timestamp": "2026-08-21T08:14:30.574Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Phased commits per §14 dependency graph. ADR-027 §4.1 decision committed before Phase 1 implementation. Governance manifest TASK-20260820-ADR027 approved.",
+      "timestamp": "2026-08-21T08:14:33.576Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Model A: no new Supabase/Vercel/Fly projects required. JWT keys via env vars only. Bridge deploy unchanged (single Fly app).",
+      "timestamp": "2026-08-21T08:14:36.029Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Environment baseline unchanged for Model A. PLATFORM_JWT_PRIVATE_KEY + PUBLIC_KEY new vars — document in baseline after implementation.",
+      "timestamp": "2026-08-21T08:14:38.957Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Council decision §4.1 recorded in ADR-027 and governance manifest. Evolution triggers documented for future Memory Engineer retrieval.",
+      "timestamp": "2026-08-21T08:14:42.007Z"
+    }
+  ],
+  "createdAt": "2026-08-20T11:56:05.761Z",
+  "classifiedAt": "2026-08-21T08:12:00.000Z",
+  "approvedAt": "2026-08-21T08:14:42.008Z"
+}

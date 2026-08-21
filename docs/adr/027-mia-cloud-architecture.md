@@ -151,7 +151,7 @@ This is an independent pre-existing risk that must be resolved before opening th
 | 2 | **Session restoration on boot** | Bridge restart destroys all connections | Bridge process |
 | 3 | **Platform Admin lifecycle ops** | No suspend/recover/delete tenant | API + Frontend |
 | 4 | **Hybrid provisioning model** | Self-service + admin override | API + Frontend + Payment |
-| 5 | **Infrastructure topology** | Shared vs dedicated evaluation | Council decision |
+| 5 | **Infrastructure topology** | Shared vs dedicated evaluation | Council decision — **Model A approved** (§4.1.1) |
 
 ### 2.3 Architecture Diagram
 
@@ -252,6 +252,49 @@ The Council must evaluate these 3 infrastructure models against the product prom
 | **B: Dedicated DB, Shared Runtime** | N Supabase, 1 Vercel, 1 Fly | Physical (DB) | ~$25×N | DB isolated, runtime shared | "I have my own database" |
 | **C: Dedicated Everything** | N Supabase, N Vercel, N Fly | Physical (all) | ~$100×N | 1 tenant = 1 bubble | "Everything is mine" |
 
+#### 4.1.1 Council Decision Record
+
+**Convocation:** 2026-08-21 — Governance manifest `TASK-20260820-ADR027`  
+**Quorum:** Architect (convener), Domain Expert, Product Manager, Database Engineer, Backend Engineer, Frontend Engineer, Performance Engineer, Security Engineer, QA Engineer, Godzilla, Release Manager, Infrastructure Bootstrap, Infrastructure Guardian, Memory Engineer  
+**Evidence base:** HEAD `8f0379a` — RLS proven (`001_initial_schema.sql:74-100`), auto-provisioning live (`018_auto_provision.sql`), Platform Admin operational (ADR-026), legacy Supabase risk resolved (`472b1c6`)
+
+**Decision:** Adopt **Model A (Shared Everything)** as the initial Cloud MVP topology.
+
+**Scoring matrix** (criteria from §4.2; 1 = poor, 5 = excellent):
+
+| Criterion | Weight | Model A | Model B | Model C |
+|-----------|--------|---------|---------|---------|
+| Security | HIGH | 4 — RLS + per-tenant JWT mitigates bridge risk | 5 — physical DB isolation | 5 — full isolation |
+| Blast Radius | HIGH | 2 — shared runtime/bridge | 3 — DB isolated | 5 — per-tenant bubble |
+| Scalability | MEDIUM | 5 — linear to 100+ tenants | 2 — N Supabase projects | 1 — ops unsustainable |
+| Cost | MEDIUM | 5 — ~$25 fixed base | 2 — ~$25×N | 1 — ~$100×N |
+| Operational Complexity | MEDIUM | 5 — 3 components | 2 — N DBs to manage | 1 — N full stacks |
+| Client Experience | HIGH | 5 — zero infra admin | 4 — "own DB" perception | 5 — full dedicated |
+| Enterprise Readiness | HIGH | 3 — logical isolation only | 4 — DB contract possible | 5 — full SLA tier |
+| Evolution Path | LOW | 5 — start here, evolve up | 3 — partial from A | 2 — greenfield per tenant |
+
+**Weighted conclusion:** Model A wins on cost, operability, and evolution path — the dimensions that matter at 1–10 tenants. Models B and C score higher on isolation but fail the MVP economics test ($250–$1000/mo at 10 tenants vs ~$25 fixed).
+
+**Rationale (Architect):**
+
+1. **Product promise satisfied:** Clients never touch Supabase, Vercel, or Fly.io. MIA Platform Admin provisions tenants; `deployment_model` defaults to `'managed'` (Model A).
+2. **Proven isolation:** RLS + `get_user_business_ids()` is production-proven across 47 migrations. Per-tenant JWT (§5) closes the bridge cross-tenant gap — the CRITICAL blocker, not DB topology.
+3. **ADR-027 §15 alignment:** Separate Supabase/bridge per tenant is explicitly deferred until >100 tenants or enterprise contract.
+4. **Evolution without rewrite:** `businesses.deployment_model` supports `'managed'` → `'dedicated-db'` (B) → `'dedicated'` (C) without schema changes. Enterprise tenants may require B/C from day one via Platform Admin provisioning override.
+5. **Blast radius mitigated:** Shared bridge risk addressed by JWT scoping (§5.2), session restoration (§6), and Platform Admin monitoring (ADR-026). Acceptable for MVP; re-evaluate at 50+ tenants or first enterprise SLA.
+
+**Trigger points for evolution (Model A → B → C):**
+
+| Trigger | Action |
+|---------|--------|
+| Enterprise contract requiring physical DB isolation | Provision tenant with `deployment_model = 'dedicated-db'` |
+| Tenant >10GB data or custom compliance (HIPAA, SOC2) | Evaluate Model B or C per contract |
+| 50+ active tenants on shared Supabase | Performance review → read replicas, then B for noisy neighbors |
+| Bridge compromise or repeated cross-tenant incident | Emergency migration path to dedicated bridge per tier |
+
+**Council vote:** Unanimous approve — Model A for Cloud MVP.  
+**Governance:** `TASK-20260820-ADR027` — council approvals recorded 2026-08-21.
+
 ### 4.2 Evaluation Criteria
 
 The Council must assess each model against:
@@ -267,13 +310,14 @@ The Council must assess each model against:
 | **Enterprise Readiness** | HIGH | Can an enterprise tenant demand isolation? |
 | **Evolution Path** | LOW | Can we start with A and evolve to B/C without rewriting? |
 
-### 4.3 Evolution Path (After Council Decision)
+### 4.3 Evolution Path (Council Decision Applied)
 
 ```
-Phase 1: Council decides initial model (A, B, or C)
-Phase 2: Implement with chosen model
-Phase 3: If starting with A, define trigger points for evolution to B
-Phase 4: Enterprise tenants may require C from day one
+Phase 1: Model A (Shared Everything) — APPROVED 2026-08-21
+    ↓ deployment_model = 'managed' (default for all new Cloud tenants)
+Phase 2: Implement Cloud MVP with Model A (§14)
+Phase 3: Monitor at 10/50/100 tenants — trigger points in §4.1.1
+Phase 4: Enterprise tenants → Model B ('dedicated-db') or Model C ('dedicated') via Platform Admin override
 ```
 
 ---
