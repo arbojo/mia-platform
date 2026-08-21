@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8f0379a`.
+> Fuente de verdad: este repositorio en `4148e0d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8f0379a` |
+| **Commit HEAD** | `4148e0d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-21T01:48:01-06:00 |
+| **Generado** | 2026-08-21T03:11:21-06:00 |
 
 ---
 
@@ -43,7 +43,7 @@ MIA **no es un chatbot**. Es una **plataforma de inteligencia de ventas conversa
 | Testing | Playwright (e2e) + Vitest (unit) |
 | CI | GitHub Actions |
 
-**Dependencias de producción** (29): @ai-sdk/google, @ai-sdk/groq, @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, recharts, shadcn, tailwind-merge, tw-animate-css, zod
+**Dependencias de producción** (30): @ai-sdk/google, @ai-sdk/groq, @ai-sdk/openai, @base-ui/react, @supabase/ssr, @supabase/supabase-js, @types/leaflet, ai, cheerio, class-variance-authority, clsx, csv-parse, date-fns, fast-xml-parser, jose, leaflet, lucide-react, next, openai, pdf-parse, pdfjs-dist, react, react-dom, react-leaflet, read-excel-file, recharts, shadcn, tailwind-merge, tw-animate-css, zod
 
 **DevDependencies** (18): @playwright/test, @tailwindcss/postcss, @testing-library/jest-dom, @testing-library/react, @testing-library/user-event, @types/node, @types/react, @types/react-dom, @vitest/coverage-v8, chrome-devtools-mcp, eslint, eslint-config-next, jsdom, tailwindcss, typescript, vitest, ws, wscat
 
@@ -207,10 +207,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 50 | 051_purchase_advisor_foundation.sql |
 | 51 | 052_fix_triggers.sql |
 | 52 | 053_experience_memory.sql |
-| 53 | 20260820000000_analytics_public_wrapper.sql |
-| 54 | 20260820000001_analytics_grant_permissions.sql |
-| 55 | 20260820000002_analytics_security_definer.sql |
-| 56 | 20260820000003_analytics_security_definer.sql |
+| 53 | 054_cloud_architecture.sql |
+| 54 | 20260820000000_analytics_public_wrapper.sql |
+| 55 | 20260820000001_analytics_grant_permissions.sql |
+| 56 | 20260820000002_analytics_security_definer.sql |
+| 57 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -539,7 +540,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-119 módulos:
+120 módulos:
 
 ```
 ai/client.ts
@@ -631,6 +632,7 @@ inventory/stock.ts
 inventory/suggestions.ts
 inventory/types.ts
 knowledge/suggestions.ts
+platform/jwt.ts
 platform/types.ts
 prd/builder.ts
 prd/template.ts
@@ -679,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (122)**:
+**Tareas registradas (123)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -805,6 +807,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260819-093136293 | Módulo Delivery Autónomo — App repartidor, geofencing, motor de rutas nativo, IA de re-enrutamiento y dashboard financiero | awaiting_council |
 | TASK-20260820-105134487 | Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests | completed |
 | TASK-20260820-ADR026 | ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower | completed |
+| TASK-20260820-ADR027 | ADR-027: MIA Cloud Architecture — Cloud MVP Implementation | approved |
 
 ---
 
@@ -856,6 +859,10 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+4148e0d subaru: checkpoint TASK-20260820-ADR027 - en-progreso
+fd3f372 feat: ADR-027 Phase 1 — JWT bridge auth, session restoration, deployment_model
+c216ddd chore(governance): council decision §4.1, ADR-027 manifest approved
+0a0f35f docs: regenerate MASTER.md at 8f0379a
 8f0379a subaru: checkpoint TASK-20260820-ADR027 - en-progreso
 739bbd2 docs: regenerate MASTER.md at 1f2f7a3
 1f2f7a3 subaru: checkpoint TASK-20260820-ADR027 - en-progreso
@@ -872,10 +879,6 @@ ba04446 feat: ADR-026 v3 — monocromo + acciones reconnect/edition
 c97dcec docs: regenerate MASTER.md at 7be845b
 7be845b feat: add platform admin nav link + logout button to sidebar
 2c9d3a8 docs: regenerate MASTER.md at 310b2a5
-310b2a5 fix: ADR-026 convert connectedBridges to string for MetricCard type
-82ce95e docs: regenerate MASTER.md at bb3ebf3
-bb3ebf3 chore: ADR-026 governance complete + Subaru checkpoint closed
-2b75d57 subaru: checkpoint TASK-20260820-ADR026 - completado
 ```
 
 ---
