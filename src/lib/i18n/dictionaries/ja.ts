@@ -45,6 +45,10 @@ export const ja: Dict = {
     healthTitle: 'システム状態と自動チェック',
     accessibility: 'アクセシビリティ',
     accessibilityTitle: 'アクセシビリティ、エルゴノミクス、視覚的快適性',
+    platformAdmin: 'プラットフォーム',
+    platformAdminTitle: 'インフラ制御パネル',
+    logout: 'ログアウト',
+    logoutTitle: 'ログアウトして終了',
   },
   topbar: {
     toggleLight: 'ライトモードに切り替え',

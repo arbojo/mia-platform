@@ -20,6 +20,8 @@ import {
   CircleHelp,
   SlidersHorizontal,
   BarChart3,
+  Shield,
+  LogOut,
   type LucideIcon,
 } from 'lucide-react'
 import { useI18n } from '@/components/dashboard/I18nProvider'
@@ -42,7 +44,7 @@ interface NavGroup {
   tutorial?: boolean
 }
 
-export function ActivityRail() {
+export function ActivityRail({ isPlatformOwner = false }: { isPlatformOwner?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useI18n()
@@ -153,6 +155,16 @@ export function ActivityRail() {
           question: t.nav.accessibilityTitle,
           icon: Accessibility,
         },
+        ...(isPlatformOwner
+          ? [
+              {
+                href: '/dashboard/platform-admin',
+                label: t.nav.platformAdmin,
+                question: t.nav.platformAdminTitle,
+                icon: Shield,
+              },
+            ]
+          : []),
       ],
       tutorial: true,
     },
@@ -276,6 +288,24 @@ export function ActivityRail() {
           </div>
         ))}
       </nav>
+
+      <div className="shrink-0 border-t px-2.5 py-3" style={{ borderColor: 'var(--atmosphere-border)' }}>
+        <button
+          type="button"
+          onClick={async () => {
+            const { createClient } = await import('@/lib/supabase/client')
+            const supabase = createClient()
+            await supabase.auth.signOut()
+            window.location.href = '/login'
+          }}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150"
+          style={{ color: 'var(--atmosphere-text-secondary)' }}
+          title={t.nav.logoutTitle}
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          <span className="whitespace-nowrap">{t.nav.logout}</span>
+        </button>
+      </div>
     </aside>
   )
 }

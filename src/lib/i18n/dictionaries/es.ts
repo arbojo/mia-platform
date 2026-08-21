@@ -43,6 +43,10 @@ export const es = {
     healthTitle: 'estado del sistema y checks automáticos',
     accessibility: 'Accesibilidad',
     accessibilityTitle: 'accesibilidad, ergonomía y confort visual',
+    platformAdmin: 'Plataforma',
+    platformAdminTitle: 'panel de control de infraestructura',
+    logout: 'Cerrar Sesión',
+    logoutTitle: 'cerrar sesión y salir',
   },
   topbar: {
     toggleLight: 'Cambiar a modo claro',

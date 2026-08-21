@@ -45,6 +45,10 @@ export const pt: Dict = {
     healthTitle: 'status do sistema e verificações automáticas',
     accessibility: 'Acessibilidade',
     accessibilityTitle: 'acessibilidade, ergonomia e conforto visual',
+    platformAdmin: 'Plataforma',
+    platformAdminTitle: 'painel de controle de infraestrutura',
+    logout: 'Sair',
+    logoutTitle: 'encerrar sessão e sair',
   },
   topbar: {
     toggleLight: 'Mudar para modo claro',

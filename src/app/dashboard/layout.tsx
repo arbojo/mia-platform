@@ -27,6 +27,9 @@ export default async function DashboardLayout({
     .eq('owner_id', user.id)
     .maybeSingle()
 
+  const isPlatformOwner =
+    !!process.env.PLATFORM_OWNER_ID && user.id === process.env.PLATFORM_OWNER_ID
+
   return (
     <I18nProvider key={locale} locale={locale}>
       <ThemeProvider>
@@ -35,7 +38,7 @@ export default async function DashboardLayout({
         <ContextMenuProvider>
           <TourProvider>
             <AppLayout>
-              <ActivityRail />
+              <ActivityRail isPlatformOwner={isPlatformOwner} />
               <div className="flex flex-1 flex-col overflow-auto">
                 <CommandStrip />
                 <main className="relative flex-1">
