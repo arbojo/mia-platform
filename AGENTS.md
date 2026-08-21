@@ -833,6 +833,8 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | [017](docs/adr/017-catalog-sku-centric.md) | Catálogo SKU-Centric (QuickSell) | Accepted |
 | [018](docs/adr/018-import-engine.md) | Motor de Importación Multipropósito | Accepted |
 | [019](docs/adr/019-delivery-hub.md) | Delivery Hub — Módulo Logístico Aislado + Portal del Repartidor | Accepted |
+| [026](docs/adr/026-super-admin-platform-dashboard.md) | Super Admin Platform Dashboard | Accepted |
+| [027](docs/adr/027-mia-cloud-architecture.md) | MIA Cloud Architecture | Proposed |
 
 ---
 
