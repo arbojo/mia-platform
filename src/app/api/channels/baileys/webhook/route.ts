@@ -3,18 +3,32 @@ import { BaileysAdapter } from '@/lib/channels/adapters/baileys'
 import { handleCancellationWebhook } from '@/lib/sales/process'
 import { processIncomingMessage, RuntimeError } from '@/lib/runtime/runtime'
 import { getBridgeSecret } from '@/lib/baileys/config'
+import { isBridgeJwtConfigured, verifyBridgeToken } from '@/lib/platform/jwt'
 import type { WireMessage } from '@/lib/runtime/types'
+
+async function verifyWebhookAuth(request: Request): Promise<boolean> {
+  const jwtHeader = request.headers.get('x-mia-token')
+  if (jwtHeader && isBridgeJwtConfigured()) {
+    try {
+      await verifyBridgeToken(jwtHeader, 'bridge-webhook')
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const secret = request.headers.get('x-mia-webhook-secret')
+  return secret === getBridgeSecret()
+}
 
 /**
  * Internal webhook called by the WhatsApp Bridge (services/whatsapp-bridge)
- * when a new inbound message arrives. Authenticated with the shared
- * WHATSAPP_BRIDGE_SECRET. The reply payload is returned so the bridge can
- * send the assistant's response back to WhatsApp.
+ * when a new inbound message arrives. Authenticated with JWT (preferred) or
+ * shared WHATSAPP_BRIDGE_SECRET during transition.
  */
 export async function POST(request: Request) {
   try {
-    const secret = request.headers.get('x-mia-webhook-secret')
-    if (secret !== getBridgeSecret()) {
+    if (!(await verifyWebhookAuth(request))) {
       return NextResponse.json({ error: 'Invalid bridge secret' }, { status: 401 })
     }
 
@@ -23,7 +37,6 @@ export async function POST(request: Request) {
     const adapter = new BaileysAdapter()
     const wireMessage = (await adapter.receiveMessage(body)) as WireMessage
 
-    // Early cancellation interception: skip AI entirely
     const cancellationResult = await handleCancellationWebhook(wireMessage)
     if (cancellationResult) {
       return NextResponse.json({

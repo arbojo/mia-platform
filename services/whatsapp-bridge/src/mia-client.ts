@@ -1,5 +1,6 @@
 import type { BridgeConfig } from './config.js'
 import type { InteractiveComponent, MessagePayload } from './session-manager.js'
+import { isBridgeJwtConfigured, signBridgeToken } from './jwt.js'
 
 export interface MiaIncomingMessage {
   businessId: string
@@ -33,14 +34,21 @@ export async function sendToMia(
 ): Promise<MiaReply | null> {
   const url = new URL('/api/channels/baileys/webhook', config.miaAppUrl).toString()
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  if (isBridgeJwtConfigured()) {
+    headers['X-MIA-Token'] = await signBridgeToken(message.businessId, 'bridge-webhook')
+  } else {
+    headers['x-mia-webhook-secret'] = config.bridgeSecret
+  }
+
   let res: Response
   try {
     res = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-mia-webhook-secret': config.bridgeSecret,
-      },
+      headers,
       body: JSON.stringify({ message }),
       signal: AbortSignal.timeout(timeoutMs ?? 30_000),
     })

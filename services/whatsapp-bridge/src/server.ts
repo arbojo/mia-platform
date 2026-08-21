@@ -1,10 +1,10 @@
 import { createServer } from 'node:http'
-import { createHmac, timingSafeEqual } from 'node:crypto'
-import { WebSocketServer, WebSocket } from 'ws'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { WebSocketServer, WebSocket } from 'ws'
 import { SessionManager } from './session-manager.js'
 import type { SessionEvent, InteractiveComponent } from './session-manager.js'
 import type { BridgeConfig } from './config.js'
+import { verifyHttpAuth, verifyWsAuth } from './jwt.js'
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -26,16 +26,8 @@ function json(res: ServerResponse, status: number, body: Record<string, unknown>
   res.end(JSON.stringify(body))
 }
 
-export function signSessionToken(secret: string, businessId: string): string {
-  return createHmac('sha256', secret).update(businessId).digest('base64url')
-}
-
-function verifyToken(secret: string, businessId: string, token: string): boolean {
-  const expected = signSessionToken(secret, businessId)
-  const a = Buffer.from(expected)
-  const b = Buffer.from(token)
-  if (a.length !== b.length) return false
-  return timingSafeEqual(a, b)
+function normalizeHeaders(req: IncomingMessage): Record<string, string | string[] | undefined> {
+  return req.headers as Record<string, string | string[] | undefined>
 }
 
 export function startBridgeServer(
@@ -54,20 +46,19 @@ export function startBridgeServer(
       const match = url.pathname.match(/^\/v1\/sessions\/([^/]+)\/([a-z]+)$/)
       const matchSend = url.pathname.match(/^\/v1\/sessions\/([^/]+)\/send$/)
 
-      // Shared-secret auth for HTTP control endpoints
-      const authHeader = req.headers['x-mia-bridge-secret']
-      if (authHeader !== config.bridgeSecret) {
+      const businessId = match?.[1] ?? matchSend?.[1]
+      if (!businessId) {
+        json(res, 404, { error: 'Not found' })
+        return
+      }
+
+      const authorized = await verifyHttpAuth(normalizeHeaders(req), config.bridgeSecret, businessId)
+      if (!authorized) {
         json(res, 401, { error: 'Unauthorized' })
         return
       }
 
-      const businessId = match?.[1] ?? matchSend?.[1]
-
       if (req.method === 'POST' && match && match[2] === 'start') {
-        if (!businessId) {
-          json(res, 400, { error: 'Missing businessId' })
-          return
-        }
         await manager.connect(businessId)
         const status = manager.getStatus(businessId)
         json(res, 200, { success: true, ...status })
@@ -75,20 +66,12 @@ export function startBridgeServer(
       }
 
       if (req.method === 'GET' && match && match[2] === 'status') {
-        if (!businessId) {
-          json(res, 400, { error: 'Missing businessId' })
-          return
-        }
         const status = manager.getStatus(businessId)
         json(res, 200, { success: true, ...status })
         return
       }
 
       if (req.method === 'POST' && match && match[2] === 'reconnect') {
-        if (!businessId) {
-          json(res, 400, { error: 'Missing businessId' })
-          return
-        }
         await manager.reconnect(businessId)
         const status = manager.getStatus(businessId)
         json(res, 200, { success: true, ...status })
@@ -96,30 +79,18 @@ export function startBridgeServer(
       }
 
       if (req.method === 'GET' && match && match[2] === 'health') {
-        if (!businessId) {
-          json(res, 400, { error: 'Missing businessId' })
-          return
-        }
         const health = manager.getHealth(businessId)
         json(res, 200, { success: true, health })
         return
       }
 
       if (req.method === 'DELETE' && match && match[2] === 'logout') {
-        if (!businessId) {
-          json(res, 400, { error: 'Missing businessId' })
-          return
-        }
         await manager.disconnect(businessId)
         json(res, 200, { success: true, status: 'disconnected' })
         return
       }
 
       if (req.method === 'POST' && matchSend) {
-        if (!businessId) {
-          json(res, 400, { error: 'Missing businessId' })
-          return
-        }
         const body = JSON.parse(await readBody(req)) as {
           to?: string
           content?: string
@@ -150,25 +121,33 @@ export function startBridgeServer(
   const wss = new WebSocketServer({ server, path: '/v1/ws' })
 
   wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
-    const url = new URL(req.url ?? '/', `http://${req.headers.host}`)
-    const businessId = url.searchParams.get('businessId')
-    const token = url.searchParams.get('token')
+    void (async () => {
+      const url = new URL(req.url ?? '/', `http://${req.headers.host}`)
+      const businessId = url.searchParams.get('businessId')
+      const token = url.searchParams.get('token')
 
-    if (!businessId || !token || !verifyToken(config.bridgeSecret, businessId, token)) {
-      ws.close(4401, 'Unauthorized')
-      return
-    }
-
-    const unsubscribe = manager.subscribe(businessId, (event: SessionEvent) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(event))
+      if (!businessId || !token) {
+        ws.close(4401, 'Unauthorized')
+        return
       }
-    })
 
-    const initial = manager.getStatus(businessId)
-    ws.send(JSON.stringify({ type: 'status', status: initial.status, phone: initial.phone ?? undefined }))
+      const ok = await verifyWsAuth(token, config.bridgeSecret, businessId)
+      if (!ok) {
+        ws.close(4401, 'Unauthorized')
+        return
+      }
 
-    ws.on('close', unsubscribe)
+      const unsubscribe = manager.subscribe(businessId, (event: SessionEvent) => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify(event))
+        }
+      })
+
+      const initial = manager.getStatus(businessId)
+      ws.send(JSON.stringify({ type: 'status', status: initial.status, phone: initial.phone ?? undefined }))
+
+      ws.on('close', unsubscribe)
+    })()
   })
 
   server.listen(config.port, () => {

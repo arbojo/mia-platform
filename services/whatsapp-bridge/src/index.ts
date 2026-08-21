@@ -13,6 +13,10 @@ function main(): void {
   followUpMonitor.start()
   startBridgeServer(config, manager)
 
+  void manager.restoreAllSessions().catch((err) => {
+    console.error('[mia-bridge] session restoration failed:', err instanceof Error ? err.message : err)
+  })
+
   for (const signal of ['SIGINT', 'SIGTERM'] as const) {
     process.on(signal, () => {
       console.log(`[mia-bridge] received ${signal}, shutting down`)
@@ -25,16 +29,13 @@ function main(): void {
         return
       }
 
-      console.log(`[mia-bridge] closing ${active.length} active session(s) gracefully`)
-      const flushes = active.map((h) => manager.getStore().flushWrites(h.businessId))
-      const teardowns = active.map((h) => manager.disconnect(h.businessId).catch(() => undefined))
-
+      console.log(`[mia-bridge] closing ${active.length} active session(s) gracefully (preserving credentials)`)
       const deadline = setTimeout(() => {
         console.warn('[mia-bridge] shutdown deadline exceeded, forcing exit')
         process.exit(1)
       }, 8_000)
 
-      Promise.allSettled([...flushes, ...teardowns]).then(() => {
+      manager.gracefulShutdown().then(() => {
         clearTimeout(deadline)
         process.exit(0)
       })

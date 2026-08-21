@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server'
-import { createHmac } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getBridgeSecret, getBridgeUrl } from '@/lib/baileys/config'
-
-function signSessionToken(secret: string, businessId: string): string {
-  return createHmac('sha256', secret).update(businessId).digest('base64url')
-}
+import { getBridgeUrl } from '@/lib/baileys/config'
+import { signBridgeWsToken } from '@/lib/baileys/bridge'
 
 /**
- * Issues a short-lived signed token so the dashboard can open a WebSocket
+ * Issues a signed token so the dashboard can open a WebSocket
  * to the WhatsApp bridge for live QR/status events.
  */
 export async function GET(request: Request) {
@@ -39,7 +35,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const token = signSessionToken(getBridgeSecret(), businessId)
+    const token = await signBridgeWsToken(businessId)
 
     return NextResponse.json({
       success: true,

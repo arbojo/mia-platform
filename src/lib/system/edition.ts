@@ -2,6 +2,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export type EditionName = 'evaluation' | 'professional' | 'enterprise' | 'cloud'
 
+export type DeploymentModel = 'self-hosted' | 'managed' | 'dedicated'
+
+export type BusinessStatus = 'active' | 'suspended' | 'deleted'
+
 export interface EditionLimits {
   businesses: number
   assistants: number
@@ -399,4 +403,50 @@ export function canUseAnalyticsDashboard(): boolean {
 
 export async function canBusinessUseAnalyticsDashboard(businessId: string): Promise<boolean> {
   return (await getEffectiveEdition(businessId)).capabilities.analyticsDashboard
+}
+
+/**
+ * Resolves the effective deployment model for a business (tenant), DB-first.
+ * Cloud edition defaults to 'managed' (Model A); enterprise defaults to 'self-hosted'.
+ */
+export async function getEffectiveDeploymentModel(businessId: string): Promise<DeploymentModel> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('businesses')
+      .select('deployment_model, edition')
+      .eq('id', businessId)
+      .maybeSingle()
+
+    const model = data?.deployment_model as DeploymentModel | null | undefined
+    if (model === 'self-hosted' || model === 'managed' || model === 'dedicated') {
+      return model
+    }
+
+    const editionName = data?.edition as EditionName | null | undefined
+    if (editionName === 'cloud') return 'managed'
+    if (editionName === 'enterprise') return 'self-hosted'
+  } catch {
+    // DB unavailable — fall back to self-hosted.
+  }
+  return 'self-hosted'
+}
+
+export async function getBusinessStatus(businessId: string): Promise<BusinessStatus> {
+  try {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from('businesses')
+      .select('status')
+      .eq('id', businessId)
+      .maybeSingle()
+
+    const status = data?.status as BusinessStatus | null | undefined
+    if (status === 'active' || status === 'suspended' || status === 'deleted') {
+      return status
+    }
+  } catch {
+    // DB unavailable — assume active to avoid blocking operations.
+  }
+  return 'active'
 }

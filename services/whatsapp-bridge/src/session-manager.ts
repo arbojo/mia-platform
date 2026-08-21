@@ -119,6 +119,54 @@ export class SessionManager {
     return this.store
   }
 
+  /**
+   * On boot, reconnect sessions that were connected before the bridge restarted.
+   * Credentials are preserved in whatsapp_sessions; invalid creds fall back to QR flow.
+   */
+  async restoreAllSessions(): Promise<void> {
+    const sessions = await this.store.listRestorableSessions()
+    if (sessions.length === 0) return
+
+    console.log(`[session-manager] restoring ${sessions.length} session(s) on boot`)
+    for (const sess of sessions) {
+      try {
+        await this.connect(sess.businessId)
+      } catch (error) {
+        console.error(
+          `[session-manager] restore failed for ${sess.businessId}:`,
+          error instanceof Error ? error.message : error
+        )
+        await this.store.updateStatus(sess.businessId, {
+          status: 'disconnected',
+          error_message: 'Auto-restore failed on boot',
+        })
+      }
+    }
+  }
+
+  /**
+   * Graceful shutdown: close sockets and flush writes without deleting credentials.
+   */
+  async gracefulShutdown(): Promise<void> {
+    const businessIds = Array.from(this.sessions.keys())
+    await Promise.allSettled(businessIds.map((id) => this.closeSocket(id)))
+  }
+
+  private async closeSocket(businessId: string): Promise<void> {
+    const session = this.sessions.get(businessId)
+    if (!session) return
+
+    session.listeners.clear()
+    this.clearReconnectTimer(session)
+    try {
+      session.socket.end(undefined)
+    } catch {
+      // ignore
+    }
+    this.sessions.delete(businessId)
+    await this.store.flushWrites(businessId)
+  }
+
   getStatus(businessId: string): { status: SessionStatus; phone: string | null } {
     const session = this.sessions.get(businessId)
     return {

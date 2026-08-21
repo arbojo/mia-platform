@@ -1,4 +1,9 @@
 import { getBridgeUrl, getBridgeSecret, isWhatsAppBridgeEnabled } from './config'
+import {
+  isBridgeJwtConfigured,
+  signBridgeToken,
+  signLegacySessionToken,
+} from '@/lib/platform/jwt'
 
 export interface BridgeSessionStatus {
   status: 'disconnected' | 'connecting' | 'connected' | 'error'
@@ -15,20 +20,29 @@ export class BridgeClientError extends Error {
   }
 }
 
-async function bridgeFetch(path: string, init?: RequestInit): Promise<Response> {
+async function bridgeAuthHeaders(businessId: string): Promise<Record<string, string>> {
+  if (isBridgeJwtConfigured()) {
+    const token = await signBridgeToken(businessId, 'bridge-api')
+    return { Authorization: `Bearer ${token}` }
+  }
+  return { 'x-mia-bridge-secret': getBridgeSecret() }
+}
+
+async function bridgeFetch(path: string, businessId: string, init?: RequestInit): Promise<Response> {
   const url = `${getBridgeUrl()}${path}`
+  const authHeaders = await bridgeAuthHeaders(businessId)
   return fetch(url, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
-      'x-mia-bridge-secret': getBridgeSecret(),
+      ...authHeaders,
       ...init?.headers,
     },
   })
 }
 
 export async function startBridgeSession(businessId: string): Promise<BridgeSessionStatus> {
-  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/start`, {
+  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/start`, businessId, {
     method: 'POST',
   })
   if (!res.ok) {
@@ -40,7 +54,7 @@ export async function startBridgeSession(businessId: string): Promise<BridgeSess
 }
 
 export async function getBridgeSessionStatus(businessId: string): Promise<BridgeSessionStatus> {
-  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/status`)
+  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/status`, businessId)
   if (!res.ok) {
     throw new BridgeClientError(`Bridge error HTTP ${res.status}`, res.status)
   }
@@ -49,7 +63,7 @@ export async function getBridgeSessionStatus(businessId: string): Promise<Bridge
 }
 
 export async function logoutBridgeSession(businessId: string): Promise<void> {
-  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/logout`, {
+  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/logout`, businessId, {
     method: 'DELETE',
   })
   if (!res.ok) {
@@ -58,7 +72,7 @@ export async function logoutBridgeSession(businessId: string): Promise<void> {
 }
 
 export async function reconnectBridgeSession(businessId: string): Promise<BridgeSessionStatus> {
-  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/reconnect`, {
+  const res = await bridgeFetch(`/v1/sessions/${encodeURIComponent(businessId)}/reconnect`, businessId, {
     method: 'POST',
   })
   if (!res.ok) {
@@ -69,4 +83,11 @@ export async function reconnectBridgeSession(businessId: string): Promise<Bridge
   return data
 }
 
-export { isWhatsAppBridgeEnabled }
+export async function signBridgeWsToken(businessId: string): Promise<string> {
+  if (isBridgeJwtConfigured()) {
+    return signBridgeToken(businessId, 'bridge-ws')
+  }
+  return signLegacySessionToken(getBridgeSecret(), businessId)
+}
+
+export { isWhatsAppBridgeEnabled, isBridgeJwtConfigured }

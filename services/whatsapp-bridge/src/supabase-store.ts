@@ -236,4 +236,25 @@ export class SupabaseAuthStore {
     this.stateCache.delete(businessId)
     await this.client.from('whatsapp_sessions').delete().eq('business_id', businessId)
   }
+
+  async listRestorableSessions(): Promise<Array<{ businessId: string; status: string }>> {
+    const { data, error } = await this.client
+      .from('whatsapp_sessions')
+      .select('business_id, status, creds')
+      .eq('status', 'connected')
+
+    if (error) {
+      throw new Error(`Failed to list restorable sessions: ${error.message}`)
+    }
+
+    return (data ?? [])
+      .filter((row) => {
+        const creds = row.creds as Record<string, unknown> | null
+        return creds !== null && Object.keys(creds).length > 0
+      })
+      .map((row) => ({
+        businessId: row.business_id as string,
+        status: row.status as string,
+      }))
+  }
 }
