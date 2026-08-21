@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `5ace2a0`.
+> Fuente de verdad: este repositorio en `500c8e5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `5ace2a0` |
+| **Commit HEAD** | `500c8e5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-20T05:20:24-06:00 |
+| **Generado** | 2026-08-20T18:34:28-06:00 |
 
 ---
 
@@ -669,7 +669,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (121)**:
+**Tareas registradas (122)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -793,13 +793,14 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260816-224949925 | Glass Overlay Blur — transición de carga al cambiar de vista | completed |
 | TASK-20260819-091751659 | Fix imagen incorrecta — resolveRecommendedProduct no resuelve productId por nombre, conditional-media devuelve genéricos de otros productos | approved |
 | TASK-20260819-093136293 | Módulo Delivery Autónomo — App repartidor, geofencing, motor de rutas nativo, IA de re-enrutamiento y dashboard financiero | awaiting_council |
-| TASK-20260820-105134487 | Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests | in_progress |
+| TASK-20260820-105134487 | Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests | completed |
+| TASK-20260820-ADR026 | ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower | in_progress |
 
 ---
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-26 ADRs en `docs/adr/`:
+27 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -827,6 +828,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 021-subaru-checkpoint | 021: Protocolo Subaru — Checkpoint de Misión Multi-máquina |
 | 024-whatsapp-bridge-defensive-block | 024: WhatsApp Bridge — Bloque Defensivo (Llamadas y Notas de Voz) |
 | 025-multi-domain-architecture | 025: MIA Platform Multi-Domain Architecture |
+| 026-super-admin-platform-dashboard | 026: Super Admin Platform Dashboard |
 | ADR-022 | 022: Environment Runtime Normalization |
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 
@@ -843,6 +845,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+500c8e5 chore: ADR-026 governance classify + council approvals (8/8 approved)
+1b74907 subaru: checkpoint TASK-20260820-ADR026 - listo
+cbc956d docs: regenerate MASTER.md at 5ace2a0
 5ace2a0 subaru: checkpoint TASK-20260820-EXPERIENCE - completado
 b16924c chore: governance classification + approval scripts for experience memory
 1559066 feat: Experience Memory engine — API routes, prompt integration, suggestion UI, e2e tests
@@ -860,9 +865,6 @@ e54cef8 docs: regenerate MASTER.md at 3fd5154
 8bc2846 docs: regenerate MASTER.md at 775f20c
 775f20c chore: governance artifacts + classification scripts for delivery module and image resolution fix
 3ecc60f test: governance infrastructure tests + evidence-first file:line validation + sk-proj regex fix
-b821495 docs: regenerate MASTER.md at 12b2d84
-12b2d84 fix: delivery + inventory triggers — 5 discrepancies corrected
-f745d55 docs: regenerate MASTER.md at 03d3e4a
 ```
 
 ---
