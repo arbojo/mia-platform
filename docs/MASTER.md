@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `105e64f`.
+> Fuente de verdad: este repositorio en `f852672`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `105e64f` |
+| **Commit HEAD** | `f852672` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-22T02:38:30-06:00 |
+| **Generado** | 2026-08-22T02:39:46-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (123)**:
+**Tareas registradas (124)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -808,6 +808,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260820-105134487 | Experience Memory — Modelo C 70/30: Migración + API + Prompt + UI + Tests | completed |
 | TASK-20260820-ADR026 | ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower | completed |
 | TASK-20260820-ADR027 | ADR-027: MIA Cloud Architecture — Cloud MVP Implementation | approved |
+| TASK-20260822-073403431 | Reparar suites de tests unitarios (55 fallos) - desbloqueo mision ADR-027 | approved |
 
 ---
 
@@ -859,6 +860,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+f852672 test: fix Windows path handling in secrets-check tmpFile helper
+0386e4e chore: ignore coverage dir in eslint config
+f72a408 test: repair unit suites for current runtime contracts (55 failures)
+fa3e76b fix: map ApiAuthError to 401 via handleApiError in experience APIs
+eb1e974 docs: regenerate MASTER.md at 105e64f
 105e64f subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 d511736 docs: regenerate MASTER.md at 59ecb81
 59ecb81 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
@@ -874,11 +880,6 @@ ca7d477 subaru: checkpoint TASK-20260822-TESTFIX - listo
 124852f subaru: checkpoint TASK-20260820-ADR027 - bloqueado
 d55ee64 docs: regenerate MASTER.md at 4148e0d
 4148e0d subaru: checkpoint TASK-20260820-ADR027 - en-progreso
-fd3f372 feat: ADR-027 Phase 1 — JWT bridge auth, session restoration, deployment_model
-c216ddd chore(governance): council decision §4.1, ADR-027 manifest approved
-0a0f35f docs: regenerate MASTER.md at 8f0379a
-8f0379a subaru: checkpoint TASK-20260820-ADR027 - en-progreso
-739bbd2 docs: regenerate MASTER.md at 1f2f7a3
 ```
 
 ---
