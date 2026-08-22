@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { execSync } from 'node:child_process'
 
 const TMP_DIR = join(process.cwd(), '.tmp-secrets-test')
@@ -22,7 +22,7 @@ function runSecretsCheck(dir: string): { exitCode: number; stdout: string; stder
 
 function tmpFile(relPath: string, content: string): string {
   const full = join(TMP_DIR, relPath)
-  const dir = full.substring(0, full.lastIndexOf('/'))
+  const dir = dirname(full)
   mkdirSync(dir, { recursive: true })
   writeFileSync(full, content, 'utf8')
   return full

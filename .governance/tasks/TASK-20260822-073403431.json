@@ -1,0 +1,110 @@
+{
+  "id": "TASK-20260822-073403431",
+  "title": "Reparar suites de tests unitarios (55 fallos) - desbloqueo mision ADR-027",
+  "description": "Reparar 55 tests fallidos en ~11 archivos detectados tras revive+pull (HEAD 670b42d). Cluster A (16): bug real de Windows - secrets-check.test.ts:25 y evidence-first-adapter.test.ts:17 usan lastIndexOf(\"/\") sobre rutas Windows causando mkdir(\"\") ENOENT. Cluster B (2): desync tour.test.tsx espera \"Paso 1 de 6\"/\"Paso 2 de 9\" vs tours.ts renderiza 3/6 pasos. Cluster C (37): firma vieja de trackAiUsage en execute-ai/cost/process-streaming, mocks faltantes de hasCancellationTrigger en process.test.ts, process-incoming-message falla con mensajes vacios, y detect.ts:49 excluye cuesta/precio del sales trigger - posible regresion real a investigar. Objetivo: unit_tests verde para desbloquear TASK-20260820-ADR027.",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 12,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform",
+      "sales"
+    ],
+    "technicalDomains": [
+      "backend",
+      "frontend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: platform. Affected domains: platform, sales. Complexity drivers: 12 files affected, AI behaviour changes, cross-cutting (multi-domain). Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Plan correcto: reparar tests para alinearlos a contratos actuales post-refactor (0cc93f3 router multi-proveedor, 9a51143 tour 3 pasos, c30e1b9 exclusión precio). Sin cambio de arquitectura; frontera de mock se mueve a executeAI.",
+      "timestamp": "2026-08-22T07:39:16.527Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Cluster A: sustituir lastIndexOf('/') por path.dirname en helpers tmpFile (secrets-check.test.ts:25, evidence-first-adapter.test.ts:17). Cluster C: re-mockear @/lib/runtime/execute-ai y añadir hasCancellationTrigger al factory de vi.mock en process.test.ts. Contratos de runtime intactos.",
+      "timestamp": "2026-08-22T07:39:18.234Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "tour.test.tsx desactualizado: SHELL_TOUR tiene 3 pasos desde 9a51143 (nav→module→mia). Actualizar 'Paso 1/2 de 9|6'→'de 3' y título paso 3 a 'Presencia de MIA' según dictionaries/es.ts:382-401.",
+      "timestamp": "2026-08-22T07:39:19.983Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Exclusión de cuesta/precio en hasSalesTrigger es intencional (c30e1b9, detect.ts:48-50 documenta el motivo): actualizar test, no revertir código. Tests de detect/widget llaman executeAI real porque mockean getOpenAIClient obsoleto: mover mock a executeAI.",
+      "timestamp": "2026-08-22T07:39:21.712Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin coste añadido: al mockear executeAI se eliminan llamadas OpenAI reales en unit tests (el failover del router causaba timeouts de 5s en widget.test.ts). Menos tokens quemados y menos flakiness.",
+      "timestamp": "2026-08-22T07:39:37.135Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gate unit_tests bloquea mision ADR-027: 55/788 fallos verificados dos veces en HEAD 670b42d. El plan cubre los 11 archivos fallidos con causa raíz identificada por cluster.",
+      "timestamp": "2026-08-22T07:39:38.870Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores aplicables cubiertos: rutas Windows (Cluster A, bug real confirmado), mocks que dejan pasar tráfico real a APIs externas (Cluster C). Durante implementación se verificará si processIncomingMessage puede enviar mensajes vacíos a executeAI en producción; si procede, guard defensivo documentado.",
+      "timestamp": "2026-08-22T07:39:40.614Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Task COMPLEX con 9 aprobaciones requeridas y gates completos. Se commiteará atómico por cluster tras gates verdes, respetando Protocolo Subaru.",
+      "timestamp": "2026-08-22T07:39:42.337Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Lección a registrar: los refactors de runtime (ej. router IA 0cc93f3) deben actualizar mocks/tests en el mismo commit para no dejar suites rojas en HEAD remoto.",
+      "timestamp": "2026-08-22T07:39:44.070Z"
+    }
+  ],
+  "createdAt": "2026-08-22T07:34:03.767Z",
+  "classifiedAt": "2026-08-22T07:34:03.767Z",
+  "approvedAt": "2026-08-22T07:39:44.071Z"
+}
