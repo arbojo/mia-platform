@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `59ecb81`.
+> Fuente de verdad: este repositorio en `105e64f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `59ecb81` |
+| **Commit HEAD** | `105e64f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-22T02:11:25-06:00 |
+| **Generado** | 2026-08-22T02:38:30-06:00 |
 
 ---
 
@@ -859,6 +859,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+105e64f subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
+d511736 docs: regenerate MASTER.md at 59ecb81
 59ecb81 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 c35b49c docs: regenerate MASTER.md at 2963440
 2963440 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
@@ -877,8 +879,6 @@ c216ddd chore(governance): council decision §4.1, ADR-027 manifest approved
 0a0f35f docs: regenerate MASTER.md at 8f0379a
 8f0379a subaru: checkpoint TASK-20260820-ADR027 - en-progreso
 739bbd2 docs: regenerate MASTER.md at 1f2f7a3
-1f2f7a3 subaru: checkpoint TASK-20260820-ADR027 - en-progreso
-6914ed3 subaru: checkpoint TASK-20260820-ADR027 - en-progreso
 ```
 
 ---
