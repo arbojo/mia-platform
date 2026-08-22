@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f852672`.
+> Fuente de verdad: este repositorio en `e7945bf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f852672` |
+| **Commit HEAD** | `e7945bf` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-22T02:39:46-06:00 |
+| **Generado** | 2026-08-22T02:40:44-06:00 |
 
 ---
 
@@ -860,6 +860,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+e7945bf subaru: checkpoint TASK-20260822-TESTFIX - completado
+8823669 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
+d62be50 docs: regenerate MASTER.md at f852672
 f852672 test: fix Windows path handling in secrets-check tmpFile helper
 0386e4e chore: ignore coverage dir in eslint config
 f72a408 test: repair unit suites for current runtime contracts (55 failures)
@@ -877,9 +880,6 @@ acedfd0 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 b2b4fbe docs: regenerate MASTER.md at ca7d477
 ca7d477 subaru: checkpoint TASK-20260822-TESTFIX - listo
 670b42d docs: regenerate MASTER.md at 124852f
-124852f subaru: checkpoint TASK-20260820-ADR027 - bloqueado
-d55ee64 docs: regenerate MASTER.md at 4148e0d
-4148e0d subaru: checkpoint TASK-20260820-ADR027 - en-progreso
 ```
 
 ---
