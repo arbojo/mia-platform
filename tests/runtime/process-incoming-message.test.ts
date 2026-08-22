@@ -3,14 +3,12 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/channels/identity', () => ({ resolveCustomer: vi.fn() }))
 vi.mock('@/lib/conversation/context', () => ({ loadConversationContext: vi.fn() }))
-vi.mock('@/lib/ai/client', () => ({ getOpenAIClient: vi.fn(), MODEL: 'gpt-4o-mini' }))
-vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
+vi.mock('@/lib/runtime/execute-ai', () => ({ executeAI: vi.fn() }))
 
 import { processIncomingMessage } from '@/lib/runtime/runtime'
 import { resolveCustomer } from '@/lib/channels/identity'
 import { loadConversationContext } from '@/lib/conversation/context'
-import { getOpenAIClient } from '@/lib/ai/client'
-import { trackAiUsage } from '@/lib/ai/cost'
+import { executeAI } from '@/lib/runtime/execute-ai'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { FAKE_UUIDS, mockWireMessage } from '../fixtures'
 
@@ -45,10 +43,17 @@ function makeSupabaseMock(opts: {
   const mockSelect = vi.fn(() => chain)
   const mockEq = vi.fn(() => chain)
   const mockOrder = vi.fn(() => chain)
-  const mockLimit = vi.fn(() => chain)
-  const mockContains = vi.fn(() => chain)
+  const mockMaybeSingle = vi.fn(() => Promise.resolve({ data: null, error: null }))
   const mockNot = vi.fn(() => chain)
   const mockUpdate = vi.fn(() => chain)
+
+  const mockLimit = vi.fn(() =>
+    Object.assign(Promise.resolve({ data: opts.messagesData ?? [], error: null }), {
+      single: mockSingle,
+      maybeSingle: mockMaybeSingle,
+    })
+  )
+  const mockContains = vi.fn(() => chain)
 
   const chain: {
     insert: Mock
@@ -71,7 +76,7 @@ function makeSupabaseMock(opts: {
     not: mockNot,
     update: mockUpdate,
     single: mockSingle,
-    maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    maybeSingle: mockMaybeSingle,
   }
 
   const fromMock = vi.fn(() => chain)
@@ -100,19 +105,10 @@ beforeEach(() => {
     isNew: false,
   })
 
-  vi.mocked(getOpenAIClient).mockReturnValue({
-    chat: {
-      completions: {
-        create: vi.fn().mockResolvedValue({
-          id: 'cmpl-test',
-          choices: [{ message: { content: 'Hola, ¿en qué puedo ayudarte?' }, finish_reason: 'stop', index: 0 }],
-          usage: { prompt_tokens: 60, completion_tokens: 10, total_tokens: 70 },
-        }),
-      },
-    },
+  vi.mocked(executeAI).mockResolvedValue({
+    content: 'Hola, ¿en qué puedo ayudarte?',
+    usage: { promptTokens: 60, completionTokens: 10 },
   } as never)
-
-  vi.mocked(trackAiUsage).mockResolvedValue(undefined)
 })
 
 describe('processIncomingMessage', () => {
@@ -142,7 +138,7 @@ describe('processIncomingMessage', () => {
     expect(result.customerId).toBe(FAKE_UUIDS.customer)
     expect(result.conversationId).toBe(FAKE_UUIDS.conversation)
     expect(result.response).toBe('Hola, ¿en qué puedo ayudarte?')
-    expect(trackAiUsage).toHaveBeenCalled()
+    expect(executeAI).toHaveBeenCalledOnce()
   })
 
   it('resolves existing customer and reuses active conversation', async () => {

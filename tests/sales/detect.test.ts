@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('@/lib/ai/client', () => ({ getOpenAIClient: vi.fn(), MODEL: 'gpt-4o-mini' }))
-vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
+vi.mock('@/lib/runtime/execute-ai', () => ({ executeAI: vi.fn() }))
 
 import { hasSalesTrigger, detectSaleOutcome } from '@/lib/sales/detect'
-import { getOpenAIClient } from '@/lib/ai/client'
-import { trackAiUsage } from '@/lib/ai/cost'
+import { executeAI } from '@/lib/runtime/execute-ai'
 
-const mockCreate = vi.fn()
-vi.mocked(getOpenAIClient).mockReturnValue({
-  chat: { completions: { create: mockCreate } },
-} as unknown as ReturnType<typeof getOpenAIClient>)
+function mockDetection(payload: unknown): void {
+  vi.mocked(executeAI).mockResolvedValue({
+    content: JSON.stringify(payload),
+    usage: { promptTokens: 100, completionTokens: 50 },
+  } as never)
+}
 
 describe('hasSalesTrigger', () => {
   it('detects purchase confirmation phrases', () => {
@@ -18,8 +18,8 @@ describe('hasSalesTrigger', () => {
     expect(hasSalesTrigger('me llevo el combo')).toBe(true)
   })
 
-  it('detects price and payment questions', () => {
-    expect(hasSalesTrigger('¿cuánto cuesta?')).toBe(true)
+  it('excludes pure price questions but detects payment intent', () => {
+    expect(hasSalesTrigger('¿cuánto cuesta?')).toBe(false)
     expect(hasSalesTrigger('¿se puede pagar con tarjeta?')).toBe(true)
   })
 
@@ -56,25 +56,15 @@ describe('detectSaleOutcome', () => {
   }
 
   beforeEach(() => {
-    mockCreate.mockReset()
-    vi.mocked(trackAiUsage).mockReset()
+    vi.mocked(executeAI).mockReset()
   })
 
   it('parses a sold outcome with SALE_WON', async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              outcome: 'sold',
-              events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
-              customerName: 'Juan',
-              address: 'Av. Siempre Viva 123',
-            }),
-          },
-        },
-      ],
-      usage: { prompt_tokens: 100, completion_tokens: 50 },
+    mockDetection({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
+      customerName: 'Juan',
+      address: 'Av. Siempre Viva 123',
     })
 
     const result = await detectSaleOutcome(params)
@@ -84,47 +74,28 @@ describe('detectSaleOutcome', () => {
     ])
     expect(result.customerName).toBe('Juan')
     expect(result.address).toBe('Av. Siempre Viva 123')
-    expect(trackAiUsage).toHaveBeenCalledWith({
-      business_id: 'biz-1',
-      assistant_id: 'assistant-1',
-      promptTokens: 100,
-      completionTokens: 50,
-      request_type: 'live_customer',
-    })
   })
 
   it('returns null outcome and no events on invalid JSON', async () => {
-    mockCreate.mockResolvedValue({
-      choices: [{ message: { content: 'no pude analizar' } }],
-      usage: null,
-    })
+    mockDetection('no pude analizar')
     const result = await detectSaleOutcome(params)
     expect(result.outcome).toBeNull()
     expect(result.events).toEqual([])
   })
 
   it('parses phone, city and products with sanitization', async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              outcome: 'sold',
-              events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
-              customerName: 'Ana',
-              phone: '+54 9 11 5555-1234',
-              city: '  Buenos Aires ',
-              address: 'Calle 1',
-              products: [
-                { name: 'Combo 1', amount: 120 },
-                { name: 'Shampoo', amount: null },
-                { name: '', amount: 50 },
-              ],
-            }),
-          },
-        },
+    mockDetection({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
+      customerName: 'Ana',
+      phone: '+54 9 11 5555-1234',
+      city: '  Buenos Aires ',
+      address: 'Calle 1',
+      products: [
+        { name: 'Combo 1', amount: 120 },
+        { name: 'Shampoo', amount: null },
+        { name: '', amount: 50 },
       ],
-      usage: null,
     })
 
     const result = await detectSaleOutcome(params)
@@ -137,37 +108,19 @@ describe('detectSaleOutcome', () => {
   })
 
   it('rejects phone values too short to be valid', async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              outcome: 'interested',
-              events: [],
-              phone: '123',
-            }),
-          },
-        },
-      ],
-      usage: null,
+    mockDetection({
+      outcome: 'interested',
+      events: [],
+      phone: '123',
     })
     const result = await detectSaleOutcome(params)
     expect(result.phone).toBeUndefined()
   })
 
   it('rejects invalid event types', async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              outcome: 'interested',
-              events: [{ type: 'NOT_A_REAL_TYPE', productName: 'X' }],
-            }),
-          },
-        },
-      ],
-      usage: null,
+    mockDetection({
+      outcome: 'interested',
+      events: [{ type: 'NOT_A_REAL_TYPE', productName: 'X' }],
     })
     const result = await detectSaleOutcome(params)
     expect(result.outcome).toBe('interested')
@@ -175,12 +128,7 @@ describe('detectSaleOutcome', () => {
   })
 
   it('rejects invalid outcome values', async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        { message: { content: JSON.stringify({ outcome: 'maybe', events: [] }) } },
-      ],
-      usage: null,
-    })
+    mockDetection({ outcome: 'maybe', events: [] })
     const result = await detectSaleOutcome(params)
     expect(result.outcome).toBeNull()
   })

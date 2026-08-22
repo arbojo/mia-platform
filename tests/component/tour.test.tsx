@@ -53,7 +53,7 @@ describe('Tour interactivo', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText('Tu navegación')).toBeInTheDocument()
-    expect(screen.getByText('Paso 1 de 9')).toBeInTheDocument()
+    expect(screen.getByText('Paso 1 de 6')).toBeInTheDocument()
   })
 
   it('las páginas contextuales fuera del Centro de Mando no repiten el shell', () => {
@@ -92,7 +92,7 @@ describe('Tour interactivo', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText('Tu navegación')).toBeInTheDocument()
-    expect(screen.getByText('Paso 1 de 6')).toBeInTheDocument()
+    expect(screen.getByText('Paso 1 de 3')).toBeInTheDocument()
   })
 
   it('avanza de paso con el botón Siguiente', () => {
@@ -101,10 +101,10 @@ describe('Tour interactivo', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
     expect(screen.getByText('Módulo activo')).toBeInTheDocument()
-    expect(screen.getByText('Paso 2 de 9')).toBeInTheDocument()
+    expect(screen.getByText('Paso 2 de 6')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }))
-    expect(screen.getByText('Modo claro / oscuro')).toBeInTheDocument()
+    expect(screen.getByText('Presencia de MIA')).toBeInTheDocument()
   })
 
   it('permite regresar con el botón Atrás', () => {

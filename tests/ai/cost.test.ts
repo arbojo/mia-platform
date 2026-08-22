@@ -16,11 +16,11 @@ beforeEach(() => {
 describe('calculateCost', () => {
   it('calcula costo con tokens de gpt-4o-mini', () => {
     // 1000 input * 0.00015/1K + 500 output * 0.0006/1K = 0.00015 + 0.00030
-    expect(calculateCost(1000, 500)).toBeCloseTo(0.00045)
+    expect(calculateCost(1000, 500, 'gpt-4o-mini')).toBeCloseTo(0.00045)
   })
 
   it('devuelve 0 cuando no hay tokens', () => {
-    expect(calculateCost(0, 0)).toBe(0)
+    expect(calculateCost(0, 0, 'gpt-4o-mini')).toBe(0)
   })
 })
 
@@ -49,6 +49,7 @@ describe('trackAiUsage', () => {
       assistant_id: 'a-1',
       promptTokens: 1000,
       completionTokens: 500,
+      model: 'gpt-4o-mini',
       request_type: 'training',
     })
 
@@ -67,6 +68,7 @@ describe('trackAiUsage', () => {
       assistant_id: 'a-1',
       promptTokens: 0,
       completionTokens: 0,
+      model: 'gpt-4o-mini',
     })
     expect(mockedRecordAiUsage).not.toHaveBeenCalled()
   })
@@ -79,6 +81,7 @@ describe('trackAiUsage', () => {
         assistant_id: 'a-1',
         promptTokens: 10,
         completionTokens: 5,
+        model: 'gpt-4o-mini',
       })
     ).resolves.toBeUndefined()
   })

@@ -33,7 +33,7 @@ const mockStreamTextResult = {
 
 const onFinishPayload = {
   text: 'respuesta simulada',
-  usage: { promptTokens: 50, completionTokens: 20 },
+  usage: { inputTokens: 50, outputTokens: 20 },
   finishReason: 'stop' as const,
   warnings: [] as Array<unknown>,
   toolCalls: [] as Array<unknown>,
@@ -98,7 +98,8 @@ describe('processStreaming', () => {
       undefined,
       undefined,
       undefined,
-      undefined
+      undefined,
+      null
     )
   })
 
@@ -176,7 +177,8 @@ describe('processStreaming', () => {
       FAKE_UUIDS.customer,
       'simulation',
       undefined,
-      undefined
+      undefined,
+      null
     )
 
     expect(resolveConditionalMedia).toHaveBeenCalledWith({

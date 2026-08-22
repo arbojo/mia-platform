@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync, existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { execSync } from 'node:child_process'
 import {
   EvidenceFirstAdapter,
@@ -14,7 +14,7 @@ const REPORTS_DIR = join(TMP_DIR, 'workshop', 'council', 'reports')
 
 function tmpFile(relPath: string, content: string): string {
   const full = join(TMP_DIR, relPath)
-  const dir = full.substring(0, full.lastIndexOf('/'))
+  const dir = dirname(full)
   mkdirSync(dir, { recursive: true })
   writeFileSync(full, content, 'utf8')
   return full

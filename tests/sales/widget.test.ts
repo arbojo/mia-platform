@@ -2,10 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/sales/events', () => ({
   applyConversationOutcome: vi.fn(),
+  emitSaleConfirmed: vi.fn(),
   emitSalesEvent: vi.fn(),
+  fetchOrderNumber: vi.fn(),
   hasClosingEvent: vi.fn(),
   notifySaleToOwner: vi.fn(),
 }))
+vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 
 import { recordWidgetSale } from '@/lib/sales/widget'
 import {
@@ -14,6 +17,7 @@ import {
   hasClosingEvent,
   notifySaleToOwner,
 } from '@/lib/sales/events'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const params = {
   businessId: 'biz-1',
@@ -25,8 +29,24 @@ const params = {
   amount: 120,
 }
 
+const maybeSingle = vi.fn()
+vi.mocked(createAdminClient).mockReturnValue({
+  from: vi.fn(() => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn(() => ({ maybeSingle })),
+          })),
+        })),
+      })),
+    })),
+  })),
+} as unknown as ReturnType<typeof createAdminClient>)
+
 beforeEach(() => {
   vi.clearAllMocks()
+  maybeSingle.mockResolvedValue({ data: null })
 })
 
 describe('recordWidgetSale', () => {

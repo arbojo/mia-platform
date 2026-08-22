@@ -5,6 +5,8 @@ vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
 vi.mock('@/lib/sales/detect', () => ({
   hasSalesTrigger: vi.fn(),
   detectSaleOutcome: vi.fn(),
+  hasDiscountAcceptanceTrigger: vi.fn(),
+  hasCancellationTrigger: vi.fn(),
 }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/sales/events', () => ({
@@ -40,9 +42,21 @@ const params = {
   ],
 }
 
+const maybeSingle = vi.fn()
 const mockUpdate = vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) }))
 vi.mocked(createAdminClient).mockReturnValue({
-  from: vi.fn(() => ({ update: mockUpdate })),
+  from: vi.fn(() => ({
+    update: mockUpdate,
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn(() => ({ maybeSingle })),
+          })),
+        })),
+      })),
+    })),
+  })),
 } as unknown as ReturnType<typeof createAdminClient>)
 
 beforeEach(() => {
@@ -54,7 +68,8 @@ beforeEach(() => {
   vi.mocked(getCustomerName).mockReset()
   vi.mocked(hasClosingEvent).mockReset()
   vi.mocked(notifySaleToOwner).mockReset()
-  mockUpdate.mockReset()
+  mockUpdate.mockClear()
+  maybeSingle.mockResolvedValue({ data: null })
 })
 
 describe('processSaleClosing', () => {
@@ -69,8 +84,8 @@ describe('processSaleClosing', () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
     vi.mocked(detectSaleOutcome).mockResolvedValue({ outcome: null, events: [] })
     await processSaleClosing(params)
-    expect(hasClosingEvent).not.toHaveBeenCalled()
     expect(emitSalesEvent).not.toHaveBeenCalled()
+    expect(applyConversationOutcome).not.toHaveBeenCalled()
   })
 
   it('emits events and applies outcome for a confirmed sale', async () => {
@@ -133,7 +148,7 @@ describe('processSaleClosing', () => {
     expect(notifySaleToOwner).not.toHaveBeenCalled()
   })
 
-  it('emits non-closing events even when conversation already closed', async () => {
+  it('does not emit any events when the conversation is already closed (blindaje anti-loop)', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
     vi.mocked(detectSaleOutcome).mockResolvedValue({
       outcome: 'sold',
@@ -143,7 +158,7 @@ describe('processSaleClosing', () => {
 
     await processSaleClosing(params)
 
-    expect(emitSalesEvent).toHaveBeenCalledTimes(1)
+    expect(emitSalesEvent).not.toHaveBeenCalled()
     expect(applyConversationOutcome).not.toHaveBeenCalled()
   })
 

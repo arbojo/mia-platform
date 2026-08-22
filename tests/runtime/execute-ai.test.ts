@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { streamText } from 'ai'
-import { getOpenAIClient } from '@/lib/ai/client'
+import { streamText, generateText } from 'ai'
+import { getProviderModelWithFallback } from '@/lib/ai/task-routing'
 import { trackAiUsage } from '@/lib/ai/cost'
 
-vi.mock('@ai-sdk/openai', () => ({ openai: vi.fn(() => 'mock-model') }))
-vi.mock('ai', () => ({ streamText: vi.fn() }))
-vi.mock('@/lib/ai/client', () => ({ getOpenAIClient: vi.fn(), MODEL: 'gpt-4o-mini' }))
+vi.mock('ai', () => ({ streamText: vi.fn(), generateText: vi.fn() }))
+vi.mock('@/lib/ai/task-routing', () => ({ getProviderModelWithFallback: vi.fn() }))
 vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
 
 const { executeAI, AiExecutionError } = await import('@/lib/runtime/execute-ai')
@@ -21,6 +20,10 @@ const BASE_PARAMS = {
 describe('executeAI', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(getProviderModelWithFallback).mockReturnValue({
+      primary: { model: 'mock-model' as never, modelName: 'gpt-4o-mini' },
+      fallback: null,
+    })
   })
 
   describe('stream mode', () => {
@@ -32,7 +35,10 @@ describe('executeAI', () => {
         },
       },
     }
-    const onFinishPayload = { text: 'respuesta', usage: { promptTokens: 10, completionTokens: 20 } }
+    const onFinishPayload = {
+      text: 'respuesta',
+      usage: { inputTokens: 10, outputTokens: 20 },
+    }
 
     beforeEach(() => {
       vi.mocked(streamText).mockReturnValue(mockStreamResult as never)
@@ -68,6 +74,7 @@ describe('executeAI', () => {
         assistant_id: BASE_PARAMS.assistantId,
         promptTokens: 10,
         completionTokens: 20,
+        model: 'gpt-4o-mini',
         request_type: BASE_PARAMS.requestType,
       })
     })
@@ -81,39 +88,33 @@ describe('executeAI', () => {
 
       expect(vi.mocked(trackAiUsage)).toHaveBeenCalledBefore(externalOnFinish)
       expect(externalOnFinish).toHaveBeenCalledOnce()
-      expect(externalOnFinish).toHaveBeenCalledWith(onFinishPayload)
+      expect(externalOnFinish).toHaveBeenCalledWith({
+        text: 'respuesta',
+        usage: { promptTokens: 10, completionTokens: 20 },
+      })
     })
   })
 
   describe('complete mode', () => {
-    const mockUsage = { prompt_tokens: 50, completion_tokens: 20, total_tokens: 70 }
-    const mockCompletion = {
-      id: 'cmpl-test',
-      choices: [{ message: { content: 'respuesta completa' }, finish_reason: 'stop', index: 0 }],
-      usage: mockUsage,
-      model: 'gpt-4o-mini',
-      object: 'chat.completion',
-      created: 1234567890,
-    }
-    const mockCreate = vi.fn().mockResolvedValue(mockCompletion)
+    const mockGenerate = vi.fn()
 
     beforeEach(() => {
-      vi.mocked(getOpenAIClient).mockReturnValue({
-        chat: { completions: { create: mockCreate } },
-      } as never)
+      mockGenerate.mockResolvedValue({
+        text: 'respuesta completa',
+        usage: { inputTokens: 50, outputTokens: 20 },
+      })
+      vi.mocked(generateText).mockImplementation(mockGenerate as never)
     })
 
-    it('calls getOpenAIClient with system prompt prepended to messages', async () => {
+    it('calls generateText with system, messages, maxOutputTokens and temperature', async () => {
       await executeAI({ ...BASE_PARAMS, mode: 'complete' })
 
-      expect(mockCreate).toHaveBeenCalledOnce()
-      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: BASE_PARAMS.system },
-          ...BASE_PARAMS.messages,
-        ],
-        max_tokens: 500,
+      expect(generateText).toHaveBeenCalledOnce()
+      expect(generateText).toHaveBeenCalledWith(expect.objectContaining({
+        model: 'mock-model',
+        system: BASE_PARAMS.system,
+        messages: BASE_PARAMS.messages,
+        maxOutputTokens: 500,
         temperature: 0.7,
       }))
     })
@@ -136,6 +137,7 @@ describe('executeAI', () => {
         assistant_id: BASE_PARAMS.assistantId,
         promptTokens: 50,
         completionTokens: 20,
+        model: 'gpt-4o-mini',
         request_type: BASE_PARAMS.requestType,
       })
     })
@@ -152,19 +154,20 @@ describe('executeAI', () => {
     })
 
     it('handles empty response from API', async () => {
-      const emptyCompletion = {
-        ...mockCompletion,
-        choices: [{ message: { content: null }, finish_reason: 'stop', index: 0 }],
-      }
-      mockCreate.mockResolvedValueOnce(emptyCompletion)
+      mockGenerate.mockResolvedValueOnce({
+        text: '',
+        usage: { inputTokens: 50, outputTokens: 20 },
+      })
 
       const result = await executeAI({ ...BASE_PARAMS, mode: 'complete' })
       expect(result.content).toBe('')
     })
 
-    it('handles missing usage from API', async () => {
-      const noUsageCompletion = { ...mockCompletion, usage: undefined }
-      mockCreate.mockResolvedValueOnce(noUsageCompletion)
+    it('defaults missing token counts to zero', async () => {
+      mockGenerate.mockResolvedValueOnce({
+        text: 'respuesta completa',
+        usage: {},
+      })
 
       const result = await executeAI({ ...BASE_PARAMS, mode: 'complete' })
       expect(result.usage).toEqual({ promptTokens: 0, completionTokens: 0 })
@@ -173,17 +176,39 @@ describe('executeAI', () => {
     it('accepts custom maxTokens', async () => {
       await executeAI({ ...BASE_PARAMS, mode: 'complete', maxTokens: 100 })
 
-      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
-        max_tokens: 100,
+      expect(generateText).toHaveBeenCalledWith(expect.objectContaining({
+        maxOutputTokens: 100,
       }))
     })
 
     it('accepts custom temperature', async () => {
       await executeAI({ ...BASE_PARAMS, mode: 'complete', temperature: 0.9 })
 
-      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
+      expect(generateText).toHaveBeenCalledWith(expect.objectContaining({
         temperature: 0.9,
       }))
+    })
+
+    it('falls back to the secondary provider on rate limit', async () => {
+      vi.mocked(getProviderModelWithFallback).mockReturnValue({
+        primary: { model: 'mock-primary' as never, modelName: 'gpt-4o-mini' },
+        fallback: { model: 'mock-fallback' as never, modelName: 'deepseek-chat' },
+      })
+      mockGenerate
+        .mockRejectedValueOnce(Object.assign(new Error('rate limit exceeded'), { status: 429 }))
+        .mockResolvedValueOnce({
+          text: 'respuesta de fallback',
+          usage: { inputTokens: 5, outputTokens: 5 },
+        })
+
+      const result = await executeAI({ ...BASE_PARAMS, mode: 'complete' })
+
+      expect(generateText).toHaveBeenCalledTimes(2)
+      expect(vi.mocked(generateText).mock.calls[1][0]).toHaveProperty('model', 'mock-fallback')
+      expect(result.content).toBe('respuesta de fallback')
+      expect(vi.mocked(trackAiUsage)).toHaveBeenCalledWith(
+        expect.objectContaining({ model: 'deepseek-chat' })
+      )
     })
   })
 
