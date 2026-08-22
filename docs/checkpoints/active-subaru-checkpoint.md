@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260820-ADR027
 title: ADR-027: MIA Cloud Architecture
-state: in_progress
+state: blocked
 current_step: 5
 total_steps: 5
 branch: main
-last_machine: Deivis-Desktop
+last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260820-ADR027
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-21T09:10:11.259Z
+updated: 2026-08-22T04:10:12.507Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -83,10 +83,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Paso 4 completado: Concilio §4.1 — **Model A (Shared Everything)** aprobado unánimemente.
-- Governance manifest `TASK-20260820-ADR027` status: **approved** (14/14 agentes).
-- ADR-027 §4.1.1 Council Decision Record escrito.
-- Listo para Paso 5 (implementación Phase 1).
+- Misión TASK-20260820-ADR027 BLOQUEADA (state: blocked).
+- Motivo: Gate unit_tests FALLO en HEAD remoto d55ee64 tras revive+pull: 55/788 tests fallen en 11 archivos, causas FUERA del scope de la mision (Fase 1 JWT bridge auth). Cluster A (16 fallos, bug Windows real): scripts/__tests__/secrets-check.test.ts:25 y workshop/council/adapters/evidence-first-adapter.test.ts:17 usan lastIndexOf('/') sobre rutas Windows -> mkdir('') -> ENOENT; fallen en cualquier maquina Windows. Cluster B (2 fallos, test/codigo desincronizados por el pull): tour.test.tsx espera 'Paso 1 de 6'/'Paso 2 de 9' y tours.ts renderiza 3/6 pasos. Cluster C (37 fallos, refactor runtime sin actualizar tests/mocks): execute-ai/process-streaming/cost esperan firma vieja de trackAiUsage sin model y tokens>0; process.test.ts no mockea hasCancellationTrigger nueva; detect.ts:49 ahora excluye 'cuesta/precio' del trigger y el test exige true (posible regresion real o cambio intencional sin actualizar test); process-incoming-message falla con messages vacios. lint/build/e2e_pendiente. La mision queda BLOQUEADA hasta que un task de gobernanza propio repare los 55 fallos..
+- Bloqueado: 2026-08-22T04:10:12.507Z.
 
 ## Next action
 
