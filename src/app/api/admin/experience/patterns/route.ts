@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { requireAuth } from '@/lib/auth'
+import { handleApiError } from '@/lib/api-error'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getBlendedPatterns } from '@/lib/heuristic/blender'
 
@@ -35,8 +36,7 @@ export async function GET() {
 
     return NextResponse.json({ patterns })
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ pattern }, { status: 201 })
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return handleApiError(error)
   }
 }
