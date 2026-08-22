@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260822-TESTFIX
 title: Reparar 55 tests unitarios - desbloqueo mision ADR-027
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 6
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260822-073403431
 created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-22T07:44:57.501Z
+updated: 2026-08-22T07:46:27.362Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Aprobación: TASK-20260822-073403431.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -86,7 +86,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260822-TESTFIX 2`.
 
 ## Constraints
 
