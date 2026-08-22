@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ca7d477`.
+> Fuente de verdad: este repositorio en `30e79cd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ca7d477` |
+| **Commit HEAD** | `30e79cd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-22T01:44:57-06:00 |
+| **Generado** | 2026-08-22T01:47:02-06:00 |
 
 ---
 
@@ -859,6 +859,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+30e79cd subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
+b2b4fbe docs: regenerate MASTER.md at ca7d477
 ca7d477 subaru: checkpoint TASK-20260822-TESTFIX - listo
 670b42d docs: regenerate MASTER.md at 124852f
 124852f subaru: checkpoint TASK-20260820-ADR027 - bloqueado
@@ -877,8 +879,6 @@ c216ddd chore(governance): council decision §4.1, ADR-027 manifest approved
 d90842f docs: regenerate MASTER.md at 472b1c6
 472b1c6 fix: resolve legacy Supabase project security risk
 fd9cc25 docs: regenerate MASTER.md at 11bc7ff
-11bc7ff docs: add ADR-027 MIA Cloud Architecture
-7648059 docs: regenerate MASTER.md at ba04446
 ```
 
 ---
