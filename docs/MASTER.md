@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `124852f`.
+> Fuente de verdad: este repositorio en `ca7d477`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `124852f` |
+| **Commit HEAD** | `ca7d477` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-21T22:10:13-06:00 |
+| **Generado** | 2026-08-22T01:44:57-06:00 |
 
 ---
 
@@ -859,6 +859,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+ca7d477 subaru: checkpoint TASK-20260822-TESTFIX - listo
+670b42d docs: regenerate MASTER.md at 124852f
 124852f subaru: checkpoint TASK-20260820-ADR027 - bloqueado
 d55ee64 docs: regenerate MASTER.md at 4148e0d
 4148e0d subaru: checkpoint TASK-20260820-ADR027 - en-progreso
@@ -877,8 +879,6 @@ d90842f docs: regenerate MASTER.md at 472b1c6
 fd9cc25 docs: regenerate MASTER.md at 11bc7ff
 11bc7ff docs: add ADR-027 MIA Cloud Architecture
 7648059 docs: regenerate MASTER.md at ba04446
-ba04446 feat: ADR-026 v3 — monocromo + acciones reconnect/edition
-c97dcec docs: regenerate MASTER.md at 7be845b
 ```
 
 ---
