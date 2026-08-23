@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `9462989`.
+> Fuente de verdad: este repositorio en `f54d590`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `9462989` |
+| **Commit HEAD** | `f54d590` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T05:10:27-06:00 |
+| **Generado** | 2026-08-23T05:11:04-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (124)**:
+**Tareas registradas (125)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -809,6 +809,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260820-ADR026 | ADR-026: Super Admin Platform Dashboard — Cross-Tenant Control Tower | completed |
 | TASK-20260820-ADR027 | ADR-027: MIA Cloud Architecture — Cloud MVP Implementation | approved |
 | TASK-20260822-073403431 | Reparar suites de tests unitarios (55 fallos) - desbloqueo mision ADR-027 | approved |
+| TASK-20260823-102540725 | Engineering Loop v0.1 - minimal worker handoff | approved |
 
 ---
 
@@ -852,7 +853,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 13. Tests
 
 ```
-
+engineering-loop.test.ts
 ```
 
 ---
@@ -860,6 +861,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+f54d590 feat: engineering loop v0.1 - automatic worker handoff across opencode models
+96a2899 docs: regenerate MASTER.md at 9462989
 9462989 subaru: checkpoint TASK-20260823-102540725 - completado
 33c5d1d docs: regenerate MASTER.md at ca57685
 ca57685 subaru: checkpoint TASK-20260823-102540725 - en-progreso
@@ -878,8 +881,6 @@ f215c79 subaru: checkpoint TASK-20260820-ADR027 - completado
 e7945bf subaru: checkpoint TASK-20260822-TESTFIX - completado
 8823669 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 d62be50 docs: regenerate MASTER.md at f852672
-f852672 test: fix Windows path handling in secrets-check tmpFile helper
-0386e4e chore: ignore coverage dir in eslint config
 ```
 
 ---
