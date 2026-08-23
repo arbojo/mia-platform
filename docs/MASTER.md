@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d5d979d`.
+> Fuente de verdad: este repositorio en `2359fa2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d5d979d` |
+| **Commit HEAD** | `2359fa2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T04:29:14-06:00 |
+| **Generado** | 2026-08-23T04:39:04-06:00 |
 
 ---
 
@@ -860,6 +860,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+2359fa2 subaru: checkpoint TASK-20260823-102540725 - en-progreso
+928e516 subaru: checkpoint TASK-20260823-102540725 - en-progreso
+0ffc537 docs: regenerate MASTER.md at d5d979d
 d5d979d subaru: checkpoint TASK-20260823-102540725 - listo
 d59a262 docs: regenerate MASTER.md at f215c79
 f215c79 subaru: checkpoint TASK-20260820-ADR027 - completado
@@ -877,9 +880,6 @@ d511736 docs: regenerate MASTER.md at 59ecb81
 59ecb81 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 c35b49c docs: regenerate MASTER.md at 2963440
 2963440 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
-6b20461 docs: regenerate MASTER.md at acedfd0
-acedfd0 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
-1cb1476 docs: regenerate MASTER.md at 30e79cd
 ```
 
 ---
