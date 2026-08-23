@@ -1,0 +1,115 @@
+{
+  "id": "TASK-20260823-114235663",
+  "title": "Engineering Loop v0.2a - Accountable Handoff: Subaru obligatorio, precondicion de governance e INFRA_FAILURE",
+  "description": "Cerrar D1 del post-proof audit y anadir dos salvaguardas deterministicas al Engineering Loop. (1) Gateway Subaru obligatorio en toda escalada: sin gateway configurado o si checkpointEscalation falla, la mision termina en BLOCK con evidencia ESCALATION_UNRECORDED y NUNCA se invoca al fallback (invariante NO CHECKPOINT -> NO HANDOFF); evidencia distingue ESCALATION_CHECKPOINTED de ESCALATION_UNRECORDED. (2) Precondicion de governance: runMission exige governanceTaskId con manifest aprobado (FileGovernanceChecker sobre .governance/tasks) antes de invocar OpenCode, seleccionar worker o tocar codigo; manifiesto ausente/rechazado/no-aprobado/malformado produce GOVERNANCE_REFUSED + BLOCK con cero llamadas al worker (invariante NO APPROVED GOVERNANCE -> NO WORKER). (3) Clasificacion INFRA_FAILURE: status null o errores de spawn ENOENT/EACCES se clasifican como fallo de infraestructura, no reintentan worker ni disparan handoff (invariante INFRA_FAILURE -> NO WORKER SWITCH). Alcance: workshop/loop/{runner,signals,governance,subaru-gateway,run-loop}.ts + tests/engineering-loop.test.ts + drill real + docs. Fuera de alcance: D2 (reparacion de gates), D3 (validacion de output), rollback, pools dinamicos, budgets, deployment.",
+  "scope": {
+    "categories": [
+      "infrastructure",
+      "feature"
+    ],
+    "filesAffected": 7,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "godzilla",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 7 files affected, security implications, category requires council. Required agents (10): architect, backend, frontend, security, qa, godzilla, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Cambios pequenos y deterministicos sobre el loop v0.1 probado; sin nuevo framework, reusa Subaru/governance/OpenCode; invariantes claros",
+      "timestamp": "2026-08-23T11:42:53.065Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Extension de contratos existentes (RunResult.errorCode, GovernanceChecker); sin duplicacion de logica; errores tipados y accionables",
+      "timestamp": "2026-08-23T11:42:55.108Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin impacto en UI ni componentes; cero cambios en src/app o src/components",
+      "timestamp": "2026-08-23T11:42:57.079Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Fortalece seguridad: governance obligatoria pre-ejecucion, checkpoint obligatorio en escalada, INFRA_FAILURE evita cascadas; no debilita nada existente",
+      "timestamp": "2026-08-23T11:42:59.029Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "12 tests nuevos T1-T12 mapean 1:1 los objetivos; suite existente debe permanecer verde; regression lint+build+unit obligatoria",
+      "timestamp": "2026-08-23T11:43:15.551Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Los 3 invariantes atacados por tests dedicados (sin gateway, sin governance, infra caida); drill real cierra D1 con CLI real en clone temporal",
+      "timestamp": "2026-08-23T11:43:17.609Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit local al cierre sin push (instruccion explicita del usuario); artefactos de evidencia y manifest incluidos",
+      "timestamp": "2026-08-23T11:43:19.576Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Sin dependencias nuevas de produccion; tsx mini-install solo en clone temporal del drill",
+      "timestamp": "2026-08-23T11:43:21.500Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Drill aislado en clone temporal sin origin; cero riesgo para el repo principal ni para el checkpoint completado",
+      "timestamp": "2026-08-23T11:43:23.457Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Cierra hallazgo D1 del audit con evidencia machine-readable; leccion registrada: integraciones opcionales no probadas en vivo son deuda",
+      "timestamp": "2026-08-23T11:43:25.405Z"
+    }
+  ],
+  "createdAt": "2026-08-23T11:42:35.601Z",
+  "classifiedAt": "2026-08-23T11:42:35.601Z",
+  "approvedAt": "2026-08-23T11:43:25.406Z"
+}

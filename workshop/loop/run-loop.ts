@@ -1,5 +1,6 @@
 import { appendEvidence, lastSessionId, type LoopEvidence } from './evidence'
 import { NpmGateRunner, type GateName, type GateRunner } from './gates'
+import { FileGovernanceChecker, type GovernanceChecker } from './governance'
 import { FALLBACK_WORKER, PRIMARY_WORKER, modelFor, type WorkerName } from './router'
 import { CliOpenCodeRunner, extractSessionId, type OpenCodeRunner } from './runner'
 import { classifyRun, detectStuck, type AttemptRecord, type AttemptSignal } from './signals'
@@ -7,7 +8,13 @@ import type { SubaruGateway } from './subaru-gateway'
 
 export type MissionResult = 'COMPLETE' | 'BLOCK' | 'REQUIRE_HUMAN_APPROVAL'
 
+export type RefusalEvidenceResult =
+  | 'ESCALATION_CHECKPOINTED'
+  | 'ESCALATION_UNRECORDED'
+  | 'GOVERNANCE_REFUSED'
+
 export interface MissionRequest {
+  governanceTaskId: string
   missionId: string
   prompt: string
   gates?: readonly GateName[]
@@ -29,6 +36,7 @@ export interface LoopDeps {
   runner?: OpenCodeRunner
   gateRunner?: GateRunner
   subaru?: SubaruGateway
+  governance?: GovernanceChecker
   evidenceDir?: string
 }
 
@@ -75,7 +83,7 @@ function record(
   worker: string,
   model: string,
   startedAt: Date,
-  result: AttemptSignal | MissionResult,
+  result: AttemptSignal | MissionResult | RefusalEvidenceResult,
   meta: EvidenceMeta = {},
 ): void {
   const entry: LoopEvidence = {
@@ -115,6 +123,18 @@ export function runMission(request: MissionRequest, deps: LoopDeps = {}): Missio
     return { result: verdict, attempts: [] }
   }
 
+  const governance = deps.governance ?? new FileGovernanceChecker()
+  try {
+    governance.assertApproved(request.governanceTaskId)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    record(evidenceDir, request.missionId, 0, 'none', 'none', new Date(), 'GOVERNANCE_REFUSED', {
+      nextAction: 'obtain an approved governance manifest before running missions',
+      errorSummary: message,
+    })
+    return { result: 'BLOCK', attempts: [], errorSummary: message }
+  }
+
   const attempts: AttemptRecord[] = []
   let stuckReason = ''
   let sessionId = lastSessionId(evidenceDir, request.missionId)
@@ -140,13 +160,41 @@ export function runMission(request: MissionRequest, deps: LoopDeps = {}): Missio
   }
 
   const escalate = (): MissionOutcome => {
+    const taskId = request.subaruTaskId ?? request.missionId
     const escalationReason = `ESCALATION ${stuckReason}; opencode_session=${sessionId ?? 'unknown'}`
-    subaru?.checkpointEscalation(request.subaruTaskId ?? request.missionId, escalationReason)
+    if (!subaru) {
+      const summary = `${stuckReason}; escalation refused: no Subaru gateway configured`
+      record(evidenceDir, request.missionId, attempts.length, PRIMARY_WORKER, modelFor(PRIMARY_WORKER), new Date(), 'ESCALATION_UNRECORDED', {
+        sessionId,
+        checkpoint: 'none',
+        nextAction: 'configure the real Subaru gateway and retry the mission',
+        errorSummary: summary,
+      })
+      return { result: 'BLOCK', sessionId, attempts, errorSummary: summary }
+    }
+    try {
+      subaru.checkpointEscalation(taskId, escalationReason)
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error)
+      const summary = `${stuckReason}; checkpoint failed: ${detail}`
+      record(evidenceDir, request.missionId, attempts.length, PRIMARY_WORKER, modelFor(PRIMARY_WORKER), new Date(), 'ESCALATION_UNRECORDED', {
+        sessionId,
+        checkpoint: `subaru:block ${taskId} FAILED`,
+        nextAction: 'human review required',
+        errorSummary: summary,
+      })
+      return { result: 'BLOCK', sessionId, attempts, errorSummary: summary }
+    }
     record(evidenceDir, request.missionId, attempts.length, PRIMARY_WORKER, modelFor(PRIMARY_WORKER), new Date(), 'STUCK', {
       sessionId,
-      checkpoint: `subaru:block ${request.subaruTaskId ?? request.missionId}`,
+      checkpoint: `subaru:block ${taskId}`,
       nextAction: `hand off to ${FALLBACK_WORKER} on the same session`,
       errorSummary: stuckReason,
+    })
+    record(evidenceDir, request.missionId, attempts.length, PRIMARY_WORKER, modelFor(PRIMARY_WORKER), new Date(), 'ESCALATION_CHECKPOINTED', {
+      sessionId,
+      checkpoint: `subaru:block ${taskId} OK`,
+      nextAction: `hand off to ${FALLBACK_WORKER} on the same session`,
     })
     const fallbackStartedAt = new Date()
     const fallbackModel = modelFor(FALLBACK_WORKER)
@@ -201,6 +249,15 @@ export function runMission(request: MissionRequest, deps: LoopDeps = {}): Missio
     record(evidenceDir, request.missionId, attempts.length - 1, PRIMARY_WORKER, primaryModel, primaryStartedAt, signal, {
       sessionId,
     })
+    if (signal === 'INFRA_FAILURE') {
+      const summary = `infrastructure failure: worker process unavailable (exit=${run.exitCode}, code=${run.errorCode ?? 'unknown'})`
+      record(evidenceDir, request.missionId, attempts.length, PRIMARY_WORKER, primaryModel, primaryStartedAt, 'BLOCK', {
+        sessionId,
+        nextAction: 'fix worker infrastructure before retrying the mission; no model handoff is permitted',
+        errorSummary: summary,
+      })
+      return { result: 'BLOCK', sessionId, attempts, errorSummary: summary }
+    }
     if (signal === 'SUCCESS') return finishWithGates(PRIMARY_WORKER)
     if (detectStuck(attempts)) {
       stuckReason = `${PRIMARY_WORKER} repeated ${signal}`

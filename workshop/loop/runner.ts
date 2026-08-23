@@ -8,6 +8,7 @@ export interface RunnerOptions {
 }
 
 export interface RunResult {
+  errorCode?: string
   exitCode: number | null
   stdout: string
   stderr: string
@@ -38,6 +39,7 @@ export class CliOpenCodeRunner implements OpenCodeRunner {
     })
     return {
       exitCode: result.status,
+      errorCode: (result.error as NodeJS.ErrnoException | undefined)?.code,
       stdout: result.stdout ?? '',
       stderr: result.stderr ?? '',
       timedOut: (result.error as NodeJS.ErrnoException | undefined)?.code === 'ETIMEDOUT',

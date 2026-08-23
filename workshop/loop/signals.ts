@@ -2,7 +2,7 @@ import { RepeatedErrorRule } from '../intelligence/rules/repeated-error-rule'
 import type { WorkshopEvent } from '../types'
 import type { RunResult } from './runner'
 
-export type LoopSignal = 'SUCCESS' | 'FAILURE' | 'TIMEOUT'
+export type LoopSignal = 'SUCCESS' | 'FAILURE' | 'TIMEOUT' | 'INFRA_FAILURE'
 export type AttemptSignal = LoopSignal | 'STUCK'
 
 export interface AttemptRecord {
@@ -13,8 +13,14 @@ export interface AttemptRecord {
   durationMs: number
 }
 
+const INFRA_SPAWN_ERROR_CODES: ReadonlySet<string> = new Set(['ENOENT', 'EACCES'])
+
 export function classifyRun(result: RunResult): LoopSignal {
   if (result.timedOut) return 'TIMEOUT'
+  if (result.exitCode === null) return 'INFRA_FAILURE'
+  if (result.errorCode !== undefined && INFRA_SPAWN_ERROR_CODES.has(result.errorCode)) {
+    return 'INFRA_FAILURE'
+  }
   return result.exitCode === 0 ? 'SUCCESS' : 'FAILURE'
 }
 
