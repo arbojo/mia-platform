@@ -2,13 +2,13 @@
 task_id: TASK-20260823-102540725
 title: Engineering Loop v0.1 - Minimal Worker Handoff
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260823-102540725
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-23T11:02:09.757Z
+updated: 2026-08-23T11:04:06.218Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -73,7 +73,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: evidencia JSONL muestra intentos nemotron→big-pickle con session_id idéntico y resultado SUCCESS/BLOCK correcto.
   - Gate/verificación: inspección del JSONL + salida del runner.
 
-- [ ] **Paso 5:** Documentación y cierre
+- [x] **Paso 5:** Documentación y cierre
   - Objetivo: doc architecture + informe final con clasificación YES/PARTIAL/NO.
   - Archivos: docs/architecture/engineering-loop-v0.1.md
   - Acción: documentar arquitectura, routing, invocación, handoff, integración Subaru, reintentos, detección stuck, escalación, límites de seguridad, tests y limitaciones.
@@ -87,7 +87,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260823-102540725 5`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260823-102540725` cuando pasen los gates de verificación.
 
 ## Constraints
 
