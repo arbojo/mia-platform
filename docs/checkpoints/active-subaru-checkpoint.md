@@ -2,13 +2,13 @@
 task_id: TASK-20260823-102540725
 title: Engineering Loop v0.1 - Minimal Worker Handoff
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260823-102540725
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-23T10:38:52.171Z
+updated: 2026-08-23T10:48:38.295Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -57,7 +57,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: npm run test:unit pasa 8/8 casos nuevos sin regresiones.
   - Gate/verificación: npx vitest run tests/engineering-loop.test.ts
 
-- [ ] **Paso 3:** Gates del repositorio en verde
+- [x] **Paso 3:** Gates del repositorio en verde
   - Objetivo: lint, build y unit suite completa sin errores sobre el árbol modificado.
   - Archivos: (ninguno nuevo; verificación global)
   - Acción: ejecutar npm run lint && npm run build && npm run test:unit.
@@ -87,7 +87,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260823-102540725 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260823-102540725 4`.
 
 ## Constraints
 
