@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d63d699`.
+> Fuente de verdad: este repositorio en `86c5861`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d63d699` |
+| **Commit HEAD** | `86c5861` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T04:49:13-06:00 |
+| **Generado** | 2026-08-23T05:02:19-06:00 |
 
 ---
 
@@ -860,6 +860,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+86c5861 subaru: checkpoint TASK-20260823-102540725 - en-progreso
+4d85689 docs: regenerate MASTER.md at d63d699
 d63d699 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 4a697fa docs: regenerate MASTER.md at 2359fa2
 2359fa2 subaru: checkpoint TASK-20260823-102540725 - en-progreso
@@ -878,8 +880,6 @@ f72a408 test: repair unit suites for current runtime contracts (55 failures)
 fa3e76b fix: map ApiAuthError to 401 via handleApiError in experience APIs
 eb1e974 docs: regenerate MASTER.md at 105e64f
 105e64f subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
-d511736 docs: regenerate MASTER.md at 59ecb81
-59ecb81 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 ```
 
 ---
