@@ -1,116 +1,105 @@
 ---
-task_id: TASK-20260820-ADR027
-title: ADR-027: MIA Cloud Architecture
-state: completed
-current_step: 5
+task_id: TASK-20260823-102540725
+title: Engineering Loop v0.1 - Minimal Worker Handoff
+state: frozen
+current_step: 0
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
-governance_id: TASK-20260820-ADR027
-created: 2026-08-13T23:56:05.761Z
-updated: 2026-08-22T08:42:35.286Z
+governance_id: TASK-20260823-102540725
+created: 2026-08-23T10:28:37.146Z
+updated: 2026-08-23T10:28:37.146Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-ADR-027: MIA Cloud Architecture — convertir MIA en plataforma Cloud gestionada con extensiones arquitectónicas (JWT bridge, session restoration, lifecycle Platform Admin, provisioning híbrido).
+Engineering Loop v0.1 — Minimal Worker Handoff. Demostrar que una misión puede sobrevivir al fallo de un modelo de código y continuar automáticamente con otro modelo a través del estado de misión Subaru existente y la sesión de OpenCode.
 
-Aprobación: TASK-20260820-ADR027 (Concilio unánime, 2026-08-21).
+Aprobación: TASK-20260823-102540725 (Concilio unánime, 2026-08-23).
 
 ## Scope
 
-- `docs/adr/027-mia-cloud-architecture.md`
-- `.governance/tasks/TASK-20260820-ADR027.json`
-- `supabase/migrations/` (deployment_model, status)
-- `src/lib/platform/jwt.ts`, `src/lib/system/edition.ts`
-- `services/whatsapp-bridge/src/` (JWT, restoration, graceful shutdown)
-- `src/app/api/admin/platform/tenants/`
-- `src/components/platform-admin/`
-- `tests/platform-admin.test.ts`
+- `workshop/loop/router.ts` — mapeo determinista worker→modelo (nemotron→opencode/nemotron-3-ultra-free, big-pickle→opencode/big-pickle)
+- `workshop/loop/runner.ts` — invocación de `opencode run` (spawnSync, --model/-s/--format json)
+- `workshop/loop/signals.ts` — SUCCESS/FAILURE/TIMEOUT/STUCK + adaptador mínimo a RepeatedErrorRule
+- `workshop/loop/evidence.ts` — evidencia JSONL machine-readable
+- `workshop/loop/run-loop.ts` — orquestador de misión (reintentos, handoff, gates lint/build/unit)
+- `tests/engineering-loop.test.ts` — TEST 1-8 con fakes
+- `docs/architecture/engineering-loop-v0.1.md`
 
 ## Non-goals
 
-- Modelo B/C (Supabase/Vercel/Fly dedicados por tenant) — diferido per §4.1.1
-- CI/CD automation, rate limiting, multi-region
-- Self-service payment integration (provisioning admin-only en MVP)
-- Schema-per-tenant
+- NO nuevo runtime de workers ni framework de agentes
+- NO modificar OpenCode, Subaru, Council ni Governance
+- NO segundo sistema de checkpoints ni de memoria
+- NO selección de modelo por LLM (solo mapeo determinista)
+- NO deploy a producción ni operación sobre datos reales de clientes
 
 ## Approved plan
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** Auditoría arquitectónica y redacción ADR-027
-  - Objetivo: Documentar estado actual, gaps, y extensiones Cloud
-  - Archivos: `docs/adr/027-mia-cloud-architecture.md`
-  - Acción: ADR completo con contexto, tenant model, bridge JWT, lifecycle
+- [ ] **Paso 1:** Implementar núcleo del Loop en workshop/loop/
+  - Objetivo: router determinista + runner opencode + señales + evidencia JSONL + orquestador con reintentos/handoff/gates.
+  - Archivos: workshop/loop/router.ts, runner.ts, signals.ts, evidence.ts, run-loop.ts
+  - Acción: escribir los 5 módulos (~200 LOC total) reutilizando spawnSync, RepeatedErrorRule y convenciones de workshop/.
   - Dependencia: ninguna
-  - Criterio de terminación: ADR-027 committed (11bc7ff)
-  - Gate/verificación: ADR presente en docs/adr/
+  - Criterio de terminación: los módulos compilan bajo tsx y exponen API inyectable (fakes) para tests.
+  - Gate/verificación: npx tsx -e import smoke de cada módulo sin errores.
 
-- [x] **Paso 2:** Prerrequisito Phase 0a — Legacy Supabase cleanup
-  - Objetivo: Eliminar riesgo CRITICAL del proyecto legacy `aveusacpaexwrfoyinas`
-  - Archivos: `docs/audits/legacy-project-security-report.md`
-  - Acción: `supabase projects delete` + actualizar ADR §1.1.6
+- [ ] **Paso 2:** Tests deterministas TEST 1-8 en verde
+  - Objetivo: probar éxito, reintento, stuck→checkpoint→handoff misma sesión, éxito fallback, bloqueo final, supervivencia de estado, sesión estable, gates innecesarios.
+  - Archivos: tests/engineering-loop.test.ts
+  - Acción: vitest con fakeRunner/fakeGates/fakeSubaru inyectados; cero llamadas reales a opencode.
   - Dependencia: Paso 1
-  - Criterio de terminación: Proyecto legacy eliminado (472b1c6)
-  - Gate/verificación: ADR §1.1.6 status RESOLVED
+  - Criterio de terminación: npm run test:unit pasa 8/8 casos nuevos sin regresiones.
+  - Gate/verificación: npx vitest run tests/engineering-loop.test.ts
 
-- [x] **Paso 3:** Congelar checkpoint Subaru + governance classify
-  - Objetivo: Blueprint congelado en remoto antes de decisiones de implementación
-  - Archivos: `docs/checkpoints/active-subaru-checkpoint.md`
-  - Acción: `subaru freeze TASK-20260820-ADR027` (90a765e)
-  - Dependencia: Pasos 1-2
-  - Criterio de terminación: Checkpoint en remoto, state frozen→in_progress
-  - Gate/verificación: `subaru status` confirma TASK-20260820-ADR027
+- [ ] **Paso 3:** Gates del repositorio en verde
+  - Objetivo: lint, build y unit suite completa sin errores sobre el árbol modificado.
+  - Archivos: (ninguno nuevo; verificación global)
+  - Acción: ejecutar npm run lint && npm run build && npm run test:unit.
+  - Dependencia: Paso 2
+  - Criterio de terminación: 0 errores/warnings en lint; build OK; unit suite verde.
+  - Gate/verificación: salida machine-readable registrada en evidence del paso.
 
-- [x] **Paso 4:** Concilio §4.1 — Evaluación modelos A/B/C + governance manifest
-  - Objetivo: Decisión formal de topología de infraestructura Cloud MVP
-  - Archivos: `docs/adr/027-mia-cloud-architecture.md` §4.1.1, `.governance/tasks/TASK-20260820-ADR027.json`
-  - Acción: Convocar Concilio, evaluar A/B/C per §4.2, registrar decisión Model A, aprobar manifest
+- [ ] **Paso 4:** Integración real con OpenCode
+  - Objetivo: demostrar misión real inofensiva con Nemotron y handoff controlado a Big Pickle en la MISMA sesión.
+  - Archivos: .loop-evidence/ (solo evidencia local, gitignored si aplica)
+  - Acción: misión de juguete (crear/borrar archivo temporal); forzar condición stuck controlada; verificar checkpoint Subaru + continuación con -s <misma-sesion> --model big-pickle.
   - Dependencia: Paso 3
-  - Criterio de terminación: §4.1.1 Council Decision Record en ADR + manifest approved + `governance validate` PASSED
-  - Gate/verificación: `npx tsx workshop/governance/cli.ts validate TASK-20260820-ADR027`
+  - Criterio de terminación: evidencia JSONL muestra intentos nemotron→big-pickle con session_id idéntico y resultado SUCCESS/BLOCK correcto.
+  - Gate/verificación: inspección del JSONL + salida del runner.
 
-- [x] **Paso 5:** Implementación Cloud MVP Phase 1 (Core)
-  - Objetivo: JWT bridge auth + session restoration + deployment_model/status columns
-  - Archivos: §18 File Impact Matrix — Phase 1 tasks 1-4 (ADR §14.2)
-  - Acción: Migration → jwt.ts → bridge changes → graceful shutdown
-  - Dependencia: Paso 4 (Model A approved, governance authorized)
-  - Criterio de terminación: Phase 1 tasks 1-4 completos, lint + build pass
-  - Gate/verificación: lint, build, security_review (JWT cross-tenant tests)
+- [ ] **Paso 5:** Documentación y cierre
+  - Objetivo: doc architecture + informe final con clasificación YES/PARTIAL/NO.
+  - Archivos: docs/architecture/engineering-loop-v0.1.md
+  - Acción: documentar arquitectura, routing, invocación, handoff, integración Subaru, reintentos, detección stuck, escalación, límites de seguridad, tests y limitaciones.
+  - Dependencia: Paso 4
+  - Criterio de terminación: doc completa + subaru complete --confirm-gates exitoso.
+  - Gate/verificación: npx tsx workshop/subaru/cli.ts status
 
 ## Current state
 
-- Misión TASK-20260820-ADR027 completada (5/5 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Godzilla Stress Test (adversarial), TypeScript strict check.
-- Finalizado: 2026-08-22T08:42:35.286Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..5.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete TASK-20260820-ADR027` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
-- Model A obligatorio para MVP — no provisionar Supabase/Vercel/Fly por tenant
-- Per-tenant JWT (jose) reemplaza shared secret — no deploy sin esto
-- Admin client para writes; server client para reads
-- Governance gate: validate antes de cada commit de implementación
-- RLS sin cambios — isolation lógica via get_user_business_ids()
+- Reuso obligatorio: Subaru CLI (única autoridad de estado), WorkflowEngine (governance), RepeatedErrorRule (stuck), gates npm existentes.
+- Límites de seguridad: el Loop NUNCA deploya producción, modifica secretos, bypassa governance/aprobaciones ni ejecuta DDL destructivo; esas condiciones producen BLOCK o REQUIRE_HUMAN_APPROVAL.
+- PRIMARY=opencode/nemotron-3-ultra-free, FALLBACK=opencode/big-pickle; sin descubrimiento dinámico de modelos.
+- Presupuesto: ~200 LOC de producción nueva; si se necesita más, DETENERSE y justificar.
+- Sin secretos en código/evidencia; sin commits de implementación sin este blueprint en remoto.
 
 ## Verification
 
-| Gate | Estado |
-|------|--------|
-| governance validate | ✅ PASSED |
-| Concilio §4.1 | ✅ Model A approved |
-| lint | ⏳ Pendiente (Paso 5) |
-| build | ⏳ Pendiente (Paso 5) |
-| unit_tests | ⏳ Pendiente (Paso 5) |
-| e2e_tests | ⏳ Pendiente (Paso 5) |
-| security_review | ⏳ Pendiente (Paso 5) |
-| stress_test | ⏳ Pendiente (Paso 5) |
+- (gates obligatorios y estado de ejecución — completar)
 
 ## Recovery instructions
 
@@ -119,6 +108,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Verificar governance: `npx tsx workshop/governance/cli.ts validate TASK-20260820-ADR027`
-6. Continuar Paso 5 e implementar Phase 1 Core.
-7. Al final: `subaru complete TASK-20260820-ADR027 --confirm-gates --governance TASK-20260820-ADR027`.
+5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260823-102540725 <n>`.
+6. Al final: `subaru complete TASK-20260823-102540725`.
