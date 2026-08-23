@@ -2,13 +2,13 @@
 task_id: TASK-20260823-102540725
 title: Engineering Loop v0.1 - Minimal Worker Handoff
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260823-102540725
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-23T10:38:48.679Z
+updated: 2026-08-23T10:38:52.171Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -49,7 +49,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: los módulos compilan bajo tsx y exponen API inyectable (fakes) para tests.
   - Gate/verificación: npx tsx -e import smoke de cada módulo sin errores.
 
-- [ ] **Paso 2:** Tests deterministas TEST 1-8 en verde
+- [x] **Paso 2:** Tests deterministas TEST 1-8 en verde
   - Objetivo: probar éxito, reintento, stuck→checkpoint→handoff misma sesión, éxito fallback, bloqueo final, supervivencia de estado, sesión estable, gates innecesarios.
   - Archivos: tests/engineering-loop.test.ts
   - Acción: vitest con fakeRunner/fakeGates/fakeSubaru inyectados; cero llamadas reales a opencode.
@@ -87,7 +87,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260823-102540725 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260823-102540725 3`.
 
 ## Constraints
 
