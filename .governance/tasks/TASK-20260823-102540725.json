@@ -1,0 +1,115 @@
+{
+  "id": "TASK-20260823-102540725",
+  "title": "Engineering Loop v0.1 - minimal worker handoff",
+  "description": "Deterministic worker router over OpenCode models integrated with Subaru checkpoints: Nemotron primary, Big Pickle fallback, same-session escalation on stuck or repeated failure.",
+  "scope": {
+    "categories": [
+      "feature",
+      "infrastructure"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "infrastructure",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "godzilla",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: platform. Complexity drivers: 6 files affected, security implications, category requires council. Required agents (10): architect, backend, frontend, security, qa, godzilla, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Entorno validado en esta sesion: opencode 1.18.21, tsx, vitest y toolchain npm operativos; no se requieren instalaciones nuevas.",
+      "timestamp": "2026-08-23T10:27:01.148Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Sin drift: la mision solo anade workshop/loop, tests unitarios y docs; baseline.json y dependencias intocadas.",
+      "timestamp": "2026-08-23T10:27:03.165Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Diseno minimo-reuso verificado contra codigo real: Subaru CLI como unico estado de mision, WorkflowEngine para gates, RepeatedErrorRule con adaptador minimo; cero sistemas paralelos; objetivo ~200 LOC alcanzable.",
+      "timestamp": "2026-08-23T10:27:05.134Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Runner basado en spawnSync sobre opencode run --model/-s/--format json con codigos de salida deterministas; sin nuevas dependencias de runtime.",
+      "timestamp": "2026-08-23T10:27:07.125Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin impacto en UI: ningun componente de src/ se modifica.",
+      "timestamp": "2026-08-23T10:27:27.095Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Limites de seguridad codificados como denegaciones deterministicas (deploy, secretos, bypass de governance, DDL destructivo producen BLOCK/REQUIRE_HUMAN_APPROVAL); la escalacion no puede saltar gates porque Subaru assertGovernanceApproved sigue siendo la unica autoridad; sin secretos en evidencias.",
+      "timestamp": "2026-08-23T10:27:29.076Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "8 tests deterministas especificados con fakes de runner (exito/fallo/stuck/timeout/handoff/sesion-estable/bypass-bloqueado); gates lint+build+unit con resultado machine-readable; e2e cubierto por suite Playwright existente.",
+      "timestamp": "2026-08-23T10:27:31.017Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores adversarios cubiertos: timeout colgado, stuck silencioso, fallo persistente que agota reintentos, intento de marcar completo sin gates, sesion distinta post-handoff rechazada; CRITICAL/HIGH bloquean via BLOCK state.",
+      "timestamp": "2026-08-23T10:27:32.957Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Evidencia JSONL del loop complementa mecanismos existentes (memory-index/post-audit) sin duplicarlos; no hay nuevo sistema de memoria.",
+      "timestamp": "2026-08-23T10:27:34.926Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit solo al cierre: se verificara arbol limpio salvo archivos intencionales, sin secretos, con governance aprobado y gates en verde antes de push.",
+      "timestamp": "2026-08-23T10:27:36.893Z"
+    }
+  ],
+  "createdAt": "2026-08-23T10:25:40.823Z",
+  "classifiedAt": "2026-08-23T10:25:40.823Z",
+  "approvedAt": "2026-08-23T10:27:36.894Z"
+}

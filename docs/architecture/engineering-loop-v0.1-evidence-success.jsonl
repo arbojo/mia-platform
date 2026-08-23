@@ -1,0 +1,2 @@
+{"mission_id":"LOOP-DEMO-SUCCESS","attempt":0,"worker":"nemotron","model":"opencode/nemotron-3-ultra-free","start_time":"2026-08-23T10:52:49.348Z","end_time":"2026-08-23T10:53:42.620Z","result":"SUCCESS","session_id":"ses_fd1bf8a58ffe1bnjMzBJqkX2NQ"}
+{"mission_id":"LOOP-DEMO-SUCCESS","attempt":1,"worker":"nemotron","model":"opencode/nemotron-3-ultra-free","start_time":"2026-08-23T10:53:42.622Z","end_time":"2026-08-23T10:54:49.231Z","result":"COMPLETE","session_id":"ses_fd1bf8a58ffe1bnjMzBJqkX2NQ","gate_results":{"lint":true,"build":true},"next_action":"mission complete"}
