@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260823-102540725
 title: Engineering Loop v0.1 - Minimal Worker Handoff
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260823-102540725
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-23T10:28:37.146Z
+updated: 2026-08-23T10:38:48.679Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -41,7 +41,7 @@ Aprobación: TASK-20260823-102540725 (Concilio unánime, 2026-08-23).
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** Implementar núcleo del Loop en workshop/loop/
+- [x] **Paso 1:** Implementar núcleo del Loop en workshop/loop/
   - Objetivo: router determinista + runner opencode + señales + evidencia JSONL + orquestador con reintentos/handoff/gates.
   - Archivos: workshop/loop/router.ts, runner.ts, signals.ts, evidence.ts, run-loop.ts
   - Acción: escribir los 5 módulos (~200 LOC total) reutilizando spawnSync, RepeatedErrorRule y convenciones de workshop/.
@@ -87,7 +87,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260823-102540725 2`.
 
 ## Constraints
 
