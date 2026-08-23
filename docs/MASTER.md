@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f215c79`.
+> Fuente de verdad: este repositorio en `d5d979d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f215c79` |
+| **Commit HEAD** | `d5d979d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-22T02:42:44-06:00 |
+| **Generado** | 2026-08-23T04:29:14-06:00 |
 
 ---
 
@@ -860,6 +860,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+d5d979d subaru: checkpoint TASK-20260823-102540725 - listo
+d59a262 docs: regenerate MASTER.md at f215c79
 f215c79 subaru: checkpoint TASK-20260820-ADR027 - completado
 04d6ac5 docs: regenerate MASTER.md at e7945bf
 e7945bf subaru: checkpoint TASK-20260822-TESTFIX - completado
@@ -878,8 +880,6 @@ c35b49c docs: regenerate MASTER.md at 2963440
 6b20461 docs: regenerate MASTER.md at acedfd0
 acedfd0 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
 1cb1476 docs: regenerate MASTER.md at 30e79cd
-30e79cd subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
-b2b4fbe docs: regenerate MASTER.md at ca7d477
 ```
 
 ---
