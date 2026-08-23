@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ca57685`.
+> Fuente de verdad: este repositorio en `9462989`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ca57685` |
+| **Commit HEAD** | `9462989` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T05:04:08-06:00 |
+| **Generado** | 2026-08-23T05:10:27-06:00 |
 
 ---
 
@@ -860,6 +860,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 ## 14. Commits Recientes
 
 ```
+9462989 subaru: checkpoint TASK-20260823-102540725 - completado
+33c5d1d docs: regenerate MASTER.md at ca57685
 ca57685 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 5bd44b5 docs: regenerate MASTER.md at 86c5861
 86c5861 subaru: checkpoint TASK-20260823-102540725 - en-progreso
@@ -878,8 +880,6 @@ e7945bf subaru: checkpoint TASK-20260822-TESTFIX - completado
 d62be50 docs: regenerate MASTER.md at f852672
 f852672 test: fix Windows path handling in secrets-check tmpFile helper
 0386e4e chore: ignore coverage dir in eslint config
-f72a408 test: repair unit suites for current runtime contracts (55 failures)
-fa3e76b fix: map ApiAuthError to 401 via handleApiError in experience APIs
 ```
 
 ---
