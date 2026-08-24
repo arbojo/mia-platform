@@ -160,8 +160,7 @@ export async function handleCancellationWebhook(
 
       const history = Array.isArray(convHistory?.outcome_history) ? convHistory.outcome_history : []
 
-      await supabase.from('conversations').update({
-        outcome: 'cancelled',
+      const { error: discountStateError } = await supabase.from('conversations').update({
         sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
         outcome_updated_at: new Date().toISOString(),
         outcome_history: [
@@ -175,6 +174,10 @@ export async function handleCancellationWebhook(
           },
         ],
       }).eq('id', conversationId)
+
+      if (discountStateError) {
+        throw new Error(`Failed to persist cancellation state: ${discountStateError.message}`)
+      }
 
       // Create SALE_CANCELLED event — blocks sales pipeline via hasClosingEvent
       await emitSalesEvent({
@@ -318,7 +321,10 @@ export async function processSaleClosing(params: {
   }
 
   // === STEP 3: Outcome application ===
-  if (result.outcome && !hasClosed) {
+  // 'cancelled' is never a valid conversations.outcome (CHECK, migration 025).
+  // Cancellation state lives exclusively in sales_cancelled_at + SALE_CANCELLED
+  // event and is handled by the interception paths above.
+  if (result.outcome && result.outcome !== 'cancelled' && !hasClosed) {
     await applyConversationOutcome({
       conversationId,
       outcome: result.outcome,
@@ -357,11 +363,20 @@ export async function processSaleClosing(params: {
 
       const supabase = await import('@/lib/supabase/admin').then((m) => m.createAdminClient())
       const customerUpdate: Record<string, string> = {}
+      if (!customerData?.name?.trim() && result.customerName?.trim()) {
+        customerUpdate.name = result.customerName.trim()
+      }
       if (resolved.phone) customerUpdate.phone = resolved.phone
       if (resolved.city) customerUpdate.city = resolved.city
       if (resolved.address) customerUpdate.address = resolved.address
       if (Object.keys(customerUpdate).length > 0) {
-        await supabase.from('customers').update(customerUpdate).eq('id', customerId)
+        const { error: customerUpdateError } = await supabase
+          .from('customers')
+          .update(customerUpdate)
+          .eq('id', customerId)
+        if (customerUpdateError) {
+          throw new Error(`Failed to persist customer data at sale closing: ${customerUpdateError.message}`)
+        }
       }
 
       // Pedido confirmado pero sin dirección: el equipo debe coordinar la entrega.
