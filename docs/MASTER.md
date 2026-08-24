@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `4b1338f`.
+> Fuente de verdad: este repositorio en `85abbfd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `4b1338f` |
+| **Commit HEAD** | `85abbfd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T18:42:22-06:00 |
+| **Generado** | 2026-08-23T19:10:08-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (126)**:
+**Tareas registradas (127)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -811,6 +811,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260822-073403431 | Reparar suites de tests unitarios (55 fallos) - desbloqueo mision ADR-027 | approved |
 | TASK-20260823-102540725 | Engineering Loop v0.1 - minimal worker handoff | approved |
 | TASK-20260823-114235663 | Engineering Loop v0.2a - Accountable Handoff: Subaru obligatorio, precondicion de governance e INFRA_FAILURE | approved |
+| TASK-20260824-002212903 | Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos (replica mecanica aislada del Engineering Loop) | approved |
 
 ---
 
@@ -855,6 +856,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ```
 engineering-loop.test.ts
+inventory-loop.test.ts
 ```
 
 ---
@@ -862,6 +864,11 @@ engineering-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+85abbfd subaru: checkpoint INVLOOP-V01 - completado
+9141ce7 subaru: checkpoint INVLOOP-V01 - en-progreso
+84af08c feat: inventory loop replication proof v0.1 - mechanical replica of engineering loop for inventory domain (REPLICATION_PROVEN)
+800b982 subaru: checkpoint INVLOOP-V01 - en-progreso
+b88b127 docs: regenerate MASTER.md at 4b1338f
 4b1338f subaru: checkpoint INVLOOP-V01 - en-progreso
 a970bca subaru: checkpoint INVLOOP-V01 - en-progreso
 0554b5b subaru: checkpoint INVLOOP-V01 - en-progreso
@@ -877,11 +884,6 @@ ca57685 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 5bd44b5 docs: regenerate MASTER.md at 86c5861
 86c5861 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 4d85689 docs: regenerate MASTER.md at d63d699
-d63d699 subaru: checkpoint TASK-20260823-102540725 - en-progreso
-4a697fa docs: regenerate MASTER.md at 2359fa2
-2359fa2 subaru: checkpoint TASK-20260823-102540725 - en-progreso
-928e516 subaru: checkpoint TASK-20260823-102540725 - en-progreso
-0ffc537 docs: regenerate MASTER.md at d5d979d
 ```
 
 ---
