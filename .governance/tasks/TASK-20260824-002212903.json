@@ -1,0 +1,116 @@
+{
+  "id": "TASK-20260824-002212903",
+  "title": "Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos (replica mecanica aislada del Engineering Loop)",
+  "description": "Experimento forense: probar si los principios mecanicos del Engineering Loop v0.2a replican para el dominio INVENTORY sin tocar el loop existente. Alcance: (1) nuevo directorio aislado workshop/inventory-loop/ con CERO imports desde/hacia workshop/loop/ (la comparacion de lineas sera la metrica de reutilizacion mecanica real); (2) detector determinista de invariantes I1 (drift ledger: current_qty != suma de deltas del ledger por asset quantity-mode) e I3 (ingest_errors acumulados) sobre FIXTURES SINTETICOS en memoria - nunca contra datos reales de Supabase; validado primero contra fixtures sanos (debe pasar) y corruptos (debe fallar); (3) micro-loop: OBSERVE -> DETECT -> worker diagnostica -> candidate_correction JSON (plan de movimientos adjustment) -> validacion INDEPENDIENTE re-ejecutando el detector sobre el estado proyectado -> retry/stuck -> checkpoint Subaru real -> escalado nemotron->big-pickle misma sesion -> revalidacion -> terminal COMPLETE/BLOCK; el worker NO puede declarar exito propio; (4) patrones deny propios del dominio: rechazar candidatos que toquen datos de produccion, que habiliten negocios (enabled=false es diseno, no anomalia), o que declaren exito sin detector; (5) ejecucion adversarial matriz A-F del brief con opencode/nemotron-3-ultra-free PRIMERO; (6) evidencia JSONL docs/architecture/inventory-loop-v0.1-evidence.jsonl + metricas + tabla comparativa vs Engineering Loop + veredicto REPLICATION_PROVEN/PARTIAL/FAILED. Fuera de alcance: modificar workshop/loop/, workshop/subaru/ o reglas de governance; escrituras a datos reales; migraciones de schema; deployments. Precondicion: Fase 0 completa en docs/architecture/inventory-loop-replication-audit-v0.1.md (HEAD 4bdd83b).",
+  "scope": {
+    "categories": [
+      "feature",
+      "infrastructure"
+    ],
+    "filesAffected": 9,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "primaryDomain": "inventory",
+    "affectedDomains": [
+      "platform",
+      "inventory"
+    ],
+    "technicalDomains": [
+      "backend",
+      "infrastructure"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "security",
+      "qa",
+      "godzilla",
+      "release",
+      "infrastructure_bootstrap",
+      "infrastructure_guardian",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Affected domains: platform, inventory. Complexity drivers: 9 files affected, security implications, cross-cutting (multi-domain), category requires council. Required agents (10): architect, backend, frontend, security, qa, godzilla, release, infrastructure_bootstrap, infrastructure_guardian, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Replica mecanica aislada en workshop/inventory-loop/ con cero imports cruzados hacia workshop/loop/: la comparacion estructural es el propio experimento. Semantica de dominio separada de mecanica (detector/gates vs bucle/checkpoint/escalado) respeta la frontera KEEP_SPECIALIZED del audit de reusabilidad. Sin abstraccion prematura.",
+      "timestamp": "2026-08-24T00:22:57.445Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Detector de invariantes I1/I3 es SQL-semantica pura sobre fixtures en memoria: determinista, testeable, sin acceso a Supabase. Candidate correction como JSON plan + validacion por re-ejecucion independiente del detector sigue el patron NO SELF-ATTESTATION ya probado en v0.2a (gates independientes).",
+      "timestamp": "2026-08-24T00:22:57.447Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI. El experimento no toca src/components ni paginas; su salida es evidencia JSONL y documentos bajo docs/architecture/.",
+      "timestamp": "2026-08-24T00:22:57.460Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Fixtures sinteticos unicamente: cero escrituras a inventory.* real (regla de la mision). Patrones deny propios rechazan candidatos que toquen produccion o habiliten negocios (enabled=false es diseno). El worker no puede declarar exito sin validacion independiente - superficie de engano cubierta por matriz adversarial A-F.",
+      "timestamp": "2026-08-24T00:22:57.474Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates obligatorios completos (lint/build/unit/e2e/devtools/security/stress) + tests deterministicos del micro-loop con fixtures sanos/corruptos y fakes de worker/subaru siguiendo el patron probado de tests/engineering-loop.test.ts (T1-T12).",
+      "timestamp": "2026-08-24T00:22:57.490Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Matriz adversarial A-F es parte central del experimento: mentira del worker (exito sin fix), candidato erroneo, doble fallo mismo patron -> STUCK, handoff nemotron->big-pickle con continuidad de session_id verificable, BLOCK honesto. Vectores cross-dominio: intentos de escape hacia datos reales y hacia workshop/loop/. CRITICAL/HIGH bloquean release.",
+      "timestamp": "2026-08-24T00:22:57.510Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commits atomicos convencionales tras gates verdes. Evidencia JSONL y audit doc como artefactos versionados. Sin deploy requerido (experimento local); push a main con pull --rebase previo por bot concurrente MASTER.md.",
+      "timestamp": "2026-08-24T00:22:57.522Z"
+    },
+    {
+      "agentRole": "infrastructure_bootstrap",
+      "decision": "approve",
+      "rationale": "Sin instalaciones nuevas: Node/tsx/opencode CLI v1.18.21 ya validados en v0.2a. Reutiliza CliSubaruGateway({cwd}) y patron de spawn seguro process.execPath (CVE-2024-27980 mitigado).",
+      "timestamp": "2026-08-24T00:22:57.537Z"
+    },
+    {
+      "agentRole": "infrastructure_guardian",
+      "decision": "approve",
+      "rationale": "Entorno heredado verde del drill v0.2a (809/809 unit, lint, build). Experimento corre en workspace aislado; checkpoint Subaru real via gateway con cwd propio, sin contaminar checkpoints de misiones activas.",
+      "timestamp": "2026-08-24T00:22:57.552Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "El experimento produce conocimiento estructural reusable (metrica de replicacion mecanica, veredicto PROVEN/PARTIAL/FAILED) que debe registrarse en engineering memory junto al veredicto KEEP_SPECIALIZED del audit de reusabilidad.",
+      "timestamp": "2026-08-24T00:22:57.569Z"
+    }
+  ],
+  "createdAt": "2026-08-24T00:22:12.458Z",
+  "classifiedAt": "2026-08-24T00:22:12.458Z",
+  "approvedAt": "2026-08-24T00:22:57.581Z"
+}
