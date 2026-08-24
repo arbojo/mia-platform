@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ac72043`.
+> Fuente de verdad: este repositorio en `eafd089`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ac72043` |
+| **Commit HEAD** | `eafd089` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T00:51:08-06:00 |
+| **Generado** | 2026-08-24T00:55:21-06:00 |
 
 ---
 
@@ -867,6 +867,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+eafd089 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
+ec435ea feat: channels - enriquecimiento idempotente de customer existente en resolveCustomer y fix de referencia rota en path email
+581bd1f docs: regenerate MASTER.md at ac72043
 ac72043 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 3b7d12d fix: sales - propagar errores en emision de eventos de venta y aplicacion de outcome
 310b105 docs: regenerate MASTER.md at 3c70e12
@@ -884,9 +887,6 @@ c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
 f1af445 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 a69137e subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 a2b7f8e subaru: checkpoint MEDIA-RACE-V01 - en-progreso
-e1bedd5 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
-7602ba8 fix(media): enforce concurrent dispatch uniqueness
-1ff69d2 docs: regenerate MASTER.md at bbad21b
 ```
 
 ---
