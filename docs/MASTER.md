@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c034f20`.
+> Fuente de verdad: este repositorio en `4b1338f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c034f20` |
+| **Commit HEAD** | `4b1338f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T18:24:05-06:00 |
+| **Generado** | 2026-08-23T18:42:22-06:00 |
 
 ---
 
@@ -862,6 +862,10 @@ engineering-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+4b1338f subaru: checkpoint INVLOOP-V01 - en-progreso
+a970bca subaru: checkpoint INVLOOP-V01 - en-progreso
+0554b5b subaru: checkpoint INVLOOP-V01 - en-progreso
+a8c33c4 docs: regenerate MASTER.md at c034f20
 c034f20 subaru: checkpoint INVLOOP-V01 - listo
 a3c30f6 feat: engineering loop v0.2a - accountable handoff (mandatory subaru gateway, governance precondition, INFRA_FAILURE)
 a530f6d docs: regenerate MASTER.md at f54d590
@@ -878,10 +882,6 @@ d63d699 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 2359fa2 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 928e516 subaru: checkpoint TASK-20260823-102540725 - en-progreso
 0ffc537 docs: regenerate MASTER.md at d5d979d
-d5d979d subaru: checkpoint TASK-20260823-102540725 - listo
-d59a262 docs: regenerate MASTER.md at f215c79
-f215c79 subaru: checkpoint TASK-20260820-ADR027 - completado
-04d6ac5 docs: regenerate MASTER.md at e7945bf
 ```
 
 ---
