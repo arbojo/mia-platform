@@ -2,13 +2,13 @@
 task_id: CUSTOMER-DATA-V02
 title: Customer Dashboard Visibility Loop V02
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 9
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260824-075423444
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-24T07:58:18.203Z
+updated: 2026-08-24T08:01:48.890Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -110,7 +110,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark CUSTOMER-DATA-V02 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark CUSTOMER-DATA-V02 3`.
 
 ## Constraints
 
