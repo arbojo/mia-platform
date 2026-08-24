@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a6b4bbf`.
+> Fuente de verdad: este repositorio en `3c70e12`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a6b4bbf` |
+| **Commit HEAD** | `3c70e12` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T00:47:32-06:00 |
+| **Generado** | 2026-08-24T00:49:45-06:00 |
 
 ---
 
@@ -867,6 +867,10 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+3c70e12 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
+7fff0a5 fix: sales - eliminar outcome cancelled invalido en processCancellation y propagar errores criticos
+5170154 fix: sales - eliminar outcome cancelled invalido, propagar errores de persistencia y persistir customerName al cierre
+7fbeb34 docs: regenerate MASTER.md at a6b4bbf
 a6b4bbf subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 004efdd docs: regenerate MASTER.md at c9dcbc1
 c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
@@ -883,10 +887,6 @@ e1bedd5 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 bbad21b subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 c283c80 docs: regenerate MASTER.md at 6f33e86
 6f33e86 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
-f74c776 docs: regenerate MASTER.md at 299761e
-299761e chore(governance): council approval TASK-20260824-051612423 media race
-d9ebc65 docs: regenerate MASTER.md at ae09076
-ae09076 subaru: checkpoint MEDIA-RACE-V01 - listo
 ```
 
 ---
