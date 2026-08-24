@@ -213,4 +213,75 @@ describe('processSaleClosing', () => {
       metadata: { reason: 'missing_address' },
     })
   })
+
+  it('nunca aplica outcome cancelled detectado por IA (guard STEP 3)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'cancelled',
+      events: [],
+    })
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+
+    await processSaleClosing(params)
+
+    expect(applyConversationOutcome).not.toHaveBeenCalled()
+  })
+
+  it('persiste customerName, phone, city y address al cierre (casos E/F)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON' }],
+      customerName: 'Juan Pérez',
+      phone: '+521234567890',
+      city: 'CDMX',
+      address: 'Av. Siempre Viva 123',
+    })
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+    vi.mocked(getCustomerName).mockResolvedValue(null)
+
+    await processSaleClosing(params)
+
+    expect(mockUpdate).toHaveBeenCalledWith({
+      name: 'Juan Pérez',
+      phone: '+521234567890',
+      city: 'CDMX',
+      address: 'Av. Siempre Viva 123',
+    })
+  })
+
+  it('no sobrescribe el nombre existente del customer al cierre (caso C en cierre)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON' }],
+      customerName: 'Nombre Nuevo',
+      address: 'Calle 1',
+    })
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getCustomerData).mockResolvedValue({ name: 'Nombre Existente', phone: null, city: null, address: null })
+
+    await processSaleClosing(params)
+
+    expect(mockUpdate).toHaveBeenCalledWith({ address: 'Calle 1' })
+  })
+
+  it('propaga el error cuando falla la escritura de datos del customer al cierre (caso H)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON' }],
+      address: 'Calle 1',
+    })
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+    mockUpdate.mockImplementationOnce(() => ({
+      eq: vi.fn().mockResolvedValue({ error: { message: 'db write failed' } }),
+    }))
+
+    await expect(processSaleClosing(params)).rejects.toThrow(
+      'Failed to persist customer data at sale closing'
+    )
+  })
 })

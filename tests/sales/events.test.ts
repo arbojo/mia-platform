@@ -184,6 +184,44 @@ describe('applyConversationOutcome', () => {
     expect(customers.update).toHaveBeenCalledTimes(1)
     expect(customers.update.mock.calls[0][0]).toEqual({ status: 'lost' })
   })
+
+  it('propaga el error cuando falla el update de la conversacion', async () => {
+    stubTable('conversations', { data: null, error: { message: 'CHECK constraint violated' } })
+
+    await expect(
+      applyConversationOutcome({
+        conversationId: CONVERSATION_ID,
+        outcome: 'interested',
+      })
+    ).rejects.toThrow('Failed to persist conversation outcome')
+  })
+
+  it('propaga el error cuando falla la sincronizacion del customer', async () => {
+    stubTable('conversations', {
+      data: { outcome: null, deal_value: null, outcome_history: [], customer_id: CUSTOMER_ID },
+      error: null,
+    })
+    stubTable('customers', { data: null, error: { message: 'db write failed' } })
+
+    await expect(
+      applyConversationOutcome({
+        conversationId: CONVERSATION_ID,
+        outcome: 'sold',
+        customerId: CUSTOMER_ID,
+      })
+    ).rejects.toThrow('Failed to sync customer status from outcome')
+  })
+})
+
+describe('emitSalesEvent — errores', () => {
+  it('propaga el error cuando falla el insert del evento', async () => {
+    const table = stubTable('sales_events', { data: null, error: { message: 'insert failed' } })
+
+    await expect(
+      emitSalesEvent({ businessId: BUSINESS_ID, eventType: 'SALE_WON' })
+    ).rejects.toThrow('Failed to emit sales event SALE_WON')
+    expect(table.insert).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('notifySaleToOwner', () => {
