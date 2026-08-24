@@ -1,0 +1,109 @@
+{
+  "id": "TASK-20260824-051612423",
+  "title": "fix(media): enforce concurrent dispatch uniqueness",
+  "description": "Mision Engineering Loop: carrera de concurrencia en despacho de media. EVIDENCIA: (1) migracion 016:32 define CONSTRAINT uq_chat_media_once UNIQUE(knowledge_item_id, conversation_id) vigente y jamas alterada -> la doble insercion concurrente es imposible en DB; el perdedor recibe 23505. (2) Desde e7bfbf3 el error de persistencia hace throw; en la ruta activa (runtime.ts:376, sin try/catch) el throw escala al webhook -> 500 -> el cliente pierde TAMBIEN la respuesta de texto ante una redelivery concurrente. (3) isResend=true salta la guarda previa y hace INSERT sobre fila ya existente -> violacion de uq_chat_media_once -> resend roto en produccion; los tests no lo detectan porque el mock nunca aplica la constraint. DISENO: reclamo atomico con upsert(onConflict knowledge_item_id,conversation_id, ignoreDuplicates) + select para discriminar ganador (data no vacia) de perdedor (data vacia -> return null graceful en normal; resend entrega siempre sin segunda fila). La pre-lectura de chat_media_dispatched se conserva porque es semanticamente necesaria para seleccionar candidatos multiples (pending filter). Sin migracion nueva (la constraint ya existe), sin columnas nuevas (is_resend no se persiste: la identidad de auditoria sigue siendo conversation+item segun ADR-014), media_sent_products intacto, fallos de persistencia reales siguen siendo observables (throw). Alcance: src/lib/runtime/conditional-media.ts + tests/runtime/conditional-media.test.ts (suite de regresion determinista con N concurrentes, resend, fallo, no-producto). Fuera de alcance: colas por conversacion, locks distribuidos, RPC nuevo, re-diseno transaccional.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "reliability"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: AI behaviour changes. Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "La constraint atomica ya existe (016:32 uq_chat_media_once); el fix es USARLA correctamente via upsert ignoreDuplicates en lugar de check->act. Cero migracion, cero RPC nuevo, cero locks: mecanismo mas pequeno que hace verdadera la invariante. La pre-lectura de chat_media_dispatched se conserva porque el pending filter es semanticamente necesario para seleccion entre multiples candidatos (sin ella un item ya despachado bloquearia la eleccion de otro candidato fresco).",
+      "timestamp": "2026-08-24T05:16:38.345Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Un solo round-trip atomico reemplaza select+insert: upsert(...,{onConflict:'knowledge_item_id,conversation_id',ignoreDuplicates:true}).select() discrimina ganador (data con filas) de perdedor (data vacia -> null graceful). Error real sigue siendo throw (persistencia observable). Resend usa mismo upsert idempotente y entrega siempre: elimina la violacion 23505 actual contra fila existente.",
+      "timestamp": "2026-08-24T05:16:40.630Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI ni componentes. El contrato de respuesta (MediaAttachment|null) es identico; la unica diferencia observable es que el perdedor concurrente devuelve null en vez de colgar el webhook.",
+      "timestamp": "2026-08-24T05:16:42.826Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Cero cambios de prompt, contexto o llamadas a OpenAI. resolveConditionalMedia es post-procesamiento determinista del runtime; el fix no altera tokens ni consumo de IA.",
+      "timestamp": "2026-08-24T05:16:45.212Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Reduccion neta de round-trips: select+insert (2 queries) -> upsert+select (1 query) en el camino caliente por mensaje con media candidata. La pre-lectura existente se mantiene (misma query que hoy). Sin nuevo indice ni migration: la constraint 016 ya respalda el conflicto.",
+      "timestamp": "2026-08-24T05:17:14.328Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Suite determinista nueva: N=5 concurrentes mismo conversation/item isResend=false -> exactamente 1 attachment y 4 null sin throws; resend contra fila existente entrega sin segunda fila; perdedor no marca media_sent_products; fallo de persistencia real sigue lanzando; no-producto crea ledger sin tocar conversations. Harness del fake simula la constraint uq_chat_media_once que produccion aplica y el mock actual ignora.",
+      "timestamp": "2026-08-24T05:17:16.488Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores cubiertos: redelivery concurrente (perdedor ya no tumba la respuesta de texto), resend repetido N veces (idempotente, nunca explota), carrera entre normal y resend simultaneos (quien gane reclama; resend entrega igual), fallo de red/RLS sigue siendo ruidoso. Sin datos reales borrados, sin superficie nueva expuesta: el fix reduce la superficie de fallo silencioso existente.",
+      "timestamp": "2026-08-24T05:17:18.687Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit separado e independiente (fix/media-concurrent-dispatch-uniqueness); NO squash sobre e7bfbf3/dd4454a. Blueprint Subaru freeze antes de codificar. Gates: targeted+unit+lint+tsc+build; e2e/chrome devtools quedan cubiertos por suite unitaria determinista al no cambiar contrato HTTP ni UI.",
+      "timestamp": "2026-08-24T05:17:20.847Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Leccion estructural registrada: un mock que no replica constraints de DB esconde bugs de integracion (resend roto en prod con tests verdes desde e7bfbf3). Patron a recordar: check->act sobre tablas con UNIQUE debe ser claim atomico (upsert ignoreDuplicates + discriminacion por filas retornadas), jamas select-then-insert.",
+      "timestamp": "2026-08-24T05:17:23.112Z"
+    }
+  ],
+  "createdAt": "2026-08-24T05:16:12.949Z",
+  "classifiedAt": "2026-08-24T05:16:12.949Z",
+  "approvedAt": "2026-08-24T05:17:23.114Z",
+  "startedAt": "2026-08-24T05:17:38.533Z"
+}
