@@ -1,0 +1,92 @@
+{
+  "id": "TASK-20260824-064237689",
+  "title": "Customer Data Integrity Loop V01: outcome cancelado invalido, errores DB silenciosos y enriquecimiento de customer",
+  "description": "Reparar brechas de integridad de datos de customer verificadas por auditoria forense (HEAD 6333fae). P0: process.ts y cancel.ts escriben conversations.outcome=cancelled, valor prohibido por el CHECK de migracion 025 (pending/interested/not_interested/sold/needs_follow_up); el error de PostgREST se ignora, sales_cancelled_at nunca se fija y la maquina de estados de cancelacion/descuento queda desincronizada. Decision de dominio: Opcion B — la cancelacion vive en sales_cancelated_at + evento SALE_CANCELLED + outcome_history (sin segunda fuente de verdad; sin migracion). Trabajo: (1) eliminar outcome:cancelled de ambos escritores manteniendo sentinel/timestamp/history/eventos, (2) bloquear camino de deteccion cancelled hacia conversations.outcome, (3) auditar escrituras silenciosas en sales/events/process/cancel y channels/identity: propagar errores solo donde la captura de datos es critica, (4) enriquecimiento idempotente no destructivo en resolveCustomer (rellenar name/phone vacios desde WireMessage sin sobrescribir existentes), (5) persistir customerName extraido por LLM al cierre cuando el nombre existente este vacio. Tests: casos A-H cubriendo creacion, relleno, preservacion, no-op, enriquecimiento al cierre, city/address, payload de cancelacion valido y fallo de DB que lanza. Sin cambios de schema, sin cambios de prompt IA, sin dashboard.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "refactor"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "sales",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 8 files affected. Required agents (7): architect, backend, frontend, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Opcion B validada: la cancelacion ya es observable via sales_cancelled_at + SALE_CANCELLED + outcome_history; escribir outcome=cancelled duplicaria la fuente de verdad y viola el CHECK de migracion 025 (inmutable). La solucion minima elimina el valor invalido en los dos escritores y anade enriquecimiento idempotente sin nuevo esquema.",
+      "timestamp": "2026-08-24T06:42:56.489Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Evidencia: process.ts:164 y cancel.ts:123 escriben outcome=cancelled prohibido por CHECK 025; el .error del update se ignora en ambos. Fix: eliminar el campo invalido manteniendo sentinel/timestamp/history, propagar error donde la captura es critica (identity insert ya lanza), y rellenar name/phone vacios en resolveCustomer sin sobrescribir existentes. Contrato detectSaleOutcome intacto.",
+      "timestamp": "2026-08-24T06:43:11.406Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI: cero componentes afectados. El dashboard y paneles existentes solo leen campos ya soportados (sales_cancelled_at, outcome_history); la correccion hace que esos datos finalmente se persistan.",
+      "timestamp": "2026-08-24T06:43:24.675Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Gates: lint, build, unit tests (vitest) con casos A-H nuevos en identity/process/cancel/events; e2e y DevTools para regresion. La correccion convierte fallos silenciosos en errores propagados, lo que hace el comportamiento verificable por test.",
+      "timestamp": "2026-08-24T06:43:53.520Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores evaluados: (1) payload de cancelacion no puede violar CHECK tras fix, verificado por test de contrato; (2) fallos de DB dejan de tragarse silenciosamente en rutas criticas de captura; (3) enriquecimiento es idempotente y nunca sobrescribe datos existentes (casos C/D); (4) sin inyeccion: valores entrantes pasan por trim y columnas tipadas. Sin hallazgos CRITICAL/HIGH previstos; stress test se re-ejecutara sobre el diff.",
+      "timestamp": "2026-08-24T06:44:05.495Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Plan de entrega: Subaru freeze antes del primer commit de implementacion; gates lint/build/test:unit/e2e sobre el diff; STOP en Phase 8 con reporte completo sin commit automatico, esperando aprobacion explicita del usuario para push.",
+      "timestamp": "2026-08-24T06:44:15.562Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Leccion registrada: los escritores de outcome asumian que el valor 'cancelled' era valido sin verificar el CHECK de migracion 025, y el patron .update() sin chequear .error oculto el fallo en produccion. Patron a recordar: toda escritura critica de captura de datos debe validar error y respetar el contrato de migraciones inmutables.",
+      "timestamp": "2026-08-24T06:44:28.070Z"
+    }
+  ],
+  "createdAt": "2026-08-24T06:42:37.303Z",
+  "classifiedAt": "2026-08-24T06:42:37.303Z",
+  "approvedAt": "2026-08-24T06:44:28.072Z",
+  "startedAt": "2026-08-24T06:44:47.557Z"
+}
