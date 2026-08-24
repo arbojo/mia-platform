@@ -1,103 +1,88 @@
 ---
-task_id: TASK-20260823-102540725
-title: Engineering Loop v0.1 - Minimal Worker Handoff
-state: completed
-current_step: 5
+task_id: INVLOOP-V01
+title: Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos
+state: frozen
+current_step: 0
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
-governance_id: TASK-20260823-102540725
+governance_id: TASK-20260824-002212903
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-23T11:10:12.090Z
+updated: 2026-08-24T00:23:52.849Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Engineering Loop v0.1 — Minimal Worker Handoff. Demostrar que una misión puede sobrevivir al fallo de un modelo de código y continuar automáticamente con otro modelo a través del estado de misión Subaru existente y la sesión de OpenCode.
+Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos
 
-Aprobación: TASK-20260823-102540725 (Concilio unánime, 2026-08-23).
+Aprobación: TASK-20260824-002212903.
 
 ## Scope
 
-- `workshop/loop/router.ts` — mapeo determinista worker→modelo (nemotron→opencode/nemotron-3-ultra-free, big-pickle→opencode/big-pickle)
-- `workshop/loop/runner.ts` — invocación de `opencode run` (spawnSync, --model/-s/--format json)
-- `workshop/loop/signals.ts` — SUCCESS/FAILURE/TIMEOUT/STUCK + adaptador mínimo a RepeatedErrorRule
-- `workshop/loop/evidence.ts` — evidencia JSONL machine-readable
-- `workshop/loop/run-loop.ts` — orquestador de misión (reintentos, handoff, gates lint/build/unit)
-- `tests/engineering-loop.test.ts` — TEST 1-8 con fakes
-- `docs/architecture/engineering-loop-v0.1.md`
+- (archivos/módulos/dominios involucrados — completar)
 
 ## Non-goals
 
-- NO nuevo runtime de workers ni framework de agentes
-- NO modificar OpenCode, Subaru, Council ni Governance
-- NO segundo sistema de checkpoints ni de memoria
-- NO selección de modelo por LLM (solo mapeo determinista)
-- NO deploy a producción ni operación sobre datos reales de clientes
+- (qué NO tocar — completar)
 
 ## Approved plan
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** Implementar núcleo del Loop en workshop/loop/
-  - Objetivo: router determinista + runner opencode + señales + evidencia JSONL + orquestador con reintentos/handoff/gates.
-  - Archivos: workshop/loop/router.ts, runner.ts, signals.ts, evidence.ts, run-loop.ts
-  - Acción: escribir los 5 módulos (~200 LOC total) reutilizando spawnSync, RepeatedErrorRule y convenciones de workshop/.
-  - Dependencia: ninguna
-  - Criterio de terminación: los módulos compilan bajo tsx y exponen API inyectable (fakes) para tests.
-  - Gate/verificación: npx tsx -e import smoke de cada módulo sin errores.
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 1)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** Tests deterministas TEST 1-8 en verde
-  - Objetivo: probar éxito, reintento, stuck→checkpoint→handoff misma sesión, éxito fallback, bloqueo final, supervivencia de estado, sesión estable, gates innecesarios.
-  - Archivos: tests/engineering-loop.test.ts
-  - Acción: vitest con fakeRunner/fakeGates/fakeSubaru inyectados; cero llamadas reales a opencode.
-  - Dependencia: Paso 1
-  - Criterio de terminación: npm run test:unit pasa 8/8 casos nuevos sin regresiones.
-  - Gate/verificación: npx vitest run tests/engineering-loop.test.ts
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 2)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 3:** Gates del repositorio en verde
-  - Objetivo: lint, build y unit suite completa sin errores sobre el árbol modificado.
-  - Archivos: (ninguno nuevo; verificación global)
-  - Acción: ejecutar npm run lint && npm run build && npm run test:unit.
-  - Dependencia: Paso 2
-  - Criterio de terminación: 0 errores/warnings en lint; build OK; unit suite verde.
-  - Gate/verificación: salida machine-readable registrada en evidence del paso.
+- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 3)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 4:** Integración real con OpenCode
-  - Objetivo: demostrar misión real inofensiva con Nemotron y handoff controlado a Big Pickle en la MISMA sesión.
-  - Archivos: .loop-evidence/ (solo evidencia local, gitignored si aplica)
-  - Acción: misión de juguete (crear/borrar archivo temporal); forzar condición stuck controlada; verificar checkpoint Subaru + continuación con -s <misma-sesion> --model big-pickle.
-  - Dependencia: Paso 3
-  - Criterio de terminación: evidencia JSONL muestra intentos nemotron→big-pickle con session_id idéntico y resultado SUCCESS/BLOCK correcto.
-  - Gate/verificación: inspección del JSONL + salida del runner.
+- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 4)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 5:** Documentación y cierre
-  - Objetivo: doc architecture + informe final con clasificación YES/PARTIAL/NO.
-  - Archivos: docs/architecture/engineering-loop-v0.1.md
-  - Acción: documentar arquitectura, routing, invocación, handoff, integración Subaru, reintentos, detección stuck, escalación, límites de seguridad, tests y limitaciones.
-  - Dependencia: Paso 4
-  - Criterio de terminación: doc completa + subaru complete --confirm-gates exitoso.
-  - Gate/verificación: npx tsx workshop/subaru/cli.ts status
+- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 5)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
 
 ## Current state
 
-- Misión TASK-20260823-102540725 completada (5/5 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Godzilla Stress Test (adversarial).
-- Finalizado: 2026-08-23T11:10:12.090Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..5.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete TASK-20260823-102540725` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
-- Reuso obligatorio: Subaru CLI (única autoridad de estado), WorkflowEngine (governance), RepeatedErrorRule (stuck), gates npm existentes.
-- Límites de seguridad: el Loop NUNCA deploya producción, modifica secretos, bypassa governance/aprobaciones ni ejecuta DDL destructivo; esas condiciones producen BLOCK o REQUIRE_HUMAN_APPROVAL.
-- PRIMARY=opencode/nemotron-3-ultra-free, FALLBACK=opencode/big-pickle; sin descubrimiento dinámico de modelos.
-- Presupuesto: ~200 LOC de producción nueva; si se necesita más, DETENERSE y justificar.
-- Sin secretos en código/evidencia; sin commits de implementación sin este blueprint en remoto.
+- (decisiones arquitectónicas, ADRs, reglas de governance, restricciones de seguridad — completar)
 
 ## Verification
 
@@ -110,5 +95,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260823-102540725 <n>`.
-6. Al final: `subaru complete TASK-20260823-102540725`.
+5. Continuar el paso indicado y ejecutar `subaru mark INVLOOP-V01 <n>`.
+6. Al final: `subaru complete INVLOOP-V01`.
