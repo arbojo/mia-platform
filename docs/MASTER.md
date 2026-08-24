@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bbad21b`.
+> Fuente de verdad: este repositorio en `6333fae`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bbad21b` |
+| **Commit HEAD** | `6333fae` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T23:28:37-06:00 |
+| **Generado** | 2026-08-23T23:37:36-06:00 |
 
 ---
 
@@ -866,6 +866,14 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+6333fae subaru: checkpoint MEDIA-RACE-V01 - completado
+647098c subaru: checkpoint MEDIA-RACE-V01 - en-progreso
+f1af445 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
+a69137e subaru: checkpoint MEDIA-RACE-V01 - en-progreso
+a2b7f8e subaru: checkpoint MEDIA-RACE-V01 - en-progreso
+e1bedd5 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
+7602ba8 fix(media): enforce concurrent dispatch uniqueness
+1ff69d2 docs: regenerate MASTER.md at bbad21b
 bbad21b subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 c283c80 docs: regenerate MASTER.md at 6f33e86
 6f33e86 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
@@ -878,14 +886,6 @@ dd4454a refactor(media): clean conditional dispatch flow
 165af7a docs: regenerate MASTER.md at e7bfbf3
 e7bfbf3 fix(media): enforce durable media dispatch integrity
 a0aef04 docs: regenerate MASTER.md at 85abbfd
-85abbfd subaru: checkpoint INVLOOP-V01 - completado
-9141ce7 subaru: checkpoint INVLOOP-V01 - en-progreso
-84af08c feat: inventory loop replication proof v0.1 - mechanical replica of engineering loop for inventory domain (REPLICATION_PROVEN)
-800b982 subaru: checkpoint INVLOOP-V01 - en-progreso
-b88b127 docs: regenerate MASTER.md at 4b1338f
-4b1338f subaru: checkpoint INVLOOP-V01 - en-progreso
-a970bca subaru: checkpoint INVLOOP-V01 - en-progreso
-0554b5b subaru: checkpoint INVLOOP-V01 - en-progreso
 ```
 
 ---
