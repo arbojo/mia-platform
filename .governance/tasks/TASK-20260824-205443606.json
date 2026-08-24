@@ -1,0 +1,78 @@
+{
+  "id": "TASK-20260824-205443606",
+  "title": "BAILEYS-HOTFIX-AND-DEBT-REGISTRY-V01",
+  "description": "Commit the human-authorized bridge hotfix (config.ts + follow-up-monitor.ts JWT consumer compatibility) and formally register six RELATED non-blocking debts discovered during BAILEYS-DISPATCH-E2E-V01 physical verification.",
+  "scope": {
+    "categories": [
+      "bugfix"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "backend",
+      "frontend",
+      "qa",
+      "godzilla",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Primary domain: sales. Direct delegation: single domain, no cross-cutting impact. Required agents (5): backend, frontend, qa, godzilla, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-24T20:54:43.487Z",
+  "classifiedAt": "2026-08-24T20:54:43.487Z",
+  "approvedAt": "2026-08-24T20:54:43.487Z",
+  "startedAt": "2026-08-24T21:02:39.098Z",
+  "qualityGateResults": [
+    {
+      "gate": "lint",
+      "passed": true,
+      "output": "exit=0 global + eslint scoped hotfix exit=0",
+      "timestamp": "2026-08-24T21:02:42.041Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "output": "Compiled successfully 14.9s, exit REAL=0 tras eliminar scripts temp",
+      "timestamp": "2026-08-24T21:02:44.878Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "output": "887/887 (92 archivos)",
+      "timestamp": "2026-08-24T21:02:47.345Z"
+    },
+    {
+      "gate": "e2e_tests",
+      "passed": true,
+      "output": "90 passed playwright",
+      "timestamp": "2026-08-24T21:02:50.572Z"
+    }
+  ],
+  "invariantResults": [
+    {
+      "invariant_id": "INV-G-005",
+      "status": "PASS",
+      "evidence": "bridge typecheck exit=0 documentado explicitamente (BRIDGE_TYPECHECK=PASS)",
+      "timestamp": "2026-08-24T21:02:52.890Z"
+    }
+  ],
+  "completedAt": "2026-08-24T21:02:55.253Z"
+}

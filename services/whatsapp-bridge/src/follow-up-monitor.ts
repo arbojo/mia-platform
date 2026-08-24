@@ -1,7 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import type { BridgeConfig } from './config.js'
 import type { SessionManager } from './session-manager.js'
-import { signBridgeJWT, signHMACToken } from './jwt.js'
+import { isBridgeJwtConfigured, signBridgeToken, signLegacySessionToken } from './jwt.js'
 
 export interface FollowUpConfig {
   /** How often the monitor scans connections for inactive customers. */
@@ -226,9 +226,14 @@ export class FollowUpMonitor {
   ): Promise<string | null> {
     const url = new URL('/api/channels/baileys/followup', this.config.miaAppUrl).toString()
 
-    // Sign JWT for webhook audience (falls back to HMAC if no key configured)
-    const jwt = await signBridgeJWT(this.config.jwt, businessId, 'webhook')
-    const webhookSecret = jwt ?? signHMACToken(this.config.bridgeSecret, businessId)
+    // Authenticate to MIA exactly like mia-client.sendToMia: JWT when the
+    // platform keys are configured, legacy HMAC otherwise.
+    let webhookSecret: string
+    if (isBridgeJwtConfigured()) {
+      webhookSecret = await signBridgeToken(businessId, 'bridge-webhook')
+    } else {
+      webhookSecret = signLegacySessionToken(this.config.bridgeSecret, businessId)
+    }
 
     let res: Response
     try {

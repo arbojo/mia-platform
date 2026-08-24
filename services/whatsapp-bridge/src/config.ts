@@ -2,7 +2,6 @@ import type { HealthConfig } from './health-monitor.js'
 import { loadHealthConfig } from './health-monitor.js'
 import type { FollowUpConfig } from './follow-up-monitor.js'
 import { loadFollowUpConfig } from './follow-up-monitor.js'
-import { loadJWTConfig, type JWTConfig } from './jwt.js'
 
 export interface DefensiveConfig {
   callRejectText: string
@@ -17,7 +16,6 @@ export interface BridgeConfig {
   supabaseServiceRoleKey: string
   miaAppUrl: string
   bridgeSecret: string
-  jwt: JWTConfig
   port: number
   health: HealthConfig
   followUp: FollowUpConfig
@@ -52,7 +50,6 @@ export function loadConfig(): BridgeConfig {
     supabaseServiceRoleKey: requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
     miaAppUrl: process.env.MIA_APP_URL ?? 'http://localhost:3000',
     bridgeSecret: requireEnv('WHATSAPP_BRIDGE_SECRET'),
-    jwt: loadJWTConfig(),
     port: Number(process.env.BRIDGE_PORT ?? 3001),
     health: loadHealthConfig(),
     followUp: loadFollowUpConfig(),

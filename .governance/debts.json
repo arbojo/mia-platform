@@ -1,0 +1,95 @@
+{
+  "$schema_note": "Technical Debt Registry seed - BAILEYS-HOTFIX-AND-DEBT-REGISTRY-V01. All entries RELATED/NON-BLOCKING discovered during BAILEYS-DISPATCH-E2E-V01 physical verification (2026-08-24). Evidence First: every entry carries file:line or observable incident evidence from HEAD 6c94b42.",
+  "debts": [
+    {
+      "id": "BRIDGE-TYPECHECK-GATE",
+      "statement": "services/whatsapp-bridge has its own TypeScript project (npm run typecheck) that is not part of any global quality gate, so a fully broken bridge (unresolvable imports) can pass lint/build/unit/e2e and reach main.",
+      "scope": "governance",
+      "owner": "qa",
+      "severity": "P1",
+      "status": "RELATED_NON_BLOCKING",
+      "discovered_by": "BAILEYS-DISPATCH-E2E-V01",
+      "discovered_at": "2026-08-24",
+      "evidence": [
+        {"file": "services/whatsapp-bridge/src/config.ts", "line": 5, "reason": "At HEAD 6c94b42 imported non-existent loadJWTConfig/JWTConfig from ./jwt.js; global gates were green while bridge boot crashed with ESM SyntaxError"},
+        {"file": "services/whatsapp-bridge/package.json", "line": null, "reason": "'typecheck' script exists (tsc --noEmit) but is referenced by no gate"}
+      ],
+      "remediation_sketch": "Add bridge typecheck (and optionally bridge vitest) as explicit gate for any task touching services/whatsapp-bridge/**"
+    },
+    {
+      "id": "BAILEYS-MESSAGE-ID-CORRELATION",
+      "statement": "sendReply() discards the value returned by socket.sendMessage, losing the WhatsApp message ID needed for end-to-end correlation and delivery diagnosis.",
+      "scope": "bridge",
+      "owner": "backend",
+      "severity": "P2",
+      "status": "RELATED_NON_BLOCKING",
+      "discovered_by": "BAILEYS-DISPATCH-E2E-V01",
+      "discovered_at": "2026-08-24",
+      "evidence": [
+        {"file": "services/whatsapp-bridge/src/media-url.ts", "line": 107, "reason": "await socket.sendMessage(...) result not captured; SendReplyResult {sent,asImage} carries no message id"},
+        {"file": "(live)", "line": null, "reason": "Physical test: send to wrong-format JID reported success=true while nothing was delivered; impossible to correlate because no WA message id was logged"}
+      ],
+      "remediation_sketch": "Capture sendMessage return, log {messageId} and expose in /send HTTP result"
+    },
+    {
+      "id": "BAILEYS-RECONNECT-SUBSCRIBERS",
+      "statement": "SessionManager.reconnect() clears session listeners without migrating them to the recreated socket, orphaning WebSocket subscribers across reconnection.",
+      "scope": "bridge",
+      "owner": "backend",
+      "severity": "P2",
+      "status": "RELATED_NON_BLOCKING",
+      "discovered_by": "BAILEYS-DISPATCH-E2E-V01",
+      "discovered_at": "2026-08-24",
+      "evidence": [
+        {"file": "services/whatsapp-bridge/src/session-manager.ts", "line": 228, "reason": "session.listeners.clear() during teardown; pendingListeners only receives subscribers that arrive WHILE connect() is in flight"},
+        {"file": "(live)", "line": null, "reason": "WS client subscribed before /reconnect received zero events afterwards; resubscribing AFTER reconnect immediately caught the qr event"}
+      ],
+      "remediation_sketch": "Move cleared listeners into pendingListeners inside reconnect() so doConnect re-attaches them"
+    },
+    {
+      "id": "WHATSAPP-SESSION-UPSERT",
+      "statement": "SupabaseAuthStore.updateStatus uses UPDATE without upsert, so status fields (including last_qr) are silently dropped for businesses that have no whatsapp_sessions row yet.",
+      "scope": "bridge/database",
+      "owner": "backend",
+      "severity": "P2",
+      "status": "RELATED_NON_BLOCKING",
+      "discovered_by": "BAILEYS-DISPATCH-E2E-V01",
+      "discovered_at": "2026-08-24",
+      "evidence": [
+        {"file": "services/whatsapp-bridge/src/supabase-store.ts", "line": 219, "reason": ".update({...fields}).eq('business_id', ...) with no insert/upsert fallback"},
+        {"file": "(live)", "line": null, "reason": "Fresh E2E session stayed 'connecting' with qr generated over WS while whatsapp_sessions row never appeared; DB polling found nothing"}
+      ],
+      "remediation_sketch": "Upsert by business_id or ensure row creation at connect() time"
+    },
+    {
+      "id": "BAILEYS-MX-JID-NORMALIZATION",
+      "statement": "Mexican mobile numbers must be normalized to 521XXXXXXXXXX JIDs; sending to 52XXXXXXXXXX reports success but silently never delivers.",
+      "scope": "channels",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "RELATED_NON_BLOCKING",
+      "discovered_by": "BAILEYS-DISPATCH-E2E-V01",
+      "discovered_at": "2026-08-24",
+      "evidence": [
+        {"file": "src/lib/channels/adapters/baileys.ts", "line": 73, "reason": "to taken raw from metadata without MX normalization"},
+        {"file": "(live)", "line": null, "reason": "Image dispatch to 524761501122@s.whatsapp.net: success=true, NOTHING arrived (human confirmed); identical dispatch to 5214761501122@s.whatsapp.net: image physically received (human confirmed)"}
+      ],
+      "remediation_sketch": "Dedicated mission BAILEYS-MX-JID-NORMALIZATION-V01 (normalize at adapter boundary + customer phone storage)"
+    },
+    {
+      "id": "VITANOVA-CONFLICT-REPLACED",
+      "statement": "The Vitanova WhatsApp session (4fb7418d-6c98-4a09-9094-4e4e4b2006a6) is stuck in a 'conflict: replaced' reconnect loop because another linked device took over the account session.",
+      "scope": "operations",
+      "owner": "human",
+      "severity": "P2",
+      "status": "RELATED_NON_BLOCKING",
+      "discovered_by": "BAILEYS-DISPATCH-E2E-V01",
+      "discovered_at": "2026-08-24",
+      "evidence": [
+        {"file": "(bridge console)", "line": null, "reason": "Repeated {tag:'conflict',attrs:{type:'replaced'}} stream errors + '[session-manager] reconnecting 4fb7418d...' loop observed throughout the session"},
+        {"file": "(live)", "line": null, "reason": "Only one bridge process existed locally (verified via Get-CimInstance); competitor is an external linked device"}
+      ],
+      "remediation_sketch": "Human action: review 'Dispositivos vinculados' on the Vitanova line and unlink unknown devices; then verify loop stops"
+    }
+  ]
+}

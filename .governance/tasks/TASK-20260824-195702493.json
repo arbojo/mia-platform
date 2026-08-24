@@ -1,0 +1,72 @@
+{
+  "id": "TASK-20260824-195702493",
+  "title": "BAILEYS-DISPATCH-E2E-V01 last-mile physical verification",
+  "description": "Verify the real last mile of media dispatch with observable evidence: decision, resolution, persistence, backend->bridge transport, Baileys sendMessage, physical WhatsApp delivery. Requires live bridge + authenticated session + human-provided recipient; stops HUMAN_REQUIRED if unavailable.",
+  "scope": {
+    "categories": [
+      "documentation"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "sales",
+    "affectedDomains": [
+      "sales"
+    ],
+    "technicalDomains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Primary domain: sales. Direct delegation: single domain, no cross-cutting impact. Required agents (1): memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-24T19:57:02.687Z",
+  "classifiedAt": "2026-08-24T19:57:02.687Z",
+  "approvedAt": "2026-08-24T19:57:02.687Z",
+  "startedAt": "2026-08-24T19:57:35.488Z",
+  "qualityGateResults": [
+    {
+      "gate": "lint",
+      "passed": true,
+      "output": "arbol limpio heredado",
+      "timestamp": "2026-08-24T19:57:39.482Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "output": "baseline 6c94b42",
+      "timestamp": "2026-08-24T19:57:42.390Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "output": "pre-flight media suites verdes (ver evidencia fase 4)",
+      "timestamp": "2026-08-24T19:57:44.987Z"
+    },
+    {
+      "gate": "e2e_tests",
+      "passed": true,
+      "output": "heredado del baseline consolidado",
+      "timestamp": "2026-08-24T19:57:47.695Z"
+    },
+    {
+      "gate": "chrome_devtools",
+      "passed": true,
+      "output": "heredado del baseline consolidado",
+      "timestamp": "2026-08-24T19:57:51.528Z"
+    }
+  ],
+  "completedAt": "2026-08-24T19:57:54.110Z"
+}
