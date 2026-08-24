@@ -86,23 +86,18 @@ export async function resolveConditionalMedia(params: {
     return null
   }
 
-const { error } = await supabase
-  .from('chat_media_dispatched')
-  .insert({
-    business_id: businessId,
-    conversation_id: conversationId,
-    ...(customerId ? { customer_id: customerId } : {}),
-    knowledge_item_id: selected.id,
-  })
+  const { error } = await supabase
+    .from('chat_media_dispatched')
+    .insert({
+      business_id: businessId,
+      conversation_id: conversationId,
+      ...(customerId ? { customer_id: customerId } : {}),
+      knowledge_item_id: selected.id,
+    })
 
-if (error) {
-  console.error('Failed to record dispatched media:', error)
-  throw error
-}
-
-  if (selected.product_id && !isResend) {
-    const sentProducts = await getConversationMediaSentProducts(supabase, conversationId)
-    if (sentProducts.includes(selected.product_id)) return null
+  if (error) {
+    console.error('Failed to record dispatched media:', error)
+    throw error
   }
 
   if (selected.product_id && !isResend) {

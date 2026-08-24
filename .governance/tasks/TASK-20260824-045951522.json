@@ -1,0 +1,47 @@
+{
+  "id": "TASK-20260824-045951522",
+  "title": "refactor(media): clean conditional dispatch flow",
+  "description": "Limpieza post-verificacion de e7bfbf3 en src/lib/runtime/conditional-media.ts. (1) Eliminar guarda duplicada muerta: el segundo check sentProducts.includes(selected.product_id) tras el insert a chat_media_dispatched repite la guarda ya evaluada antes del blindaje de URL; dentro de una misma ejecucion ninguna mutacion ocurre entre ambos checks (getConversationMediaSentProducts lee conversations.media_sent_products y addConversationMediaSentProduct solo corre despues), y bajo concurrencia la segunda guarda no cierra la carrera de todas formas mientras viola la invariante de integridad (retorna null DESPUES de escribir el ledger). (2) Corregir indentacion del bloque de persistencia chat_media_dispatched (lineas 89-101 quedaron a columna 0). Sin cambios de comportamiento: error handling explicito con throw se conserva, gating selected.product_id && !isResend intacto, resend sigue bypaseando unicidad, media sin producto sigue sin tocar media_sent_products.",
+  "scope": {
+    "categories": [
+      "cleanup"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Primary domain: sales. Direct delegation: single domain, no cross-cutting impact. Required agents (1): memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Limpieza puramente mecanica documentada en el propio diff: guarda duplicada eliminada tras verificar con media-guard.ts que entre ambos checks no hay mutacion de conversations.media_sent_products en la misma ejecucion; carrera cross-request queda registrada como preocupacion arquitectonica separada (mitigacion real exige constraint UNIQUE/upsert en DB, fuera de alcance). Indentacion restaurada sin cambios de logica. Leccion: edits multi-bloque deben preservar indentacion y evitar duplicar guardas post-insert que rompen la invariante ledger=>envio.",
+      "timestamp": "2026-08-24T05:06:05.974Z"
+    }
+  ],
+  "createdAt": "2026-08-24T04:59:51.515Z",
+  "classifiedAt": "2026-08-24T04:59:51.515Z",
+  "approvedAt": "2026-08-24T05:06:05.975Z",
+  "startedAt": "2026-08-24T05:00:10.262Z",
+  "completedAt": "2026-08-24T05:06:08.375Z"
+}
