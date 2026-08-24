@@ -2,13 +2,13 @@
 task_id: CUSTOMER-DATA-V01
 title: Customer Data Integrity Loop V01
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 5
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260824-064237689
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-24T06:46:49.930Z
+updated: 2026-08-24T06:49:45.226Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark CUSTOMER-DATA-V01 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark CUSTOMER-DATA-V01 3`.
 
 ## Constraints
 
