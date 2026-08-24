@@ -34,7 +34,7 @@ export async function emitSalesEvent(params: {
     productId = product?.id ?? null
   }
 
-  await supabase.from('sales_events').insert({
+  const { error: salesEventError } = await supabase.from('sales_events').insert({
     business_id: params.businessId,
     assistant_id: params.assistantId ?? null,
     conversation_id: params.conversationId ?? null,
@@ -47,6 +47,10 @@ export async function emitSalesEvent(params: {
       ...params.metadata,
     },
   })
+
+  if (salesEventError) {
+    throw new Error(`Failed to emit sales event ${params.eventType}: ${salesEventError.message}`)
+  }
 }
 
 export async function hasClosingEvent(conversationId: string): Promise<boolean> {
@@ -85,7 +89,7 @@ export async function applyConversationOutcome(params: {
 
   const history = Array.isArray(current?.outcome_history) ? current.outcome_history : []
 
-  await supabase
+  const { error: outcomeError } = await supabase
     .from('conversations')
     .update({
       outcome: params.outcome,
@@ -104,6 +108,10 @@ export async function applyConversationOutcome(params: {
     })
     .eq('id', params.conversationId)
 
+  if (outcomeError) {
+    throw new Error(`Failed to persist conversation outcome: ${outcomeError.message}`)
+  }
+
   if (customerId) {
     const customerStatus =
       params.outcome === 'sold'
@@ -115,10 +123,13 @@ export async function applyConversationOutcome(params: {
             : null
 
     if (customerStatus) {
-      await supabase
+      const { error: customerError } = await supabase
         .from('customers')
         .update({ status: customerStatus })
         .eq('id', customerId)
+      if (customerError) {
+        throw new Error(`Failed to sync customer status from outcome: ${customerError.message}`)
+      }
     }
   }
 }
