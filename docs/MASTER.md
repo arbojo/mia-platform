@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f54d590`.
+> Fuente de verdad: este repositorio en `c034f20`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f54d590` |
+| **Commit HEAD** | `c034f20` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T05:11:04-06:00 |
+| **Generado** | 2026-08-23T18:24:05-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (125)**:
+**Tareas registradas (126)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -810,6 +810,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260820-ADR027 | ADR-027: MIA Cloud Architecture — Cloud MVP Implementation | approved |
 | TASK-20260822-073403431 | Reparar suites de tests unitarios (55 fallos) - desbloqueo mision ADR-027 | approved |
 | TASK-20260823-102540725 | Engineering Loop v0.1 - minimal worker handoff | approved |
+| TASK-20260823-114235663 | Engineering Loop v0.2a - Accountable Handoff: Subaru obligatorio, precondicion de governance e INFRA_FAILURE | approved |
 
 ---
 
@@ -861,6 +862,9 @@ engineering-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+c034f20 subaru: checkpoint INVLOOP-V01 - listo
+a3c30f6 feat: engineering loop v0.2a - accountable handoff (mandatory subaru gateway, governance precondition, INFRA_FAILURE)
+a530f6d docs: regenerate MASTER.md at f54d590
 f54d590 feat: engineering loop v0.1 - automatic worker handoff across opencode models
 96a2899 docs: regenerate MASTER.md at 9462989
 9462989 subaru: checkpoint TASK-20260823-102540725 - completado
@@ -878,9 +882,6 @@ d5d979d subaru: checkpoint TASK-20260823-102540725 - listo
 d59a262 docs: regenerate MASTER.md at f215c79
 f215c79 subaru: checkpoint TASK-20260820-ADR027 - completado
 04d6ac5 docs: regenerate MASTER.md at e7945bf
-e7945bf subaru: checkpoint TASK-20260822-TESTFIX - completado
-8823669 subaru: checkpoint TASK-20260822-TESTFIX - en-progreso
-d62be50 docs: regenerate MASTER.md at f852672
 ```
 
 ---
