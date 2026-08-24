@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `6333fae`.
+> Fuente de verdad: este repositorio en `c9dcbc1`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `6333fae` |
+| **Commit HEAD** | `c9dcbc1` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T23:37:36-06:00 |
+| **Generado** | 2026-08-24T00:45:57-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (129)**:
+**Tareas registradas (130)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -814,6 +814,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260824-002212903 | Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos (replica mecanica aislada del Engineering Loop) | approved |
 | TASK-20260824-045951522 | refactor(media): clean conditional dispatch flow | completed |
 | TASK-20260824-051612423 | fix(media): enforce concurrent dispatch uniqueness | in_progress |
+| TASK-20260824-064237689 | Customer Data Integrity Loop V01: outcome cancelado invalido, errores DB silenciosos y enriquecimiento de customer | in_progress |
 
 ---
 
@@ -866,6 +867,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
+202b4b3 subaru: checkpoint CUSTOMER-DATA-V01 - listo
+9cb5f51 docs: regenerate MASTER.md at 6333fae
 6333fae subaru: checkpoint MEDIA-RACE-V01 - completado
 647098c subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 f1af445 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
@@ -883,9 +887,6 @@ d9ebc65 docs: regenerate MASTER.md at ae09076
 ae09076 subaru: checkpoint MEDIA-RACE-V01 - listo
 2c09796 docs: regenerate MASTER.md at dd4454a
 dd4454a refactor(media): clean conditional dispatch flow
-165af7a docs: regenerate MASTER.md at e7bfbf3
-e7bfbf3 fix(media): enforce durable media dispatch integrity
-a0aef04 docs: regenerate MASTER.md at 85abbfd
 ```
 
 ---
