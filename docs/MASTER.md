@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `c9dcbc1`.
+> Fuente de verdad: este repositorio en `a6b4bbf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `c9dcbc1` |
+| **Commit HEAD** | `a6b4bbf` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T00:45:57-06:00 |
+| **Generado** | 2026-08-24T00:47:32-06:00 |
 
 ---
 
@@ -867,6 +867,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+a6b4bbf subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
+004efdd docs: regenerate MASTER.md at c9dcbc1
 c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
 202b4b3 subaru: checkpoint CUSTOMER-DATA-V01 - listo
 9cb5f51 docs: regenerate MASTER.md at 6333fae
@@ -885,8 +887,6 @@ f74c776 docs: regenerate MASTER.md at 299761e
 299761e chore(governance): council approval TASK-20260824-051612423 media race
 d9ebc65 docs: regenerate MASTER.md at ae09076
 ae09076 subaru: checkpoint MEDIA-RACE-V01 - listo
-2c09796 docs: regenerate MASTER.md at dd4454a
-dd4454a refactor(media): clean conditional dispatch flow
 ```
 
 ---
