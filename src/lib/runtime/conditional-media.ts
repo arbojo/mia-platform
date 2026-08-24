@@ -86,18 +86,32 @@ export async function resolveConditionalMedia(params: {
     return null
   }
 
-  const { error } = await supabase
+  // Reclamo atómico del despacho contra uq_chat_media_once (migración 016):
+  // ignoreDuplicates convierte la violación de unicidad en data vacía, así dos
+  // ejecuciones concurrentes no pueden ambas "ganar" el envío normal y un
+  // perdedor se degrada a null en vez de tumbar la respuesta con un throw.
+  const { data: claimed, error } = await supabase
     .from('chat_media_dispatched')
-    .insert({
-      business_id: businessId,
-      conversation_id: conversationId,
-      ...(customerId ? { customer_id: customerId } : {}),
-      knowledge_item_id: selected.id,
-    })
+    .upsert(
+      {
+        business_id: businessId,
+        conversation_id: conversationId,
+        ...(customerId ? { customer_id: customerId } : {}),
+        knowledge_item_id: selected.id,
+      },
+      { onConflict: 'knowledge_item_id,conversation_id', ignoreDuplicates: true }
+    )
+    .select('knowledge_item_id')
 
   if (error) {
     console.error('Failed to record dispatched media:', error)
     throw error
+  }
+
+  // data vacía => otra ejecución ya despachó este item en esta conversación.
+  // El reenvío explícito (isResend) entrega siempre sin duplicar la fila.
+  if (!isResend && (!claimed || claimed.length === 0)) {
+    return null
   }
 
   if (selected.product_id && !isResend) {
