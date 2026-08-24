@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `eafd089`.
+> Fuente de verdad: este repositorio en `621a590`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `eafd089` |
+| **Commit HEAD** | `621a590` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T00:55:21-06:00 |
+| **Generado** | 2026-08-24T01:01:20-06:00 |
 
 ---
 
@@ -867,6 +867,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+621a590 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
+892b60e test: sales y channels - contrato de integridad de datos de customer (casos A-H)
+f415cab docs: regenerate MASTER.md at eafd089
 eafd089 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 ec435ea feat: channels - enriquecimiento idempotente de customer existente en resolveCustomer y fix de referencia rota en path email
 581bd1f docs: regenerate MASTER.md at ac72043
@@ -884,9 +887,6 @@ c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
 9cb5f51 docs: regenerate MASTER.md at 6333fae
 6333fae subaru: checkpoint MEDIA-RACE-V01 - completado
 647098c subaru: checkpoint MEDIA-RACE-V01 - en-progreso
-f1af445 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
-a69137e subaru: checkpoint MEDIA-RACE-V01 - en-progreso
-a2b7f8e subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 ```
 
 ---
