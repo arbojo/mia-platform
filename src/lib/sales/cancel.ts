@@ -116,11 +116,10 @@ export async function processCancellation(
 
   const history = Array.isArray(conversation?.outcome_history) ? conversation.outcome_history : []
 
-  await supabase
+  const { error: conversationError } = await supabase
     .from('conversations')
     .update({
       status: 'completed',
-      outcome: 'cancelled',
       sales_cancelled_at: new Date().toISOString(),
       outcome_updated_at: new Date().toISOString(),
       outcome_history: [
@@ -136,11 +135,18 @@ export async function processCancellation(
     })
     .eq('id', params.conversationId)
 
+  if (conversationError) {
+    throw new Error(`Failed to persist cancellation state: ${conversationError.message}`)
+  }
+
   if (params.customerId) {
-    await supabase
+    const { error: customerError } = await supabase
       .from('customers')
       .update({ status: 'lost' })
       .eq('id', params.customerId)
+    if (customerError) {
+      throw new Error(`Failed to update customer status after cancellation: ${customerError.message}`)
+    }
   }
 
   const customerData = params.customerId
