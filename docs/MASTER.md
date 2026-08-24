@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e7bfbf3`.
+> Fuente de verdad: este repositorio en `dd4454a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e7bfbf3` |
+| **Commit HEAD** | `dd4454a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T20:30:40-06:00 |
+| **Generado** | 2026-08-23T23:06:35-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (127)**:
+**Tareas registradas (128)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -812,6 +812,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260823-102540725 | Engineering Loop v0.1 - minimal worker handoff | approved |
 | TASK-20260823-114235663 | Engineering Loop v0.2a - Accountable Handoff: Subaru obligatorio, precondicion de governance e INFRA_FAILURE | approved |
 | TASK-20260824-002212903 | Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos (replica mecanica aislada del Engineering Loop) | approved |
+| TASK-20260824-045951522 | refactor(media): clean conditional dispatch flow | completed |
 
 ---
 
@@ -864,6 +865,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+dd4454a refactor(media): clean conditional dispatch flow
+165af7a docs: regenerate MASTER.md at e7bfbf3
 e7bfbf3 fix(media): enforce durable media dispatch integrity
 a0aef04 docs: regenerate MASTER.md at 85abbfd
 85abbfd subaru: checkpoint INVLOOP-V01 - completado
@@ -882,8 +885,6 @@ f54d590 feat: engineering loop v0.1 - automatic worker handoff across opencode m
 96a2899 docs: regenerate MASTER.md at 9462989
 9462989 subaru: checkpoint TASK-20260823-102540725 - completado
 33c5d1d docs: regenerate MASTER.md at ca57685
-ca57685 subaru: checkpoint TASK-20260823-102540725 - en-progreso
-5bd44b5 docs: regenerate MASTER.md at 86c5861
 ```
 
 ---
