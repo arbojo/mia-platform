@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `10e2c24`.
+> Fuente de verdad: este repositorio en `6c94b42`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `10e2c24` |
+| **Commit HEAD** | `6c94b42` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T01:58:18-06:00 |
+| **Generado** | 2026-08-24T12:43:59-06:00 |
 
 ---
 
@@ -400,7 +400,7 @@ widget
 
 ## 9. Componentes
 
-131 componentes en `src/components/`:
+132 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -429,6 +429,7 @@ conversations/ConversationDetailModal.tsx
 conversations/ConversationFilters.tsx
 conversations/ConversationList.tsx
 conversations/MemorySuggestionsPanel.tsx
+customers/CustomerDataSection.tsx
 customers/MemoryPanel.tsx
 dashboard/AIOperationsCard.tsx
 dashboard/AccessibilityProvider.tsx
@@ -540,7 +541,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-120 módulos:
+121 módulos:
 
 ```
 ai/client.ts
@@ -566,6 +567,7 @@ api-error.ts
 auth.ts
 baileys/bridge.ts
 baileys/config.ts
+baileys/webhook-auth.ts
 cache/invalidator.ts
 channels/adapters/baileys.ts
 channels/adapters/web.ts
@@ -681,7 +683,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (130)**:
+**Tareas registradas (136)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -814,7 +816,13 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260824-002212903 | Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos (replica mecanica aislada del Engineering Loop) | approved |
 | TASK-20260824-045951522 | refactor(media): clean conditional dispatch flow | completed |
 | TASK-20260824-051612423 | fix(media): enforce concurrent dispatch uniqueness | in_progress |
-| TASK-20260824-064237689 | Customer Data Integrity Loop V01: outcome cancelado invalido, errores DB silenciosos y enriquecimiento de customer | in_progress |
+| TASK-20260824-064237689 | Customer Data Integrity Loop V01: outcome cancelado invalido, errores DB silenciosos y enriquecimiento de customer | completed |
+| TASK-20260824-075423444 | Customer Dashboard Visibility Loop V02: visibilidad de datos de customer en el dashboard | in_progress |
+| TASK-20260824-084457229 | TECH-DEBT-REMEDIATION-V01 bounded remediation | in_progress |
+| TASK-20260824-091820357 | INVARIANT-REGISTRY-V01 seed artifact | in_progress |
+| TASK-20260824-093806189 | INVARIANT-VERIFICATION-V01 mechanical verification | completed |
+| TASK-20260824-172511883 | MIA-FUNCTIONAL-INTEGRITY-V01 functional integrity audit | completed |
+| TASK-20260824-174820058 | ENVIRONMENT-DRIFT-RESOLUTION-V01 foreign session forensics | completed |
 
 ---
 
@@ -867,6 +875,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+6c94b42 chore: consolidate governed engineering work and restore clean baseline
+dc4bec3 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
+77bec9a docs: regenerate MASTER.md at 10e2c24
 10e2c24 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
 663b647 subaru: checkpoint CUSTOMER-DATA-V02 - listo
 afef563 subaru: checkpoint CUSTOMER-DATA-V01 - completado
@@ -884,9 +895,6 @@ ac72043 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 7fff0a5 fix: sales - eliminar outcome cancelled invalido en processCancellation y propagar errores criticos
 5170154 fix: sales - eliminar outcome cancelled invalido, propagar errores de persistencia y persistir customerName al cierre
 7fbeb34 docs: regenerate MASTER.md at a6b4bbf
-a6b4bbf subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
-004efdd docs: regenerate MASTER.md at c9dcbc1
-c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
 ```
 
 ---
