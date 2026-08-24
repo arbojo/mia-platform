@@ -23,6 +23,48 @@ export async function resolveCustomer(
 ): Promise<ResolvedCustomer> {
   const supabase = createAdminClient()
 
+  const enrichExisting = async (
+    customer: {
+      id: string
+      business_id: string
+      name: string | null
+      phone: string | null
+      email: string | null
+    }
+  ): Promise<ResolvedCustomer> => {
+    const patch: { name?: string; phone?: string } = {}
+    const incomingName = message.customerName?.trim()
+    const incomingPhone = message.customerPhone?.trim()
+
+    if (!customer.name?.trim() && incomingName) {
+      patch.name = incomingName
+    }
+    if (!customer.phone?.trim() && incomingPhone) {
+      patch.phone = incomingPhone
+    }
+
+    let resolvedName = customer.name
+    let resolvedPhone = customer.phone
+
+    if (Object.keys(patch).length > 0) {
+      const { error } = await supabase.from('customers').update(patch).eq('id', customer.id)
+      if (error) {
+        throw new Error(`Failed to enrich customer ${customer.id}: ${error.message}`)
+      }
+      resolvedName = patch.name ?? customer.name
+      resolvedPhone = patch.phone ?? customer.phone
+    }
+
+    return {
+      id: customer.id,
+      businessId: customer.business_id,
+      name: resolvedName,
+      phone: resolvedPhone,
+      email: customer.email,
+      isNew: false,
+    }
+  }
+
   const { data: existingByExternal } = await supabase
     .from('channel_messages')
     .select('customer_id')
@@ -41,14 +83,7 @@ export async function resolveCustomer(
       .single()
 
     if (customer) {
-      return {
-        id: customer.id,
-        businessId: customer.business_id,
-        name: customer.name,
-        phone: customer.phone,
-        email: customer.email,
-        isNew: false,
-      }
+      return await enrichExisting(customer)
     }
   }
 
@@ -62,14 +97,7 @@ export async function resolveCustomer(
       .maybeSingle()
 
     if (existingByPhone) {
-      return {
-        id: existingByPhone.id,
-        businessId: existingByPhone.business_id,
-        name: existingByPhone.name,
-        phone: existingByPhone.phone,
-        email: existingByPhone.email,
-        isNew: false,
-      }
+      return await enrichExisting(existingByPhone)
     }
   }
 
@@ -83,14 +111,7 @@ export async function resolveCustomer(
       .maybeSingle()
 
     if (existingByEmail) {
-      return {
-        id: existingByEmail.id,
-        businessId: existingByEmail.business_id,
-        name: existingByEmail.name,
-        phone: existingByEmail.phone,
-        email: existingByEmail.email,
-        isNew: false,
-      }
+      return await enrichExisting(existingByEmail)
     }
   }
 
