@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `621a590`.
+> Fuente de verdad: este repositorio en `10e2c24`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `621a590` |
+| **Commit HEAD** | `10e2c24` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T01:01:20-06:00 |
+| **Generado** | 2026-08-24T01:58:18-06:00 |
 
 ---
 
@@ -867,6 +867,10 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+10e2c24 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
+663b647 subaru: checkpoint CUSTOMER-DATA-V02 - listo
+afef563 subaru: checkpoint CUSTOMER-DATA-V01 - completado
+cbcefed docs: regenerate MASTER.md at 621a590
 621a590 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 892b60e test: sales y channels - contrato de integridad de datos de customer (casos A-H)
 f415cab docs: regenerate MASTER.md at eafd089
@@ -883,10 +887,6 @@ ac72043 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 a6b4bbf subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 004efdd docs: regenerate MASTER.md at c9dcbc1
 c9dcbc1 governance: TASK-20260824-064237689 aprobado e iniciado
-202b4b3 subaru: checkpoint CUSTOMER-DATA-V01 - listo
-9cb5f51 docs: regenerate MASTER.md at 6333fae
-6333fae subaru: checkpoint MEDIA-RACE-V01 - completado
-647098c subaru: checkpoint MEDIA-RACE-V01 - en-progreso
 ```
 
 ---
