@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `6c94b42`.
+> Fuente de verdad: este repositorio en `6376da4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `6c94b42` |
+| **Commit HEAD** | `6376da4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T12:43:59-06:00 |
+| **Generado** | 2026-08-24T15:44:38-06:00 |
 
 ---
 
@@ -683,7 +683,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (136)**:
+**Tareas registradas (138)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -823,6 +823,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260824-093806189 | INVARIANT-VERIFICATION-V01 mechanical verification | completed |
 | TASK-20260824-172511883 | MIA-FUNCTIONAL-INTEGRITY-V01 functional integrity audit | completed |
 | TASK-20260824-174820058 | ENVIRONMENT-DRIFT-RESOLUTION-V01 foreign session forensics | completed |
+| TASK-20260824-195702493 | BAILEYS-DISPATCH-E2E-V01 last-mile physical verification | completed |
+| TASK-20260824-205443606 | BAILEYS-HOTFIX-AND-DEBT-REGISTRY-V01 | completed |
 
 ---
 
@@ -875,6 +877,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+6376da4 fix(whatsapp-bridge): restore JWT consumer compatibility
+cb2b57b docs: regenerate MASTER.md at 6c94b42
 6c94b42 chore: consolidate governed engineering work and restore clean baseline
 dc4bec3 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
 77bec9a docs: regenerate MASTER.md at 10e2c24
@@ -893,8 +897,6 @@ ac72043 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 310b105 docs: regenerate MASTER.md at 3c70e12
 3c70e12 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 7fff0a5 fix: sales - eliminar outcome cancelled invalido en processCancellation y propagar errores criticos
-5170154 fix: sales - eliminar outcome cancelled invalido, propagar errores de persistencia y persistir customerName al cierre
-7fbeb34 docs: regenerate MASTER.md at a6b4bbf
 ```
 
 ---
