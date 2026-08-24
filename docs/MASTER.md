@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ae09076`.
+> Fuente de verdad: este repositorio en `299761e`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ae09076` |
+| **Commit HEAD** | `299761e` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T23:18:35-06:00 |
+| **Generado** | 2026-08-23T23:19:49-06:00 |
 
 ---
 
@@ -681,7 +681,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (128)**:
+**Tareas registradas (129)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -813,6 +813,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260823-114235663 | Engineering Loop v0.2a - Accountable Handoff: Subaru obligatorio, precondicion de governance e INFRA_FAILURE | approved |
 | TASK-20260824-002212903 | Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos (replica mecanica aislada del Engineering Loop) | approved |
 | TASK-20260824-045951522 | refactor(media): clean conditional dispatch flow | completed |
+| TASK-20260824-051612423 | fix(media): enforce concurrent dispatch uniqueness | in_progress |
 
 ---
 
@@ -865,6 +866,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+299761e chore(governance): council approval TASK-20260824-051612423 media race
+d9ebc65 docs: regenerate MASTER.md at ae09076
 ae09076 subaru: checkpoint MEDIA-RACE-V01 - listo
 2c09796 docs: regenerate MASTER.md at dd4454a
 dd4454a refactor(media): clean conditional dispatch flow
@@ -883,8 +886,6 @@ a8c33c4 docs: regenerate MASTER.md at c034f20
 c034f20 subaru: checkpoint INVLOOP-V01 - listo
 a3c30f6 feat: engineering loop v0.2a - accountable handoff (mandatory subaru gateway, governance precondition, INFRA_FAILURE)
 a530f6d docs: regenerate MASTER.md at f54d590
-f54d590 feat: engineering loop v0.1 - automatic worker handoff across opencode models
-96a2899 docs: regenerate MASTER.md at 9462989
 ```
 
 ---
