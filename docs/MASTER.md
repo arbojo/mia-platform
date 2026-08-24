@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `299761e`.
+> Fuente de verdad: este repositorio en `6f33e86`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `299761e` |
+| **Commit HEAD** | `6f33e86` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-23T23:19:49-06:00 |
+| **Generado** | 2026-08-23T23:24:06-06:00 |
 
 ---
 
@@ -866,6 +866,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+6f33e86 subaru: checkpoint MEDIA-RACE-V01 - en-progreso
+f74c776 docs: regenerate MASTER.md at 299761e
 299761e chore(governance): council approval TASK-20260824-051612423 media race
 d9ebc65 docs: regenerate MASTER.md at ae09076
 ae09076 subaru: checkpoint MEDIA-RACE-V01 - listo
@@ -884,8 +886,6 @@ a970bca subaru: checkpoint INVLOOP-V01 - en-progreso
 0554b5b subaru: checkpoint INVLOOP-V01 - en-progreso
 a8c33c4 docs: regenerate MASTER.md at c034f20
 c034f20 subaru: checkpoint INVLOOP-V01 - listo
-a3c30f6 feat: engineering loop v0.2a - accountable handoff (mandatory subaru gateway, governance precondition, INFRA_FAILURE)
-a530f6d docs: regenerate MASTER.md at f54d590
 ```
 
 ---
