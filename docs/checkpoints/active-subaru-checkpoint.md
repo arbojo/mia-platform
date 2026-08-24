@@ -1,14 +1,14 @@
 ---
 task_id: MEDIA-RACE-V01
 title: Media dispatch concurrency integrity - atomic claim via existing uq_chat_media_once
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 7
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260824-051612423
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-24T05:17:41.608Z
+updated: 2026-08-24T05:23:52.359Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Aprobación: TASK-20260824-051612423.
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -94,7 +94,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark MEDIA-RACE-V01 2`.
 
 ## Constraints
 
