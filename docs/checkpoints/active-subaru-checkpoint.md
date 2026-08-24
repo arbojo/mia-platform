@@ -2,13 +2,13 @@
 task_id: INVLOOP-V01
 title: Loop Replication Proof v0.1 - Micro-loop Inventory sobre fixtures sinteticos
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 5
 branch: main
 last_machine: DESKTOP-VN2R21O
 governance_id: TASK-20260824-002212903
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-24T01:08:17.693Z
+updated: 2026-08-24T01:10:03.489Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -63,7 +63,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+- [x] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
   - Objetivo: (qué logra el paso 5)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark INVLOOP-V01 5`.
+Todos los pasos marcados. Ejecutar `subaru complete INVLOOP-V01` cuando pasen los gates de verificación.
 
 ## Constraints
 
