@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getBridgeSecret } from '@/lib/baileys/config'
+import { verifyBridgeWebhookAuth } from '@/lib/baileys/webhook-auth'
 import { getBusinessContext } from '@/lib/ai/knowledge'
 import { executeAI } from '@/lib/runtime/execute-ai'
 
@@ -17,9 +18,9 @@ interface FollowUpConfig {
  */
 export async function POST(request: Request) {
   try {
-    const secret = request.headers.get('x-mia-webhook-secret')
-    if (secret !== getBridgeSecret()) {
-      return NextResponse.json({ error: 'Invalid bridge secret' }, { status: 401 })
+    const token = request.headers.get('x-mia-webhook-secret')
+    if (!token) {
+      return NextResponse.json({ error: 'Missing bridge token' }, { status: 401 })
     }
 
     const { businessId, customerId, connectionId } = await request.json()
@@ -29,6 +30,18 @@ export async function POST(request: Request) {
         { error: 'Missing businessId, customerId or connectionId' },
         { status: 400 }
       )
+    }
+
+    // Verify JWT or HMAC
+    const auth = await verifyBridgeWebhookAuth(
+      token,
+      getBridgeSecret(),
+      businessId,
+      process.env.BRIDGE_JWT_PUBLIC_KEY ?? null
+    )
+
+    if (!auth) {
+      return NextResponse.json({ error: 'Invalid bridge token' }, { status: 401 })
     }
 
     const supabase = createAdminClient()

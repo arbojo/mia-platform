@@ -5,9 +5,13 @@ export interface CustomerMemory {
   objections: string[]
   questions: string[]
   preferences: string[]
+  name?: string | null
+  phone?: string | null
+  email?: string | null
   tags?: string[]
   status?: string | null
   city?: string | null
+  address?: string | null
   lastInteraction: string | null
   summary: string
 }
@@ -36,7 +40,7 @@ export async function getCustomerMemory(customerId: string): Promise<CustomerMem
 
   const { data: customer } = await supabase
     .from('customers')
-    .select('memory, last_interaction, tags, status, city')
+    .select('name, phone, email, address, memory, last_interaction, tags, status, city')
     .eq('id', customerId)
     .maybeSingle()
 
@@ -53,9 +57,13 @@ export async function getCustomerMemory(customerId: string): Promise<CustomerMem
     objections: Array.isArray(memory.objections) ? memory.objections as string[] : [],
     questions: Array.isArray(memory.questions) ? memory.questions as string[] : [],
     preferences: Array.isArray(memory.preferences) ? memory.preferences as string[] : [],
+    name: customer.name ?? null,
+    phone: customer.phone ?? null,
+    email: customer.email ?? null,
     tags,
     status,
     city,
+    address: customer.address ?? null,
     lastInteraction: customer.last_interaction,
     summary: typeof memory.summary === 'string' ? memory.summary : '',
   }

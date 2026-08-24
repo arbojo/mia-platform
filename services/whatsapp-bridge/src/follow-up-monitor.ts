@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import type { BridgeConfig } from './config.js'
 import type { SessionManager } from './session-manager.js'
+import { signBridgeJWT, signHMACToken } from './jwt.js'
 
 export interface FollowUpConfig {
   /** How often the monitor scans connections for inactive customers. */
@@ -225,13 +226,17 @@ export class FollowUpMonitor {
   ): Promise<string | null> {
     const url = new URL('/api/channels/baileys/followup', this.config.miaAppUrl).toString()
 
+    // Sign JWT for webhook audience (falls back to HMAC if no key configured)
+    const jwt = await signBridgeJWT(this.config.jwt, businessId, 'webhook')
+    const webhookSecret = jwt ?? signHMACToken(this.config.bridgeSecret, businessId)
+
     let res: Response
     try {
       res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-mia-webhook-secret': this.config.bridgeSecret,
+          'x-mia-webhook-secret': webhookSecret,
         },
         body: JSON.stringify({
           businessId,

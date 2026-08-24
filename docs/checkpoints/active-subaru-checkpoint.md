@@ -1,14 +1,14 @@
 ---
 task_id: CUSTOMER-DATA-V02
 title: Customer Dashboard Visibility Loop V02
-state: in_progress
+state: blocked
 current_step: 2
 total_steps: 9
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260824-075423444
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-24T08:01:48.890Z
+updated: 2026-08-24T08:46:07.076Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -106,7 +106,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..9.
+- Misión CUSTOMER-DATA-V02 BLOQUEADA (state: blocked).
+- Motivo: Pausada por direccion humana: mision TECH-DEBT-REMEDIATION-V01 priorizada sobre registro TECH-DEBT-V01; reanudable en paso 3/9 tras cierre o autorizacion.
+- Bloqueado: 2026-08-24T08:46:07.076Z.
 
 ## Next action
 

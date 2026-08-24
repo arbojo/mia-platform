@@ -5,29 +5,35 @@ import type {
   GovernanceStatus,
   CouncilDecision,
   QualityGateResult,
+  InvariantVerificationResult,
 } from './types'
 import { createTaskId } from './types'
 
-const GOVERNANCE_DIR = path.resolve(process.cwd(), '.governance')
-const TASKS_DIR = path.join(GOVERNANCE_DIR, 'tasks')
-const LOG_DIR = path.join(GOVERNANCE_DIR, 'logs')
+export class WorkflowEngine {
+  private readonly governanceDir: string
+  private readonly tasksDir: string
+  private readonly logDir: string
 
-function ensureDirs(): void {
-  for (const dir of [GOVERNANCE_DIR, TASKS_DIR, LOG_DIR]) {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
+  constructor(baseDir: string = process.cwd()) {
+    this.governanceDir = path.resolve(baseDir, '.governance')
+    this.tasksDir = path.join(this.governanceDir, 'tasks')
+    this.logDir = path.join(this.governanceDir, 'logs')
+  }
+
+  private ensureDirs(): void {
+    for (const dir of [this.governanceDir, this.tasksDir, this.logDir]) {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
     }
   }
-}
-
-export class WorkflowEngine {
   public createManifest(
     title: string,
     description: string,
     scope: TaskManifest['scope'],
     classification: TaskManifest['classification']
   ): TaskManifest {
-    ensureDirs()
+    this.ensureDirs()
 
     const manifest: TaskManifest = {
       id: createTaskId(),
@@ -62,6 +68,10 @@ export class WorkflowEngine {
       )
     }
 
+    if (newStatus === 'completed') {
+      this.assertCompletionRequirements(manifest)
+    }
+
     manifest.status = newStatus
 
     switch (newStatus) {
@@ -83,6 +93,41 @@ export class WorkflowEngine {
     this.log(`TRANSITION: ${manifest.id} → ${newStatus}`)
 
     return manifest
+  }
+
+  private assertCompletionRequirements(manifest: TaskManifest): void {
+    const gateResults = manifest.qualityGateResults ?? []
+    for (const gate of manifest.classification.qualityGates) {
+      const result = gateResults.find((g) => g.gate === gate)
+      if (!result) {
+        throw new Error(
+          `Cannot complete ${manifest.id}: required quality gate '${gate}' has no recorded result. ` +
+          'Record it with `record-gate` before completing.'
+        )
+      }
+      if (!result.passed) {
+        throw new Error(
+          `Cannot complete ${manifest.id}: required quality gate '${gate}' was recorded as FAIL.`
+        )
+      }
+    }
+
+    const invariantResults = manifest.invariantResults ?? []
+    for (const invariantId of manifest.applicableInvariants ?? []) {
+      const result = invariantResults.find((i) => i.invariant_id === invariantId)
+      if (!result) {
+        throw new Error(
+          `Cannot complete ${manifest.id}: applicable invariant '${invariantId}' has no recorded result. ` +
+          'Record it with `record-invariant` before completing.'
+        )
+      }
+      if (result.status !== 'PASS') {
+        throw new Error(
+          `Cannot complete ${manifest.id}: invariant '${invariantId}' is ${result.status}. ` +
+          'UNKNOWN != PASS: only PASS permits completion.'
+        )
+      }
+    }
   }
 
   public addDecision(manifestId: string, decision: CouncilDecision): TaskManifest {
@@ -111,23 +156,39 @@ export class WorkflowEngine {
 
   public addQualityResult(manifestId: string, result: QualityGateResult): TaskManifest {
     const manifest = this.loadManifest(manifestId)
+    if (!manifest.qualityGateResults) manifest.qualityGateResults = []
+    manifest.qualityGateResults = manifest.qualityGateResults.filter((r) => r.gate !== result.gate)
+    manifest.qualityGateResults.push(result)
+    this.saveManifest(manifest)
     this.log(`QUALITY: ${manifest.id} — ${result.gate} → ${result.passed ? 'PASS' : 'FAIL'}`)
     return manifest
   }
 
+  public addInvariantResult(manifestId: string, result: InvariantVerificationResult): TaskManifest {
+    const manifest = this.loadManifest(manifestId)
+    if (!manifest.invariantResults) manifest.invariantResults = []
+    manifest.invariantResults = manifest.invariantResults.filter(
+      (r) => r.invariant_id !== result.invariant_id
+    )
+    manifest.invariantResults.push(result)
+    this.saveManifest(manifest)
+    this.log(`INVARIANT: ${manifest.id} — ${result.invariant_id} → ${result.status}`)
+    return manifest
+  }
+
   public getManifest(manifestId: string): TaskManifest | null {
-    const filePath = path.join(TASKS_DIR, `${manifestId}.json`)
+    const filePath = path.join(this.tasksDir, `${manifestId}.json`)
     if (!fs.existsSync(filePath)) return null
     return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
   }
 
   public listManifests(status?: GovernanceStatus): TaskManifest[] {
-    ensureDirs()
-    const files = fs.readdirSync(TASKS_DIR).filter((f) => f.endsWith('.json'))
+    this.ensureDirs()
+    const files = fs.readdirSync(this.tasksDir).filter((f) => f.endsWith('.json'))
     const manifests: TaskManifest[] = []
 
     for (const file of files) {
-      const content = fs.readFileSync(path.join(TASKS_DIR, file), 'utf-8')
+      const content = fs.readFileSync(path.join(this.tasksDir, file), 'utf-8')
       const manifest = JSON.parse(content) as TaskManifest
       if (!status || manifest.status === status) {
         manifests.push(manifest)
@@ -202,9 +263,9 @@ export class WorkflowEngine {
   }
 
   public saveManifest(manifest: TaskManifest): void {
-    ensureDirs()
+    this.ensureDirs()
     fs.writeFileSync(
-      path.join(TASKS_DIR, `${manifest.id}.json`),
+      path.join(this.tasksDir, `${manifest.id}.json`),
       JSON.stringify(manifest, null, 2),
       'utf-8'
     )
@@ -213,16 +274,16 @@ export class WorkflowEngine {
   private loadManifest(manifestId: string): TaskManifest {
     const manifest = this.getManifest(manifestId)
     if (!manifest) {
-      throw new Error(`Task manifest ${manifestId} not found in ${TASKS_DIR}`)
+      throw new Error(`Task manifest ${manifestId} not found in ${this.tasksDir}`)
     }
     return manifest
   }
 
   private log(message: string): void {
-    ensureDirs()
+    this.ensureDirs()
     const timestamp = new Date().toISOString()
     const logLine = `[${timestamp}] ${message}\n`
-    const logFile = path.join(LOG_DIR, `governance-${new Date().toISOString().slice(0, 10)}.log`)
+    const logFile = path.join(this.logDir, `governance-${new Date().toISOString().slice(0, 10)}.log`)
     fs.appendFileSync(logFile, logLine, 'utf-8')
   }
 }

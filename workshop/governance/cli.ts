@@ -3,7 +3,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Orchestrator, type OrchestratorInput } from './orchestrator'
 import { WorkflowEngine } from './workflow'
-import type { TaskManifest, GovernanceStatus, AgentRole, BusinessDomain } from './types'
+import type { TaskManifest, GovernanceStatus, AgentRole, BusinessDomain, InvariantVerificationStatus } from './types'
 import { AGENT_LABELS } from './types'
 
 function loadEnvLocal(): void {
@@ -490,6 +490,60 @@ function cmdValidate(): void {
   }
 }
 
+function cmdRecordGate(): void {
+  const manifestId = process.argv[3]
+  const gate = process.argv[4]
+  const outcome = (process.argv[5] ?? '').toLowerCase()
+  const notes = process.argv.slice(6).join(' ')
+
+  if (!manifestId || !gate || !['pass', 'fail'].includes(outcome)) {
+    console.error('Usage: npx tsx workshop/governance/cli.ts record-gate <manifest-id> <gate> <pass|fail> [notes]')
+    process.exit(1)
+  }
+
+  try {
+    workflow.addQualityResult(manifestId, {
+      gate: gate as TaskManifest['classification']['qualityGates'][number],
+      passed: outcome === 'pass',
+      output: notes || undefined,
+      timestamp: new Date().toISOString(),
+    })
+    console.log(`✓ Gate '${gate}' recorded as ${outcome.toUpperCase()} for ${manifestId}.`)
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`)
+    process.exit(1)
+  }
+}
+
+const VALID_INVARIANT_STATUSES: InvariantVerificationStatus[] = ['PASS', 'FAIL', 'UNKNOWN', 'HUMAN_REQUIRED']
+
+function cmdRecordInvariant(): void {
+  const manifestId = process.argv[3]
+  const invariantId = process.argv[4]
+  const status = (process.argv[5] ?? '').toUpperCase() as InvariantVerificationStatus
+  const evidence = process.argv.slice(6).join(' ')
+
+  if (!manifestId || !invariantId || !VALID_INVARIANT_STATUSES.includes(status)) {
+    console.error(
+      'Usage: npx tsx workshop/governance/cli.ts record-invariant <manifest-id> <invariant-id> <PASS|FAIL|UNKNOWN|HUMAN_REQUIRED> [evidence]'
+    )
+    process.exit(1)
+  }
+
+  try {
+    workflow.addInvariantResult(manifestId, {
+      invariant_id: invariantId,
+      status,
+      evidence: evidence || 'no evidence provided',
+      timestamp: new Date().toISOString(),
+    })
+    console.log(`✓ Invariant '${invariantId}' recorded as ${status} for ${manifestId}.`)
+  } catch (err) {
+    console.error(`Error: ${(err as Error).message}`)
+    process.exit(1)
+  }
+}
+
 function printManifest(manifest: TaskManifest): void {
   const statusIcon = getStatusIcon(manifest.status)
 
@@ -572,6 +626,12 @@ async function main(): Promise<void> {
       break
     case 'complete':
       cmdComplete()
+      break
+    case 'record-gate':
+      cmdRecordGate()
+      break
+    case 'record-invariant':
+      cmdRecordInvariant()
       break
     case 'validate':
       cmdValidate()

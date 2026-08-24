@@ -3,15 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Brain, AlertCircle } from 'lucide-react'
 import { MiaSpinner } from '@/components/ui/mia-spinner'
-
-interface CustomerMemory {
-  interests: string[]
-  objections: string[]
-  questions: string[]
-  preferences: string[]
-  lastInteraction: string | null
-  summary: string
-}
+import { CustomerDataSection } from '@/components/customers/CustomerDataSection'
+import type { CustomerMemory } from '@/lib/ai/customer-memory'
 
 interface MemoryPanelProps {
   customerId: string
@@ -108,6 +101,8 @@ export function MemoryPanel({ customerId, assistantId }: MemoryPanelProps) {
       {memory.summary && (
         <p className="mb-2 text-xs leading-relaxed text-gray-700">{memory.summary}</p>
       )}
+
+      <CustomerDataSection memory={memory} />
 
       <div className="space-y-1">
         {memory.interests.length > 0 && (

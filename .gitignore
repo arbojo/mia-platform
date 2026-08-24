@@ -79,3 +79,6 @@ next-env.d.ts
 !services/whatsapp-bridge/.env.example
 
 .invloop-drill/
+
+# foreign agent loop artifacts
+.loop-evidence/

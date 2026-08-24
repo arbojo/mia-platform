@@ -1,0 +1,122 @@
+{
+  "id": "TASK-20260824-174820058",
+  "title": "ENVIRONMENT-DRIFT-RESOLUTION-V01 foreign session forensics",
+  "description": "Evidence-only determination of foreign session liveness (mtimes, merge-state, stash age, remote movement); STOP_FOR_HUMAN unless FOREIGN_SESSION_RELEASED; safe tree release and global gate revalidation only after explicit release evidence.",
+  "scope": {
+    "categories": [
+      "documentation"
+    ],
+    "filesAffected": 1,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Primary domain: sales. Direct delegation: single domain, no cross-cutting impact. Required agents (1): memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [],
+  "createdAt": "2026-08-24T17:48:20.978Z",
+  "classifiedAt": "2026-08-24T17:48:20.978Z",
+  "approvedAt": "2026-08-24T17:48:20.978Z",
+  "startedAt": "2026-08-24T17:48:23.448Z",
+  "invariantResults": [
+    {
+      "invariant_id": "INV-G-003",
+      "status": "PASS",
+      "evidence": "scan sin secretos reales reconfirmado",
+      "timestamp": "2026-08-24T18:03:10.530Z"
+    },
+    {
+      "invariant_id": "INV-G-005",
+      "status": "PASS",
+      "evidence": "outcome-contract dentro de 887 verdes",
+      "timestamp": "2026-08-24T18:03:13.898Z"
+    },
+    {
+      "invariant_id": "INV-G-007",
+      "status": "PASS",
+      "evidence": "liberado SOLO tras autorizacion humana explicita; contenido fd3f372 preservado byte a byte; stash conservado",
+      "timestamp": "2026-08-24T18:03:16.320Z"
+    },
+    {
+      "invariant_id": "INV-A-QA-001",
+      "status": "PASS",
+      "evidence": "gates ahora respaldados por evidencia mecanica; complete() rechazo 2 veces sin ella",
+      "timestamp": "2026-08-24T18:03:19.006Z"
+    },
+    {
+      "invariant_id": "INV-D-CHAN-001",
+      "status": "FAIL",
+      "evidence": "TD-004 esquema sigue abierto; RELATED",
+      "timestamp": "2026-08-24T18:03:22.574Z"
+    },
+    {
+      "invariant_id": "INV-D-ANAL-001",
+      "status": "FAIL",
+      "evidence": "NF-001 sigue abierto; RELATED",
+      "timestamp": "2026-08-24T18:03:25.185Z"
+    }
+  ],
+  "qualityGateResults": [
+    {
+      "gate": "security_review",
+      "passed": true,
+      "output": "Forense read-only; sin superficie de ataque nueva",
+      "timestamp": "2026-08-24T17:48:29.218Z"
+    },
+    {
+      "gate": "lint",
+      "passed": true,
+      "output": "0 errores/0 warnings post-liberacion",
+      "timestamp": "2026-08-24T18:02:52.778Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "output": "Compiled successfully 15.4s",
+      "timestamp": "2026-08-24T18:02:56.098Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "output": "887/887 en 92 archivos",
+      "timestamp": "2026-08-24T18:02:59.020Z"
+    },
+    {
+      "gate": "e2e_tests",
+      "passed": true,
+      "output": "90 passed / 2 skipped multi-browser",
+      "timestamp": "2026-08-24T18:03:01.409Z"
+    },
+    {
+      "gate": "chrome_devtools",
+      "passed": true,
+      "output": "landing HTTP200; consola sin errores (solo Fast Refresh)",
+      "timestamp": "2026-08-24T18:03:05.077Z"
+    },
+    {
+      "gate": "stress_test",
+      "passed": true,
+      "output": "mision read-only + resolucion autorizada; sin superficie nueva",
+      "timestamp": "2026-08-24T18:03:07.874Z"
+    }
+  ],
+  "completedAt": "2026-08-24T18:03:27.851Z"
+}

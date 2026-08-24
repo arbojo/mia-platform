@@ -1,0 +1,93 @@
+{
+  "id": "TASK-20260824-084457229",
+  "title": "TECH-DEBT-REMEDIATION-V01 bounded remediation",
+  "description": "Fix verified debt from TECH-DEBT-V01 register only where bounded and low-risk: TD-001 sync src/lib/types/index.ts outcome unions with migration 025 CHECK (remove cancelled; live DB rejection proven by 23514 incidents pre-CUSTOMER-DATA-V01) + minimal anti-drift test reading migrations; TD-002 cancellation-aware conversion in getSalesMetrics (dashboard/queries.ts:990 excludes sales_cancelled_at via pure helper calculateConversionRate + unit test fixture); TD-007 MemoryPanel renders existing persisted customer data already returned by GET /api/customers/memory (extend select additively with name/phone/email/address). DEFERRED as documented debt: TD-004 protected (active Baileys session), TD-003 resolved-by-documentation (timeline badge is activity indicator: labels Respondido/Pendiente), TD-005/006/008/009/010/011 deferred per remediation policy. No schema changes, no AI behaviour changes, protected bridge files untouched.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "refactor"
+    ],
+    "filesAffected": 6,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "platform",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "frontend",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 6 files affected. Required agents (7): architect, backend, frontend, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Bounded: 3 fixes from verified register; types union sync matches proven live-DB rejection; pure helper for conversion; additive API fields. No architecture change.",
+      "timestamp": "2026-08-24T08:45:18.849Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "TD-002 filter excludes cancelled from numerator only; TD-007 select extension additive on existing authed endpoint; no write paths touched.",
+      "timestamp": "2026-08-24T08:45:21.408Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "MemoryPanel adds CONTACT/DELIVERY/STATUS sections with empty states from existing data; activity badge semantics preserved per evidence.",
+      "timestamp": "2026-08-24T08:45:24.124Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Regression plan: targeted unit fixtures for conversion+types-contract, lint/build/unit/e2e gates.",
+      "timestamp": "2026-08-24T08:45:27.133Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "No new attack surface: read-only UI additions and metric filter; protected bridge paths excluded from diff review.",
+      "timestamp": "2026-08-24T08:45:30.595Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Diff scope limited to approved files; commit gate will verify no protected/unrelated changes before commit.",
+      "timestamp": "2026-08-24T08:45:33.196Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Register updates preserve deferred findings with rationale; TD-003 documented as activity-indicator distinction.",
+      "timestamp": "2026-08-24T08:45:35.512Z"
+    }
+  ],
+  "createdAt": "2026-08-24T08:44:57.988Z",
+  "classifiedAt": "2026-08-24T08:44:57.988Z",
+  "approvedAt": "2026-08-24T08:45:35.513Z",
+  "startedAt": "2026-08-24T08:45:38.332Z"
+}

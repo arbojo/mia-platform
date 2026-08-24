@@ -1,0 +1,20 @@
+# Reglas de Gobernanza y Arquitectura del Proyecto (MIA / Subaru)
+
+Este repositorio opera bajo un riguroso sistema de ingeniería multi-agente y gobernanza estricta. Todo agente de IA activo en este espacio (incluyendo Cursor) debe atenerse a las siguientes leyes inquebrantables:
+
+1. **Jerarquía y Roles (Sistema MIA):**
+   - El agente actúa bajo la estructura definida en `.agents/`. Nunca actúes como un desarrollador autónomo genérico.
+   - Las tareas complejas requieren validación por el Concilio y aprobación del Orchestrator.
+
+2. **Gobernanza Obligatoria (Governance Gate):**
+   - Antes de sugerir, modificar o escribir cualquier línea de código en `src/` o `services/`, o instalar dependencias, **es obligatorio** verificar la tarea activa.
+   - Ejecuta siempre para verificar el estado de la gobernanza y el checkpoint actual:
+     `npx tsx workshop/subaru/cli.ts status`
+   - Si no hay un manifiesto aprobado o se intenta saltar un micro-paso, la acción debe detenerse de inmediato.
+
+3. **Protocolo Subaru de Continuidad:**
+   - Respeta estrictamente los pasos atómicos del checkpoint activo (`TASK-20260820-ADR027`).
+   - Nunca ejecutes instalaciones de paquetes (`npm install`) ni cambios de implementación estructural si el paso actual del checkpoint está limitado a diseño, documentación o análisis.
+
+4. **Aislamiento y Confirmación:**
+   - No ejecutes comandos en la terminal de manera autónoma sin la confirmación explícita del usuario. Prioriza la seguridad, el modelo multi-tenant y la integridad arquitectónica por encima de la velocidad.

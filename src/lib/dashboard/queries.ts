@@ -930,6 +930,17 @@ export interface SalesMetrics {
   topProducts: Array<{ name: string; count: number }>
 }
 
+export function calculateConversionRate(
+  conversations: Array<{ outcome: string | null; sales_cancelled_at: string | null }> | null
+): number {
+  const rows = conversations ?? []
+  if (rows.length === 0) return 0
+  const sold = rows.filter(
+    (c) => c.outcome === 'sold' && c.sales_cancelled_at === null
+  ).length
+  return Number(((sold / rows.length) * 100).toFixed(1))
+}
+
 export async function getSalesMetrics(
   supabase: SupabaseClient,
   businessId: string
@@ -960,7 +971,7 @@ export async function getSalesMetrics(
         .limit(200),
       supabase
         .from('conversations')
-        .select('outcome')
+        .select('outcome, sales_cancelled_at')
         .eq('type', 'live')
         .eq('business_id', businessId),
     ])
@@ -986,9 +997,7 @@ export async function getSalesMetrics(
     .slice(0, 5)
     .map(([name, count]) => ({ name, count }))
 
-  const total = conversations?.length ?? 0
-  const sold = (conversations ?? []).filter((c) => c.outcome === 'sold').length
-  const conversionRate = total > 0 ? Number(((sold / total) * 100).toFixed(1)) : 0
+  const conversionRate = calculateConversionRate(conversations)
 
   return {
     todaySales: todaySum.sales,

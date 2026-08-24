@@ -1,0 +1,37 @@
+{
+  "id": "TASK-20260824-091820357",
+  "title": "INVARIANT-REGISTRY-V01 seed artifact",
+  "description": "Create .governance/invariants.json (17 evidence-backed invariant entries derived from AGENTS.md sections 5/9/22/23/24, migrations, sales runtime code and confirmed findings from TECH-DEBT-V01/CUSTOMER-DATA-V01 loops) plus a minimal structure-contract unit test validating IDs/enums/sources/failure_behavior. Governance-artifact mission only: no product code changes.",
+  "scope": {
+    "categories": [
+      "documentation"
+    ],
+    "filesAffected": 3,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "platform",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "platform"
+    ]
+  },
+  "classification": {
+    "complexity": "simple",
+    "requiredAgents": [
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build"
+    ],
+    "rationale": "Classified as SIMPLE complexity. Primary domain: sales. Direct delegation: single domain, no cross-cutting impact. Required agents (1): memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [],
+  "createdAt": "2026-08-24T09:18:20.417Z",
+  "classifiedAt": "2026-08-24T09:18:20.417Z",
+  "approvedAt": "2026-08-24T09:18:20.417Z",
+  "startedAt": "2026-08-24T09:18:23.414Z"
+}

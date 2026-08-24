@@ -421,7 +421,7 @@ export interface Database {
           customer_id: string | null
           type: 'training' | 'live' | 'simulation'
           status: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
-          outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | 'needs_follow_up' | null
+          outcome: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
           deal_value: number | null
           potential_value: number | null
           outcome_updated_at: string | null
@@ -438,7 +438,7 @@ export interface Database {
           customer_id?: string | null
           type: 'training' | 'live' | 'simulation'
           status?: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
-          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | 'needs_follow_up' | null
+          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
           deal_value?: number | null
           potential_value?: number | null
           outcome_updated_at?: string | null
@@ -455,7 +455,7 @@ export interface Database {
           customer_id?: string | null
           type?: 'training' | 'live' | 'simulation'
           status?: 'active' | 'waiting' | 'completed' | 'abandoned' | 'archived'
-          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'cancelled' | 'needs_follow_up' | null
+          outcome?: 'pending' | 'interested' | 'not_interested' | 'sold' | 'needs_follow_up' | null
           deal_value?: number | null
           potential_value?: number | null
           outcome_updated_at?: string | null

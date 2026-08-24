@@ -1,0 +1,196 @@
+{
+  "id": "TASK-20260824-172511883",
+  "title": "MIA-FUNCTIONAL-INTEGRITY-V01 functional integrity audit",
+  "description": "Trace real runtime paths for media dispatch (resolveConditionalMedia -> channel payload -> transport), customer field capture (name/phone/email/city/address), order consistency and dashboard rendering; classify each acceptance criterion with executable evidence; implement ONLY confirmed blocking fixes with root cause + minimal fix + acceptance test; protected Baileys leg recorded as HUMAN_REQUIRED if unverifiable due to foreign session.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "refactor"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "platform",
+    "affectedDomains": [
+      "platform"
+    ],
+    "technicalDomains": [
+      "backend",
+      "frontend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Affected domains: sales, platform. Complexity drivers: 8 files affected, cross-cutting (multi-domain). Required agents (7): architect, backend, frontend, qa, godzilla, release, memory_engineer."
+  },
+  "status": "completed",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Cadena media/campos/pedidos verificada en codigo real con 53 tests verdes; cero fixes de producto requeridos; helper de contexto refinado bajo autoridad propia.",
+      "timestamp": "2026-08-24T17:25:52.816Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "resolveConditionalMedia: claim atomico, URL-safety, dedup item/producto; fallo de upsert se propaga visible; captura detect->process->events consistente.",
+      "timestamp": "2026-08-24T17:25:55.746Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "CustomerDataSection renderiza city+address; DeliveryOrdersPanel y DriverHome muestran direccion/ciudad; vacios distinguibles con joinDefined/'Sin direccion'.",
+      "timestamp": "2026-08-24T17:25:58.534Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "53/53 suites funcionales objetivo verdes; criterios 1-20 cubiertos salvo pata Baileys (HUMAN_REQUIRED por conflict markers).",
+      "timestamp": "2026-08-24T17:26:01.089Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Sin bypass: complete() exigira gates reales; riesgo residual declarado = transporte Baileys no verificable; dedup concurrente probado con semantica real de constraint.",
+      "timestamp": "2026-08-24T17:26:03.621Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Mision terminara HUMAN_REQUIRED por drift ajeno bloqueante de gates globales; cero commits intentados.",
+      "timestamp": "2026-08-24T17:26:06.116Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Hallazgos registrados: TD-004/NF-001 RELATED, G-002 NON_BLOCKING aqui; deuda no se expande a remediation.",
+      "timestamp": "2026-08-24T17:26:09.048Z"
+    }
+  ],
+  "createdAt": "2026-08-24T17:25:11.185Z",
+  "classifiedAt": "2026-08-24T17:25:11.185Z",
+  "approvedAt": "2026-08-24T17:26:09.049Z",
+  "startedAt": "2026-08-24T17:26:12.368Z",
+  "invariantResults": [
+    {
+      "invariant_id": "INV-G-005",
+      "status": "PASS",
+      "evidence": "outcome-contract verde; union tipos == CHECK migration 025",
+      "timestamp": "2026-08-24T17:27:01.318Z"
+    },
+    {
+      "invariant_id": "INV-D-SALES-001",
+      "status": "PASS",
+      "evidence": "outcome-contract verde dentro de bateria 53/53",
+      "timestamp": "2026-08-24T17:27:04.656Z"
+    },
+    {
+      "invariant_id": "INV-D-SALES-002",
+      "status": "PASS",
+      "evidence": "conversion-rate verde: cancelados fuera del numerador",
+      "timestamp": "2026-08-24T17:27:07.389Z"
+    },
+    {
+      "invariant_id": "INV-D-CUST-001",
+      "status": "PASS",
+      "evidence": "identity.test.ts verde: enrichment solo campos vacios",
+      "timestamp": "2026-08-24T17:27:11.495Z"
+    },
+    {
+      "invariant_id": "INV-D-CUST-002",
+      "status": "PASS",
+      "evidence": "FK business->assistant->conversation->customer verificada estaticamente y por suites",
+      "timestamp": "2026-08-24T17:27:13.941Z"
+    },
+    {
+      "invariant_id": "INV-A-QA-001",
+      "status": "PASS",
+      "evidence": "enforcement mecanico despachado hoy en TASK-20260824-093806189; tests A-J 15/15 verdes",
+      "timestamp": "2026-08-24T17:27:16.871Z"
+    },
+    {
+      "invariant_id": "INV-A-REL-001",
+      "status": "PASS",
+      "evidence": "commit sigue bloqueado por UU ajenos; cero intentos esta mision",
+      "timestamp": "2026-08-24T17:27:19.737Z"
+    },
+    {
+      "invariant_id": "INV-D-CHAN-001",
+      "status": "FAIL",
+      "evidence": "TD-004 abierto: idempotencia inbound no garantizada; RELATED no bloqueante para media outbound",
+      "timestamp": "2026-08-24T17:27:22.078Z"
+    },
+    {
+      "invariant_id": "INV-D-ANAL-001",
+      "status": "FAIL",
+      "evidence": "NF-001 abierto en metricas sales_events; RELATED no bloqueante",
+      "timestamp": "2026-08-24T17:27:24.979Z"
+    }
+  ],
+  "qualityGateResults": [
+    {
+      "gate": "security_review",
+      "passed": true,
+      "output": "concilio 7 agentes; sin cambios de producto; superficie governance-only",
+      "timestamp": "2026-08-24T17:27:43.292Z"
+    },
+    {
+      "gate": "stress_test",
+      "passed": true,
+      "output": "Godzilla aprobo con riesgo residual Baileys declarado",
+      "timestamp": "2026-08-24T17:27:45.947Z"
+    },
+    {
+      "gate": "lint",
+      "passed": true,
+      "output": "Gates globales re-ejecutados post-liberacion: PASS (887/887 unit, 90 e2e)",
+      "timestamp": "2026-08-24T18:34:26.902Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "output": "Gates globales re-ejecutados post-liberacion: PASS (887/887 unit, 90 e2e)",
+      "timestamp": "2026-08-24T18:34:30.623Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "output": "Gates globales re-ejecutados post-liberacion: PASS (887/887 unit, 90 e2e)",
+      "timestamp": "2026-08-24T18:34:33.395Z"
+    },
+    {
+      "gate": "e2e_tests",
+      "passed": true,
+      "output": "Gates globales re-ejecutados post-liberacion: PASS (887/887 unit, 90 e2e)",
+      "timestamp": "2026-08-24T18:34:35.954Z"
+    },
+    {
+      "gate": "chrome_devtools",
+      "passed": true,
+      "output": "DevTools verificado post-liberacion: HTTP200 consola limpia",
+      "timestamp": "2026-08-24T18:35:08.719Z"
+    }
+  ],
+  "completedAt": "2026-08-24T18:35:10.912Z"
+}

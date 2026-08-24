@@ -1,0 +1,344 @@
+{
+  "$schema_note": "Invariant Registry seed - INVARIANT-REGISTRY-V01. Fields are minimum per mission contract plus verification_status (covered|unknown) required by Phase 6 honesty rules.",
+  "invariants": [
+    {
+      "id": "INV-G-001",
+      "statement": "Every business-scoped query filters by business_id and every table containing business_id has RLS enabled with tenant-scoped policies.",
+      "scope": "global",
+      "owner": "database",
+      "severity": "P0",
+      "status": "confirmed",
+      "verification": {
+        "method": "static",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "AGENTS.md", "line": 431, "reason": "Section 5.4 Critical Rules: respect tenant scoping"},
+        {"file": "supabase/migrations/001_initial_schema.sql", "line": 1, "reason": "15 ENABLE ROW LEVEL SECURITY statements across core tables"}
+      ]
+    },
+    {
+      "id": "INV-G-002",
+      "statement": "Server-side writes use the admin client (deliberate RLS bypass); user-scoped reads use the server client; Route Handlers that set cookies propagate them via the route-handler client.",
+      "scope": "global",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "static",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "AGENTS.md", "line": 508, "reason": "Section 5.5 Auth Flow (RLS 42501 fix) documents client selection rules"},
+        {"file": "src/lib/supabase/admin.ts", "line": 3, "reason": "createAdminClient export used for server-side writes"}
+      ]
+    },
+    {
+      "id": "INV-G-003",
+      "statement": "No secrets, keys or credentials are committed to the repository.",
+      "scope": "global",
+      "owner": "release",
+      "severity": "P0",
+      "status": "confirmed",
+      "verification": {
+        "method": "hybrid",
+        "command": "npx tsx workshop/subaru/cli.ts freeze|mark|complete (secret scan runs internally)",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "workshop/subaru/cli.ts", "line": 184, "reason": "scanSecrets enforces secret scan on checkpoint operations"},
+        {"file": "AGENTS.md", "line": 910, "reason": "Section 23 governance: never commit secrets"}
+      ]
+    },
+    {
+      "id": "INV-G-004",
+      "statement": "Applied migrations are immutable; schema changes occur only through new migration files.",
+      "scope": "global",
+      "owner": "database",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "manual",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "AGENTS.md", "line": 590, "reason": "Section 9 Database Rules 1-2"}
+      ]
+    },
+    {
+      "id": "INV-G-005",
+      "statement": "Application-level contracts (types, unions, enums) must not contradict database constraints; drift is a defect even when runtime has not yet failed.",
+      "scope": "global",
+      "owner": "architect",
+      "severity": "P1",
+      "status": "derived",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/unit/outcome-contract.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "TECH-DEBT-V01 register TD-001", "line": 0, "reason": "Confirmed incident: types union contained 'cancelled' while migration 025 CHECK forbids it; live DB rejected writes with 23514"},
+        {"file": "tests/unit/outcome-contract.test.ts", "line": 1, "reason": "Contract test created by TECH-DEBT-REMEDIATION-V01"}
+      ]
+    },
+    {
+      "id": "INV-G-006",
+      "statement": "UNKNOWN is not PASS: any unverifiable condition escalates to HUMAN_REQUIRED instead of being assumed satisfied.",
+      "scope": "global",
+      "owner": "orchestrator",
+      "severity": "P1",
+      "status": "proposed",
+      "verification": {
+        "method": "manual",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "human_required",
+      "sources": [
+        {"file": "COUNCIL-GOVERNANCE-V01 proposal", "line": 0, "reason": "Core principle C-015 and Phase 7 design; not yet enforced anywhere in workshop/governance code"}
+      ]
+    },
+    {
+      "id": "INV-G-007",
+      "statement": "Work belonging to another active session (modified, staged, stashed or unmerged files outside current mission scope) must never be reset, restored, cleaned, stashed or resolved by a different loop.",
+      "scope": "global",
+      "owner": "infrastructure_guardian",
+      "severity": "P0",
+      "status": "derived",
+      "verification": {
+        "method": "manual",
+        "command": "git status --porcelain + git stash list reviewed at baseline",
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "human_required",
+      "sources": [
+        {"file": "session incident 2026-08-24", "line": 0, "reason": "Foreign stash-pop left 4 UU paths blocking repo-wide commits across two missions; hands-off directive confirmed by user"},
+        {"file": "AGENTS.md", "line": 1088, "reason": "Section 24 Subaru drift-safety rules"}
+      ]
+    },
+    {
+      "id": "INV-G-008",
+      "statement": "Completion claims require Evidence First support: file:line references, HEAD hash and re-validation against current state.",
+      "scope": "global",
+      "owner": "qa",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "manual",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "warn",
+      "sources": [
+        {"file": "AGENTS.md", "line": 841, "reason": "Section 22 Evidence First Protocol"},
+        {"file": "docs/adr/011-evidence-first-protocol.md", "line": 1, "reason": "ADR-011 Accepted"}
+      ]
+    },
+    {
+      "id": "INV-G-009",
+      "statement": "A loop must not execute a decision that depends on missing context; insufficient context must escalate to UNKNOWN or HUMAN_REQUIRED and never become a silent assumption.",
+      "scope": "global",
+      "owner": "orchestrator",
+      "severity": "P1",
+      "status": "proposed",
+      "verification": {
+        "method": "hybrid",
+        "command": "npx tsx -e \"import{reconstructContext}from'./workshop/governance/context'\" + manual review of mission context reports",
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "human_required",
+      "sources": [
+        {"file": "COUNCIL-GOVERNANCE-V01 proposal", "line": 0, "reason": "Context Integrity Gate design; MISSING CONTEXT != ASSUMPTION principle"},
+        {"file": "workshop/governance/context.ts", "line": 1, "reason": "Pure reconstruction helper implemented by INVARIANT-VERIFICATION-V01"}
+      ]
+    },
+    {
+      "id": "INV-D-SALES-001",
+      "statement": "conversations.outcome accepts only values permitted by the migration CHECK ('pending','interested','not_interested','sold','needs_follow_up', NULL); 'cancelled' is forbidden everywhere.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P0",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/unit/outcome-contract.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "supabase/migrations/025_sales_events.sql", "line": 58, "reason": "CHECK constraint definition"},
+        {"file": "src/lib/types/index.ts", "line": 424, "reason": "Application union synced in TECH-DEBT-REMEDIATION-V01"}
+      ]
+    },
+    {
+      "id": "INV-D-SALES-002",
+      "statement": "A cancelled sale must never count as a successful conversion; cancellation is represented by sales_cancelled_at IS NOT NULL and excluded from sold metrics numerators.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/unit/conversion-rate.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "src/lib/sales/cancel.ts", "line": 123, "reason": "Cancellation persists sales_cancelled_at sentinel"},
+        {"file": "src/lib/dashboard/queries.ts", "line": 934, "reason": "calculateConversionRate excludes cancelled from numerator (TECH-DEBT-REMEDIATION-V01)"}
+      ]
+    },
+    {
+      "id": "INV-D-SALES-003",
+      "statement": "Cancellation produces a coherent state quadruple: sales_cancelled_at set, SALE_CANCELLED event emitted, outcome_history entry appended, customer status 'lost'; conversations.outcome value remains unchanged.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "derived",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/sales/cancel.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "src/lib/sales/cancel.ts", "line": 102, "reason": "SALE_CANCELLED event emission"},
+        {"file": "CUSTOMER-DATA-V01 forensics", "line": 0, "reason": "Option B design decision; live-DB coherence not yet verified end-to-end"}
+      ]
+    },
+    {
+      "id": "INV-D-CHAN-001",
+      "statement": "Inbound message identity (channel_connection_id, external_id) must make webhook redelivery idempotent so duplicates never create duplicate messages or downstream events.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "proposed",
+      "verification": {
+        "method": "static",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "supabase/migrations/005_channel_connections.sql", "line": 39, "reason": "external_id TEXT nullable with plain index only - desired rule is NOT currently guaranteed (TECH-DEBT-V01 TD-004)"},
+        {"file": "TECH-DEBT-V01 register TD-004", "line": 0, "reason": "Deferred to CONCURRENCY-IDEMPOTENCY-V01; Baileys implementation under protected active session"}
+      ]
+    },
+    {
+      "id": "INV-D-CUST-001",
+      "statement": "Customer enrichment is non-destructive: identity resolution may fill empty name/phone/email fields but must never overwrite existing persisted values.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/channels/identity.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "src/lib/channels/identity.ts", "line": 26, "reason": "enrichExisting fills only empty fields; applied on external/phone/email paths at lines 86/100/114"},
+        {"file": "CUSTOMER-DATA-V01", "line": 0, "reason": "Enrichment closure added and regression-tested"}
+      ]
+    },
+    {
+      "id": "INV-D-CUST-002",
+      "statement": "Tenant ownership chain business -> assistant -> conversation -> customer is enforced by foreign keys; a customer belongs to exactly one business.",
+      "scope": "domain",
+      "owner": "database",
+      "severity": "P0",
+      "status": "confirmed",
+      "verification": {
+        "method": "static",
+        "command": null,
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "supabase/migrations/001_initial_schema.sql", "line": 144, "reason": "customers table with business_id FK and RLS"}
+      ]
+    },
+    {
+      "id": "INV-D-ANAL-001",
+      "statement": "Business metrics must consume the persisted source of truth (conversations.outcome, sales_cancelled_at); message-derived indicators are permitted only when explicitly labelled as activity, not sales outcome.",
+      "scope": "domain",
+      "owner": "analytics",
+      "severity": "P1",
+      "status": "derived",
+      "verification": {
+        "method": "hybrid",
+        "command": "npx vitest run tests/unit/conversion-rate.test.ts (partial)",
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "TECH-DEBT-V01 NF-001", "line": 0, "reason": "Known open violation: todaySales/weekSales/revenue derived from sales_events SALE_WON still include cancelled deals"},
+        {"file": "src/lib/dashboard/queries.ts", "line": 484, "reason": "Timeline badge emits answered/pending only - documented activity indicator (TD-003 resolution)"}
+      ]
+    },
+    {
+      "id": "INV-A-QA-001",
+      "statement": "No task may close with failing lint, build or test suites; quality gate results must be backed by evidence, not self-reported.",
+      "scope": "agent",
+      "owner": "qa",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "hybrid",
+        "command": "npm run lint && npx vitest run && npm run build",
+        "evidence_required": true
+      },
+      "verification_status": "unknown",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "AGENTS.md", "line": 700, "reason": "Section 14 Quality Checklist"},
+        {"file": "workshop/governance/workflow.ts", "line": 112, "reason": "CONTRADICTION: addQualityResult exists but complete() never verifies recorded gates (found in COUNCIL-GOVERNANCE-V01 Phase 1)"}
+      ]
+    },
+    {
+      "id": "INV-A-REL-001",
+      "statement": "Commit/push gate: diff contains only approved scope, contains no foreign-session work, passes secret scan, and carries governance authorization; commits are blocked entirely while unmerged foreign files exist.",
+      "scope": "agent",
+      "owner": "release",
+      "severity": "P0",
+      "status": "confirmed",
+      "verification": {
+        "method": "manual",
+        "command": "git status --porcelain + git diff --cached review",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "AGENTS.md", "line": 910, "reason": "Section 23 Release Manager responsibilities"},
+        {"file": "TECH-DEBT-REMEDIATION-V01 termination report", "line": 0, "reason": "Live demonstration: commit gate blocked by 4 UU protected files"}
+      ]
+    }
+  ]
+}

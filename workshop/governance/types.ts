@@ -157,12 +157,24 @@ export interface TaskManifest {
   completedAt?: string
   rejectedAt?: string
   rejectionReason?: string
+  qualityGateResults?: QualityGateResult[]
+  invariantResults?: InvariantVerificationResult[]
+  applicableInvariants?: string[]
 }
 
 export interface QualityGateResult {
   gate: QualityGate
   passed: boolean
   output?: string
+  timestamp: string
+}
+
+export type InvariantVerificationStatus = 'PASS' | 'FAIL' | 'UNKNOWN' | 'HUMAN_REQUIRED'
+
+export interface InvariantVerificationResult {
+  invariant_id: string
+  status: InvariantVerificationStatus
+  evidence: string
   timestamp: string
 }
 

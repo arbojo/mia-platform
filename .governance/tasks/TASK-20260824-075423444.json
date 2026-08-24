@@ -1,0 +1,99 @@
+{
+  "id": "TASK-20260824-075423444",
+  "title": "Customer Dashboard Visibility Loop V02: visibilidad de datos de customer en el dashboard",
+  "description": "Loop forense-implantacion (19 fases, STOP GATE antes de implementar): hacer visible al operador toda la informacion valida ya capturada sobre un cliente. Fases 0-11 solo lectura/diseno: mapa de superficies de dashboard donde aparece un cliente, inventario de datos existentes (customers/conversations/messages/sales_events), matriz fuente-de-verdad por campo, forensia del journey mensaje->DB->API->UI, matriz de brechas de visibilidad, workflow del operador (READ/EDIT/ACTION), view model de presentacion sin segunda fuente de verdad, auditoria de contratos API, diseno minimo de UI, contrato de edicion y plan de implementacion clasificado P0-P4. STOP GATE con reporte completo y confirmacion humana ANTES de tocar codigo. Fases 12-18 (solo con aprobacion): implementacion del scope aprobado, fixture determinista TEST_CUSTOMER_DASHBOARD_01, verificacion UI real, verificacion de edicion, regresion completa, revision forense final y commit gate sin push. Principio: no inventar captura nueva para resolver un problema de visualizacion; no nuevas entidades, no duplicar customers, no migraciones sin necesidad demostrada.",
+  "scope": {
+    "categories": [
+      "feature",
+      "bugfix"
+    ],
+    "filesAffected": 10,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "frontend",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "frontend",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 10 files affected, category requires council. Required agents (7): architect, backend, frontend, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Mision con STOP GATE explicito antes de implementar: fases 0-11 solo lectura/diseno garantizan que la UI se disene sobre la matriz fuente-de-verdad y no sobre suposiciones. View model de presentacion sin segunda fuente de verdad respeta ADR de dominio. El concilio re-validara el plan en el reporte del gate.",
+      "timestamp": "2026-08-24T07:54:46.251Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Auditoria DB->API->UI por campo antes de tocar APIs: si la API ya entrega el dato no se modifica; si falta, modificacion minima documentada. Hereda el estado post-V01: outcome/sales_cancelled_at ahora se persisten con errores propagados, lo que hace los datos confiables para mostrarlos.",
+      "timestamp": "2026-08-24T07:54:49.511Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Evolucion minima del dashboard existente: seccion de informacion de customer dentro de Customer/Conversation Detail existentes, no un CRM nuevo ni tabla customer_profiles. Server Components por defecto, shadcn/ui, componentes <150 lineas, empty/loading/error states definidos en diseno antes de codificar.",
+      "timestamp": "2026-08-24T07:55:06.546Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Verificacion real exigida: fixture determinista TEST_CUSTOMER_DASHBOARD_01 DB->API->UI, verificacion de edicion con refresh, regresion completa lint/build/unit/e2e/DevTools comparada contra baseline. No se aceptan snapshots de codigo como unica evidencia.",
+      "timestamp": "2026-08-24T07:55:07.706Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Protocolo: freeze Subaru ANTES de investigacion; marks por bloque de fases; STOP GATE con reporte y confirmacion humana antes del paso de implementacion; commit gate sin push en fase 18; push y verificacion origin/main solo en fase 19 con todos los gates verdes.",
+      "timestamp": "2026-08-24T07:55:28.161Z"
+    },
+    {
+      "agentRole": "frontend2",
+      "decision": "approve",
+      "rationale": "placeholder",
+      "timestamp": "2026-08-24T07:55:54.257Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores previstos sobre el scope final: (1) contract de edicion debe escribir SOLO contra customers, nunca crear valores paralelos; (2) validacion de inputs en endpoints de edicion; (3) sin fuga cross-tenant: queries de customer scoped por business_id via get_user_business_ids; (4) sin secretos en fixture determinista. Stress test se re-ejecutara sobre el diff real en fase 17.",
+      "timestamp": "2026-08-24T07:56:17.923Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Leccion heredada de V01 registrada: los datos existen pero la superficie del dashboard solo muestra un subconjunto; el patron a documentar es 'inventario primero, UI despues' para evitar construir captura nueva sobre problemas de visualizacion.",
+      "timestamp": "2026-08-24T07:56:19.474Z"
+    }
+  ],
+  "createdAt": "2026-08-24T07:54:23.407Z",
+  "classifiedAt": "2026-08-24T07:54:23.407Z",
+  "approvedAt": "2026-08-24T07:56:19.476Z",
+  "startedAt": "2026-08-24T07:56:35.937Z"
+}
