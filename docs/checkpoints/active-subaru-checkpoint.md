@@ -2,13 +2,13 @@
 task_id: TASK-20260825-CLOUD-R1R3
 title: Cloud Remediation R-1 R-2 R-3
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 4
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-CLOUD-R1R3
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T22:54:21.457Z
+updated: 2026-08-25T22:54:24.078Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -70,7 +70,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260825-CLOUD-R1R3 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260825-CLOUD-R1R3 4`.
 
 ## Constraints
 
