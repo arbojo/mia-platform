@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `31564dd`.
+> Fuente de verdad: este repositorio en `bd9c0f2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `31564dd` |
+| **Commit HEAD** | `bd9c0f2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:34:24-06:00 |
+| **Generado** | 2026-08-25T12:44:33-06:00 |
 
 ---
 
@@ -541,7 +541,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-121 módulos:
+126 módulos:
 
 ```
 ai/client.ts
@@ -638,7 +638,12 @@ platform/jwt.ts
 platform/types.ts
 prd/builder.ts
 prd/template.ts
+reasoning/evidence.ts
+reasoning/prompt-enricher.ts
+reasoning/state-loader.ts
+reasoning/state.ts
 runtime/conditional-media.ts
+runtime/evidence-extraction.ts
 runtime/execute-ai.ts
 runtime/intents.ts
 runtime/media-guard.ts
@@ -878,6 +883,10 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+bd9c0f2 feat(runtime): add evidence extraction to message pipeline
+12bb39b feat(reasoning): implement evidence extraction, state computation, and prompt enrichment
+1626415 subaru: checkpoint ER-V1 - en-progreso
+78033e0 docs: regenerate MASTER.md at 31564dd
 31564dd research: preserve evidence-reasoning and governance artifacts
 5c170ab docs: regenerate MASTER.md at 94e54d1
 94e54d1 feat(subaru): add preflight command for session continuity enforcement
@@ -894,10 +903,6 @@ cb2b57b docs: regenerate MASTER.md at 6c94b42
 6c94b42 chore: consolidate governed engineering work and restore clean baseline
 dc4bec3 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
 77bec9a docs: regenerate MASTER.md at 10e2c24
-10e2c24 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
-663b647 subaru: checkpoint CUSTOMER-DATA-V02 - listo
-afef563 subaru: checkpoint CUSTOMER-DATA-V01 - completado
-cbcefed docs: regenerate MASTER.md at 621a590
 ```
 
 ---
