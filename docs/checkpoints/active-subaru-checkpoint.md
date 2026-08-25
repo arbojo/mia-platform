@@ -1,23 +1,23 @@
 ---
-task_id: CUSTOMER-DATA-V02
-title: Customer Dashboard Visibility Loop V02
-state: blocked
-current_step: 2
-total_steps: 9
+task_id: ER-V1
+title: Evidence Reasoning Architecture (Option B)
+state: frozen
+current_step: 0
+total_steps: 12
 branch: main
-last_machine: Deivis-Desktop
-governance_id: TASK-20260824-075423444
+last_machine: archlinux
+governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-24T08:46:07.076Z
+updated: 2026-08-25T18:02:03.906Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Customer Dashboard Visibility Loop V02
+Evidence Reasoning Architecture (Option B)
 
-Aprobación: TASK-20260824-075423444.
+Aprobación: TASK-20260825-EVIDENCE-REASONING.
 
 ## Scope
 
@@ -31,7 +31,7 @@ Aprobación: TASK-20260824-075423444.
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -103,16 +103,38 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
+- [ ] **Paso 10:** (objetivo del paso 10 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 10)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 11:** (objetivo del paso 11 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 11)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 12:** (objetivo del paso 12 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 12)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
 
 ## Current state
 
-- Misión CUSTOMER-DATA-V02 BLOQUEADA (state: blocked).
-- Motivo: Pausada por direccion humana: mision TECH-DEBT-REMEDIATION-V01 priorizada sobre registro TECH-DEBT-V01; reanudable en paso 3/9 tras cierre o autorizacion.
-- Bloqueado: 2026-08-24T08:46:07.076Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..12.
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark CUSTOMER-DATA-V02 3`.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
@@ -129,5 +151,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark CUSTOMER-DATA-V02 <n>`.
-6. Al final: `subaru complete CUSTOMER-DATA-V02`.
+5. Continuar el paso indicado y ejecutar `subaru mark ER-V1 <n>`.
+6. Al final: `subaru complete ER-V1`.
