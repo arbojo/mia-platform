@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `31e5f27`.
+> Fuente de verdad: este repositorio en `a09fec2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `31e5f27` |
+| **Commit HEAD** | `a09fec2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T16:54:29-06:00 |
+| **Generado** | 2026-08-25T16:57:55-06:00 |
 
 ---
 
@@ -887,6 +887,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+a09fec2 docs: R-1..R-3 loop termination report + independent freeze report (PASS)
+a47d415 docs: regenerate MASTER.md at 31e5f27
 31e5f27 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - completado
 57e5733 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
 7b1bce5 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
@@ -905,8 +907,6 @@ d863750 fix: remediation R-1..R-3 — env isolation via vi.stubEnv, assertion al
 06c35ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 5dce376 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 3e469c0 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-5ac503c subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-49b5e17 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 ```
 
 ---
