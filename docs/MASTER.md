@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ab0a702`.
+> Fuente de verdad: este repositorio en `bb5cfef`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ab0a702` |
+| **Commit HEAD** | `bb5cfef` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:47:44-06:00 |
+| **Generado** | 2026-08-25T12:49:47-06:00 |
 
 ---
 
@@ -883,6 +883,10 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+bb5cfef docs: Evidence Reasoning implementation termination report
+d9b3748 docs: add qualityGates to governance manifest for ER-V1 completion
+b336711 subaru: checkpoint ER-V1 - completado
+6a71ed5 docs: regenerate MASTER.md at ab0a702
 ab0a702 subaru: checkpoint ER-V1 - en-progreso
 757a6e1 test(reasoning): add 15 adversarial scenarios for evidence reasoning
 97d924d subaru: checkpoint ER-V1 - en-progreso
@@ -899,10 +903,6 @@ e81ff82 subaru: checkpoint ER-V1 - en-progreso
 bd9c0f2 feat(runtime): add evidence extraction to message pipeline
 12bb39b feat(reasoning): implement evidence extraction, state computation, and prompt enrichment
 1626415 subaru: checkpoint ER-V1 - en-progreso
-78033e0 docs: regenerate MASTER.md at 31564dd
-31564dd research: preserve evidence-reasoning and governance artifacts
-5c170ab docs: regenerate MASTER.md at 94e54d1
-94e54d1 feat(subaru): add preflight command for session continuity enforcement
 ```
 
 ---
