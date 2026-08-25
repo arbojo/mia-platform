@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 10
+current_step: 11
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:27.735Z
+updated: 2026-08-25T18:46:29.593Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -111,7 +111,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Test de integración del pipeline completo pasa
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 11:** (objetivo del paso 11 — completar antes de implementar)
+- [x] **Paso 11:** (objetivo del paso 11 — completar antes de implementar)
   - Objetivo: Quality gates: lint + build
   - Archivos: todos los archivos modificados
   - Acción: Ejecutar npm run lint (0 errores, 0 warnings) y npm run build (sin errores). Corregir cualquier issue encontrado.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 11 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 11`.
+Implementar el Paso 12 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 12`.
 
 ## Constraints
 
