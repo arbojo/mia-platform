@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:15.833Z
+updated: 2026-08-25T18:46:17.674Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -63,7 +63,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: CustomerMemory tiene campo evidence, format incluye estado
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+- [x] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
   - Objetivo: Integrar extracción de evidencia en el pipeline de runtime.ts
   - Archivos: src/lib/runtime/runtime.ts (integración)
   - Acción: En el pipeline de mensajes, después de recibir la respuesta del LLM, llamar extractEvidence() con el mensaje del cliente. Acumular evidencia en customer memory.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 6`.
 
 ## Constraints
 
