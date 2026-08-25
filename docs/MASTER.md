@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `db0a81a`.
+> Fuente de verdad: este repositorio en `d023d6c`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `db0a81a` |
+| **Commit HEAD** | `d023d6c` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T13:15:43-06:00 |
+| **Generado** | 2026-08-25T13:37:01-06:00 |
 
 ---
 
@@ -884,6 +884,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+d023d6c docs: complete Product Asset Ownership research (architecture decision)
+935bf37 docs: regenerate MASTER.md at db0a81a
 db0a81a docs: ER-V1 loop termination report — MISSION_COMPLETE
 ca70c5b docs: regenerate MASTER.md at 33feba4
 33feba4 fix: resolve all 6 Godzilla findings — LLM extraction, timestamp guard, NaN/Infinity protection, safe fallback, storage alignment
@@ -902,8 +904,6 @@ ab0a702 subaru: checkpoint ER-V1 - en-progreso
 e0b0b22 subaru: checkpoint ER-V1 - en-progreso
 a72be27 subaru: checkpoint ER-V1 - en-progreso
 f263429 subaru: checkpoint ER-V1 - en-progreso
-780b640 subaru: checkpoint ER-V1 - en-progreso
-e81ff82 subaru: checkpoint ER-V1 - en-progreso
 ```
 
 ---
