@@ -172,7 +172,7 @@ export async function DELETE(
 
   const { data: existing } = await supabase
     .from('knowledge_items')
-    .select('business_id')
+    .select('business_id, image_url')
     .eq('id', id)
     .single()
 
@@ -193,13 +193,39 @@ export async function DELETE(
 
   const admin = createAdminClient()
 
-  const { error } = await admin
+  // 1. Soft-delete the knowledge_items row
+  const { error: dbError } = await admin
     .from('knowledge_items')
     .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq('id', id)
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  // 2. Delete associated Storage file (best-effort — idempotent if file already gone)
+  if (!dbError && existing.image_url) {
+    // Extract the storage path from the public URL.
+    // Format: https://<project>.supabase.co/storage/v1/object/public/knowledge-media/{businessId}/{uuid}.{ext}
+    try {
+      const url = new URL(existing.image_url)
+      const pathName = url.pathname // starts with / then the path
+      // Remove leading / and /public/knowledge-media/ prefix if present
+      let storagePath = pathName.replace(/^\/+\/?/, '')
+      storagePath = storagePath.replace(/^\/public\/knowledge-media\//, '')
+      // Now storagePath is like: {businessId}/{uuid}.{ext}
+      const { error: storageError } = await admin.storage
+        .from('knowledge-media')
+        .remove([storagePath])
+      // Ignore errors if file already gone — this is idempotent
+      if (storageError && !storageError.message.includes('not found')) {
+        // Log but don't fail the deletion — the row soft-delete is the authoritative state
+        console.error(`[conditional-media] No se pudo borrar el archivo Storage (id=${id}): ${storageError.message}`)
+      }
+    } catch (e) {
+      // Best-effort: if URL parsing fails, don't block the deletion
+      console.error(`[conditional-media] Error extrayendo path de URL (id=${id}):`, e)
+    }
+  }
+
+  if (dbError) {
+    return NextResponse.json({ error: dbError.message }, { status: 500 })
   }
 
   invalidateConversationContext(existing.business_id)

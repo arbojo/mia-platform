@@ -25,6 +25,14 @@ interface ExistingProduct {
   sku: string | null
 }
 
+interface KnowledgeItemUpsert {
+  product_id: string
+  image_url: string
+  trigger_condition: string | null
+  media_type: string
+  business_id: string
+}
+
 export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
   const summary = input.initialSummary ?? emptySummary()
   summary.stockColumnPresent = input.stockColumnPresent
@@ -71,19 +79,23 @@ export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
     const rowNumber = input.rowBase + i
     const existingId = row.sku ? skuToId.get(row.sku.toLowerCase()) : undefined
 
-    const payload = {
-      name: row.name,
-      sku: row.sku,
-      price: row.price,
-      description: row.description,
-      benefits: row.benefits,
-      image_url: row.imageUrl,
+    // NEW: Always create/overwrite a knowledge_items row for the product image.
+    // The product's own image_url column is deprecated — no UI or engine write should
+    // set it as the authoritative source. All product images flow through knowledge_items.
+    const knowledgeItemPayload: KnowledgeItemUpsert = {
+      product_id: existingId ?? '',
+      image_url: row.imageUrl ?? '',
+      trigger_condition: null,   // imported images have no conditional trigger
+      media_type: 'image',
+      business_id: input.businessId,
     }
 
     if (existingId) {
+      // Update existing product (keep image_url column as-is for backward compat,
+      // but it is no longer the authoritative source)
       const { error } = await input.admin
         .from('products')
-        .update(payload)
+        .update({ image_url: row.imageUrl })
         .eq('id', existingId)
         .eq('business_id', input.businessId)
       if (error) {
@@ -96,10 +108,33 @@ export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
         continue
       }
       summary.updated += 1
+
+      // Also ensure knowledge_items row exists and is consistent
+      const { error: kiError } = await input.admin
+        .from('knowledge_items')
+        .upsert({
+          product_id: existingId,
+          image_url: row.imageUrl,
+          trigger_condition: null,
+          media_type: 'image',
+          business_id: input.businessId,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+      if (kiError) {
+        summary.errors.push({
+          row: rowNumber,
+          message: `Error al crear knowledge_item: ${kiError.message}`,
+        })
+      }
     } else {
+      // Insert new product
       const { error } = await input.admin
         .from('products')
-        .insert({ ...payload, business_id: input.businessId })
+        .insert({ name: row.name, sku: row.sku, price: row.price, description: row.description, benefits: row.benefits, image_url: row.imageUrl, business_id: input.businessId })
+        .select()
+        .single()
       if (error) {
         failed += 1
         summary.errors.push({
@@ -110,6 +145,26 @@ export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
         continue
       }
       summary.created += 1
+
+      // Also create knowledge_items row for the new product
+      const { error: kiError } = await input.admin
+        .from('knowledge_items')
+        .upsert({
+          product_id: '',
+          image_url: row.imageUrl,
+          trigger_condition: null,
+          media_type: 'image',
+          business_id: input.businessId,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+      if (kiError) {
+        summary.errors.push({
+          row: rowNumber,
+          message: `Error al crear knowledge_item: ${kiError.message}`,
+        })
+      }
     }
   }
 

@@ -103,19 +103,35 @@ async function buildProductReference(
   supabase: ReturnType<typeof createAdminClient>,
   product: Product
 ): Promise<ProductReference> {
-  let imageUrl = product.image_url
+  // PRIMARY: Resolve from knowledge_items (single source of truth)
+  // Order by position ASC (NULLs sort first in PostgreSQL, but we handle that
+  // by treating NULL position as "use created_at ordering"). We pick the first
+  // result; if position is NULL, the created_at tiebreaker determines order.
+  const { data: media } = await supabase
+    .from('knowledge_items')
+    .select('image_url')
+    .eq('business_id', product.business_id)
+    .eq('product_id', product.id)
+    .eq('is_active', true)
+    .not('image_url', 'is', null)
+    .order('position', { ascending: true })
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  let imageUrl = media?.image_url ?? null
+
+  // LEGACY fallback: products.image_url only if no knowledge items exist.
+  // This column is deprecated — it must not become a competing source of truth.
+  // The import engine must write to knowledge_items, not products.image_url.
   if (!imageUrl) {
-    const { data: media } = await supabase
-      .from('knowledge_items')
+    const { data: productRow } = await supabase
+      .from('products')
       .select('image_url')
       .eq('business_id', product.business_id)
-      .eq('product_id', product.id)
-      .eq('is_active', true)
-      .not('image_url', 'is', null)
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .maybeSingle()
-    imageUrl = media?.image_url ?? null
+      .eq('id', product.id)
+      .single()
+    imageUrl = productRow?.image_url ?? null
   }
 
   return {
