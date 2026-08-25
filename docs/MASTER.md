@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bb5cfef`.
+> Fuente de verdad: este repositorio en `33feba4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bb5cfef` |
+| **Commit HEAD** | `33feba4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:49:47-06:00 |
+| **Generado** | 2026-08-25T13:10:26-06:00 |
 
 ---
 
@@ -541,7 +541,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-126 módulos:
+127 módulos:
 
 ```
 ai/client.ts
@@ -638,6 +638,7 @@ platform/jwt.ts
 platform/types.ts
 prd/builder.ts
 prd/template.ts
+reasoning/evidence-extraction-llm.ts
 reasoning/evidence.ts
 reasoning/prompt-enricher.ts
 reasoning/state-loader.ts
@@ -883,6 +884,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+33feba4 fix: resolve all 6 Godzilla findings — LLM extraction, timestamp guard, NaN/Infinity protection, safe fallback, storage alignment
+b7f3eef docs: regenerate MASTER.md at bb5cfef
 bb5cfef docs: Evidence Reasoning implementation termination report
 d9b3748 docs: add qualityGates to governance manifest for ER-V1 completion
 b336711 subaru: checkpoint ER-V1 - completado
@@ -901,8 +904,6 @@ f263429 subaru: checkpoint ER-V1 - en-progreso
 e81ff82 subaru: checkpoint ER-V1 - en-progreso
 2ea0f2d docs: regenerate MASTER.md at bd9c0f2
 bd9c0f2 feat(runtime): add evidence extraction to message pipeline
-12bb39b feat(reasoning): implement evidence extraction, state computation, and prompt enrichment
-1626415 subaru: checkpoint ER-V1 - en-progreso
 ```
 
 ---
