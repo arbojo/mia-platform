@@ -1,14 +1,14 @@
 ---
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:18:43.210Z
+updated: 2026-08-25T18:44:02.683Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ NO: CRM redesign, Knowledge redesign, Catalog redesign, Memory redesign, Graph d
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: Crear src/lib/reasoning/evidence.ts con tipos y función de extracción de evidencia LLM
   - Archivos: src/lib/reasoning/evidence.ts (nuevo)
   - Acción: Definir tipos Evidence, EvidenceType, EvidenceProvenance. Implementar extractEvidence() que llama a gpt-4o-mini para extraer evidencia del mensaje del cliente. Provenance: message_id, conversation_id, customer_id, timestamp, extraction_method.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 1 (crear evidence.ts) y luego ejecutar `subaru mark ER-V1 1`.
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 2`.
 
 ## Constraints
 
