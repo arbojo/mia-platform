@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `94e54d1`.
+> Fuente de verdad: este repositorio en `31564dd`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `94e54d1` |
+| **Commit HEAD** | `31564dd` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:27:54-06:00 |
+| **Generado** | 2026-08-25T12:34:24-06:00 |
 
 ---
 
@@ -683,7 +683,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (138)**:
+**Tareas registradas (139)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -825,6 +825,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260824-174820058 | ENVIRONMENT-DRIFT-RESOLUTION-V01 foreign session forensics | completed |
 | TASK-20260824-195702493 | BAILEYS-DISPATCH-E2E-V01 last-mile physical verification | completed |
 | TASK-20260824-205443606 | BAILEYS-HOTFIX-AND-DEBT-REGISTRY-V01 | completed |
+| TASK-20260825-EVIDENCE-REASONING | MIA Evidence Accumulation & Customer State Architecture Review | completed |
 
 ---
 
@@ -877,6 +878,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+31564dd research: preserve evidence-reasoning and governance artifacts
+5c170ab docs: regenerate MASTER.md at 94e54d1
 94e54d1 feat(subaru): add preflight command for session continuity enforcement
 306743b docs: regenerate MASTER.md at 409553e
 409553e docs: Subaru enrich command termination report
@@ -895,8 +898,6 @@ dc4bec3 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
 663b647 subaru: checkpoint CUSTOMER-DATA-V02 - listo
 afef563 subaru: checkpoint CUSTOMER-DATA-V01 - completado
 cbcefed docs: regenerate MASTER.md at 621a590
-621a590 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
-892b60e test: sales y channels - contrato de integridad de datos de customer (casos A-H)
 ```
 
 ---
