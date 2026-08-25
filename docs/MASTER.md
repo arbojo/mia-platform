@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bd9c0f2`.
+> Fuente de verdad: este repositorio en `ab0a702`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bd9c0f2` |
+| **Commit HEAD** | `ab0a702` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:44:33-06:00 |
+| **Generado** | 2026-08-25T12:47:44-06:00 |
 
 ---
 
@@ -883,6 +883,19 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+ab0a702 subaru: checkpoint ER-V1 - en-progreso
+757a6e1 test(reasoning): add 15 adversarial scenarios for evidence reasoning
+97d924d subaru: checkpoint ER-V1 - en-progreso
+54c4ea1 subaru: checkpoint ER-V1 - en-progreso
+160cac1 subaru: checkpoint ER-V1 - en-progreso
+603a880 subaru: checkpoint ER-V1 - en-progreso
+3d56747 subaru: checkpoint ER-V1 - en-progreso
+e0b0b22 subaru: checkpoint ER-V1 - en-progreso
+a72be27 subaru: checkpoint ER-V1 - en-progreso
+f263429 subaru: checkpoint ER-V1 - en-progreso
+780b640 subaru: checkpoint ER-V1 - en-progreso
+e81ff82 subaru: checkpoint ER-V1 - en-progreso
+2ea0f2d docs: regenerate MASTER.md at bd9c0f2
 bd9c0f2 feat(runtime): add evidence extraction to message pipeline
 12bb39b feat(reasoning): implement evidence extraction, state computation, and prompt enrichment
 1626415 subaru: checkpoint ER-V1 - en-progreso
@@ -890,19 +903,6 @@ bd9c0f2 feat(runtime): add evidence extraction to message pipeline
 31564dd research: preserve evidence-reasoning and governance artifacts
 5c170ab docs: regenerate MASTER.md at 94e54d1
 94e54d1 feat(subaru): add preflight command for session continuity enforcement
-306743b docs: regenerate MASTER.md at 409553e
-409553e docs: Subaru enrich command termination report
-1ac855c docs: regenerate MASTER.md at 84b85c6
-84b85c6 feat(subaru): add enrich command for blueprint population without progress advancement
-1353c44 subaru: checkpoint ER-V1 - listo
-1df4fff docs: regenerate MASTER.md at a3f95fb
-a3f95fb subaru: checkpoint ER-V1 - listo
-458304d docs: regenerate MASTER.md at 6376da4
-6376da4 fix(whatsapp-bridge): restore JWT consumer compatibility
-cb2b57b docs: regenerate MASTER.md at 6c94b42
-6c94b42 chore: consolidate governed engineering work and restore clean baseline
-dc4bec3 subaru: checkpoint CUSTOMER-DATA-V02 - en-progreso
-77bec9a docs: regenerate MASTER.md at 10e2c24
 ```
 
 ---
