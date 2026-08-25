@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `409553e`.
+> Fuente de verdad: este repositorio en `94e54d1`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `409553e` |
+| **Commit HEAD** | `94e54d1` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:21:34-06:00 |
+| **Generado** | 2026-08-25T12:27:54-06:00 |
 
 ---
 
@@ -877,6 +877,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+94e54d1 feat(subaru): add preflight command for session continuity enforcement
+306743b docs: regenerate MASTER.md at 409553e
 409553e docs: Subaru enrich command termination report
 1ac855c docs: regenerate MASTER.md at 84b85c6
 84b85c6 feat(subaru): add enrich command for blueprint population without progress advancement
@@ -895,8 +897,6 @@ afef563 subaru: checkpoint CUSTOMER-DATA-V01 - completado
 cbcefed docs: regenerate MASTER.md at 621a590
 621a590 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 892b60e test: sales y channels - contrato de integridad de datos de customer (casos A-H)
-f415cab docs: regenerate MASTER.md at eafd089
-eafd089 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 ```
 
 ---
