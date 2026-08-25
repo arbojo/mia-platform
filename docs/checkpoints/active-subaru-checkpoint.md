@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:17.674Z
+updated: 2026-08-25T18:46:20.189Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -71,7 +71,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Evidence se extrae de cada mensaje del cliente en el pipeline
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
+- [x] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
   - Objetivo: Integrar inyección de estado en el prompt builder
   - Archivos: src/lib/ai/prompts.ts (integración)
   - Acción: En buildMasterPrompt(), si hay customerState disponible, inyectar sección de estado y guidance de acción antes de la sección de instrucciones.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 7`.
 
 ## Constraints
 
