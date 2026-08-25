@@ -1,13 +1,27 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { runMarginAudit } from '@/lib/analytics/margin-audit'
 
-export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+/**
+ * Verifies the request came from an authorized scheduler.
+ * Headless scheduler authentication via shared secret (service credential).
+ * Does NOT require an interactive user session.
+ */
+function verifyCronAuth(request: Request): boolean {
+  const secret = request.headers.get('x-mia-cron-secret')
+  if (!secret) {
+    return false
+  }
+  const expectedSecret = process.env.MIA_CRON_SECRET
+  if (!expectedSecret) {
+    return false
+  }
+  return secret === expectedSecret
+}
 
-  if (!user) {
+export async function POST(request: Request) {
+  // Authenticate as scheduler, not as user
+  if (!verifyCronAuth(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

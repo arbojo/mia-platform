@@ -13,6 +13,12 @@ primary_region = "dfw"
   BRIDGE_PORT = "3001"
   NODE_ENV = "production"
 
+# Persistent volume for WhatsApp session credentials (Baileys state)
+# INV-DEPLOY-002: Bridge is the only component permitted writable disk
+[[mounts]]
+  source = "bridge_sessions"
+  destination = "/app/sessions"
+
 [http_service]
   internal_port = 3001
   force_https = true

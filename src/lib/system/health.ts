@@ -367,6 +367,96 @@ async function checkVitanovaIndexing(
   )
 }
 
+async function checkBridgeConfiguration(): Promise<HealthCheckResult> {
+  const origin = 'src/lib/baileys/config.ts'
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  const bridgeUrl = process.env.WHATSAPP_BRIDGE_URL
+  const bridgeSecret = process.env.WHATSAPP_BRIDGE_SECRET
+
+  // In production, both environment variables are mandatory (fail-fast)
+  if (isProduction) {
+    const missing: string[] = []
+    if (!bridgeUrl) missing.push('WHATSAPP_BRIDGE_URL')
+    if (!bridgeSecret) missing.push('WHATSAPP_BRIDGE_SECRET')
+
+    if (missing.length > 0) {
+      return fail(
+        'bridge_configuration',
+        'Configuración del Bridge WhatsApp',
+        `En producción, variables requeridas ausentes: ${missing.join(', ')}.`,
+        origin,
+        `Configura ${missing.join(', ')} en los secrets de la plataforma (Vercel/Fly). No usar localhost.`,
+      )
+    }
+
+    // In production, verify the URL is not localhost (sanity check)
+    if (bridgeUrl?.includes('localhost') || bridgeUrl?.includes('127.0.0.1')) {
+      return fail(
+        'bridge_configuration',
+        'Configuración del Bridge WhatsApp',
+        'En producción, WHATSAPP_BRIDGE_URL no puede ser localhost.',
+        origin,
+        'Configura la URL real del bridge en Fly.io en los secrets de producción.',
+      )
+    }
+
+    return pass(
+      'bridge_configuration',
+      'Configuración del Bridge WhatsApp',
+      'Variables de puente configuradas en producción (sin localhost).',
+      origin,
+      null,
+    )
+  }
+
+  // In development, localhost is acceptable (but we still check for misconfiguration)
+  if (!bridgeUrl && !bridgeSecret) {
+    // No configuration at all in development is acceptable (bridge disabled for development)
+    return warn(
+      'bridge_configuration',
+      'Configuración del Bridge WhatsApp',
+      'Bridge no configurado en desarrollo (usará localhost por defecto). ' +
+        'Para testing, configura WHATSAPP_BRIDGE_URL y WHATSAPP_BRIDGE_SECRET en .env.local.',
+      origin,
+      'Opcional: copia .env.example a .env.local y setea bridge URLs para local testing.',
+    )
+  }
+
+  // In development, warn if only partially configured
+  if (!bridgeUrl || !bridgeSecret) {
+    return warn(
+      'bridge_configuration',
+      'Configuración del Bridge WhatsApp',
+      `En desarrollo, solo ${!bridgeUrl ? 'URL' : 'secret'} configurado. Bridge parcialmente habilitado.`,
+      origin,
+      'Para testing completo, configura ambas: WHATSAPP_BRIDGE_URL y WHATSAPP_BRIDGE_SECRET.',
+    )
+  }
+
+  // In development, both configured - check if using localhost
+  if (bridgeUrl.includes('localhost') || bridgeUrl.includes('127.0.0.1')) {
+    return pass(
+      'bridge_configuration',
+      'Configuración del Bridge WhatsApp',
+      `Desarrollo con bridge local: ${bridgeUrl}`,
+      origin,
+      null,
+    )
+  }
+
+  // In development, both configured with remote URL
+  return pass(
+    'bridge_configuration',
+    'Configuración del Bridge WhatsApp',
+    `Bridge remoto configurado en desarrollo: ${bridgeUrl}`,
+    origin,
+    null,
+  )
+}
+
+export { checkBridgeConfiguration }
+
 function aggregate(checks: HealthCheckResult[]): HealthStatus {
   if (checks.some((c) => c.status === 'failed')) return 'failed'
   if (checks.some((c) => c.status === 'warning')) return 'warning'
@@ -383,6 +473,7 @@ export async function runHealthChecks(
   const checks = await Promise.all([
     checkSupabaseConnectivity(admin),
     checkGoogleAuth(),
+    checkBridgeConfiguration(),
     checkChatPersistence(admin, businessId),
     checkVitanovaIndexing(admin, businessId),
   ])
