@@ -1,0 +1,41 @@
+{
+  "id": "TASK-20260825-CLOUD-R1R3",
+  "title": "MIA Cloud Freeze Remediation R-1..R-3",
+  "type": "SIMPLE",
+  "status": "approved",
+  "created_at": "2026-08-25T00:00:00.000Z",
+  "decision_id": "DEC-20260825-MIA-CLOUD-TOPOLOGY",
+  "decision": "AUTHORIZED_REMEDIATION_SCOPE_CLOSED",
+  "classification": {
+    "complexity": "simple",
+    "cross_cutting": false,
+    "domains_affected": ["infrastructure", "testing"],
+    "schema_changes": false,
+    "new_tables": false,
+    "qualityGates": ["lint", "build", "unit_tests"]
+  },
+  "scope": {
+    "authorized": [
+      "tests/health/bridge-config.test.ts (env isolation + assertion alignment + TS2540)",
+      "tests/health/health.test.ts (NODE_ENV readonly assignment)",
+      "vercel.json (remove invalid nodeVersion key)"
+    ],
+    "not_authorized": [
+      "src/lib/system/health.ts or any src/ file",
+      "23 pre-existing baseline type errors",
+      "deployment execution (vercel/fly/supabase)",
+      "Phase 2 provisioning",
+      "architecture changes"
+    ]
+  },
+  "implementation_authorized": true,
+  "implementation_conditions": [
+    "33/33 relevant tests pass",
+    "tsc --noEmit shows exactly the 23 baseline errors, zero introduced",
+    "npm run build passes",
+    "lint 0 errors",
+    "secrets scan clean",
+    "Godzilla validation of changes PASS",
+    "NO deployment"
+  ]
+}
