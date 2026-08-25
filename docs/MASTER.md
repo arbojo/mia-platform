@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `6376da4`.
+> Fuente de verdad: este repositorio en `a3f95fb`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `6376da4` |
+| **Commit HEAD** | `a3f95fb` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-24T15:44:38-06:00 |
+| **Generado** | 2026-08-25T12:02:03-06:00 |
 
 ---
 
@@ -877,6 +877,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+a3f95fb subaru: checkpoint ER-V1 - listo
+458304d docs: regenerate MASTER.md at 6376da4
 6376da4 fix(whatsapp-bridge): restore JWT consumer compatibility
 cb2b57b docs: regenerate MASTER.md at 6c94b42
 6c94b42 chore: consolidate governed engineering work and restore clean baseline
@@ -895,8 +897,6 @@ ec435ea feat: channels - enriquecimiento idempotente de customer existente en re
 ac72043 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 3b7d12d fix: sales - propagar errores en emision de eventos de venta y aplicacion de outcome
 310b105 docs: regenerate MASTER.md at 3c70e12
-3c70e12 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
-7fff0a5 fix: sales - eliminar outcome cancelled invalido en processCancellation y propagar errores criticos
 ```
 
 ---
