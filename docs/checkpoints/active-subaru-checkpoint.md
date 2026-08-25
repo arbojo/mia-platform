@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 7
+current_step: 8
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:22.171Z
+updated: 2026-08-25T18:46:24.046Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -87,7 +87,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: El contexto de conversación incluye customerState computado
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
+- [x] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
   - Objetivo: Escribir tests de extracción de evidencia
   - Archivos: tests/unit/reasoning/evidence.test.ts (nuevo)
   - Acción: Testear extractEvidence() con mocks de OpenAI. Verificar tipos, provenance, confidence, weight. Testear edge cases: mensaje vacío, multilenguaje, mensajes mixtos.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 8`.
+Implementar el Paso 9 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 9`.
 
 ## Constraints
 
