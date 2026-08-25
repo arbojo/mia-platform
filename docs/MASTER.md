@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `15332d4`.
+> Fuente de verdad: este repositorio en `31e5f27`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `15332d4` |
+| **Commit HEAD** | `31e5f27` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T14:01:30-06:00 |
+| **Generado** | 2026-08-25T16:54:29-06:00 |
 
 ---
 
@@ -690,7 +690,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (140)**:
+**Tareas registradas (141)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -832,6 +832,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260824-174820058 | ENVIRONMENT-DRIFT-RESOLUTION-V01 foreign session forensics | completed |
 | TASK-20260824-195702493 | BAILEYS-DISPATCH-E2E-V01 last-mile physical verification | completed |
 | TASK-20260824-205443606 | BAILEYS-HOTFIX-AND-DEBT-REGISTRY-V01 | completed |
+| TASK-20260825-CLOUD-R1R3 | MIA Cloud Freeze Remediation R-1..R-3 | approved |
 | TASK-20260825-EVIDENCE-REASONING | MIA Evidence Accumulation & Customer State Architecture Review | completed |
 | TASK-20260825-PRODUCT-ASSETS | Product Asset Unification Implementation | in_progress |
 
@@ -886,6 +887,16 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+31e5f27 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - completado
+57e5733 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
+7b1bce5 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
+01cc9bc subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
+ef05cd7 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
+d567fa7 feat: GATE-1 headless cron auth + GATE-2 bridge fail-fast health check (implementation loop artifacts)
+d863750 fix: remediation R-1..R-3 — env isolation via vi.stubEnv, assertion alignment to health semantics, drop invalid vercel nodeVersion
+9a7c8c6 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - listo
+5577506 chore: governance manifest for Cloud freeze remediation R-1..R-3
+8c1e477 docs: regenerate MASTER.md at 15332d4
 15332d4 feat: complete Product Asset Unification implementation (TASK-20260825-PRODUCT-ASSETS)
 9b64f73 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - completado
 10f3ca5 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
@@ -896,16 +907,6 @@ inventory-loop.test.ts
 3e469c0 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 5ac503c subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 49b5e17 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-42902df subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-779e5f4 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-7a13b71 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-f743430 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-32b3329 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-9bed082 docs: regenerate MASTER.md at 40912ea
-40912ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - listo
-3480e61 chore: add Subaru task manifest for Product Asset Unification mission
-afbb0b1 docs: regenerate MASTER.md at d023d6c
-d023d6c docs: complete Product Asset Ownership research (architecture decision)
 ```
 
 ---
