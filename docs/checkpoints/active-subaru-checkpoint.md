@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 11
+current_step: 12
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:29.593Z
+updated: 2026-08-25T18:47:44.407Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -119,7 +119,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: lint 0 errores, build exitoso
   - Gate/verificación: lint, build
 
-- [ ] **Paso 12:** (objetivo del paso 12 — completar antes de implementar)
+- [x] **Paso 12:** (objetivo del paso 12 — completar antes de implementar)
   - Objetivo: Verificación adversarial + reporte de terminación
   - Archivos: LOOP_TERMINATION_REPORT.md
   - Acción: Ejecutar tests adversariales Z1-Z10. Producir LOOP_TERMINATION_REPORT.md con: STATUS, GOVERNANCE, FILES MODIFIED, COMMAND ADDED, TESTS, ADVERSARIAL RESULTS, ER-V1 BEFORE/AFTER, CURRENT_STEP, STATE, GIT COMMIT, PUSH RESULT, NEXT AUTHORIZED ACTION.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 12 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 12`.
+Todos los pasos marcados. Ejecutar `subaru complete ER-V1` cuando pasen los gates de verificación.
 
 ## Constraints
 
