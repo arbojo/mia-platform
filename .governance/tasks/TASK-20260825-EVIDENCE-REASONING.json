@@ -12,7 +12,8 @@
     "cross_cutting": true,
     "domains_affected": ["ai", "customer", "sales", "runtime"],
     "schema_changes": false,
-    "new_tables": false
+    "new_tables": false,
+    "qualityGates": ["lint", "build", "unit_tests"]
   },
   "council_required": true,
   "council_deliberation": {
