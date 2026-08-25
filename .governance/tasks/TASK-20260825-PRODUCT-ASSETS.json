@@ -1,0 +1,79 @@
+{
+  "id": "TASK-20260825-PRODUCT-ASSETS",
+  "title": "Product Asset Unification Implementation",
+  "type": "COMPLEX",
+  "status": "in_progress",
+  "created_at": "2026-08-25T00:00:00.000Z",
+  "decision_id": "DEC-20260825-PRODUCT-ASSETS",
+  "decision": "DECISION_ACCEPTED",
+  "classification": {
+    "complexity": "COMPLEX",
+    "cross_cutting": true,
+    "domains_affected": ["sales", "knowledge", "dashboard", "runtime", "supabase"],
+    "schema_changes": true,
+    "new_tables": false,
+    "qualityGates": ["lint", "build", "unit_tests", "security_review", "stress_test"]
+  },
+  "council_required": true,
+  "council_decision": "DEC-20260825-PRODUCT-ASSETS",
+  "quality_gates": {
+    "required_tests": 0,
+    "acceptance_criteria": 0,
+    "rollback_authorized": true
+  },
+  "scope": {
+    "authorized": [
+      "docs/research/product-assets/PRODUCT_ASSET_OWNERSHIP_RESEARCH.md",
+      "docs/research/product-assets/PRODUCT_ASSET_SOURCE_OF_TRUTH.md",
+      "docs/research/product-assets/PRODUCT_ASSET_UX_CONTRACT.md",
+      "docs/research/product-assets/PRODUCT_ASSET_SECURITY_ANALYSIS.md",
+      "docs/research/product-assets/COUNCIL_DECISION_CONTRACT.md",
+      "docs/research/product-assets/LOOP_TERMINATION_REPORT.md",
+      "supabase/migrations/ - add position column to knowledge_items",
+      "src/lib/runtime/product-recommendation.ts - update image resolution",
+      "src/lib/runtime/runtime.ts - update message pipeline",
+      "src/components/knowledge/MediaBrowser.tsx - update upload flow",
+      "src/components/knowledge/MediaLibrary.tsx - update compatibility",
+      "src/components/knowledge/KnowledgeCenter.tsx - update tab behavior",
+      "src/lib/ai/prompts.ts - update product image references",
+      "tests/ - add/update test coverage"
+    ],
+    "not_authorized": [
+      "redesign Catalog domain",
+      "redesign Knowledge domain",
+      "redesign Dashboard globally",
+      "redesign customer memory",
+      "redesign MIA reasoning",
+      "introduce new asset subsystem",
+      "introduce new storage provider",
+      "create second image source of truth",
+      "remove products.image_url column",
+      "migrate unrelated schemas",
+      "modify unrelated bounded contexts",
+      "add autonomous image processing",
+      "change MIA sales behavior",
+      "expand scope beyond product assets"
+    ]
+  },
+  "effort_estimate": {
+    "lines": "600-800",
+    "days": "4-5",
+    "reason": "Full unification: schema, upload, runtime, deletion, ordering, Dashboard, Knowledge Center, security, tests"
+  },
+  "implementation_authorized": true,
+  "implementation_conditions": [
+    "All 8 invariants (INV-ASSET-001 through INV-ASSET-008) must be enforced",
+    "Tests must pass: lint, build, relevant database/migration checks",
+    "Godzilla adversarial validation must produce GODZILLA_APPROVED",
+    "Council deviations = 0",
+    "Subaru checkpoint = completed"
+  ],
+  "decision_artifacts": [
+    "docs/research/product-assets/PRODUCT_ASSET_OWNERSHIP_RESEARCH.md",
+    "docs/research/product-assets/PRODUCT_ASSET_SOURCE_OF_TRUTH.md",
+    "docs/research/product-assets/PRODUCT_ASSET_UX_CONTRACT.md",
+    "docs/research/product-assets/PRODUCT_ASSET_SECURITY_ANALYSIS.md",
+    "docs/research/product-assets/COUNCIL_DECISION_CONTRACT.md",
+    "docs/research/product-assets/LOOP_TERMINATION_REPORT.md"
+  ]
+}
