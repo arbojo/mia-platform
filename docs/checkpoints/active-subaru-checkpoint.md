@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:14.072Z
+updated: 2026-08-25T18:46:15.833Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: buildStateSection() produce texto válido y buildActionGuidance() incluye lógica CLOSE gate
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: Extender interfaz CustomerMemory con campo evidence en customer-memory.ts
   - Archivos: src/lib/ai/customer-memory.ts (modificación mínima)
   - Acción: Agregar campo evidence?: Evidence[] a la interfaz CustomerMemory. Extender formatCustomerMemoryForPrompt() para incluir estado si existe.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 5`.
 
 ## Constraints
 
