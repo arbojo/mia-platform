@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 8
+current_step: 9
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:46:24.046Z
+updated: 2026-08-25T18:46:25.963Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -95,7 +95,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Todos los tests de evidence pasan
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 9:** (objetivo del paso 9 — completar antes de implementar)
+- [x] **Paso 9:** (objetivo del paso 9 — completar antes de implementar)
   - Objetivo: Escribir tests de cómputo de estado
   - Archivos: tests/unit/reasoning/state.test.ts (nuevo)
   - Acción: Testear computeState() con diferentes secuencias de evidencia. Verificar momentum 0.7/0.3, time decay, uncertainty zone, gate logic (CLOSE/NO-CLOSE). Testear invariantes INV-ER-001 a INV-ER-010.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 9 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 9`.
+Implementar el Paso 10 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 10`.
 
 ## Constraints
 
