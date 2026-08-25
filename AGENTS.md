@@ -72,6 +72,12 @@ Every task must follow this workflow:
 ```
 G. Governance Gate (MANDATORY — see Section 23)
    ↓
+S. Subaru Preflight (MANDATORY — see Section 24.4)
+   npx tsx workshop/subaru/cli.ts preflight
+   → SAFE_FOR_NEW_MISSION: continue to Orchestrator
+   → REVIVE_REQUIRED: execute revive, resume checkpoint
+   → STOP_FOR_HUMAN: resolve before any implementation
+   ↓
 0. Orchestrator (analyzes request, classifies complexity, selects agents)
    ↓
 1. Infrastructure Bootstrap (environment preparation, tool installation)
@@ -107,7 +113,7 @@ G. Governance Gate (MANDATORY — see Section 23)
 16. Release Manager (git verification, commit, push, Vercel deploy + verification, final report)
 ```
 
-**No agent may skip this workflow.** The Governance Gate (G) MUST be the first action before ANY code modification. See Section 23 for complete governance enforcement rules.
+**No agent may skip this workflow.** The Governance Gate (G) MUST be the first action before ANY code modification. The Subaru Preflight (S) MUST be executed after governance and before implementation. See Section 23 for complete governance enforcement rules and Section 24.4 for preflight enforcement.
 
 ### 2.3 Evidence First Pre-Audit
 
@@ -1136,6 +1142,52 @@ Regla de oro: **nunca un commit de implementación sin su blueprint previo en re
 8. **Gates en complete**: sin `--confirm-gates` el cierre se bloquea y lista los gates del manifest governance; si un gate falla por causa fuera del scope, se usa `block` (nunca forzar `completed`).
 9. **Secret scan**: `freeze`/`mark`/`complete`/`block` rechazan el checkpoint si el body contiene secretos (`sk-`, `AKIA…`, claves privadas, `password=`/`token=`/`client_secret` con valor). Referir secretos por variable de entorno, nunca en línea.
 10. **Bootstrap mínimo**: una máquina nueva debe pasar `bootstrap` (identidad git + remote + agente espejo) antes de `revive`.
+11. **Preflight obligatorio**: antes de toda implementación, ejecutar `npx tsx workshop/subaru/cli.ts preflight`. Si `SAFE_FOR_NEW_MISSION`, proceder. Si `REVIVE_REQUIRED`, ejecutar `revive` primero. Si `STOP_FOR_HUMAN`, resolver antes de tocar código. Ver §24.4.
+
+### 24.4 Subaru Preflight (Session Continuity Enforcement)
+
+**Regla: NO ENGINEERING IMPLEMENTATION BEFORE CHECKPOINT PREFLIGHT.**
+
+Toda sesión nueva, máquina, modelo, agente, clon o worktree DEBE ejecutar:
+
+```
+npx tsx workshop/subaru/cli.ts preflight
+```
+
+ANTES de comenzar cualquier trabajo de implementación.
+
+**La secuencia requerida es:**
+
+```
+sesión nueva
+    ↓
+bootstrap de gobernanza
+    ↓
+preflight de Subaru
+    ↓
+resolver estado del checkpoint
+    ↓
+revivir si es necesario
+    ↓
+implementación autorizada
+```
+
+**El preflight está prohibido de:**
+- Modificar el checkpoint
+- Avanzar current_step
+- Cambiar state
+- Hacer commit
+- Hacer push
+
+**Resultados del preflight:**
+
+| Resultado | Significado | Acción del agente |
+|-----------|-------------|-------------------|
+| `SAFE_FOR_NEW_MISSION` | No hay checkpoint activo | Continuar a clasificación de gobernanza |
+| `REVIVE_REQUIRED` | Hay checkpoint activo resumible | Ejecutar `revive`, resumir checkpoint |
+| `STOP_FOR_HUMAN` | Checkpoint bloqueado, con drift, o inválido | Resolver antes de cualquier implementación |
+
+**Invariante crítica:** El repositorio contiene el estado de continuidad. Una sesión nueva NO DEBE depender de la memoria conversacional para determinar si ya hay trabajo en progreso.
 
 ---
 

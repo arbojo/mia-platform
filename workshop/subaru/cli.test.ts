@@ -716,3 +716,110 @@ describe('enrich (blueprint enrichment)', () => {
     expect(res.out).toContain('fuera de rango')
   })
 })
+
+describe('preflight (session continuity)', () => {
+  it('P1 — no checkpoint returns SAFE_FOR_NEW_MISSION', () => {
+    const { repo } = makeRepo('preflight-empty')
+    const res = subaru(repo, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('SAFE_FOR_NEW_MISSION')
+  })
+
+  it('P2 — active checkpoint returns REVIVE_REQUIRED', () => {
+    const { repo } = makeRepo('preflight-active')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('REVIVE_REQUIRED')
+    expect(res.out).toContain('ACTIVE_CHECKPOINT: mia-x')
+    expect(res.out).toContain('subaru mark mia-x 1')
+    expect(res.out).toContain('revive')
+  })
+
+  it('P3 — different active mission returns STOP_FOR_HUMAN', () => {
+    const { repo } = makeRepo('preflight-diff')
+    subaru(repo, 'freeze', ['mia-a', '--title', 'A', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('REVIVE_REQUIRED')
+    expect(res.out).toContain('mia-a')
+  })
+
+  it('P4 — blocked checkpoint returns STOP_FOR_HUMAN', () => {
+    const { repo } = makeRepo('preflight-blocked')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    subaru(repo, 'block', ['mia-x', '--reason', 'gate failed'])
+    const res = subaru(repo, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('STOP_FOR_HUMAN')
+    expect(res.out).toContain('CHECKPOINT_BLOCKED')
+  })
+
+  it('P5 — drifted checkpoint returns STOP_FOR_HUMAN', () => {
+    const { repo } = makeRepo('preflight-drift')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    fs.writeFileSync(path.join(repo, 'TODO.txt'), 'untracked', 'utf8')
+    const res = subaru(repo, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('STOP_FOR_HUMAN')
+    expect(res.out).toContain('DRIFT_DETECTED')
+  })
+
+  it('P6 — invalid checkpoint returns STOP_FOR_HUMAN', () => {
+    const { repo } = makeRepo('preflight-invalid')
+    fs.writeFileSync(
+      path.join(repo, 'docs', 'checkpoints', 'active-subaru-checkpoint.md'),
+      '---\ntask_id: mia-x\n---\nbody',
+      'utf8'
+    )
+    run('git', ['add', '.'], repo)
+    run('git', ['commit', '-m', 'corrupt'], repo)
+    const res = subaru(repo, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('STOP_FOR_HUMAN')
+    expect(res.out).toContain('CHECKPOINT_INVALID')
+  })
+
+  it('P7 — preflight does not modify checkpoint', () => {
+    const { repo } = makeRepo('preflight-readonly')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const before = readCheckpoint(repo)
+    subaru(repo, 'preflight', [])
+    const after = readCheckpoint(repo)
+    expect(after.data.state).toBe(before.data.state)
+    expect(after.data.currentStep).toBe(before.data.currentStep)
+    expect(after.data.totalSteps).toBe(before.data.totalSteps)
+    expect(after.data.governanceId).toBe(before.data.governanceId)
+    expect(after.body).toBe(before.body)
+  })
+
+  it('P8 — repeated preflight returns same result', () => {
+    const { repo } = makeRepo('preflight-repeat')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const r1 = subaru(repo, 'preflight', [])
+    const r2 = subaru(repo, 'preflight', [])
+    expect(r1.out).toBe(r2.out)
+    expect(r1.code).toBe(r2.code)
+  })
+
+  it('P9 — conversational reset returns same repository result', () => {
+    const { repo } = makeRepo('preflight-reset')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'preflight', [])
+    expect(res.out).toContain('REVIVE_REQUIRED')
+    expect(res.out).toContain('mia-x')
+  })
+
+  it('P10 — fresh clone after git sync discovers same checkpoint', () => {
+    const a = makeRepo('preflight-clone')
+    subaru(a.repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    subaru(a.repo, 'mark', ['mia-x', '1'])
+
+    const b = cloneRepo(a.remote)
+    const res = subaru(b, 'preflight', [])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('REVIVE_REQUIRED')
+    expect(res.out).toContain('mia-x')
+    expect(res.out).toContain('1/3')
+  })
+})

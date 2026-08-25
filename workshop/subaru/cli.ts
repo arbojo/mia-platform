@@ -505,6 +505,71 @@ export class Subaru {
     }
   }
 
+  cmdPreflight(): void {
+    const checkpoint = this.readCheckpoint()
+
+    if (!checkpoint) {
+      console.log('SAFE_FOR_NEW_MISSION')
+      console.log('No hay checkpoint activo. El repositorio está libre para una nueva misión.')
+      return
+    }
+
+    const missing = missingFrontmatterFields(checkpoint.data)
+    if (missing.length > 0) {
+      console.log('STOP_FOR_HUMAN')
+      console.log('CHECKPOINT_INVALID')
+      console.log(`Campos faltantes: ${missing.join(', ')}`)
+      console.log('No se puede determinar el estado. Revisa manualmente docs/checkpoints/active-subaru-checkpoint.md.')
+      return
+    }
+
+    const data = this.requireData(checkpoint.data)
+
+    if (data.state === 'completed') {
+      console.log('SAFE_FOR_NEW_MISSION')
+      console.log(`La misión ${data.taskId} está completada.`)
+      console.log('El repositorio está libre para una nueva misión.')
+      return
+    }
+
+    const branch = this.currentBranch()
+    const drift = this.detectDrift(checkpoint, data, branch)
+    if (drift.length > 0) {
+      console.log('STOP_FOR_HUMAN')
+      console.log('DRIFT_DETECTED')
+      for (const issue of drift) console.log(`  • ${issue}`)
+      console.log('No continúes. Resuelve la contradicción antes de cualquier mark/complete.')
+      return
+    }
+
+    if (data.state === 'blocked') {
+      console.log('STOP_FOR_HUMAN')
+      console.log(`CHECKPOINT_BLOCKED: ${data.taskId}`)
+      console.log(`  Task ID: ${data.taskId}`)
+      if (data.governanceId) console.log(`  Governance: ${data.governanceId}`)
+      console.log(`  State: blocked`)
+      console.log(`  Step: ${data.currentStep ?? 0}/${data.totalSteps}`)
+      console.log('No crees una misión competente. Resuelve el bloqueo primero.')
+      return
+    }
+
+    console.log('REVIVE_REQUIRED')
+    console.log(`ACTIVE_CHECKPOINT: ${data.taskId}`)
+    console.log(`  Task ID: ${data.taskId}`)
+    if (data.governanceId) console.log(`  Governance: ${data.governanceId}`)
+    console.log(`  State: ${data.state}`)
+    console.log(`  Step: ${data.currentStep ?? 0}/${data.totalSteps}`)
+    const next = (data.currentStep ?? 0) + 1
+    if (next <= data.totalSteps) {
+      console.log(`  Next action: subaru mark ${data.taskId} ${next}`)
+    } else {
+      console.log(`  Next action: subaru complete ${data.taskId}`)
+    }
+    console.log('')
+    console.log('NO implementes nada. Ejecuta:')
+    console.log(`  npx tsx workshop/subaru/cli.ts revive`)
+  }
+
   detectDrift(checkpoint: ParsedCheckpoint, data: CheckpointData, branch: string): string[] {
     const issues: string[] = []
 
@@ -756,6 +821,10 @@ COMMANDS:
       Muestra el estado actual del checkpoint.
   bootstrap
       Valida entorno (node/git remote) y restaura el agente global desde .agents/subaru.md.
+  preflight
+      Verifica si existe un checkpoint activo ANTES de comenzar trabajo.
+      Solo lectura. Resultados: SAFE_FOR_NEW_MISSION, REVIVE_REQUIRED,
+      STOP_FOR_HUMAN. NO modifica el checkpoint.
   help | --help
       Muestra esta ayuda.
 
@@ -790,6 +859,9 @@ COMMIT FORMAT:
           break
         case 'bootstrap':
           this.cmdBootstrap()
+          break
+        case 'preflight':
+          this.cmdPreflight()
           break
         case 'help':
         case '--help':
