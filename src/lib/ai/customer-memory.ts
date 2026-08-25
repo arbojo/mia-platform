@@ -1,4 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { EvidenceItem } from '@/lib/reasoning/evidence'
+import type { CustomerState } from '@/lib/reasoning/state'
 
 export interface CustomerMemory {
   interests: string[]
@@ -14,6 +16,8 @@ export interface CustomerMemory {
   address?: string | null
   lastInteraction: string | null
   summary: string
+  evidence?: EvidenceItem[]
+  reasoning_state?: CustomerState
 }
 
 export interface MemoryDiff {
@@ -66,6 +70,10 @@ export async function getCustomerMemory(customerId: string): Promise<CustomerMem
     address: customer.address ?? null,
     lastInteraction: customer.last_interaction,
     summary: typeof memory.summary === 'string' ? memory.summary : '',
+    evidence: Array.isArray(memory.evidence) ? memory.evidence as EvidenceItem[] : undefined,
+    reasoning_state: (memory.reasoning_state && typeof memory.reasoning_state === 'object')
+      ? memory.reasoning_state as CustomerState
+      : undefined,
   }
 }
 
@@ -181,6 +189,10 @@ function parseMemory(raw: Record<string, unknown>): CustomerMemory {
     preferences: Array.isArray(raw.preferences) ? raw.preferences as string[] : [],
     summary: typeof raw.summary === 'string' ? raw.summary : '',
     lastInteraction: typeof raw.lastInteraction === 'string' ? raw.lastInteraction : null,
+    evidence: Array.isArray(raw.evidence) ? raw.evidence as EvidenceItem[] : undefined,
+    reasoning_state: (raw.reasoning_state && typeof raw.reasoning_state === 'object')
+      ? raw.reasoning_state as CustomerState
+      : undefined,
   }
 }
 

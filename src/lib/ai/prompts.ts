@@ -207,6 +207,12 @@ export function buildMasterPrompt(params: {
     product?: string
     productId?: string
   }
+  stateGuidance?: {
+    state_section: string
+    permitted_actions: string[]
+    prohibited_actions: string[]
+    guidance: string
+  }
 }): string {
   const {
     business,
@@ -227,6 +233,7 @@ export function buildMasterPrompt(params: {
     cancellationContext,
     experienceContext,
     landingContext,
+    stateGuidance,
   } = params
 
   const ai = getDictionary(locale ?? DEFAULT_LOCALE).ai
@@ -346,6 +353,7 @@ ${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemo
 ${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
 ${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}
 ${experienceContext ? `\n## Experiencia de Ventas\nUsa estas respuestas probadas como guía cuando el cliente plantee objeciones similares. Puedes adaptar el texto al contexto de la conversación, pero mantén la esencia de la respuesta recomendada:\n${experienceContext}` : ''}
+${stateGuidance ? `\n${stateGuidance.state_section}\n## Guía de Acciones\nPermitidas: ${stateGuidance.permitted_actions.join(', ')}\nProhibidas: ${stateGuidance.prohibited_actions.join(', ')}\n\n${stateGuidance.guidance}` : ''}
 ${cancellationContext && conversationOutcome !== 'cancelled'
   ? `\n## Contexto importante
 Este cliente canceló recientemente el pedido ${cancellationContext.orderNumber} (hace ${cancellationContext.hoursAgo} horas).

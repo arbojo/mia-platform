@@ -3,6 +3,7 @@ import { getBusinessContext, getExperienceContext, getLandingContext, getRecentL
 import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
 import { getProfileLanguage } from '@/lib/system/language'
+import { getCustomerStateFromMemory } from '@/lib/reasoning/state-loader'
 import type { Locale } from '@/lib/i18n/config'
 import type { ChannelType } from '@/lib/channels/types'
 
@@ -102,14 +103,22 @@ export async function loadConversationContext(
   const productId = landingContext ? (context as { productId?: string }).productId : undefined
 
   let customerMemory: string | undefined
+  let stateGuidance: {
+    state_section: string
+    permitted_actions: string[]
+    prohibited_actions: string[]
+    guidance: string
+  } | undefined
+
   if (customerId) {
     try {
       const memory = await getCustomerMemory(customerId)
       if (memory) {
         customerMemory = formatCustomerMemoryForPrompt(memory)
       }
+      stateGuidance = await getCustomerStateFromMemory(customerId)
     } catch (err) {
-      console.error('Failed to load customer memory:', err)
+      console.error('Failed to load customer memory/state:', err)
     }
   }
 
@@ -132,6 +141,7 @@ export async function loadConversationContext(
     conversationOutcome,
     cancellationContext,
     experienceContext,
+    stateGuidance,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []
