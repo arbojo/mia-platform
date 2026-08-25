@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d023d6c`.
+> Fuente de verdad: este repositorio en `40912ea`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d023d6c` |
+| **Commit HEAD** | `40912ea` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T13:37:01-06:00 |
+| **Generado** | 2026-08-25T13:45:54-06:00 |
 
 ---
 
@@ -689,7 +689,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (139)**:
+**Tareas registradas (140)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -832,6 +832,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260824-195702493 | BAILEYS-DISPATCH-E2E-V01 last-mile physical verification | completed |
 | TASK-20260824-205443606 | BAILEYS-HOTFIX-AND-DEBT-REGISTRY-V01 | completed |
 | TASK-20260825-EVIDENCE-REASONING | MIA Evidence Accumulation & Customer State Architecture Review | completed |
+| TASK-20260825-PRODUCT-ASSETS | Product Asset Unification Implementation | in_progress |
 
 ---
 
@@ -884,6 +885,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+40912ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - listo
+3480e61 chore: add Subaru task manifest for Product Asset Unification mission
+afbb0b1 docs: regenerate MASTER.md at d023d6c
 d023d6c docs: complete Product Asset Ownership research (architecture decision)
 935bf37 docs: regenerate MASTER.md at db0a81a
 db0a81a docs: ER-V1 loop termination report — MISSION_COMPLETE
@@ -901,9 +905,6 @@ ab0a702 subaru: checkpoint ER-V1 - en-progreso
 160cac1 subaru: checkpoint ER-V1 - en-progreso
 603a880 subaru: checkpoint ER-V1 - en-progreso
 3d56747 subaru: checkpoint ER-V1 - en-progreso
-e0b0b22 subaru: checkpoint ER-V1 - en-progreso
-a72be27 subaru: checkpoint ER-V1 - en-progreso
-f263429 subaru: checkpoint ER-V1 - en-progreso
 ```
 
 ---
