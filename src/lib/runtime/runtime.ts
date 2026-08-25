@@ -11,6 +11,7 @@ import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
 import { processSaleClosing } from '@/lib/sales/process'
+import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import type { ChannelAdapter, ChannelType, InteractiveComponent } from '@/lib/channels/types'
 import type { WireMessage } from './types'
 import type { LandingContext } from '@/lib/ai/knowledge'
@@ -342,6 +343,19 @@ export async function processIncomingMessage(
     .from('customers')
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
+
+  if (conversationId && customer.id) {
+    try {
+      await extractEvidenceFromCustomerMessage({
+        customerId: customer.id,
+        conversationId,
+        message: wireMessage.content,
+        messageId: `msg-${conversationId}-${Date.now()}`,
+      })
+    } catch (err) {
+      console.error('Evidence extraction failed (non-blocking):', err)
+    }
+  }
 
   if (mode === 'active' && conversationId) {
     try {
