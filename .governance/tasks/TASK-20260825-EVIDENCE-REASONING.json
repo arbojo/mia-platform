@@ -1,0 +1,104 @@
+{
+  "id": "TASK-20260825-EVIDENCE-REASONING",
+  "title": "MIA Evidence Accumulation & Customer State Architecture Review",
+  "type": "COMPLEX",
+  "status": "completed",
+  "created_at": "2026-08-25T00:00:00.000Z",
+  "completed_at": "2026-08-25T00:00:19.000Z",
+  "decision_id": "DEC-20260825-EVIDENCE-REASONING",
+  "decision": "ACCEPT_OPTION_B",
+  "classification": {
+    "complexity": "COMPLEX",
+    "cross_cutting": true,
+    "domains_affected": ["ai", "customer", "sales", "runtime"],
+    "schema_changes": false,
+    "new_tables": false
+  },
+  "council_required": true,
+  "council_deliberation": {
+    "D1_evidence_accumulation": "ACCEPT_WITH_MODIFICATION",
+    "D2_customer_state": "ACCEPT",
+    "D3_purchase_intent": "ACCEPT",
+    "D4_accompany_vs_push": "ACCEPT_WITH_MODIFICATION",
+    "D5_global_learning": "ACCEPT",
+    "D6_architecture_option": "OPTION_B",
+    "D7_llm_authority": "ACCEPT_WITH_MODIFICATION",
+    "D8_evidence_provenance": "ACCEPT",
+    "D9_uncertainty": "ACCEPT",
+    "D10_implementation_scope": "ACCEPT"
+  },
+  "adversarial_review": {
+    "scenarios_tested": 15,
+    "scenarios_passed": 15,
+    "result": "ALL_PASS"
+  },
+  "invariants": [
+    "INV-ER-001",
+    "INV-ER-002",
+    "INV-ER-003",
+    "INV-ER-004",
+    "INV-ER-005",
+    "INV-ER-006",
+    "INV-ER-007",
+    "INV-ER-008",
+    "INV-ER-009",
+    "INV-ER-010"
+  ],
+  "quality_gates": {
+    "required_tests": 10,
+    "acceptance_criteria": 7,
+    "rollback_authorized": true
+  },
+  "scope": {
+    "authorized": [
+      "src/lib/reasoning/evidence.ts",
+      "src/lib/reasoning/state.ts",
+      "src/lib/reasoning/prompt-enricher.ts",
+      "src/lib/runtime/runtime.ts (integration)",
+      "src/lib/ai/prompts.ts (integration)",
+      "tests for evidence extraction",
+      "tests for state computation",
+      "integration test for full pipeline"
+    ],
+    "not_authorized": [
+      "CRM redesign",
+      "Knowledge redesign",
+      "Catalog redesign",
+      "Memory redesign",
+      "Graph database",
+      "Autonomous learning",
+      "Cross-tenant analytics",
+      "Sales engine changes",
+      "Schema migration",
+      "New database tables",
+      "Code-level action selection",
+      "Formal hypothesis objects",
+      "Bayesian inference",
+      "Reinforcement learning"
+    ]
+  },
+  "effort_estimate": {
+    "lines": "450-550",
+    "days": "2-3",
+    "corrected_from": "350 lines / 1-2 days",
+    "reason": "Infrastructure reuse is 35-40%, not 70% as research claimed"
+  },
+  "implementation_authorized": true,
+  "implementation_conditions": [
+    "All 10 invariants must be enforced",
+    "All 10 required tests must pass",
+    "Scope boundaries from D10 must be respected",
+    "Rollback authorized if acceptance criteria not met"
+  ],
+  "decision_artifacts": [
+    "docs/research/evidence-reasoning/MIA_EVIDENCE_REASONING_RESEARCH.md",
+    "docs/research/evidence-reasoning/EVIDENCE_MODEL.md",
+    "docs/research/evidence-reasoning/CUSTOMER_STATE_MODEL.md",
+    "docs/research/evidence-reasoning/GLOBAL_BEHAVIOR_GRAPH_ANALYSIS.md",
+    "docs/research/evidence-reasoning/ACCOMPANY_VS_PUSH_ANALYSIS.md",
+    "docs/research/evidence-reasoning/ARCHITECTURE_OPTIONS.md",
+    "docs/research/evidence-reasoning/CONTRADICTION_REGISTER.md",
+    "docs/research/evidence-reasoning/COUNCIL_DECISION_CONTRACT.md",
+    "docs/research/evidence-reasoning/LOOP_TERMINATION_REPORT.md"
+  ]
+}
