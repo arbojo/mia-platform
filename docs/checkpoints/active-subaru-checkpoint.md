@@ -2,13 +2,13 @@
 task_id: TASK-20260825-PRODUCT-ASSETS
 title: Product Asset Unification
 state: in_progress
-current_step: 9
+current_step: 10
 total_steps: 13
 branch: main
 last_machine: archlinux
 governance_id: DEC-20260825-PRODUCT-ASSETS
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T20:00:00.330Z
+updated: 2026-08-25T20:00:08.959Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -103,7 +103,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 10:** (objetivo del paso 10 — completar antes de implementar)
+- [x] **Paso 10:** (objetivo del paso 10 — completar antes de implementar)
   - Objetivo: (qué logra el paso 10)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -142,7 +142,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 10 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260825-PRODUCT-ASSETS 10`.
+Implementar el Paso 11 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260825-PRODUCT-ASSETS 11`.
 
 ## Constraints
 
