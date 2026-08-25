@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `33feba4`.
+> Fuente de verdad: este repositorio en `db0a81a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `33feba4` |
+| **Commit HEAD** | `db0a81a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T13:10:26-06:00 |
+| **Generado** | 2026-08-25T13:15:43-06:00 |
 
 ---
 
@@ -884,6 +884,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+db0a81a docs: ER-V1 loop termination report — MISSION_COMPLETE
+ca70c5b docs: regenerate MASTER.md at 33feba4
 33feba4 fix: resolve all 6 Godzilla findings — LLM extraction, timestamp guard, NaN/Infinity protection, safe fallback, storage alignment
 b7f3eef docs: regenerate MASTER.md at bb5cfef
 bb5cfef docs: Evidence Reasoning implementation termination report
@@ -902,8 +904,6 @@ a72be27 subaru: checkpoint ER-V1 - en-progreso
 f263429 subaru: checkpoint ER-V1 - en-progreso
 780b640 subaru: checkpoint ER-V1 - en-progreso
 e81ff82 subaru: checkpoint ER-V1 - en-progreso
-2ea0f2d docs: regenerate MASTER.md at bd9c0f2
-bd9c0f2 feat(runtime): add evidence extraction to message pipeline
 ```
 
 ---
