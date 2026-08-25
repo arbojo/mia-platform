@@ -2,13 +2,13 @@
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:44:02.683Z
+updated: 2026-08-25T18:46:12.084Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: extractEvidence() retorna Evidence[] válidos con provenance completa
   - Gate/verificación: unit_tests
 
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: Crear src/lib/reasoning/state.ts con cómputo de estado multidimensional
   - Archivos: src/lib/reasoning/state.ts (nuevo)
   - Acción: Definir tipos CustomerState (interest, trust, readiness, clarity, engagement: 0.0–1.0). Implementar computeState() con momentum 0.7/0.3, time decay configurable por tipo, y累积 de evidencia.
@@ -135,7 +135,7 @@ Blueprint enriquecido con Option B aprobada por el Council.
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark ER-V1 3`.
 
 ## Constraints
 
