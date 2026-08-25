@@ -18,6 +18,7 @@ import {
   missingFrontmatterFields,
   parseStepAttributes,
   secretScan,
+  updateStepAttribute,
   type CheckpointData,
   normalizeState,
 } from './lib'
@@ -363,5 +364,49 @@ describe('missingFrontmatterFields', () => {
         updated: 'u',
       })
     ).toEqual([])
+  })
+})
+
+describe('updateStepAttribute', () => {
+  const body = [
+    '- [ ] **Paso 1:** Fix test',
+    '  - Objetivo: hacer test pasar',
+    '  - Archivos: workshop/subaru/cli.test.ts',
+    '  - Acción: configurar git',
+    '  - Dependencia: ninguna',
+    '  - Criterio de terminación: tests verdes',
+    '  - Gate/verificación: unit_tests',
+    '',
+    '- [ ] **Paso 2:** Actualizar docs',
+    '  - Objetivo: documentar',
+    '  - Archivos: docs/readme.md',
+  ].join('\n')
+
+  it('updates an existing attribute value', () => {
+    const updated = updateStepAttribute(body, 1, 'Objetivo', 'nuevo objetivo')
+    expect(updated).toContain('  - Objetivo: nuevo objetivo')
+    expect(updated).not.toContain('hacer test pasar')
+  })
+
+  it('does not modify checkboxes', () => {
+    const updated = updateStepAttribute(body, 1, 'Objetivo', 'x')
+    expect(updated).toContain('- [ ] **Paso 1:**')
+    expect(updated).toContain('- [ ] **Paso 2:**')
+  })
+
+  it('does not bleed into other steps', () => {
+    const updated = updateStepAttribute(body, 1, 'Objetivo', 'cambio')
+    expect(updated).toContain('- [ ] **Paso 2:**')
+    expect(updated).toContain('  - Objetivo: documentar')
+  })
+
+  it('returns body unchanged for nonexistent step', () => {
+    expect(updateStepAttribute(body, 9, 'Objetivo', 'x')).toBe(body)
+  })
+
+  it('adds a new attribute if it does not exist yet', () => {
+    const updated = updateStepAttribute(body, 2, 'Gate/verificación', 'build')
+    expect(updated).toContain('  - Gate/verificación: build')
+    expect(updated).toContain('- [ ] **Paso 2:**')
   })
 })

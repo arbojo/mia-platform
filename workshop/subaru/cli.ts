@@ -23,6 +23,7 @@ import {
   listStepCheckboxes,
   missingFrontmatterFields,
   secretScan,
+  updateStepAttribute,
   type CheckpointData,
   type ParsedCheckpoint,
   type SubaruState,
@@ -125,6 +126,9 @@ export class Subaru {
           break
         case '--no-pull':
           flags.noPull = true
+          break
+        case '--data':
+          flags.data = args[++i]
           break
         default:
           this.fail(`Unknown flag: ${arg}`)
@@ -431,6 +435,55 @@ export class Subaru {
     this.commitAndPush('blocked', taskId)
   }
 
+  cmdEnrich(args: string[]): void {
+    const taskId = args[0]
+    const flags = this.parseFlags(args.slice(1))
+    if (!taskId || !flags.data) {
+      this.fail('Usage: subaru enrich <task-id> --data <path-to-json>')
+    }
+
+    const checkpoint = this.mustCheckpoint(taskId)
+    const data = this.requireData(checkpoint.data)
+
+    let updates: { sections?: Record<string, string>; steps?: Array<{ step: number; attrs: Record<string, string> }> }
+    try {
+      const raw = readFileSync(flags.data as string, 'utf8')
+      updates = JSON.parse(raw)
+    } catch (err) {
+      this.fail(`No se pudo leer el archivo de datos: ${(err as Error).message}`)
+    }
+
+    let body = checkpoint.body
+
+    if (updates.sections) {
+      for (const [heading, content] of Object.entries(updates.sections)) {
+        body = updateSection(body, heading, content)
+      }
+    }
+
+    if (updates.steps) {
+      for (const { step, attrs } of updates.steps) {
+        if (!validateStep(step, data.totalSteps)) {
+          this.fail(`Paso ${step} fuera de rango (1..${data.totalSteps}).`)
+        }
+        for (const [attr, value] of Object.entries(attrs)) {
+          body = updateStepAttribute(body, step, attr, value)
+        }
+      }
+    }
+
+    this.scanSecrets(body, 'enrich')
+
+    const updated: CheckpointData = {
+      ...data,
+      lastMachine: os.hostname(),
+      updated: new Date().toISOString(),
+    }
+    writeFileSync(this.checkpointPath, serializeCheckpoint(updated, body), 'utf8')
+    console.log(`✓ Blueprint enriquecido: ${taskId}`)
+    this.commitAndPush(data.state, taskId)
+  }
+
   cmdStatus(): void {
     const checkpoint = this.readCheckpoint()
     if (!checkpoint) {
@@ -690,6 +743,11 @@ COMMANDS:
       bloqueado"). Usado cuando un gate de verificación falla por causas
       fuera del scope de la misión. El motivo queda registrado en el
       checkpoint.
+  enrich <id> --data <path-to-json>
+      Enriquece el blueprint de un checkpoint congelado sin avanzar
+      progreso. Acepta un JSON con secciones y atributos de pasos.
+      State, current_step y checkboxes NO se modifican. Commit: usa
+      el state actual del checkpoint.
   revive [--no-pull]
       git pull --rebase + validación de legibilidad + drift detection +
       informe operativo (SUBARU REVIVE). DRIFT DETECTED + BLOCKED si el
@@ -720,6 +778,9 @@ COMMIT FORMAT:
           break
         case 'block':
           this.cmdBlock(args)
+          break
+        case 'enrich':
+          this.cmdEnrich(args)
           break
         case 'revive':
           this.cmdRevive(args)

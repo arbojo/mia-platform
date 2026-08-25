@@ -546,3 +546,173 @@ describe('bootstrap (entorno)', () => {
     expect(res.out).toContain('no es un repo git')
   })
 })
+
+describe('enrich (blueprint enrichment)', () => {
+  function writeJson(cwd: string, data: object): string {
+    const p = path.join(cwd, 'enrich-data.json')
+    fs.writeFileSync(p, JSON.stringify(data), 'utf8')
+    return p
+  }
+
+  it('enriches sections and step attributes without advancing progress', () => {
+    const { repo } = makeRepo('enrich-ok')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, {
+      sections: { Scope: 'archivos A, B', 'Non-goals': 'no tocar C' },
+      steps: [{ step: 1, attrs: { Objetivo: 'crear evidence.ts', Archivos: 'src/reasoning/evidence.ts' } }],
+    })
+    const res = subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    expect(res.code).toBe(0)
+
+    const cp = readCheckpoint(repo)
+    expect(cp.data.state).toBe('frozen')
+    expect(cp.data.currentStep).toBe(0)
+    expect(cp.body).toContain('archivos A, B')
+    expect(cp.body).toContain('no tocar C')
+    expect(cp.body).toContain('crear evidence.ts')
+    expect(cp.body).toContain('- [ ] **Paso 1:**')
+    expect(cp.body).toContain('- [ ] **Paso 2:**')
+    expect(cp.body).not.toContain('- [x]')
+  })
+
+  it('Z1 — rejects enrich on nonexistent checkpoint', () => {
+    const { repo } = makeRepo('enrich-nocp')
+    const jsonPath = writeJson(repo, { sections: { Scope: 'x' } })
+    const res = subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('No hay checkpoint')
+  })
+
+  it('Z2 — rejects enrich on a different active mission', () => {
+    const { repo } = makeRepo('enrich-diff')
+    subaru(repo, 'freeze', ['mia-a', '--title', 'A', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { sections: { Scope: 'x' } })
+    const res = subaru(repo, 'enrich', ['mia-b', '--data', jsonPath])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('otra misión')
+  })
+
+  it('Z3 — enrichment does not increment current_step', () => {
+    const { repo } = makeRepo('enrich-noinc')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { sections: { Scope: 'updated' } })
+    subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    const cp = readCheckpoint(repo)
+    expect(cp.data.currentStep).toBe(0)
+  })
+
+  it('Z4 — enrichment does not change frozen state', () => {
+    const { repo } = makeRepo('enrich-nostate')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { sections: { Scope: 'updated' } })
+    subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    const cp = readCheckpoint(repo)
+    expect(cp.data.state).toBe('frozen')
+  })
+
+  it('Z5 — enrichment preserves governance_id', () => {
+    const { repo } = makeRepo('enrich-gov')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { sections: { Scope: 'updated' } })
+    subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    const cp = readCheckpoint(repo)
+    expect(cp.data.governanceId).toBe(GOVERNANCE_OK)
+  })
+
+  it('Z6 — blocks enrichment containing secrets', () => {
+    const { repo } = makeRepo('enrich-secret')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { sections: { Scope: 'usa sk-FAKE123456ABCDEF' } })
+    const res = subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('posibles secretos')
+  })
+
+  it('Z7 — enriched checkpoint survives revive without drift', () => {
+    const { repo } = makeRepo('enrich-revive')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { sections: { Scope: 'archivos enriquecidos' } })
+    subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    fs.unlinkSync(jsonPath)
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('SAFE TO CONTINUE')
+  })
+
+  it('Z8 — enriched checkpoint survives push/pull round-trip', () => {
+    const a = makeRepo('enrich-roundtrip')
+    subaru(a.repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(a.repo, { sections: { Scope: 'contenido enriquecido' } })
+    subaru(a.repo, 'enrich', ['mia-x', '--data', jsonPath])
+    fs.unlinkSync(jsonPath)
+
+    const b = cloneRepo(a.remote)
+    const rev = subaru(b, 'revive', [])
+    expect(rev.code).toBe(0)
+    expect(rev.out).toContain('SAFE TO CONTINUE')
+    const cp = readCheckpoint(b)
+    expect(cp.body).toContain('contenido enriquecido')
+    expect(cp.data.currentStep).toBe(0)
+    expect(cp.data.state).toBe('frozen')
+  })
+
+  it('Z9 — cannot use enrich to fake step completion', () => {
+    const { repo } = makeRepo('enrich-fake')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const cpBefore = readCheckpoint(repo)
+    const beforeChecked = cpBefore.body.match(/- \[x\]/g)?.length ?? 0
+    const jsonPath = writeJson(repo, { sections: { Scope: 'x' } })
+    subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    const cpAfter = readCheckpoint(repo)
+    const afterChecked = cpAfter.body.match(/- \[x\]/g)?.length ?? 0
+    expect(afterChecked).toBe(beforeChecked)
+    expect(cpAfter.data.currentStep).toBe(0)
+  })
+
+  it('Z10 — enrich + revive recovers at same step', () => {
+    const { repo } = makeRepo('enrich-revive-step')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '3', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, {
+      sections: { Scope: 'proyecto completo' },
+      steps: [{ step: 2, attrs: { Objetivo: 'crear state.ts' } }],
+    })
+    subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    fs.unlinkSync(jsonPath)
+    const res = subaru(repo, 'revive', ['--no-pull'])
+    expect(res.code).toBe(0)
+    expect(res.out).toContain('FROZEN')
+    expect(res.out).toContain('Step 1')
+    const cp = readCheckpoint(repo)
+    expect(cp.data.currentStep).toBe(0)
+    expect(cp.data.totalSteps).toBe(3)
+    expect(cp.body).toContain('proyecto completo')
+    expect(cp.body).toContain('crear state.ts')
+  })
+
+  it('rejects enrich without --data', () => {
+    const { repo } = makeRepo('enrich-nodata')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const res = subaru(repo, 'enrich', ['mia-x'])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('--data')
+  })
+
+  it('rejects enrich with invalid JSON file', () => {
+    const { repo } = makeRepo('enrich-badjson')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const badPath = path.join(repo, 'bad.json')
+    fs.writeFileSync(badPath, '{not json', 'utf8')
+    const res = subaru(repo, 'enrich', ['mia-x', '--data', badPath])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('No se pudo leer')
+  })
+
+  it('rejects step attribute update for out-of-range step', () => {
+    const { repo } = makeRepo('enrich-oob')
+    subaru(repo, 'freeze', ['mia-x', '--title', 'X', '--steps', '2', '--governance', GOVERNANCE_OK])
+    const jsonPath = writeJson(repo, { steps: [{ step: 5, attrs: { Objetivo: 'x' } }] })
+    const res = subaru(repo, 'enrich', ['mia-x', '--data', jsonPath])
+    expect(res.code).toBe(1)
+    expect(res.out).toContain('fuera de rango')
+  })
+})

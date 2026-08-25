@@ -318,3 +318,39 @@ export function missingFrontmatterFields(data: Partial<CheckpointData>): string[
     return value === undefined || value === null || value === ''
   })
 }
+
+export function updateStepAttribute(body: string, step: number, attr: string, value: string): string {
+  const lines = body.split(/\r?\n/)
+  let start = -1
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^- \[([ x])\] \*\*Paso (\d+):/.exec(lines[i])
+    if (m && Number(m[2]) === step) {
+      start = i
+      break
+    }
+  }
+  if (start === -1) return body
+
+  let end = lines.length
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^- \[[ x]\] \*\*Paso /.test(lines[i])) {
+      end = i
+      break
+    }
+  }
+
+  const prefix = `  - ${attr}: `
+  let replaced = false
+  for (let i = start + 1; i < end; i++) {
+    if (lines[i].startsWith(prefix)) {
+      lines[i] = prefix + value
+      replaced = true
+      break
+    }
+  }
+  if (!replaced) {
+    lines.splice(end, 0, prefix + value)
+  }
+
+  return lines.join('\n')
+}
