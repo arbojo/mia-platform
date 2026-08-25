@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a3f95fb`.
+> Fuente de verdad: este repositorio en `84b85c6`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a3f95fb` |
+| **Commit HEAD** | `84b85c6` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T12:02:03-06:00 |
+| **Generado** | 2026-08-25T12:19:13-06:00 |
 
 ---
 
@@ -877,6 +877,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+84b85c6 feat(subaru): add enrich command for blueprint population without progress advancement
+1353c44 subaru: checkpoint ER-V1 - listo
+1df4fff docs: regenerate MASTER.md at a3f95fb
 a3f95fb subaru: checkpoint ER-V1 - listo
 458304d docs: regenerate MASTER.md at 6376da4
 6376da4 fix(whatsapp-bridge): restore JWT consumer compatibility
@@ -894,9 +897,6 @@ f415cab docs: regenerate MASTER.md at eafd089
 eafd089 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
 ec435ea feat: channels - enriquecimiento idempotente de customer existente en resolveCustomer y fix de referencia rota en path email
 581bd1f docs: regenerate MASTER.md at ac72043
-ac72043 subaru: checkpoint CUSTOMER-DATA-V01 - en-progreso
-3b7d12d fix: sales - propagar errores en emision de eventos de venta y aplicacion de outcome
-310b105 docs: regenerate MASTER.md at 3c70e12
 ```
 
 ---
