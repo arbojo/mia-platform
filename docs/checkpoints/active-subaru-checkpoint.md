@@ -1,14 +1,14 @@
 ---
 task_id: ER-V1
 title: Evidence Reasoning Architecture (Option B)
-state: in_progress
+state: completed
 current_step: 12
 total_steps: 12
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260825-EVIDENCE-REASONING
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-25T18:47:44.407Z
+updated: 2026-08-25T18:49:28.739Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -130,8 +130,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-Misión frozen (state: frozen). Pasos pendientes: 1..12.
-Blueprint enriquecido con Option B aprobada por el Council.
+- Misión ER-V1 completada (12/12 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass.
+- Finalizado: 2026-08-25T18:49:28.739Z.
 
 ## Next action
 
