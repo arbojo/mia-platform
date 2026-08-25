@@ -2,6 +2,11 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import type { EvidenceItem } from '@/lib/reasoning/evidence'
 import type { CustomerState } from '@/lib/reasoning/state'
 
+export interface CustomerEvidence {
+  items?: EvidenceItem[]
+  state?: CustomerState
+}
+
 export interface CustomerMemory {
   interests: string[]
   objections: string[]
@@ -16,8 +21,7 @@ export interface CustomerMemory {
   address?: string | null
   lastInteraction: string | null
   summary: string
-  evidence?: EvidenceItem[]
-  reasoning_state?: CustomerState
+  evidence?: CustomerEvidence
 }
 
 export interface MemoryDiff {
@@ -70,10 +74,7 @@ export async function getCustomerMemory(customerId: string): Promise<CustomerMem
     address: customer.address ?? null,
     lastInteraction: customer.last_interaction,
     summary: typeof memory.summary === 'string' ? memory.summary : '',
-    evidence: Array.isArray(memory.evidence) ? memory.evidence as EvidenceItem[] : undefined,
-    reasoning_state: (memory.reasoning_state && typeof memory.reasoning_state === 'object')
-      ? memory.reasoning_state as CustomerState
-      : undefined,
+    evidence: parseEvidenceField(memory),
   }
 }
 
@@ -181,6 +182,25 @@ export async function approveMemorySuggestion(
     .eq('id', customerId)
 }
 
+function parseEvidenceField(raw: Record<string, unknown>): CustomerEvidence | undefined {
+  const ev = raw.evidence
+  if (!ev || typeof ev !== 'object') {
+    const rs = raw.reasoning_state
+    if (rs && typeof rs === 'object') {
+      return { state: rs as CustomerState }
+    }
+    return undefined
+  }
+  if (Array.isArray(ev)) {
+    return { items: ev as EvidenceItem[] }
+  }
+  const obj = ev as Record<string, unknown>
+  return {
+    items: Array.isArray(obj.items) ? obj.items as EvidenceItem[] : undefined,
+    state: (obj.state && typeof obj.state === 'object') ? obj.state as CustomerState : undefined,
+  }
+}
+
 function parseMemory(raw: Record<string, unknown>): CustomerMemory {
   return {
     interests: Array.isArray(raw.interests) ? raw.interests as string[] : [],
@@ -189,10 +209,7 @@ function parseMemory(raw: Record<string, unknown>): CustomerMemory {
     preferences: Array.isArray(raw.preferences) ? raw.preferences as string[] : [],
     summary: typeof raw.summary === 'string' ? raw.summary : '',
     lastInteraction: typeof raw.lastInteraction === 'string' ? raw.lastInteraction : null,
-    evidence: Array.isArray(raw.evidence) ? raw.evidence as EvidenceItem[] : undefined,
-    reasoning_state: (raw.reasoning_state && typeof raw.reasoning_state === 'object')
-      ? raw.reasoning_state as CustomerState
-      : undefined,
+    evidence: parseEvidenceField(raw),
   }
 }
 

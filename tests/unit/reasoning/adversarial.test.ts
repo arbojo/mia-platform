@@ -214,3 +214,72 @@ describe('Adversarial Scenario 15: "solo estoy preguntando"', () => {
     expect(enrichment.prohibited_actions).toContain('CLOSE')
   })
 })
+
+describe('GZ-003: Infinity/NaN crash prevention', () => {
+  it('handles Infinity in state without crash', () => {
+    const state: CustomerState = {
+      interest: Infinity, trust: 0.5, readiness: 0.5,
+      clarity: 0.5, engagement: 0.5,
+      last_updated: new Date().toISOString(), evidence_count: 5,
+    }
+    expect(() => enrichPrompt(state, [])).not.toThrow()
+  })
+
+  it('handles NaN in state without crash', () => {
+    const state: CustomerState = {
+      interest: NaN, trust: NaN, readiness: NaN,
+      clarity: NaN, engagement: NaN,
+      last_updated: new Date().toISOString(), evidence_count: 5,
+    }
+    expect(() => enrichPrompt(state, [])).not.toThrow()
+  })
+
+  it('handles negative values in state without crash', () => {
+    const state: CustomerState = {
+      interest: -1, trust: -0.5, readiness: 0.5,
+      clarity: 2, engagement: 0.5,
+      last_updated: new Date().toISOString(), evidence_count: 5,
+    }
+    expect(() => enrichPrompt(state, [])).not.toThrow()
+  })
+
+  it('sanitizes Infinity to 0.5 in output', () => {
+    const state: CustomerState = {
+      interest: Infinity, trust: 0.5, readiness: 0.5,
+      clarity: 0.5, engagement: 0.5,
+      last_updated: new Date().toISOString(), evidence_count: 5,
+    }
+    const result = enrichPrompt(state, [])
+    expect(result.state_section).toContain('50%')
+    expect(result.prohibited_actions).toContain('CLOSE')
+  })
+
+  it('CLOSE is still prohibited with sanitized invalid state', () => {
+    const state: CustomerState = {
+      interest: Infinity, trust: Infinity, readiness: Infinity,
+      clarity: Infinity, engagement: Infinity,
+      last_updated: new Date().toISOString(), evidence_count: 5,
+    }
+    const result = enrichPrompt(state, [])
+    expect(result.prohibited_actions).toContain('CLOSE')
+  })
+})
+
+describe('GZ-004: Safe fallback guidance', () => {
+  it('produces safe fallback when state is undefined-equivalent', () => {
+    const state = createInitialState()
+    const result = enrichPrompt(state, [])
+    expect(result.permitted_actions).toContain('EXPLORE')
+    expect(result.permitted_actions).toContain('CLARIFY')
+  })
+
+  it('safe fallback prohibits CLOSE', () => {
+    const state: CustomerState = {
+      interest: 0.5, trust: 0.5, readiness: 0.5,
+      clarity: 0.5, engagement: 0.5,
+      last_updated: new Date().toISOString(), evidence_count: 0,
+    }
+    const result = enrichPrompt(state, [])
+    expect(result.prohibited_actions).toContain('CLOSE')
+  })
+})

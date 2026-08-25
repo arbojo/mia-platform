@@ -28,9 +28,16 @@ export interface PromptEnrichment {
   guidance: string
 }
 
+function sanitizeDimension(value: number): number {
+  if (!Number.isFinite(value)) return 0.5
+  return Math.max(0, Math.min(1, value))
+}
+
 function formatDimension(dim: string, value: number): string {
-  const bar = '█'.repeat(Math.round(value * 10)) + '░'.repeat(10 - Math.round(value * 10))
-  return `  ${dim.padEnd(12)} ${bar} ${(value * 100).toFixed(0)}%`
+  const safe = sanitizeDimension(value)
+  const filled = Math.round(safe * 10)
+  const bar = '█'.repeat(filled) + '░'.repeat(10 - filled)
+  return `  ${dim.padEnd(12)} ${bar} ${(safe * 100).toFixed(0)}%`
 }
 
 function identifyPermittedActions(state: CustomerState): ActionType[] {
@@ -124,24 +131,33 @@ function buildGuidance(state: CustomerState, evidence: EvidenceItem[]): string {
   return lines.length > 0 ? lines.join('\n') : 'Continúa con el enfoque actual.'
 }
 
+function sanitizeState(state: CustomerState): CustomerState {
+  const sanitized = { ...state }
+  for (const dim of EVIDENCE_DIMENSIONS) {
+    sanitized[dim] = sanitizeDimension(sanitized[dim])
+  }
+  return sanitized
+}
+
 export function enrichPrompt(
   state: CustomerState,
   evidence: EvidenceItem[]
 ): PromptEnrichment {
-  const permitted = identifyPermittedActions(state)
-  const prohibited = identifyProhibitedActions(state)
-  const guidance = buildGuidance(state, evidence)
+  const safe = sanitizeState(state)
+  const permitted = identifyPermittedActions(safe)
+  const prohibited = identifyProhibitedActions(safe)
+  const guidance = buildGuidance(safe, evidence)
 
   const stateLines = [
     '## Estado del Cliente',
     '',
-    ...EVIDENCE_DIMENSIONS.map((dim) => formatDimension(dim, state[dim])),
+    ...EVIDENCE_DIMENSIONS.map((dim) => formatDimension(dim, safe[dim])),
     '',
-    `Evidencia acumulada: ${state.evidence_count}`,
+    `Evidencia acumulada: ${safe.evidence_count}`,
     '',
   ]
 
-  if (isCloseAllowed(state)) {
+  if (isCloseAllowed(safe)) {
     stateLines.push('✓ CUMPLE GATE DE CIERRE')
   } else {
     stateLines.push(`✗ NO CUMPLE GATE DE CIERRE (readiness > ${CLOSE_GATE.readiness}, trust > ${CLOSE_GATE.trust}, interest > ${CLOSE_GATE.interest})`)

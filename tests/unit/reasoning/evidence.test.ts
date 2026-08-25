@@ -145,6 +145,37 @@ describe('Time Decay', () => {
     const decayed = computeDecayedWeight(item, now)
     expect(decayed).toBeLessThan(0.1)
   })
+
+  it('GZ-002: does NOT amplify weight for future timestamps', () => {
+    const item = createEvidenceItem({
+      message_id: 'msg-1',
+      conversation_id: 'conv-1',
+      customer_id: 'cust-1',
+      timestamp: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+      type: 'interest',
+      weight: 0.8,
+      confidence: 0.9,
+      decay_rate: Math.log(2) / 72,
+    })
+    const decayed = computeDecayedWeight(item, new Date())
+    expect(decayed).toBeLessThanOrEqual(0.8 * 0.9)
+    expect(decayed).toBeGreaterThanOrEqual(0)
+  })
+
+  it('GZ-002: clamps negative elapsed to zero (weight never exceeds base)', () => {
+    const item = createEvidenceItem({
+      message_id: 'msg-1',
+      conversation_id: 'conv-1',
+      customer_id: 'cust-1',
+      timestamp: new Date(Date.now() + 1000 * 60 * 60 * 1000).toISOString(),
+      type: 'interest',
+      weight: 0.5,
+      confidence: 0.5,
+      decay_rate: 0.1,
+    })
+    const decayed = computeDecayedWeight(item, new Date())
+    expect(decayed).toBeLessThanOrEqual(0.25)
+  })
 })
 
 describe('Evidence Merging', () => {

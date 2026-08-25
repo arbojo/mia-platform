@@ -8,8 +8,8 @@ export async function getCustomerStateFromMemory(
   const memory = await getCustomerMemory(customerId)
   if (!memory) return undefined
 
-  const state: CustomerState = memory.reasoning_state ?? createInitialState()
-  const evidence = memory.evidence ?? []
+  const state: CustomerState = memory.evidence?.state ?? createInitialState()
+  const evidence = memory.evidence?.items ?? []
 
   return enrichPrompt(state, evidence)
 }

@@ -75,7 +75,7 @@ export function getDimensionForEvidence(type: EvidenceType): EvidenceDimension |
 }
 
 export function computeDecayedWeight(item: EvidenceItem, now: Date): number {
-  const elapsed = (now.getTime() - new Date(item.timestamp).getTime()) / (1000 * 60 * 60)
+  const elapsed = Math.max(0, (now.getTime() - new Date(item.timestamp).getTime()) / (1000 * 60 * 60))
   const decayFactor = Math.exp(-item.decay_rate * elapsed)
   return item.weight * item.confidence * decayFactor
 }

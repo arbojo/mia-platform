@@ -120,6 +120,15 @@ export async function loadConversationContext(
     } catch (err) {
       console.error('Failed to load customer memory/state:', err)
     }
+
+    if (!stateGuidance) {
+      stateGuidance = {
+        state_section: '## Estado del Cliente\n\nEstado no disponible — usando fallback seguro.',
+        permitted_actions: ['ACKNOWLEDGE', 'ANSWER', 'CLARIFY', 'EXPLORE', 'EDUCATE', 'REASSURE'],
+        prohibited_actions: ['CLOSE', 'ADVANCE', 'OFFER'],
+        guidance: 'ESTADO NO DISPONIBLE: No se pudo cargar el estado del cliente. Por seguridad, NO cierres, NO ofrezcas, NO avances. Explora y clarifica.',
+      }
+    }
   }
 
   const systemPrompt = buildMasterPrompt({
