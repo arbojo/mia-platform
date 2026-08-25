@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `40912ea`.
+> Fuente de verdad: este repositorio en `15332d4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `40912ea` |
+| **Commit HEAD** | `15332d4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T13:45:54-06:00 |
+| **Generado** | 2026-08-25T14:01:30-06:00 |
 
 ---
 
@@ -186,32 +186,33 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 29 | 029_product_media.sql |
 | 30 | 030_catalog_sku.sql |
 | 31 | 031_delivery_hub.sql |
-| 32 | 032_delivery_schema_expose.sql |
-| 33 | 033_delivery_grants.sql |
-| 34 | 034_inventory_hub.sql |
-| 35 | 035_inventory_schema_expose.sql |
-| 36 | 036_inventory_grants.sql |
-| 37 | 037_business_edition.sql |
-| 38 | 038_media_sent_products.sql |
-| 39 | 039_media_type_simple.sql |
-| 40 | 040_inventory_universal.sql |
-| 41 | 041_inventory_trigger_v2.sql |
-| 42 | 042_polymorphic_variants.sql |
-| 43 | 043_rop_purchasing.sql |
-| 44 | 044_eta_cx.sql |
-| 45 | 045_sales_config.sql |
-| 46 | 046_products_cost_and_gps_freshness.sql |
-| 47 | 047_analytics_schema.sql |
-| 48 | 048_inventory_analytics.sql |
-| 49 | 050_analytics_foundation.sql |
-| 50 | 051_purchase_advisor_foundation.sql |
-| 51 | 052_fix_triggers.sql |
-| 52 | 053_experience_memory.sql |
-| 53 | 054_cloud_architecture.sql |
-| 54 | 20260820000000_analytics_public_wrapper.sql |
-| 55 | 20260820000001_analytics_grant_permissions.sql |
-| 56 | 20260820000002_analytics_security_definer.sql |
-| 57 | 20260820000003_analytics_security_definer.sql |
+| 32 | 031_product_image_position.sql |
+| 33 | 032_delivery_schema_expose.sql |
+| 34 | 033_delivery_grants.sql |
+| 35 | 034_inventory_hub.sql |
+| 36 | 035_inventory_schema_expose.sql |
+| 37 | 036_inventory_grants.sql |
+| 38 | 037_business_edition.sql |
+| 39 | 038_media_sent_products.sql |
+| 40 | 039_media_type_simple.sql |
+| 41 | 040_inventory_universal.sql |
+| 42 | 041_inventory_trigger_v2.sql |
+| 43 | 042_polymorphic_variants.sql |
+| 44 | 043_rop_purchasing.sql |
+| 45 | 044_eta_cx.sql |
+| 46 | 045_sales_config.sql |
+| 47 | 046_products_cost_and_gps_freshness.sql |
+| 48 | 047_analytics_schema.sql |
+| 49 | 048_inventory_analytics.sql |
+| 50 | 050_analytics_foundation.sql |
+| 51 | 051_purchase_advisor_foundation.sql |
+| 52 | 052_fix_triggers.sql |
+| 53 | 053_experience_memory.sql |
+| 54 | 054_cloud_architecture.sql |
+| 55 | 20260820000000_analytics_public_wrapper.sql |
+| 56 | 20260820000001_analytics_grant_permissions.sql |
+| 57 | 20260820000002_analytics_security_definer.sql |
+| 58 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -885,26 +886,26 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+15332d4 feat: complete Product Asset Unification implementation (TASK-20260825-PRODUCT-ASSETS)
+9b64f73 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - completado
+10f3ca5 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+9f0ba86 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+716f141 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+06c35ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+5dce376 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+3e469c0 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+5ac503c subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+49b5e17 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+42902df subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+779e5f4 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+7a13b71 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+f743430 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+32b3329 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
+9bed082 docs: regenerate MASTER.md at 40912ea
 40912ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - listo
 3480e61 chore: add Subaru task manifest for Product Asset Unification mission
 afbb0b1 docs: regenerate MASTER.md at d023d6c
 d023d6c docs: complete Product Asset Ownership research (architecture decision)
-935bf37 docs: regenerate MASTER.md at db0a81a
-db0a81a docs: ER-V1 loop termination report — MISSION_COMPLETE
-ca70c5b docs: regenerate MASTER.md at 33feba4
-33feba4 fix: resolve all 6 Godzilla findings — LLM extraction, timestamp guard, NaN/Infinity protection, safe fallback, storage alignment
-b7f3eef docs: regenerate MASTER.md at bb5cfef
-bb5cfef docs: Evidence Reasoning implementation termination report
-d9b3748 docs: add qualityGates to governance manifest for ER-V1 completion
-b336711 subaru: checkpoint ER-V1 - completado
-6a71ed5 docs: regenerate MASTER.md at ab0a702
-ab0a702 subaru: checkpoint ER-V1 - en-progreso
-757a6e1 test(reasoning): add 15 adversarial scenarios for evidence reasoning
-97d924d subaru: checkpoint ER-V1 - en-progreso
-54c4ea1 subaru: checkpoint ER-V1 - en-progreso
-160cac1 subaru: checkpoint ER-V1 - en-progreso
-603a880 subaru: checkpoint ER-V1 - en-progreso
-3d56747 subaru: checkpoint ER-V1 - en-progreso
 ```
 
 ---
