@@ -161,14 +161,19 @@ describe('runHealthChecks', () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon'
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service'
     process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH = 'true'
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('WHATSAPP_BRIDGE_URL', 'http://localhost:8787')
+    vi.stubEnv('WHATSAPP_BRIDGE_SECRET', 'test-secret')
 
     const supabase = makeSupabaseMock({})
     const report = await runHealthChecks({ admin: supabase as never, scope: 'precommit' })
 
     expect(report.status).toBe('passed')
-    expect(report.checks).toHaveLength(4)
+    expect(report.checks).toHaveLength(5)
     expect(report.businessId).toBe(BUSINESS_ID)
-    expect(report.summary).toContain('4/4')
+    expect(report.summary).toContain('5/5')
+
+    vi.unstubAllEnvs()
   })
 
   it('returns failed when supabase connectivity is broken (missing env vars)', async () => {
@@ -222,7 +227,13 @@ describe('runHealthChecks', () => {
     const supabase = makeSupabaseMock({ persistError: true })
     const report = await runHealthChecks({ admin: supabase as never, scope: 'precommit' })
 
-    expect(report.status).toBe('passed')
+    // persistError fails the REPORT-row insert only: round-trip checks are
+    // unaffected (chat_persistence passes), but with no bridge configured in
+    // development bridge_configuration warns, so aggregate = 'warning'.
+    // The report must still be produced, unpersisted (id undefined).
+    expect(report.status).toBe('warning')
+    expect(report.checks.find((c) => c.id === 'chat_persistence')?.status).toBe('passed')
+    expect(report.checks.find((c) => c.id === 'bridge_configuration')?.status).toBe('warning')
     expect(report.id).toBeUndefined()
   })
 })
