@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a09fec2`.
+> Fuente de verdad: este repositorio en `13a541f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a09fec2` |
+| **Commit HEAD** | `13a541f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-25T16:57:55-06:00 |
+| **Generado** | 2026-08-26T15:03:33-06:00 |
 
 ---
 
@@ -401,7 +401,7 @@ widget
 
 ## 9. Componentes
 
-132 componentes en `src/components/`:
+133 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -442,6 +442,7 @@ dashboard/CommandStrip.tsx
 dashboard/ConversationTimeline.tsx
 dashboard/DailyReport.tsx
 dashboard/EmployeeStatusCard.tsx
+dashboard/GettingStarted.tsx
 dashboard/I18nProvider.tsx
 dashboard/LearningTimeline.tsx
 dashboard/MIAIndicator.tsx
@@ -542,7 +543,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-127 módulos:
+128 módulos:
 
 ```
 ai/client.ts
@@ -644,6 +645,7 @@ reasoning/evidence.ts
 reasoning/prompt-enricher.ts
 reasoning/state-loader.ts
 reasoning/state.ts
+runtime/assistant-gate.ts
 runtime/conditional-media.ts
 runtime/evidence-extraction.ts
 runtime/execute-ai.ts
@@ -887,6 +889,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+13a541f feat: implement canonical lifecycle/activation contract
+f2656cd docs: regenerate MASTER.md at a09fec2
 a09fec2 docs: R-1..R-3 loop termination report + independent freeze report (PASS)
 a47d415 docs: regenerate MASTER.md at 31e5f27
 31e5f27 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - completado
@@ -905,8 +909,6 @@ d863750 fix: remediation R-1..R-3 — env isolation via vi.stubEnv, assertion al
 9f0ba86 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 716f141 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 06c35ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-5dce376 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-3e469c0 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 ```
 
 ---
