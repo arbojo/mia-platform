@@ -4,59 +4,6 @@
   "installCommand": "npm ci",
   "framework": "nextjs",
   "regions": ["sfo1"],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": {
-      "description": "Supabase project URL (public)"
-    },
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": {
-      "description": "Supabase anonymous key (public, safe in browser)"
-    },
-    "SUPABASE_SERVICE_ROLE_KEY": {
-      "description": "Supabase service role key (private, server-only)"
-    },
-    "OPENAI_API_KEY": {
-      "description": "OpenAI API key for AI execution"
-    },
-    "GOOGLE_GENERATIVE_AI_API_KEY": {
-      "description": "Google Gemini API key (optional, fallback provider)"
-    },
-    "GROQ_API_KEY": {
-      "description": "Groq API key (optional, fallback provider)"
-    },
-    "MIA_CRON_SECRET": {
-      "description": "Shared secret for headless scheduler authentication (margin-audit cron)"
-    },
-    "WHATSAPP_BRIDGE_URL": {
-      "description": "WhatsApp Bridge URL (Fly.io machine; production: required, no localhost)"
-    },
-    "WHATSAPP_BRIDGE_SECRET": {
-      "description": "Shared secret for bridge webhook authentication (production: required)"
-    },
-    "WHATSAPP_ACCESS_TOKEN": {
-      "description": "Meta/WhatsApp Cloud API access token (for real delivery)"
-    },
-    "WHATSAPP_PHONE_NUMBER_ID": {
-      "description": "WhatsApp Business Phone Number ID from Meta"
-    },
-    "WHATSAPP_APP_SECRET": {
-      "description": "WhatsApp app secret for HMAC webhook validation"
-    },
-    "WHATSAPP_VERIFY_TOKEN": {
-      "description": "WhatsApp verify token for webhook subscription verification"
-    },
-    "MIA_EDITION": {
-      "description": "MIA edition: evaluation, professional, enterprise, cloud"
-    },
-    "PLATFORM_OWNER_ID": {
-      "description": "Platform admin user UUID for /dashboard/platform-admin"
-    },
-    "PLATFORM_JWT_PRIVATE_KEY": {
-      "description": "Ed DSA private key for bridge JWT signing (multiline; base64 or PEM)"
-    },
-    "PLATFORM_JWT_PUBLIC_KEY": {
-      "description": "Ed DSA public key for bridge JWT verification"
-    }
-  },
   "crons": [
     {
       "path": "/api/cron/margin-audit",
