@@ -7,6 +7,7 @@ import { resolveCustomer } from '@/lib/channels/identity'
 import { LandingContextError } from '@/lib/ai/knowledge'
 import type { LandingContext } from '@/lib/ai/knowledge'
 import { detectIntent, isSalesIntent } from '@/lib/runtime/intents'
+import { canServeTraffic } from '@/lib/runtime/assistant-gate'
 
 function parseLandingContext(raw: unknown): LandingContext | undefined {
   if (raw === undefined || raw === null) return undefined
@@ -46,12 +47,11 @@ export async function POST(request: Request) {
 
     const { data: assistant } = await supabase
       .from('assistants')
-      .select('id, business_id')
+      .select('id, business_id, is_active, status')
       .eq('id', assistantId)
-      .eq('is_active', true)
       .single()
 
-    if (!assistant) {
+    if (!assistant || !canServeTraffic(assistant.is_active ?? false, assistant.status)) {
       return NextResponse.json({ error: 'Assistant not found' }, { status: 404 })
     }
 

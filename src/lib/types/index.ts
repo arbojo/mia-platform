@@ -279,6 +279,7 @@ export interface Database {
           communication_style: 'formal' | 'casual' | 'warm' | 'direct'
           avatar_url: string | null
           is_active: boolean
+          status: 'draft' | 'training' | 'ready' | 'active' | 'inactive'
           created_at: string
           updated_at: string
         }
@@ -290,6 +291,7 @@ export interface Database {
           communication_style: 'formal' | 'casual' | 'warm' | 'direct'
           avatar_url?: string | null
           is_active?: boolean
+          status?: 'draft' | 'training' | 'ready' | 'active' | 'inactive'
           created_at?: string
           updated_at?: string
         }
@@ -301,6 +303,7 @@ export interface Database {
           communication_style?: 'formal' | 'casual' | 'warm' | 'direct'
           avatar_url?: string | null
           is_active?: boolean
+          status?: 'draft' | 'training' | 'ready' | 'active' | 'inactive'
           created_at?: string
           updated_at?: string
         }

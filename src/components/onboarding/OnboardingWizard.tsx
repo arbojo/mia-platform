@@ -120,6 +120,8 @@ export function OnboardingWizard({ userId, businessId: initialBusinessId, initia
         name: assistantName,
         personality: selectedPersonality,
         communication_style: selectedStyle.id as 'formal' | 'casual' | 'warm' | 'direct',
+        status: 'ready',
+        is_active: true,
       })
       .select()
       .single()

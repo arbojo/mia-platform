@@ -7,6 +7,7 @@ import { ModuleZone } from '@/components/dashboard/ModuleZone'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
 import { SalesMetricsCard } from '@/components/dashboard/SalesMetricsCard'
 import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
+import { GettingStarted } from '@/components/dashboard/GettingStarted'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -129,6 +130,13 @@ export default async function DashboardPage() {
   return (
     <div className="animate-appear-up space-y-8">
       <MorningGreeting context={data.greetingContext} />
+
+      {data.conversationTimeline.entries.length === 0 && business.assistants && business.assistants.length > 0 && (
+        <GettingStarted
+          assistantId={business.assistants[0].id}
+          assistantName={business.assistants[0].name}
+        />
+      )}
 
       <div
         data-tour="home-vitals"

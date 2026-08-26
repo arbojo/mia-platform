@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { executeAI } from '@/lib/runtime/execute-ai'
+import { requireAuth } from '@/lib/auth'
 
 interface OnboardingMessage {
   role: 'user' | 'assistant'
@@ -75,11 +76,8 @@ function extractJsonFromResponse(content: string): {
 
 export async function POST(request: Request) {
   try {
-    const { messages, userId, businessId } = await request.json()
-
-    if (!userId || typeof userId !== 'string') {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
-    }
+    await requireAuth()
+    const { messages, businessId } = await request.json()
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'Messages required' }, { status: 400 })

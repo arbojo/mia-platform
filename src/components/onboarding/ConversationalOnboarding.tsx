@@ -73,7 +73,7 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
       const res = await fetch('/api/onboarding/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory, userId, businessId }),
+        body: JSON.stringify({ messages: chatHistory, businessId }),
       })
 
       if (!res.ok) throw new Error('Failed')
@@ -118,71 +118,136 @@ export function ConversationalOnboarding({ userId, businessId: initialBusinessId
       let activeBusinessId = businessId
 
       if (!activeBusinessId) {
-        const { data: newBiz, error: bizError } = await supabase
+        const { data: existingBiz } = await supabase
           .from('businesses')
-          .insert({ owner_id: userId, name: data.business_name ?? 'Mi negocio' })
-          .select()
-          .single()
+          .select('id')
+          .eq('owner_id', userId)
+          .maybeSingle()
 
-        if (bizError || !newBiz) {
-          console.error('Error creating business:', bizError)
-          return
+        if (existingBiz) {
+          activeBusinessId = existingBiz.id
+          setBusinessId(existingBiz.id)
+        } else {
+          const { data: newBiz, error: bizError } = await supabase
+            .from('businesses')
+            .insert({ owner_id: userId, name: data.business_name ?? 'Mi negocio' })
+            .select()
+            .single()
+
+          if (bizError || !newBiz) {
+            console.error('Error creating business:', bizError)
+            return
+          }
+          activeBusinessId = newBiz.id
+          setBusinessId(newBiz.id)
         }
-        activeBusinessId = newBiz.id
-        setBusinessId(newBiz.id)
       }
 
       if (data.business_name || data.target_customers || data.differentiators) {
-        await supabase.from('brand_identities').insert({
-          business_id: activeBusinessId,
-          business_name: data.business_name ?? 'Mi negocio',
-          tagline: data.business_description?.split('.')[0] ?? data.business_name ?? '',
-          elevator_pitch: data.business_description ?? '',
-          tone_of_voice: 'Profesional y cálido',
-          target_customers: data.target_customers,
-          differentiators: data.differentiators,
-        })
+        const { data: existingBrand } = await supabase
+          .from('brand_identities')
+          .select('id')
+          .eq('business_id', activeBusinessId)
+          .maybeSingle()
+
+        if (existingBrand) {
+          await supabase.from('brand_identities').update({
+            business_name: data.business_name ?? 'Mi negocio',
+            tagline: data.business_description?.split('.')[0] ?? data.business_name ?? '',
+            elevator_pitch: data.business_description ?? '',
+            target_customers: data.target_customers,
+            differentiators: data.differentiators,
+          }).eq('id', existingBrand.id)
+        } else {
+          await supabase.from('brand_identities').insert({
+            business_id: activeBusinessId,
+            business_name: data.business_name ?? 'Mi negocio',
+            tagline: data.business_description?.split('.')[0] ?? data.business_name ?? '',
+            elevator_pitch: data.business_description ?? '',
+            tone_of_voice: 'Profesional y cálido',
+            target_customers: data.target_customers,
+            differentiators: data.differentiators,
+          })
+        }
       }
 
       if (data.products && data.products.length > 0) {
-        for (const product of data.products) {
-          await supabase.from('products').insert({
-            business_id: activeBusinessId,
-            name: product.name,
-            price: product.price ?? null,
-            description: product.description ?? null,
-            benefits: product.benefits ?? null,
-          })
+        const { data: existingProducts } = await supabase
+          .from('products')
+          .select('id')
+          .eq('business_id', activeBusinessId)
+
+        if (!existingProducts || existingProducts.length === 0) {
+          for (const product of data.products) {
+            await supabase.from('products').insert({
+              business_id: activeBusinessId,
+              name: product.name,
+              price: product.price ?? null,
+              description: product.description ?? null,
+              benefits: product.benefits ?? null,
+            })
+          }
         }
       }
 
       if (data.rules && data.rules.length > 0) {
-        for (const rule of data.rules) {
-          await supabase.from('sales_rules').insert({
-            business_id: activeBusinessId,
-            category: rule.category as 'zones' | 'payment' | 'schedule' | 'promotions' | 'restrictions',
-            content: rule.content,
-          })
+        const { data: existingRules } = await supabase
+          .from('sales_rules')
+          .select('id')
+          .eq('business_id', activeBusinessId)
+
+        if (!existingRules || existingRules.length === 0) {
+          for (const rule of data.rules) {
+            await supabase.from('sales_rules').insert({
+              business_id: activeBusinessId,
+              category: rule.category as 'zones' | 'payment' | 'schedule' | 'promotions' | 'restrictions',
+              content: rule.content,
+            })
+          }
         }
       }
 
       const assistantName = data.assistant_name ?? 'MIA'
-      const { data: assistant } = await supabase
+
+      const { data: existingAssistant } = await supabase
         .from('assistants')
-        .insert({
-          business_id: activeBusinessId,
-          name: assistantName,
-          personality: { warmth: 80, formality: 40, humor: 50, sales_aggressiveness: 50 },
-          communication_style: 'warm',
-        })
-        .select()
-        .single()
+        .select('id')
+        .eq('business_id', activeBusinessId)
+        .maybeSingle()
+
+      let assistant = existingAssistant
+
+      if (!assistant) {
+        const result = await supabase
+          .from('assistants')
+          .insert({
+            business_id: activeBusinessId,
+            name: assistantName,
+            personality: { warmth: 80, formality: 40, humor: 50, sales_aggressiveness: 50 },
+            communication_style: 'warm',
+            status: 'ready',
+            is_active: true,
+          })
+          .select()
+          .single()
+
+        assistant = result.data
+      }
 
       if (assistant) {
-        await supabase.from('assistant_channels').insert({
-          assistant_id: assistant.id,
-          channel: 'web',
-        })
+        const { data: existingChannel } = await supabase
+          .from('assistant_channels')
+          .select('id')
+          .eq('assistant_id', assistant.id)
+          .eq('channel', 'web')
+          .maybeSingle()
+
+        if (!existingChannel) {
+          await supabase.from('assistant_channels').insert({
+            assistant_id: assistant.id,
+            channel: 'web',
+          })
+        }
       }
 
       await supabase

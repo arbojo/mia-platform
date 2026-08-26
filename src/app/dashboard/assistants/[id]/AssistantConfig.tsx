@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Send, Power, PowerOff, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Save, Send, Power, PowerOff, CheckCircle2, XCircle, AlertTriangle, Code, Copy, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const STATUS_CONFIG = {
@@ -26,7 +26,7 @@ interface AssistantData {
   name: string
   personality: Record<string, number>
   communication_style: string
-  status: string
+  status: 'draft' | 'training' | 'ready' | 'active' | 'inactive'
 }
 
 interface Readiness {
@@ -51,6 +51,7 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
   const [saving, setSaving] = useState(false)
   const [deploying, setDeploying] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const currentStatus = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.draft
 
@@ -82,7 +83,7 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
       const res = await fetch(`/api/assistants/${assistant.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'active' }),
+        body: JSON.stringify({ status: 'active', is_active: true }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -104,7 +105,7 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
       const res = await fetch(`/api/assistants/${assistant.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'inactive' }),
+        body: JSON.stringify({ status: 'inactive', is_active: false }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -141,12 +142,10 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
     }
   }
 
-  const canDeploy = readiness.hasProducts && readiness.hasRules && readiness.hasKnowledge && readiness.hasTraining
+  const canDeploy = readiness.hasProducts && readiness.hasRules
   const missingItems = []
   if (!readiness.hasProducts) missingItems.push('Productos')
   if (!readiness.hasRules) missingItems.push('Reglas de venta')
-  if (!readiness.hasKnowledge) missingItems.push('Conocimiento')
-  if (!readiness.hasTraining) missingItems.push('Entrenamiento (correcciones)')
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -258,7 +257,7 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2">
           {status === 'draft' || status === 'training' ? (
             <Button onClick={handleMarkReady} disabled={saving} variant="outline">
               <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -280,7 +279,7 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
                 className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40"
               >
                 <Send className="h-4 w-4 mr-2" />
-                {deploying ? 'Publicando...' : 'Publicar asistente'}
+                {deploying ? 'Publicando...' : status === 'inactive' ? 'Reactivar asistente' : 'Publicar asistente'}
               </Button>
             </div>
           ) : null}
@@ -291,6 +290,43 @@ export function AssistantConfig({ assistant, readiness }: { assistant: Assistant
               Desactivar
             </Button>
           ) : null}
+        </div>
+      </div>
+
+      <div className="rounded-xl p-6 space-y-4" style={{ backgroundColor: 'var(--elevation-2)' }}>
+        <div className="flex items-center gap-2">
+          <Code className="h-5 w-5" style={{ color: 'var(--atmosphere-text-secondary)' }} />
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
+            Widget en tu sitio web
+          </h2>
+        </div>
+        <p className="text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+          Copia este código y pégalo en tu sitio web antes del cierre de <code>&lt;/body&gt;</code> para que tus clientes puedan hablar con {assistant.name}.
+        </p>
+        <div className="relative">
+          <pre className="rounded-xl border p-4 text-xs overflow-x-auto" style={{ borderColor: 'var(--elevation-3, rgba(0,0,0,0.08))', backgroundColor: 'var(--elevation-1)', color: 'var(--atmosphere-text)' }}>
+{`<script
+  src="${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js"
+  data-assistant-id="${assistant.id}"
+  data-name="${assistant.name}"
+  data-color="#7c3aed"
+  data-label="Habla con ${assistant.name}"
+></script>`}
+          </pre>
+          <button
+            onClick={() => {
+              const origin = typeof window !== 'undefined' ? window.location.origin : ''
+              navigator.clipboard.writeText(
+                `<script\n  src="${origin}/widget.js"\n  data-assistant-id="${assistant.id}"\n  data-name="${assistant.name}"\n  data-color="#7c3aed"\n  data-label="Habla con ${assistant.name}"\n></script>`
+              )
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+            }}
+            className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-black/5 transition-colors"
+            title="Copiar código"
+          >
+            {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" style={{ color: 'var(--atmosphere-text-secondary)' }} />}
+          </button>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { WireMessage } from '@/lib/runtime/types'
+import { canServeTraffic } from '@/lib/runtime/assistant-gate'
 
 export class RuntimeError extends Error {
   constructor(
@@ -22,13 +23,12 @@ export async function resolveConnection(
     const supabase = createAdminClient()
     const { data: assistant } = await supabase
       .from('assistants')
-      .select('id, business_id')
+      .select('id, business_id, is_active, status')
       .eq('business_id', metadata.businessId as string)
-      .eq('is_active', true)
       .limit(1)
       .single()
 
-    if (assistant) {
+    if (assistant && canServeTraffic(assistant.is_active ?? false, assistant.status)) {
       const mode = await resolveConnectionMode(supabase, assistant.business_id, channel)
       return { business_id: assistant.business_id, assistant_id: assistant.id, mode }
     }

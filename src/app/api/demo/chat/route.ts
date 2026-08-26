@@ -5,6 +5,7 @@ import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { recordAiUsage } from '@/lib/ai/knowledge'
 import { getOpenAIClient, MODEL } from '@/lib/ai/client'
 import { canDemoChat } from '@/lib/system/edition'
+import { canServeTraffic } from '@/lib/runtime/assistant-gate'
 import {
   getDemoFreeMessageLimit,
   getOrCreateProfile,
@@ -72,10 +73,9 @@ export async function POST(request: Request) {
       .from('assistants')
       .select('*, businesses(*)')
       .eq('business_id', DEMO_BUSINESS_ID)
-      .eq('is_active', true)
       .single()
 
-    if (!assistant) {
+    if (!assistant || !canServeTraffic(assistant.is_active ?? false, assistant.status)) {
       return NextResponse.json({ error: 'Demo not available' }, { status: 503 })
     }
 

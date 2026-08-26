@@ -66,6 +66,13 @@ export async function PATCH(
       updates.status = body.status
     }
 
+    if (body.is_active !== undefined) {
+      if (typeof body.is_active !== 'boolean') {
+        return NextResponse.json({ error: 'is_active debe ser boolean' }, { status: 400 })
+      }
+      updates.is_active = body.is_active
+    }
+
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No hay campos para actualizar' }, { status: 400 })
     }

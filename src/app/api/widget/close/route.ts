@@ -5,6 +5,7 @@ import { resolveConversation } from '@/lib/conversation/resolver'
 import { recordWidgetSale } from '@/lib/sales/widget'
 import { LandingContextError } from '@/lib/ai/knowledge'
 import type { LandingContext } from '@/lib/ai/knowledge'
+import { canServeTraffic } from '@/lib/runtime/assistant-gate'
 
 function parseLandingContext(raw: unknown): LandingContext | undefined {
   if (raw === undefined || raw === null) return undefined
@@ -33,12 +34,11 @@ export async function POST(request: Request) {
 
     const { data: assistant } = await supabase
       .from('assistants')
-      .select('id, business_id')
+      .select('id, business_id, is_active, status')
       .eq('id', assistantId)
-      .eq('is_active', true)
       .single()
 
-    if (!assistant) {
+    if (!assistant || !canServeTraffic(assistant.is_active ?? false, assistant.status)) {
       return NextResponse.json({ error: 'Assistant not found' }, { status: 404 })
     }
 
