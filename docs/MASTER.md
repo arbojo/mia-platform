@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `0107ff5`.
+> Fuente de verdad: este repositorio en `84fd294`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `0107ff5` |
+| **Commit HEAD** | `84fd294` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-28T01:19:16-06:00 |
+| **Generado** | 2026-08-28T01:34:19-06:00 |
 
 ---
 
@@ -209,10 +209,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 52 | 052_fix_triggers.sql |
 | 53 | 053_experience_memory.sql |
 | 54 | 054_cloud_architecture.sql |
-| 55 | 20260820000000_analytics_public_wrapper.sql |
-| 56 | 20260820000001_analytics_grant_permissions.sql |
-| 57 | 20260820000002_analytics_security_definer.sql |
-| 58 | 20260820000003_analytics_security_definer.sql |
+| 55 | 055_capability_foundation.sql |
+| 56 | 20260820000000_analytics_public_wrapper.sql |
+| 57 | 20260820000001_analytics_grant_permissions.sql |
+| 58 | 20260820000002_analytics_security_definer.sql |
+| 59 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -250,7 +251,7 @@ Eventos: `SALE_STARTED, PRODUCT_SELECTED, OBJECTION_DETECTED, OBJECTION_RESOLVED
 
 ## 7. API Routes
 
-102 rutas en `src/app/api/`:
+104 rutas en `src/app/api/`:
 
 ```
 accessibility
@@ -342,6 +343,8 @@ laboratorio/sessions/[id]
 laboratorio/sessions
 laboratorio/teach
 onboarding/chat
+onboarding/complete
+onboarding/state
 pixel/track
 prd/generate
 profile/language
@@ -401,7 +404,7 @@ widget
 
 ## 9. Componentes
 
-133 componentes en `src/components/`:
+134 componentes en `src/components/`:
 
 ```
 accessibility/AccessibilitySettings.tsx
@@ -522,6 +525,7 @@ laboratorio/TeachModal.tsx
 laboratorio/UsageBar.tsx
 layout/AppLayout.tsx
 onboarding/ConversationalOnboarding.tsx
+onboarding/OnboardingQuiz.tsx
 onboarding/OnboardingWizard.tsx
 platform/BridgeMonitor.tsx
 platform/PlatformAdminDashboard.tsx
@@ -543,7 +547,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-128 módulos:
+132 módulos:
 
 ```
 ai/client.ts
@@ -636,6 +640,9 @@ inventory/stock.ts
 inventory/suggestions.ts
 inventory/types.ts
 knowledge/suggestions.ts
+onboarding/derive.ts
+onboarding/quiz.ts
+onboarding/types.ts
 platform/jwt.ts
 platform/types.ts
 prd/builder.ts
@@ -666,6 +673,7 @@ supabase/client.ts
 supabase/route-handler.ts
 supabase/server.ts
 system/accessibility.ts
+system/capabilities.ts
 system/demo.ts
 system/edition.ts
 system/health.ts
@@ -692,7 +700,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (141)**:
+**Tareas registradas (142)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -837,6 +845,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260825-CLOUD-R1R3 | MIA Cloud Freeze Remediation R-1..R-3 | approved |
 | TASK-20260825-EVIDENCE-REASONING | MIA Evidence Accumulation & Customer State Architecture Review | completed |
 | TASK-20260825-PRODUCT-ASSETS | Product Asset Unification Implementation | in_progress |
+| TASK-20260828-071346359 | Fix: pedido cancelado re-confirmado en conversaciones nuevas | in_progress |
 
 ---
 
@@ -889,6 +898,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+84fd294 fix: prevent cancelled order re-confirmation in new conversations (TASK-20260828-CANCEL-LOOP)
+e29eeef docs: regenerate MASTER.md at 0107ff5
 0107ff5 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 3d6b0b0 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
@@ -907,8 +918,6 @@ a47d415 docs: regenerate MASTER.md at 31e5f27
 57e5733 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
 7b1bce5 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
 01cc9bc subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
-ef05cd7 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
-d567fa7 feat: GATE-1 headless cron auth + GATE-2 bridge fail-fast health check (implementation loop artifacts)
 ```
 
 ---
