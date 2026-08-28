@@ -40,6 +40,7 @@ Reglas:
 - outcome "not_interested" si el cliente rechazó o descartó la compra.
 - outcome "interested" si el cliente mostró interés pero aún no confirmó.
 - Emite SALE_WON si hay confirmación de compra; SALE_LOST si hay rechazo.
+- RC5: si el VENDEDOR menciona o pregunta por un pedido que el cliente ya CANCELÓ (ej. "¿te confirmo tu pedido de X?" sobre un pedido cancelado), y el cliente responde "sí", "dale" o "confirmo" SIN mencionar un producto nuevo él mismo, NO emitas SALE_WON: esa confirmación es ambigua y el pedido cancelado ya no existe. Solo emite SALE_WON cuando el CLIENTE mencione explícitamente el producto que quiere comprar en su propia frase de confirmación.
 - amount solo cuando haya un precio acordado o mencionado.
 - No inventes eventos. Solo emite los que tengan evidencia directa en el diálogo.
 - Si no hay suficiente información para clasificar, devuelve outcome "pending" y events [].`

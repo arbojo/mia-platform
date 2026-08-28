@@ -1,0 +1,130 @@
+{
+  "id": "TASK-20260828-071346359",
+  "title": "Fix: pedido cancelado re-confirmado en conversaciones nuevas",
+  "description": "MIA insiste en confirmar un pedido ya cancelado (clean nails) cuando el cliente inicia conversacion de otro producto. 7 causas raiz: (RC1) mensaje falso de cancelacion procesada en process.ts:217; (RC2) memoria del cliente contaminada con mensajes del pedido cancelado (customer-memory.ts:274); (RC3) cancellationContext ambiguo en prompts.ts:362-367 que no prohibe re-confirmar; (RC4) evidence.state no reseteado tras cancelacion (state-loader.ts:11); (RC5) detector de ventas emite SALE_WON sobre pedidos cancelados (detect.ts:38); (RC6) keywords de cancelacion demasiado agresivas (detect.ts:174-181); (RC7) inconsistencia post-cancelacion. Fixes en: process.ts, prompts.ts, cancel.ts, customer-memory.ts, detect.ts.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "ai_behaviour"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "sales",
+    "affectedDomains": [
+      "sales"
+    ],
+    "technicalDomains": [
+      "backend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 5 files affected, AI behaviour changes. Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Diagnostico Evidence First solido: 7 causas raiz con file:line. Los 6 fixes son minimos y no crean jerarquias paralelas: corrigen el flujo existente de cancelacion sin tocar schema. Arquitectura respetada.",
+      "timestamp": "2026-08-28T07:14:14.549Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Fixes en process.ts y cancel.ts siguen reglas existentes: admin client para writes, manejo de errores con throw, reutilizacion de getSalesConfig y detectCancellation. Sin duplicacion de logica.",
+      "timestamp": "2026-08-28T07:14:20.023Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI. Los componentes existentes no se ven afectados; los fixes son de backend/AI.",
+      "timestamp": "2026-08-28T07:14:25.733Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Fix 2 y 5 corrigen contaminacion del prompt y del detector: el cancellationContext pasara a prohibir explicitamente re-confirmar pedidos cancelados. No se hardcodea conocimiento: todo sigue viniendo de DB y config. Reduce tokens al evitar re-confirmaciones en loop.",
+      "timestamp": "2026-08-28T07:14:30.512Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Los fixes no agregan queries nuevas salvo purga de memoria (ya existente). Elimina loops de re-confirmacion que consumian tokens de OpenAI innecesariamente: mejora medible de costos.",
+      "timestamp": "2026-08-28T07:14:34.640Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Plan de verificacion: lint + build + unit tests existentes del flujo de ventas + escenario de reproduccion manual con numero de pruebas 476150. Godzilla auditara los archivos modificados.",
+      "timestamp": "2026-08-28T07:14:38.544Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores de ataque evaluados: (1) prompt injection via mensajes de cancelacion falsos - mitigado por detectCancellation con temperature 0; (2) cross-tenant: fixes no alteran scoping por business_id; (3) memory poisoning: la purga de memoria al cancelar reduce superficie. Sin hallazgos CRITICAL/HIGH en el diseno propuesto.",
+      "timestamp": "2026-08-28T07:14:42.927Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit atomico planificado con mensaje detallado para reversibilidad. Push a origin/main tras gates. Deploy Vercel + fly.io (bridge) con verificacion.",
+      "timestamp": "2026-08-28T07:14:47.158Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Leccion a registrar: la memoria del cliente (customers.memory) debe purgarse de datos de pedidos cancelados para evitar contaminacion de prompts. Patron: estados de venta deben resetear evidencia al terminal.",
+      "timestamp": "2026-08-28T07:14:52.590Z"
+    }
+  ],
+  "createdAt": "2026-08-28T07:13:46.141Z",
+  "classifiedAt": "2026-08-28T07:13:46.141Z",
+  "approvedAt": "2026-08-28T07:14:52.592Z",
+  "startedAt": "2026-08-28T07:15:28.398Z",
+  "qualityGateResults": [
+    {
+      "gate": "lint",
+      "passed": true,
+      "output": "0 errores, 18 warnings preexistentes de WIP capabilities (no de esta tarea)",
+      "timestamp": "2026-08-28T07:26:27.071Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "output": "Next.js 16 build OK, TypeScript OK, 101 paginas generadas",
+      "timestamp": "2026-08-28T07:26:31.850Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "output": "212/212 tests passed incluyendo sales/cancel, sales/process, sales/detect",
+      "timestamp": "2026-08-28T07:26:35.610Z"
+    }
+  ]
+}

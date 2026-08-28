@@ -17,6 +17,13 @@ export interface Database {
           onboarding_status: 'created' | 'identity_completed' | 'business_completed' | 'products_completed' | 'rules_completed' | 'ready'
           created_at: string
           updated_at: string
+          edition: string | null
+          deployment_model: string | null
+          status: string | null
+          industry: string | null
+          capabilities: string[] | null
+          onboarding_answers: Record<string, unknown> | null
+          capability_sources: Record<string, string> | null
         }
         Insert: {
           id?: string
@@ -25,6 +32,13 @@ export interface Database {
           onboarding_status?: 'created' | 'identity_completed' | 'business_completed' | 'products_completed' | 'rules_completed' | 'ready'
           created_at?: string
           updated_at?: string
+          edition?: string | null
+          deployment_model?: string | null
+          status?: string | null
+          industry?: string | null
+          capabilities?: string[] | null
+          onboarding_answers?: Record<string, unknown> | null
+          capability_sources?: Record<string, string> | null
         }
         Update: {
           id?: string
@@ -33,6 +47,13 @@ export interface Database {
           onboarding_status?: 'created' | 'identity_completed' | 'business_completed' | 'products_completed' | 'rules_completed' | 'ready'
           created_at?: string
           updated_at?: string
+          edition?: string | null
+          deployment_model?: string | null
+          status?: string | null
+          industry?: string | null
+          capabilities?: string[] | null
+          onboarding_answers?: Record<string, unknown> | null
+          capability_sources?: Record<string, string> | null
         }
         Relationships: []
       }

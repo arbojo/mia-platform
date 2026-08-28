@@ -91,6 +91,18 @@ export async function handleCancellationWebhook(
   const conversationId = await resolveConversation(assistantId, customer.id)
   if (!conversationId) return null
 
+  // RC6 fix: la intercepción solo procede si hay una venta activa (SALE_WON)
+  // en esta conversación. Sin pedido, frases como "no gracias" o "no quiero"
+  // son conversación normal y deben llegar al AI en vez de ser tragadas aquí.
+  const { data: activeSale } = await supabase
+    .from('sales_events')
+    .select('id')
+    .eq('conversation_id', conversationId)
+    .eq('event_type', 'SALE_WON')
+    .limit(1)
+    .maybeSingle()
+  if (!activeSale) return null
+
   try {
     await supabase.from('messages').insert({
       conversation_id: conversationId,
@@ -214,7 +226,15 @@ export async function handleCancellationWebhook(
       messages: chatMessages,
     })
 
-    response = result.message ?? 'Tu solicitud de cancelación ha sido procesada.'
+    // RC1 fix: nunca afirmar una cancelación que no ocurrió. Si el detector
+    // no confirmó la intención (not_cancelation), el pedido sigue activo y el
+    // cliente debe saberlo en lugar de recibir un falso "cancelación procesada".
+    if (!result.processed || result.action === 'not_cancelation') {
+      response =
+        'No detecté que quisieras cancelar tu pedido. Si efectivamente quieres cancelarlo, responde "sí, quiero cancelar" y lo proceso de inmediato.'
+    } else {
+      response = result.message ?? 'Tu solicitud de cancelación ha sido procesada.'
+    }
   }
 
   try {

@@ -286,6 +286,8 @@ export const pt: Dict = {
     customerMemory: 'Memória do Cliente',
     whatIveLearned: 'O que aprendi com você',
     lastCorrections: 'Últimas correções que você me ensinou:',
+    languageMatching:
+      'Responda SEMPRE no mesmo idioma que o cliente usa. Se o cliente escrever em inglês, responda em inglês. Se escrever em espanhol, responda em espanhol. Se escrever em português, responda em português. Se misturar idiomas em uma única mensagem, responda no idioma predominante da mensagem. Você não precisa perguntar em que idioma prefere responder.',
     finalInstruction: 'Instrução Final',
     finalInstructionText:
       'ANTES DE RESPONDER: Revise ativamente se há informações contraditórias entre as seções anteriores. Se encontrar contradições, aplique a ordem de autoridade da Resolução de Conflitos. Não misture regras incompatíveis.',

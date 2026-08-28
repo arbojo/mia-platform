@@ -283,6 +283,8 @@ export const es = {
     customerMemory: 'Memoria del Cliente',
     whatIveLearned: 'Lo que he aprendido de ti',
     lastCorrections: 'Últimas correcciones que me enseñaste:',
+    languageMatching:
+      'Responde SIEMPRE en el mismo idioma que el cliente. Si el cliente escribe en inglés, responde en inglés. Si escribe en español, responde en español. Si escribe en portugués, responde en portugués. Si mezcla idiomas en un mismo mensaje, responde en el idioma predominante del mensaje. No necesitas preguntar en qué idioma prefer responder.',
     finalInstruction: 'Instrucción Final',
     finalInstructionText:
       'ANTES DE RESPONDER: Revisa activamente si hay información contradictoria entre las secciones anteriores. Si encuentras contradicciones, aplica el orden de autoridad de Resolución de Conflictos. No mezcles reglas incompatibles.',

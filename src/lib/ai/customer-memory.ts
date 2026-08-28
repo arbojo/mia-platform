@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { EvidenceItem } from '@/lib/reasoning/evidence'
 import type { CustomerState } from '@/lib/reasoning/state'
+import type { Locale } from '@/lib/i18n/config'
 
 export interface CustomerEvidence {
   items?: EvidenceItem[]
@@ -182,6 +183,67 @@ export async function approveMemorySuggestion(
     .eq('id', customerId)
 }
 
+/**
+ * RC2/RC4 fix: tras una cancelación confirmada, la memoria del cliente queda
+ * contaminada con los mensajes del pedido cancelado (preguntas, intereses,
+ * evidencia de cierre). Esa contaminación hace que el AI re-confirme el pedido
+ * cancelado en conversaciones nuevas. Esta función elimina los mensajes
+ * relacionados con el pedido cancelado y resetea el estado de evidencia a
+ * neutral, preservando el resto de la memoria comercial.
+ */
+export async function purgeCancelledOrderFromMemory(
+  customerId: string,
+  orderNumber: string,
+): Promise<void> {
+  const supabase = createAdminClient()
+
+  const memory = await getCustomerMemory(customerId)
+  if (!memory) return
+
+  const orderToken = orderNumber.toLowerCase()
+  const isCancelledOrderNoise = (text: string): boolean => {
+    const lower = text.toLowerCase()
+    return (
+      lower.includes(orderToken) ||
+      lower.includes('confirmo el pedido') ||
+      lower.includes('confirmar el pedido') ||
+      lower.includes('te confirmo tu pedido') ||
+      lower.includes('quiero cancelar') ||
+      lower.includes('cancelar mi pedido') ||
+      lower.includes('me arrepentí') ||
+      lower.includes('me arrepenti')
+    )
+  }
+
+  const cleanedQuestions = memory.questions.filter((q) => !isCancelledOrderNoise(q))
+  const cleanedInterests = memory.interests.filter((i) => !isCancelledOrderNoise(i))
+
+  const summary = memory.summary
+    .split('. ')
+    .filter((part) => !isCancelledOrderNoise(part))
+    .join('. ')
+
+  const updatedMemory: Record<string, unknown> = {
+    interests: cleanedInterests,
+    objections: memory.objections,
+    questions: cleanedQuestions,
+    preferences: memory.preferences,
+    summary,
+    lastInteraction: memory.lastInteraction,
+    // RC4 fix: estado de evidencia a neutral para que la próxima conversación
+    // no arranque en modo cierre heredado del pedido cancelado.
+    evidence: {
+      items: [],
+      state: undefined,
+    },
+  }
+
+  await supabase
+    .from('customers')
+    .update({ memory: JSON.parse(JSON.stringify(updatedMemory)) })
+    .eq('id', customerId)
+}
+
 function parseEvidenceField(raw: Record<string, unknown>): CustomerEvidence | undefined {
   const ev = raw.evidence
   if (!ev || typeof ev !== 'object') {
@@ -258,16 +320,16 @@ function mergeMemory(
   for (const msg of messages) {
     if (msg.role === 'user') {
       const lower = msg.content.toLowerCase()
-      if (lower.includes('precio') || lower.includes('cuanto') || lower.includes('cuesta') || lower.includes('costo')) {
+      if (lower.includes('precio') || lower.includes('cuanto') || lower.includes('cuesta') || lower.includes('costo') || lower.includes('price') || lower.includes('how much') || lower.includes('cost')) {
         objections.add('price')
       }
-      if (lower.includes('envío') || lower.includes('envio') || lower.includes('entrega') || lower.includes('llegar')) {
+      if (lower.includes('envío') || lower.includes('envio') || lower.includes('entrega') || lower.includes('llegar') || lower.includes('shipping') || lower.includes('delivery') || lower.includes('arrive')) {
         objections.add('delivery')
       }
-      if (lower.includes('garantía') || lower.includes('garantia') || lower.includes('devolver') || lower.includes('cambio')) {
+      if (lower.includes('garantía') || lower.includes('garantia') || lower.includes('devolver') || lower.includes('cambio') || lower.includes('warranty') || lower.includes('return') || lower.includes('refund')) {
         objections.add('guarantee')
       }
-      if (lower.includes('whatsapp') || lower.includes('llamar') || lower.includes('teléfono') || lower.includes('telefono')) {
+      if (lower.includes('whatsapp') || lower.includes('llamar') || lower.includes('teléfono') || lower.includes('telefono') || lower.includes('call') || lower.includes('phone')) {
         preferences.add('prefers_phone')
       }
       questions.push(msg.content)
@@ -302,20 +364,29 @@ function buildSummary(
   return parts.join('. ') || ''
 }
 
-export function formatCustomerMemoryForPrompt(memory: CustomerMemory): string {
+const MEMORY_LABELS: Record<Locale, Record<string, string>> = {
+  es: { summary: 'Resumen', tags: 'Etiquetas', status: 'Estado', city: 'Ciudad', interests: 'Intereses', objections: 'Objeciones', questions: 'Preguntas previas', preferences: 'Preferencias', lastInteraction: 'Última interacción' },
+  en: { summary: 'Summary', tags: 'Tags', status: 'Status', city: 'City', interests: 'Interests', objections: 'Objections', questions: 'Previous questions', preferences: 'Preferences', lastInteraction: 'Last interaction' },
+  pt: { summary: 'Resumo', tags: 'Etiquetas', status: 'Estado', city: 'Cidade', interests: 'Interesses', objections: 'Objeções', questions: 'Perguntas anteriores', preferences: 'Preferências', lastInteraction: 'Última interação' },
+  ja: { summary: '概要', tags: 'タグ', status: 'ステータス', city: '都市', interests: '興味', objections: '異議', questions: '過去の質問', preferences: '好み', lastInteraction: '最後のやり取り' },
+}
+
+export function formatCustomerMemoryForPrompt(memory: CustomerMemory, locale: Locale = 'es'): string {
+  const l = MEMORY_LABELS[locale] ?? MEMORY_LABELS.es
   const parts: string[] = []
 
-  if (memory.summary) parts.push(`Resumen: ${memory.summary}`)
-  if (memory.tags && memory.tags.length > 0) parts.push(`Etiquetas: ${memory.tags.join(', ')}`)
-  if (memory.status) parts.push(`Estado: ${memory.status}`)
-  if (memory.city) parts.push(`Ciudad: ${memory.city}`)
-  if (memory.interests.length > 0) parts.push(`Intereses: ${memory.interests.join(', ')}`)
-  if (memory.objections.length > 0) parts.push(`Objeciones: ${memory.objections.join(', ')}`)
-  if (memory.questions.length > 0) parts.push(`Preguntas previas: ${memory.questions.join(', ')}`)
-  if (memory.preferences.length > 0) parts.push(`Preferencias: ${memory.preferences.join(', ')}`)
+  if (memory.summary) parts.push(`${l.summary}: ${memory.summary}`)
+  if (memory.tags && memory.tags.length > 0) parts.push(`${l.tags}: ${memory.tags.join(', ')}`)
+  if (memory.status) parts.push(`${l.status}: ${memory.status}`)
+  if (memory.city) parts.push(`${l.city}: ${memory.city}`)
+  if (memory.interests.length > 0) parts.push(`${l.interests}: ${memory.interests.join(', ')}`)
+  if (memory.objections.length > 0) parts.push(`${l.objections}: ${memory.objections.join(', ')}`)
+  if (memory.questions.length > 0) parts.push(`${l.questions}: ${memory.questions.join(', ')}`)
+  if (memory.preferences.length > 0) parts.push(`${l.preferences}: ${memory.preferences.join(', ')}`)
   if (memory.lastInteraction) {
     const d = new Date(memory.lastInteraction)
-    parts.push(`Última interacción: ${d.toLocaleDateString('es-MX')}`)
+    const dateStr = d.toLocaleDateString(locale === 'es' ? 'es-MX' : locale === 'pt' ? 'pt-BR' : locale === 'ja' ? 'ja-JP' : 'en-US')
+    parts.push(`${l.lastInteraction}: ${dateStr}`)
   }
 
   return parts.join('\n')

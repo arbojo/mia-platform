@@ -4,6 +4,7 @@ import type { Locale } from '@/lib/i18n/config'
 import { DEFAULT_LOCALE } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import type { ChannelType } from '@/lib/channels/types'
+import type { ResolvedCapabilities } from '@/lib/system/capabilities'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -213,6 +214,7 @@ export function buildMasterPrompt(params: {
     prohibited_actions: string[]
     guidance: string
   }
+  capabilities?: ResolvedCapabilities
 }): string {
   const {
     business,
@@ -234,6 +236,7 @@ export function buildMasterPrompt(params: {
     experienceContext,
     landingContext,
     stateGuidance,
+    capabilities,
   } = params
 
   const ai = getDictionary(locale ?? DEFAULT_LOCALE).ai
@@ -266,6 +269,8 @@ export function buildMasterPrompt(params: {
 
 ## ${ai.yourObjective}
 ${ai.objectiveText}
+
+## ${ai.languageMatching}
 
 ## ${ai.yourPersonality}
 ${ai.personalityStyle}: ${personalityLabel}
@@ -357,9 +362,15 @@ ${stateGuidance ? `\n${stateGuidance.state_section}\n## Guía de Acciones\nPermi
 ${cancellationContext && conversationOutcome !== 'cancelled'
   ? `\n## Contexto importante
 Este cliente canceló recientemente el pedido ${cancellationContext.orderNumber} (hace ${cancellationContext.hoursAgo} horas).
-NO menciones la cancelación a menos que el cliente lo pregunte directamente.
-Si el cliente muestra intención de compra, continúa con el flujo normal de ventas como si fuera una nueva oportunidad.`
+Ese pedido fue CANCELADO y YA NO EXISTE: está cerrado definitivamente y NUNCA debe confirmarse, re-confirmarse, retomarse ni mencionarse como pendiente.
+PROHIBIDO preguntar por la confirmación de ese pedido o de sus productos (ej. "¿te confirmo tu pedido de X?"): aunque el cliente diga "sí", "dale" o "confirmo", NO aplica a ese pedido cancelado.
+Si el cliente quiere comprar de nuevo (el mismo u otro producto), es una venta NUEVA desde cero: presenta el catálogo, pide confirmación SOLO sobre la compra nueva que él mencione, y nunca reutilices los datos del pedido cancelado como si fuera un pedido en curso.
+NO menciones la cancelación a menos que el cliente lo pregunte directamente.`
   : ''}
+${capabilities?.active.has('MOD_INVENTORY') ? `\n## Inventario
+Tienes acceso al sistema de inventario. Cuando el cliente pregunte por disponibilidad o stock de un producto, puedes consultar el inventario actual para dar una respuesta precisa. Si un producto no tiene stock, sugiere alternativas similares o informa al cliente que puede esperar reposición.` : ''}
+${capabilities?.active.has('MOD_DELIVERY') ? `\n## Logística
+Tienes acceso al sistema de entregas. Cuando el cliente pregunte por envíos o tiempos de entrega, puedes utilizar la información de rutas y repartidores para dar una respuesta más precisa sobre disponibilidad y tiempos estimados.` : ''}
 
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`

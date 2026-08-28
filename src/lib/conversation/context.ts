@@ -4,6 +4,8 @@ import { buildMasterPrompt } from '@/lib/ai/prompts'
 import { getCustomerMemory, formatCustomerMemoryForPrompt } from '@/lib/ai/customer-memory'
 import { getProfileLanguage } from '@/lib/system/language'
 import { getCustomerStateFromMemory } from '@/lib/reasoning/state-loader'
+import { resolveCapabilities, type ResolvedCapabilities } from '@/lib/system/capabilities'
+import { getEffectiveEdition } from '@/lib/system/edition'
 import type { Locale } from '@/lib/i18n/config'
 import type { ChannelType } from '@/lib/channels/types'
 
@@ -102,6 +104,22 @@ export async function loadConversationContext(
 
   const productId = landingContext ? (context as { productId?: string }).productId : undefined
 
+  const ownerLocale = await getOwnerLocale(fullAssistant.businesses.owner_id)
+
+  let resolvedCapabilities: ResolvedCapabilities | undefined
+  try {
+    const edition = await getEffectiveEdition(businessId)
+    const biz = fullAssistant.businesses as Record<string, unknown>
+    resolvedCapabilities = resolveCapabilities(
+      businessId,
+      edition,
+      (biz.industry as string | null) ?? null,
+      (biz.capabilities as string[] | null) ?? null,
+    )
+  } catch {
+    // Capability resolution failure must never block conversation loading
+  }
+
   let customerMemory: string | undefined
   let stateGuidance: {
     state_section: string
@@ -114,7 +132,7 @@ export async function loadConversationContext(
     try {
       const memory = await getCustomerMemory(customerId)
       if (memory) {
-        customerMemory = formatCustomerMemoryForPrompt(memory)
+        customerMemory = formatCustomerMemoryForPrompt(memory, ownerLocale)
       }
       stateGuidance = await getCustomerStateFromMemory(customerId)
     } catch (err) {
@@ -142,7 +160,7 @@ export async function loadConversationContext(
     memory: context.memory,
     customerMemory,
     recentLessons,
-    locale: await getOwnerLocale(fullAssistant.businesses.owner_id),
+    locale: ownerLocale,
     channel,
     intentTag,
     landingContext,
@@ -151,6 +169,7 @@ export async function loadConversationContext(
     cancellationContext,
     experienceContext,
     stateGuidance,
+    capabilities: resolvedCapabilities,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

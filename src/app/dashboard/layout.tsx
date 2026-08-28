@@ -12,6 +12,8 @@ import { ContextMenuProvider } from '@/components/ui/context-menu'
 import { GlassLoader } from '@/components/ui/glass-loader'
 import { TourProvider } from '@/components/tour/TourProvider'
 import { getUserLocale } from '@/lib/i18n/server'
+import { resolveCapabilities } from '@/lib/system/capabilities'
+import { getEffectiveEdition } from '@/lib/system/edition'
 
 export default async function DashboardLayout({
   children,
@@ -30,6 +32,21 @@ export default async function DashboardLayout({
   const isPlatformOwner =
     !!process.env.PLATFORM_OWNER_ID && user.id === process.env.PLATFORM_OWNER_ID
 
+  let capabilities = undefined
+  if (business) {
+    try {
+      const edition = await getEffectiveEdition(business.id)
+      capabilities = resolveCapabilities(
+        business.id,
+        edition,
+        (business as Record<string, unknown>).industry as string | null ?? null,
+        (business as Record<string, unknown>).capabilities as string[] | null ?? null,
+      )
+    } catch {
+      // Capability resolution failure must never block dashboard loading
+    }
+  }
+
   return (
     <I18nProvider key={locale} locale={locale}>
       <ThemeProvider>
@@ -38,7 +55,7 @@ export default async function DashboardLayout({
         <ContextMenuProvider>
           <TourProvider>
             <AppLayout>
-              <ActivityRail isPlatformOwner={isPlatformOwner} />
+              <ActivityRail isPlatformOwner={isPlatformOwner} capabilities={capabilities} />
               <div className="flex flex-1 flex-col overflow-auto">
                 <CommandStrip />
                 <main className="relative flex-1">

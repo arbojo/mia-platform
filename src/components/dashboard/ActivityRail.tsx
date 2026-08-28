@@ -28,6 +28,8 @@ import { useI18n } from '@/components/dashboard/I18nProvider'
 import { useModule, MODULES, type ModuleKey } from '@/components/layout/AppLayout'
 import { useContextMenu, type ContextMenuItemDef, type ContextMenuItems } from '@/components/ui/context-menu'
 import { useTour } from '@/components/tour/TourProvider'
+import type { ResolvedCapabilities } from '@/lib/system/capabilities'
+import { hasCapability } from '@/lib/system/capabilities'
 
 const RAIL_WIDTH = 260
 
@@ -44,7 +46,7 @@ interface NavGroup {
   tutorial?: boolean
 }
 
-export function ActivityRail({ isPlatformOwner = false }: { isPlatformOwner?: boolean }) {
+export function ActivityRail({ isPlatformOwner = false, capabilities }: { isPlatformOwner?: boolean; capabilities?: ResolvedCapabilities }) {
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useI18n()
@@ -169,6 +171,18 @@ export function ActivityRail({ isPlatformOwner = false }: { isPlatformOwner?: bo
       tutorial: true,
     },
   ]
+
+  if (capabilities) {
+    const growGroup = nav.find(g => g.name === t.nav.grow)
+    if (growGroup) {
+      growGroup.items = growGroup.items.filter(item => {
+        if (item.href === '/dashboard/delivery') return hasCapability(capabilities, 'MOD_DELIVERY')
+        if (item.href === '/dashboard/inventory') return hasCapability(capabilities, 'MOD_INVENTORY')
+        if (item.href === '/dashboard/analytics') return hasCapability(capabilities, 'MOD_ANALYTICS')
+        return true
+      })
+    }
+  }
 
   const moduleKeys = Object.keys(MODULES) as ModuleKey[]
 

@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSalesConfig } from '@/lib/ai/knowledge'
+import { purgeCancelledOrderFromMemory } from '@/lib/ai/customer-memory'
 import { detectCancellation } from './detect'
 import { emitSalesEvent } from './events'
 
@@ -146,6 +147,15 @@ export async function processCancellation(
       .eq('id', params.customerId)
     if (customerError) {
       throw new Error(`Failed to update customer status after cancellation: ${customerError.message}`)
+    }
+
+    // RC2/RC4 fix: purgar la memoria del pedido cancelado y resetear la
+    // evidencia para que conversaciones futuras no re-confirman el pedido.
+    // Non-blocking: una falla de purga no debe revertir la cancelación.
+    try {
+      await purgeCancelledOrderFromMemory(params.customerId, orderNumber)
+    } catch (err) {
+      console.error('Failed to purge cancelled order from memory (non-blocking):', err)
     }
   }
 
