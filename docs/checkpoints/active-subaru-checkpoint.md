@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260828-CANCEL-LOOP
 title: Fix: pedido cancelado re-confirmado en conversaciones nuevas
-state: in_progress
+state: completed
 current_step: 6
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260828-071346359
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-28T07:19:16.626Z
+updated: 2026-08-28T09:36:52.061Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -82,7 +82,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..6.
+- Misión TASK-20260828-CANCEL-LOOP completada (6/6 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Godzilla Stress Test (adversarial), Performance Engineer review.
+- Finalizado: 2026-08-28T09:36:52.061Z.
 
 ## Next action
 
