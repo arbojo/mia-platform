@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `13a541f`.
+> Fuente de verdad: este repositorio en `387977a`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `13a541f` |
+| **Commit HEAD** | `387977a` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-26T15:03:33-06:00 |
+| **Generado** | 2026-08-28T01:15:09-06:00 |
 
 ---
 
@@ -889,6 +889,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+387977a subaru: checkpoint TASK-20260828-CANCEL-LOOP - listo
+681c4b8 fix: remove invalid env section from vercel.json
+de4bff8 docs: regenerate MASTER.md at 13a541f
 13a541f feat: implement canonical lifecycle/activation contract
 f2656cd docs: regenerate MASTER.md at a09fec2
 a09fec2 docs: R-1..R-3 loop termination report + independent freeze report (PASS)
@@ -906,9 +909,6 @@ d863750 fix: remediation R-1..R-3 — env isolation via vi.stubEnv, assertion al
 15332d4 feat: complete Product Asset Unification implementation (TASK-20260825-PRODUCT-ASSETS)
 9b64f73 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - completado
 10f3ca5 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-9f0ba86 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-716f141 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
-06c35ea subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 ```
 
 ---
