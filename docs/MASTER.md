@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `387977a`.
+> Fuente de verdad: este repositorio en `0107ff5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `387977a` |
+| **Commit HEAD** | `0107ff5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-28T01:15:09-06:00 |
+| **Generado** | 2026-08-28T01:19:16-06:00 |
 
 ---
 
@@ -889,6 +889,13 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+0107ff5 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
+c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
+3d6b0b0 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
+9d1ea2b subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
+6fe9e3a subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
+43df192 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
+426b776 docs: regenerate MASTER.md at 387977a
 387977a subaru: checkpoint TASK-20260828-CANCEL-LOOP - listo
 681c4b8 fix: remove invalid env section from vercel.json
 de4bff8 docs: regenerate MASTER.md at 13a541f
@@ -902,13 +909,6 @@ a47d415 docs: regenerate MASTER.md at 31e5f27
 01cc9bc subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
 ef05cd7 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - en-progreso
 d567fa7 feat: GATE-1 headless cron auth + GATE-2 bridge fail-fast health check (implementation loop artifacts)
-d863750 fix: remediation R-1..R-3 — env isolation via vi.stubEnv, assertion alignment to health semantics, drop invalid vercel nodeVersion
-9a7c8c6 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - listo
-5577506 chore: governance manifest for Cloud freeze remediation R-1..R-3
-8c1e477 docs: regenerate MASTER.md at 15332d4
-15332d4 feat: complete Product Asset Unification implementation (TASK-20260825-PRODUCT-ASSETS)
-9b64f73 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - completado
-10f3ca5 subaru: checkpoint TASK-20260825-PRODUCT-ASSETS - en-progreso
 ```
 
 ---
