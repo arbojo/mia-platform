@@ -2,13 +2,13 @@
 task_id: TASK-20260828-CANCEL-LOOP
 title: Fix: pedido cancelado re-confirmado en conversaciones nuevas
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260828-071346359
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-28T07:18:48.018Z
+updated: 2026-08-28T07:18:56.470Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -86,7 +86,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260828-CANCEL-LOOP 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260828-CANCEL-LOOP 4`.
 
 ## Constraints
 
