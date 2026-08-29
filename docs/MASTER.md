@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bbc1b9a`.
+> Fuente de verdad: este repositorio en `21bf927`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bbc1b9a` |
+| **Commit HEAD** | `21bf927` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-28T03:38:42-06:00 |
+| **Generado** | 2026-08-29T00:28:10-06:00 |
 
 ---
 
@@ -210,10 +210,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 53 | 053_experience_memory.sql |
 | 54 | 054_cloud_architecture.sql |
 | 55 | 055_capability_foundation.sql |
-| 56 | 20260820000000_analytics_public_wrapper.sql |
-| 57 | 20260820000001_analytics_grant_permissions.sql |
-| 58 | 20260820000002_analytics_security_definer.sql |
-| 59 | 20260820000003_analytics_security_definer.sql |
+| 56 | 056_cross_conversation_cancel_guard.sql |
+| 57 | 20260820000000_analytics_public_wrapper.sql |
+| 58 | 20260820000001_analytics_grant_permissions.sql |
+| 59 | 20260820000002_analytics_security_definer.sql |
+| 60 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -547,7 +548,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-132 módulos:
+133 módulos:
 
 ```
 ai/client.ts
@@ -666,6 +667,7 @@ runtime/types.ts
 sales/cancel.ts
 sales/detect.ts
 sales/events.ts
+sales/intent-classifier.ts
 sales/process.ts
 sales/widget.ts
 supabase/admin.ts
@@ -898,6 +900,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+21bf927 fix: prevent cross-conversation cancelled order reconstruction
+17e9144 docs: regenerate MASTER.md at bbc1b9a
 bbc1b9a chore: record governance gates PASS for TASK-20260828-071346359 (cancel-loop fix)
 029c460 subaru: checkpoint TASK-20260828-CANCEL-LOOP - completado
 a238b1b docs: regenerate MASTER.md at 84fd294
@@ -916,8 +920,6 @@ de4bff8 docs: regenerate MASTER.md at 13a541f
 13a541f feat: implement canonical lifecycle/activation contract
 f2656cd docs: regenerate MASTER.md at a09fec2
 a09fec2 docs: R-1..R-3 loop termination report + independent freeze report (PASS)
-a47d415 docs: regenerate MASTER.md at 31e5f27
-31e5f27 subaru: checkpoint TASK-20260825-CLOUD-R1R3 - completado
 ```
 
 ---
