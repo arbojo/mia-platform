@@ -19,7 +19,7 @@ vi.mock('@/lib/sales/events', () => ({
   notifySaleToOwner: vi.fn(),
 }))
 
-import { processSaleClosing } from '@/lib/sales/process'
+import { processSaleClosing, isDiscountOfferSentinel, DISCOUNT_OFFERED_SENTINEL } from '@/lib/sales/process'
 import { hasSalesTrigger, detectSaleOutcome } from '@/lib/sales/detect'
 import {
   applyConversationOutcome,
@@ -295,5 +295,43 @@ describe('processSaleClosing', () => {
     await expect(processSaleClosing(params)).rejects.toThrow(
       'Failed to persist customer data at sale closing'
     )
+  })
+})
+
+describe('isDiscountOfferSentinel', () => {
+  it('reconoce la forma canónica del sentinel (Z)', () => {
+    expect(isDiscountOfferSentinel('0001-01-01T00:00:01Z')).toBe(true)
+  })
+
+  it('reconoce la forma serializada por PostgreSQL (+00:00)', () => {
+    expect(isDiscountOfferSentinel('0001-01-01T00:00:01+00:00')).toBe(true)
+  })
+
+  it('ambas formas del sentinel son equivalentes (mismo epoch)', () => {
+    expect(Date.parse('0001-01-01T00:00:01Z')).toBe(
+      Date.parse('0001-01-01T00:00:01+00:00')
+    )
+    expect(isDiscountOfferSentinel(DISCOUNT_OFFERED_SENTINEL)).toBe(true)
+  })
+
+  it('retorna false para null', () => {
+    expect(isDiscountOfferSentinel(null)).toBe(false)
+  })
+
+  it('retorna false para undefined', () => {
+    expect(isDiscountOfferSentinel(undefined)).toBe(false)
+  })
+
+  it('retorna false para string vacía', () => {
+    expect(isDiscountOfferSentinel('')).toBe(false)
+  })
+
+  it('retorna false para un timestamp real de cancelación', () => {
+    expect(isDiscountOfferSentinel('2026-08-29T12:00:00+00:00')).toBe(false)
+    expect(isDiscountOfferSentinel('2026-08-29T12:00:00Z')).toBe(false)
+  })
+
+  it('retorna false para una string inválida', () => {
+    expect(isDiscountOfferSentinel('not-a-timestamp')).toBe(false)
   })
 })

@@ -10,7 +10,7 @@ import { isSafeMediaUrl } from './media-guard'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
-import { processSaleClosing, DISCOUNT_OFFERED_SENTINEL } from '@/lib/sales/process'
+import { processSaleClosing, isDiscountOfferSentinel } from '@/lib/sales/process'
 import { classifyUserIntent } from '@/lib/sales/intent-classifier'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import type { ChannelAdapter, ChannelType, InteractiveComponent } from '@/lib/channels/types'
@@ -267,7 +267,7 @@ export async function processIncomingMessage(
       .eq('id', conversationId)
       .maybeSingle()
 
-    if (currentConv?.sales_cancelled_at === DISCOUNT_OFFERED_SENTINEL) {
+    if (currentConv && isDiscountOfferSentinel(currentConv.sales_cancelled_at)) {
       const { data: cancelEvent } = await supabase
         .from('sales_events')
         .select('metadata, created_at')

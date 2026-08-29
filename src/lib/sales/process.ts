@@ -27,6 +27,27 @@ import type { WireMessage } from '@/lib/runtime/types'
 export const DISCOUNT_OFFERED_SENTINEL = '0001-01-01T00:00:01Z'
 
 /**
+ * Epoch equivalent of DISCOUNT_OFFERED_SENTINEL. PostgreSQL normalizes timestamps
+ * and may return the value as '0001-01-01T00:00:01+00:00' (PostgREST serialization)
+ * instead of the '...Z' form written by the app. A strict string comparison
+ * (`value === DISCOUNT_OFFERED_SENTINEL`) would therefore be `false` in runtime.
+ * `Date.parse` yields the exact same epoch for both representations, so value-based
+ * comparison is reliable regardless of timestamp serialization.
+ */
+const DISCOUNT_OFFERED_SENTINEL_EPOCH = Date.parse(DISCOUNT_OFFERED_SENTINEL)
+
+/**
+ * Returns true when `value` represents the discount-offer sentinel, comparing by
+ * temporal value rather than textual timestamp equality. This is the single helper
+ * to use for detecting the sentinel in runtime reads.
+ */
+export function isDiscountOfferSentinel(value: string | null | undefined): boolean {
+  if (!value) return false
+  const parsed = Date.parse(value)
+  return Number.isFinite(parsed) && parsed === DISCOUNT_OFFERED_SENTINEL_EPOCH
+}
+
+/**
  * Early cancellation interception for the WhatsApp webhook.
  *
  * Two-step flow:
@@ -61,7 +82,7 @@ export async function handleCancellationWebhook(
       .eq('id', conversationId)
       .maybeSingle()
 
-    if (conv?.sales_cancelled_at === DISCOUNT_OFFERED_SENTINEL) {
+    if (isDiscountOfferSentinel(conv?.sales_cancelled_at)) {
       // Re-activate conversation
       await supabase.from('conversations').update({
         outcome: 'interested',
@@ -137,10 +158,11 @@ export async function handleCancellationWebhook(
 
   const alreadyCancelled =
     conversationState?.sales_cancelled_at &&
-    conversationState.sales_cancelled_at !== DISCOUNT_OFFERED_SENTINEL
+    !isDiscountOfferSentinel(conversationState.sales_cancelled_at)
 
-  const discountAlreadyOffered =
-    conversationState?.sales_cancelled_at === DISCOUNT_OFFERED_SENTINEL
+  const discountAlreadyOffered = isDiscountOfferSentinel(
+    conversationState?.sales_cancelled_at
+  )
 
   let response: string
 
@@ -176,6 +198,20 @@ export async function handleCancellationWebhook(
 
       const history = Array.isArray(convHistory?.outcome_history) ? convHistory.outcome_history : []
 
+      // Atomicity: emit SALE_CANCELLED FIRST, capturing its id. If it fails, it throws
+      // and the sentinel is never written, so an orphan sentinel cannot occur. The id is
+      // used exclusively for id-scoped compensation (never by conversation_id/event_type,
+      // so a historical SALE_CANCELLED of the same conversation is never touched).
+      const createdEventId = await emitSalesEvent({
+        businessId,
+        assistantId,
+        conversationId,
+        customerId: customer.id,
+        eventType: 'SALE_CANCELLED',
+        metadata: { reason: 'discount_offered' },
+      })
+
+      // Only after the event is confirmed, persist the sentinel + outcome history.
       const { error: discountStateError } = await supabase.from('conversations').update({
         sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
         outcome_updated_at: new Date().toISOString(),
@@ -192,18 +228,25 @@ export async function handleCancellationWebhook(
       }).eq('id', conversationId)
 
       if (discountStateError) {
+        // The event was already created above; the conversation write failed. Compensate
+        // by deleting ONLY the exact event we created (id-scoped), then propagate the error.
+        // This never removes other SALE_CANCELLED events of the conversation.
+        try {
+          if (createdEventId) {
+            await supabase.from('sales_events')
+              .delete()
+              .eq('id', createdEventId)
+          }
+        } catch (compensationError) {
+          console.error(
+            `Failed to compensate SALE_CANCELLED after conversation write failure: ${
+              compensationError instanceof Error ? compensationError.message : String(compensationError)
+            }`,
+            { conversationId, createdEventId }
+          )
+        }
         throw new Error(`Failed to persist cancellation state: ${discountStateError.message}`)
       }
-
-      // Create SALE_CANCELLED event — blocks sales pipeline via hasClosingEvent
-      await emitSalesEvent({
-        businessId,
-        assistantId,
-        conversationId,
-        customerId: customer.id,
-        eventType: 'SALE_CANCELLED',
-        metadata: { reason: 'discount_offered' },
-      })
     }
   } else {
     // === SECOND CANCEL ATTEMPT: proceed with cancellation ===
@@ -299,7 +342,7 @@ export async function processSaleClosing(params: {
 
     const isFullyCancelled =
       convState?.sales_cancelled_at &&
-      convState.sales_cancelled_at !== DISCOUNT_OFFERED_SENTINEL
+      !isDiscountOfferSentinel(convState.sales_cancelled_at)
     if (isFullyCancelled) return
 
     await processCancellation({

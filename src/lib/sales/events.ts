@@ -19,7 +19,7 @@ export async function emitSalesEvent(params: {
   productName?: string | null
   amount?: number | null
   metadata?: Record<string, unknown>
-}): Promise<void> {
+}): Promise<string> {
   const supabase = createAdminClient()
 
   let productId: string | null = null
@@ -34,23 +34,31 @@ export async function emitSalesEvent(params: {
     productId = product?.id ?? null
   }
 
-  const { error: salesEventError } = await supabase.from('sales_events').insert({
-    business_id: params.businessId,
-    assistant_id: params.assistantId ?? null,
-    conversation_id: params.conversationId ?? null,
-    customer_id: params.customerId ?? null,
-    event_type: params.eventType,
-    product_id: productId,
-    amount: params.amount ?? null,
-    metadata: {
-      ...(params.productName ? { product_name: params.productName } : {}),
-      ...params.metadata,
-    },
-  })
+  const { data, error: salesEventError } = await supabase
+    .from('sales_events')
+    .insert({
+      business_id: params.businessId,
+      assistant_id: params.assistantId ?? null,
+      conversation_id: params.conversationId ?? null,
+      customer_id: params.customerId ?? null,
+      event_type: params.eventType,
+      product_id: productId,
+      amount: params.amount ?? null,
+      metadata: {
+        ...(params.productName ? { product_name: params.productName } : {}),
+        ...params.metadata,
+      },
+    })
+    .select('id')
+    .single()
 
   if (salesEventError) {
     throw new Error(`Failed to emit sales event ${params.eventType}: ${salesEventError.message}`)
   }
+
+  // Return the id of the created event so callers can reference this exact row
+  // (e.g. for id-scoped compensation) without affecting other events.
+  return data?.id ?? ''
 }
 
 export async function hasClosingEvent(conversationId: string): Promise<boolean> {

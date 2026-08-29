@@ -31,6 +31,7 @@ function makeTable(name: string) {
     ilike: vi.fn(() => table),
     in: vi.fn(() => table),
     limit: vi.fn(() => table),
+    single: vi.fn(() => table),
     maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null } as StubResult)),
     then: (resolve: (value: unknown) => unknown) =>
       resolve(Promise.resolve({ data: null, error: null } as StubResult)),
