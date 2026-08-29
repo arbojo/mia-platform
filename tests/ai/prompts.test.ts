@@ -212,4 +212,94 @@ describe('buildMasterPrompt', () => {
     expect(prompt).toContain('ADDRESS: capture it in ONE line')
     expect(prompt).toContain('NEVER say "your order is confirmed"')
   })
+
+  describe('lastCancelledOrder guard', () => {
+    const cancelledBase = {
+      productName: 'Bota de Cuero',
+      cancelledAt: '2025-01-01T00:00:00Z',
+      hoursAgo: 5,
+    }
+
+    it('casual message + cancelled order → blocks reconstruction', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: false },
+        userIntent: 'casual',
+        conversationOutcome: 'won',
+      })
+      expect(prompt).toContain('Guardia de venta cancelada')
+      expect(prompt).toContain('NO reconstruyas')
+      expect(prompt).toContain('NO presentes pedidos pendientes')
+    })
+
+    it('order_reference + cancelled → explains but no reopen', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: false },
+        userIntent: 'order_reference',
+        conversationOutcome: 'won',
+      })
+      expect(prompt).toContain('Referencia a pedido cancelado')
+      expect(prompt).toContain('NO re abras ni reconstruyas')
+    })
+
+    it('explicit_purchase + cancelled → allows new sale', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: false },
+        userIntent: 'explicit_purchase',
+        conversationOutcome: 'won',
+      })
+      expect(prompt).toContain('Nueva venta iniciada')
+      expect(prompt).toContain('NO reutilices ni reconstruyas')
+      expect(prompt).toContain('compra completamente nueva')
+    })
+
+    it('no userIntent + cancelled → empty guard (no injection)', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: false },
+        userIntent: undefined,
+        conversationOutcome: 'won',
+      })
+      expect(prompt).not.toContain('Guardia de venta cancelada')
+    })
+
+    it('RETENTION_PENDING: casual → blocks reconstruction with pending message', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: true },
+        userIntent: 'casual',
+        conversationOutcome: 'won',
+      })
+      expect(prompt).toContain('Estado de cancelación pendiente')
+      expect(prompt).toContain('cancelación AÚN NO está confirmada')
+      expect(prompt).toContain('NO reconstruyas')
+      expect(prompt).toContain('Puedes responder preguntas sobre productos normalmente')
+    })
+
+    it('RETENTION_PENDING: order_reference → pending reference', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: true },
+        userIntent: 'order_reference',
+        conversationOutcome: 'won',
+      })
+      expect(prompt).toContain('Referencia a pedido con cancelación pendiente')
+      expect(prompt).toContain('NO re abras ni reconstruyas')
+    })
+
+    it('RETENTION_PENDING: explicit_purchase → allows new sale', () => {
+      const prompt = build({
+        lastCancelledOrder: { ...cancelledBase, pending: true },
+        userIntent: 'explicit_purchase',
+        conversationOutcome: 'won',
+      })
+      expect(prompt).toContain('Nueva venta iniciada')
+      expect(prompt).toContain('pedido con cancelación pendiente')
+      expect(prompt).toContain('compra completamente nueva')
+    })
+
+    it('conversationOutcome=cancelled → no guard (CHECK prevents it)', () => {
+      const prompt = build({
+        lastCancelledOrder: cancelledBase,
+        conversationOutcome: 'cancelled',
+      })
+      expect(prompt).not.toContain('Guardia de venta cancelada')
+    })
+  })
 })

@@ -70,7 +70,7 @@ export async function loadConversationContext(
   landingContext?: LandingContext,
   conversationOutcome?: string | null,
   cancellationContext?: { orderNumber: string; hoursAgo: number } | null,
-  lastCancelledOrder?: { productName: string | null; cancelledAt: string; hoursAgo: number } | null,
+  lastCancelledOrder?: { productName: string | null; cancelledAt: string; hoursAgo: number; pending?: boolean } | null,
   userIntent?: 'explicit_purchase' | 'casual' | 'order_reference' | null
 ): Promise<LoadedContext> {
   const key = `${cacheKey(businessId, assistantId, customerId, landingContext)}:${channel ?? 'default'}:${intentTag ?? ''}`

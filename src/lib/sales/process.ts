@@ -20,8 +20,11 @@ import type { WireMessage } from '@/lib/runtime/types'
 /**
  * Sentinel value for sales_cancelled_at indicating a discount offer was
  * extended but the customer hasn't confirmed or declined yet.
+ *
+ * Exposed so the runtime can detect RETENTION_PENDING and inject the
+ * anti-reconstruction guard without going through the full cancel flow.
  */
-const DISCOUNT_OFFERED_SENTINEL = '0001-01-01T00:00:01Z'
+export const DISCOUNT_OFFERED_SENTINEL = '0001-01-01T00:00:01Z'
 
 /**
  * Early cancellation interception for the WhatsApp webhook.

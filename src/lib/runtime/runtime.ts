@@ -10,7 +10,7 @@ import { isSafeMediaUrl } from './media-guard'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
-import { processSaleClosing } from '@/lib/sales/process'
+import { processSaleClosing, DISCOUNT_OFFERED_SENTINEL } from '@/lib/sales/process'
 import { classifyUserIntent } from '@/lib/sales/intent-classifier'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import type { ChannelAdapter, ChannelType, InteractiveComponent } from '@/lib/channels/types'
@@ -224,7 +224,7 @@ export async function processIncomingMessage(
     }
   }
 
-  let lastCancelledOrder: { productName: string | null; cancelledAt: string; hoursAgo: number } | null = null
+  let lastCancelledOrder: { productName: string | null; cancelledAt: string; hoursAgo: number; pending?: boolean } | null = null
   let userIntent: 'explicit_purchase' | 'casual' | 'order_reference' | null = null
 
   if (customer.id) {
@@ -255,6 +255,52 @@ export async function processIncomingMessage(
   }
 
   const conversationId = await resolveConversation(assistantId, customer.id)
+
+  // RETENTION_PENDING: if the current conversation has the sentinel (discount
+  // offered, pending customer decision), construct lastCancelledOrder so the
+  // anti-reconstruction guard activates. This runs AFTER resolveConversation
+  // so we can query the current conversation.
+  if (!lastCancelledOrder && conversationId) {
+    const { data: currentConv } = await supabase
+      .from('conversations')
+      .select('sales_cancelled_at, outcome_updated_at')
+      .eq('id', conversationId)
+      .maybeSingle()
+
+    if (currentConv?.sales_cancelled_at === DISCOUNT_OFFERED_SENTINEL) {
+      const { data: cancelEvent } = await supabase
+        .from('sales_events')
+        .select('metadata, created_at')
+        .eq('conversation_id', conversationId)
+        .eq('event_type', 'SALE_CANCELLED')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const productName = (cancelEvent?.metadata as Record<string, unknown>)
+        ?.product_name as string | undefined
+      const eventTime = cancelEvent?.created_at ?? currentConv.outcome_updated_at
+
+      if (eventTime) {
+        const pendingSince = new Date(eventTime).getTime()
+        const hoursAgo = (Date.now() - pendingSince) / (1000 * 60 * 60)
+
+        const { getSalesConfig } = await import('@/lib/ai/knowledge')
+        const salesConfig = await getSalesConfig(businessId)
+        const windowHours = salesConfig.cancellation_window_hours ?? 24
+
+        if (hoursAgo < windowHours) {
+          lastCancelledOrder = {
+            productName: productName ?? null,
+            cancelledAt: eventTime,
+            hoursAgo: Math.round(hoursAgo * 10) / 10,
+            pending: true,
+          }
+          userIntent = classifyUserIntent(wireMessage.content)
+        }
+      }
+    }
+  }
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
