@@ -14,6 +14,7 @@ vi.mock('@/lib/sales/events', () => ({
   emitSalesEvent: vi.fn(),
   getCustomerData: vi.fn(),
   getCustomerName: vi.fn(),
+  hasCancellationLock: vi.fn(),
   hasClosingEvent: vi.fn(),
   notifySaleToOwner: vi.fn(),
 }))
@@ -25,6 +26,7 @@ import {
   emitSalesEvent,
   getCustomerData,
   getCustomerName,
+  hasCancellationLock,
   hasClosingEvent,
   notifySaleToOwner,
 } from '@/lib/sales/events'
@@ -66,6 +68,7 @@ beforeEach(() => {
   vi.mocked(emitSalesEvent).mockReset()
   vi.mocked(getCustomerData).mockReset()
   vi.mocked(getCustomerName).mockReset()
+  vi.mocked(hasCancellationLock).mockReset()
   vi.mocked(hasClosingEvent).mockReset()
   vi.mocked(notifySaleToOwner).mockReset()
   mockUpdate.mockClear()
@@ -75,6 +78,7 @@ beforeEach(() => {
 describe('processSaleClosing', () => {
   it('does nothing when no sales trigger is present', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     await processSaleClosing(params)
     expect(detectSaleOutcome).not.toHaveBeenCalled()
     expect(emitSalesEvent).not.toHaveBeenCalled()
@@ -82,6 +86,7 @@ describe('processSaleClosing', () => {
 
   it('does nothing when detection returns nothing', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(detectSaleOutcome).mockResolvedValue({ outcome: null, events: [] })
     await processSaleClosing(params)
     expect(emitSalesEvent).not.toHaveBeenCalled()
@@ -90,12 +95,14 @@ describe('processSaleClosing', () => {
 
   it('emits events and applies outcome for a confirmed sale', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(detectSaleOutcome).mockResolvedValue({
       outcome: 'sold',
       events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
       customerName: 'Juan',
       address: 'Av. Siempre Viva 123',
     })
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue('Juan')
@@ -169,6 +176,7 @@ describe('processSaleClosing', () => {
       events: [{ type: 'SALE_WON' }],
       address: 'Calle 1',
     })
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue(null)
@@ -186,6 +194,7 @@ describe('processSaleClosing', () => {
       customerName: 'Ana',
       phone: '5491100000000',
     })
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
     vi.mocked(getCustomerData).mockResolvedValue(null)
 
@@ -237,6 +246,7 @@ describe('processSaleClosing', () => {
       city: 'CDMX',
       address: 'Av. Siempre Viva 123',
     })
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue(null)
@@ -259,6 +269,7 @@ describe('processSaleClosing', () => {
       customerName: 'Nombre Nuevo',
       address: 'Calle 1',
     })
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
     vi.mocked(getCustomerData).mockResolvedValue({ name: 'Nombre Existente', phone: null, city: null, address: null })
 
@@ -274,6 +285,7 @@ describe('processSaleClosing', () => {
       events: [{ type: 'SALE_WON' }],
       address: 'Calle 1',
     })
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(hasClosingEvent).mockResolvedValue(false)
     vi.mocked(getCustomerData).mockResolvedValue(null)
     mockUpdate.mockImplementationOnce(() => ({

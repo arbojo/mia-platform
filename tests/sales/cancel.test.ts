@@ -165,7 +165,18 @@ describe('processCancellation', () => {
 
     await processCancellation(params)
 
-    expect(db.customersUpdate).toHaveBeenCalledWith({ status: 'lost' })
+    expect(db.customersUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'lost',
+        last_cancelled_order: expect.objectContaining({
+          order_id: 'evt1234567890',
+          product_id: null,
+          product_name: null,
+          reason: 'cliente insiste',
+          event_id: 'evt1234567890',
+        }),
+      })
+    )
   })
 
   it('propaga el error cuando falla la escritura del estado de cancelacion (caso H)', async () => {

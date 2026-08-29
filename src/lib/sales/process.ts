@@ -8,6 +8,7 @@ import {
   fetchOrderNumber,
   getCustomerData,
   getCustomerName,
+  hasCancellationLock,
   hasClosingEvent,
   notifySaleToOwner,
 } from './events'
@@ -313,6 +314,10 @@ export async function processSaleClosing(params: {
   // === STEP 1: Anti-loop — skip if closing event already exists ===
   const hasClosed = await hasClosingEvent(conversationId)
   if (hasClosed) return
+
+  // === STEP 1.5: Cancellation lock — blocks sale closing on cancelled conversations ===
+  const isCancelled = await hasCancellationLock(conversationId)
+  if (isCancelled) return
 
   // === STEP 2: Sales detection (existing flow) ===
   if (!hasSalesTrigger(lastUserMessage.content)) return

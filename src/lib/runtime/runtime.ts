@@ -11,6 +11,7 @@ import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
 import { processSaleClosing } from '@/lib/sales/process'
+import { classifyUserIntent } from '@/lib/sales/intent-classifier'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import type { ChannelAdapter, ChannelType, InteractiveComponent } from '@/lib/channels/types'
 import type { WireMessage } from './types'
@@ -223,6 +224,36 @@ export async function processIncomingMessage(
     }
   }
 
+  let lastCancelledOrder: { productName: string | null; cancelledAt: string; hoursAgo: number } | null = null
+  let userIntent: 'explicit_purchase' | 'casual' | 'order_reference' | null = null
+
+  if (customer.id) {
+    const { data: customerData } = await supabase
+      .from('customers')
+      .select('last_cancelled_order')
+      .eq('id', customer.id)
+      .maybeSingle()
+
+    const rawOrder = customerData?.last_cancelled_order
+    if (rawOrder && typeof rawOrder === 'object' && 'cancelled_at' in rawOrder) {
+      const cancelledAt = new Date(rawOrder.cancelled_at as string).getTime()
+      const hoursAgo = (Date.now() - cancelledAt) / (1000 * 60 * 60)
+
+      const { getSalesConfig } = await import('@/lib/ai/knowledge')
+      const salesConfig = await getSalesConfig(businessId)
+      const windowHours = salesConfig.cancellation_window_hours ?? 24
+
+      if (hoursAgo < windowHours) {
+        lastCancelledOrder = {
+          productName: (rawOrder.product_name as string) ?? null,
+          cancelledAt: rawOrder.cancelled_at as string,
+          hoursAgo: Math.round(hoursAgo * 10) / 10,
+        }
+        userIntent = classifyUserIntent(wireMessage.content)
+      }
+    }
+  }
+
   const conversationId = await resolveConversation(assistantId, customer.id)
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
@@ -286,7 +317,9 @@ export async function processIncomingMessage(
     intentTag,
     undefined,
     conversationOutcome,
-    cancellationContext
+    cancellationContext,
+    lastCancelledOrder,
+    userIntent
   )
 
   const chatHistory = conversationId

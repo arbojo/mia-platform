@@ -6,6 +6,15 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export interface LastCancelledOrder {
+  order_id: string
+  product_id: string | null
+  product_name: string | null
+  cancelled_at: string
+  reason: string | null
+  event_id: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -373,6 +382,7 @@ export interface Database {
           last_follow_up_at: string | null
           created_at: string
           updated_at: string
+          last_cancelled_order: LastCancelledOrder | null
         }
         Insert: {
           id?: string
@@ -389,6 +399,7 @@ export interface Database {
           last_follow_up_at?: string | null
           created_at?: string
           updated_at?: string
+          last_cancelled_order?: LastCancelledOrder | null
         }
         Update: {
           id?: string
@@ -405,6 +416,7 @@ export interface Database {
           last_follow_up_at?: string | null
           created_at?: string
           updated_at?: string
+          last_cancelled_order?: LastCancelledOrder | null
         }
         Relationships: []
       }

@@ -3,6 +3,7 @@ import { getSalesConfig } from '@/lib/ai/knowledge'
 import { purgeCancelledOrderFromMemory } from '@/lib/ai/customer-memory'
 import { detectCancellation } from './detect'
 import { emitSalesEvent } from './events'
+import type { LastCancelledOrder } from '@/lib/types'
 
 export interface ProcessCancellationParams {
   businessId: string
@@ -49,7 +50,7 @@ export async function processCancellation(
 
   const { data: lastWonEvent } = await supabase
     .from('sales_events')
-    .select('id, created_at, amount, metadata')
+    .select('id, created_at, amount, metadata, product_id')
     .eq('conversation_id', params.conversationId)
     .eq('event_type', 'SALE_WON')
     .order('created_at', { ascending: false })
@@ -141,9 +142,21 @@ export async function processCancellation(
   }
 
   if (params.customerId) {
+    const lastCancelledOrder: LastCancelledOrder = {
+      order_id: lastWonEvent.id,
+      product_id: lastWonEvent.product_id ?? null,
+      product_name: (lastWonEvent.metadata as Record<string, unknown>)?.product_name as string | null ?? null,
+      cancelled_at: new Date().toISOString(),
+      reason: detection.reason ?? null,
+      event_id: lastWonEvent.id,
+    }
+
     const { error: customerError } = await supabase
       .from('customers')
-      .update({ status: 'lost' })
+      .update({
+        status: 'lost',
+        last_cancelled_order: lastCancelledOrder as unknown as Record<string, unknown>,
+      })
       .eq('id', params.customerId)
     if (customerError) {
       throw new Error(`Failed to update customer status after cancellation: ${customerError.message}`)

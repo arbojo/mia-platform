@@ -69,7 +69,9 @@ export async function loadConversationContext(
   intentTag?: string | null,
   landingContext?: LandingContext,
   conversationOutcome?: string | null,
-  cancellationContext?: { orderNumber: string; hoursAgo: number } | null
+  cancellationContext?: { orderNumber: string; hoursAgo: number } | null,
+  lastCancelledOrder?: { productName: string | null; cancelledAt: string; hoursAgo: number } | null,
+  userIntent?: 'explicit_purchase' | 'casual' | 'order_reference' | null
 ): Promise<LoadedContext> {
   const key = `${cacheKey(businessId, assistantId, customerId, landingContext)}:${channel ?? 'default'}:${intentTag ?? ''}`
   const cached = contextCache.get(key)
@@ -167,6 +169,8 @@ export async function loadConversationContext(
     salesConfig: 'salesConfig' in context ? context.salesConfig : undefined,
     conversationOutcome,
     cancellationContext,
+    lastCancelledOrder,
+    userIntent,
     experienceContext,
     stateGuidance,
     capabilities: resolvedCapabilities,

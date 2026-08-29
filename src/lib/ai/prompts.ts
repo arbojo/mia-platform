@@ -203,6 +203,8 @@ export function buildMasterPrompt(params: {
   experienceContext?: string
   conversationOutcome?: string | null
   cancellationContext?: { orderNumber: string; hoursAgo: number } | null
+  lastCancelledOrder?: { productName: string | null; cancelledAt: string; hoursAgo: number } | null
+  userIntent?: 'explicit_purchase' | 'casual' | 'order_reference' | null
   landingContext?: {
     brand?: string
     product?: string
@@ -233,6 +235,8 @@ export function buildMasterPrompt(params: {
     salesConfig,
     conversationOutcome,
     cancellationContext,
+    lastCancelledOrder,
+    userIntent,
     experienceContext,
     landingContext,
     stateGuidance,
@@ -366,6 +370,35 @@ Ese pedido fue CANCELADO y YA NO EXISTE: está cerrado definitivamente y NUNCA d
 PROHIBIDO preguntar por la confirmación de ese pedido o de sus productos (ej. "¿te confirmo tu pedido de X?"): aunque el cliente diga "sí", "dale" o "confirmo", NO aplica a ese pedido cancelado.
 Si el cliente quiere comprar de nuevo (el mismo u otro producto), es una venta NUEVA desde cero: presenta el catálogo, pide confirmación SOLO sobre la compra nueva que él mencione, y nunca reutilices los datos del pedido cancelado como si fuera un pedido en curso.
 NO menciones la cancelación a menos que el cliente lo pregunte directamente.`
+  : ''}
+${lastCancelledOrder && conversationOutcome !== 'cancelled'
+  ? (userIntent === 'casual'
+    ? `\n## Guardia de venta cancelada
+El cliente canceló recientemente una venta de ${lastCancelledOrder.productName ?? 'un producto'} (hace ${lastCancelledOrder.hoursAgo} horas).
+
+REGLA CRÍTICA: Los datos personales del cliente (nombre, teléfono, dirección) y el catálogo de productos NO constituyen intención de compra.
+
+NO reconstruyas, propongas ni confirmes la venta cancelada anterior.
+NO asumas que el cliente quiere comprar solo porque sus datos aparecen en el contexto.
+Si el cliente no expresa una intención explícita de compra (mencionando un producto con "quiero", "comprar", "llevar", etc.), responde de manera general y NO inicies una venta.
+Saluda, ayuda con preguntas generales, pero NO presentes pedidos pendientes.`
+    : userIntent === 'order_reference'
+      ? `\n## Referencia a pedido cancelado
+El cliente menciona un pedido que fue cancelado (${lastCancelledOrder.productName ?? 'producto'}).
+
+Puedes explicar que el pedido fue cancelado y su estado actual.
+NO interpretes la mención como una nueva intención de compra.
+NO re abras ni reconstruyas el pedido cancelado.
+Si el cliente quiere comprar de nuevo, debe expresarlo explícitamente con una frase de compra ("quiero comprar", "quiero pedir", etc.).`
+      : userIntent === 'explicit_purchase'
+        ? `\n## Nueva venta iniciada
+El cliente está iniciando una NUEVA venta de forma explícita.
+
+NO reutilices ni reconstruyas la venta cancelada anterior (${lastCancelledOrder.productName ?? 'producto'}).
+Utiliza únicamente la intención actual del cliente para iniciar el nuevo flujo de venta.
+Trata esta como una compra completamente nueva desde cero.
+Nunca mezcles datos del pedido cancelado con la nueva venta.`
+        : '')
   : ''}
 ${capabilities?.active.has('MOD_INVENTORY') ? `\n## Inventario
 Tienes acceso al sistema de inventario. Cuando el cliente pregunte por disponibilidad o stock de un producto, puedes consultar el inventario actual para dar una respuesta precisa. Si un producto no tiene stock, sugiere alternativas similares o informa al cliente que puede esperar reposición.` : ''}
