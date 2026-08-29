@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `21bf927`.
+> Fuente de verdad: este repositorio en `ab52681`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `21bf927` |
+| **Commit HEAD** | `ab52681` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T00:28:10-06:00 |
+| **Generado** | 2026-08-29T03:31:32-06:00 |
 
 ---
 
@@ -900,6 +900,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+ab52681 fix: RETENTION_PENDING guard — block auto-reconstruction while discount pending
+2657585 docs: regenerate MASTER.md at 21bf927
 21bf927 fix: prevent cross-conversation cancelled order reconstruction
 17e9144 docs: regenerate MASTER.md at bbc1b9a
 bbc1b9a chore: record governance gates PASS for TASK-20260828-071346359 (cancel-loop fix)
@@ -918,8 +920,6 @@ c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 681c4b8 fix: remove invalid env section from vercel.json
 de4bff8 docs: regenerate MASTER.md at 13a541f
 13a541f feat: implement canonical lifecycle/activation contract
-f2656cd docs: regenerate MASTER.md at a09fec2
-a09fec2 docs: R-1..R-3 loop termination report + independent freeze report (PASS)
 ```
 
 ---
