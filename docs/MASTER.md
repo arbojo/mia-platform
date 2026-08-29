@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ab52681`.
+> Fuente de verdad: este repositorio en `f755edf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ab52681` |
+| **Commit HEAD** | `f755edf` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T03:31:32-06:00 |
+| **Generado** | 2026-08-29T17:49:24-06:00 |
 
 ---
 
@@ -900,6 +900,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+f755edf fix: harden cancellation sentinel and event compensation
+c0e5cb7 docs: regenerate MASTER.md at ab52681
 ab52681 fix: RETENTION_PENDING guard — block auto-reconstruction while discount pending
 2657585 docs: regenerate MASTER.md at 21bf927
 21bf927 fix: prevent cross-conversation cancelled order reconstruction
@@ -918,8 +920,6 @@ c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 426b776 docs: regenerate MASTER.md at 387977a
 387977a subaru: checkpoint TASK-20260828-CANCEL-LOOP - listo
 681c4b8 fix: remove invalid env section from vercel.json
-de4bff8 docs: regenerate MASTER.md at 13a541f
-13a541f feat: implement canonical lifecycle/activation contract
 ```
 
 ---
