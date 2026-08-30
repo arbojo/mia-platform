@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:03:00.230Z
+updated: 2026-08-30T03:04:15.694Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -31,7 +31,7 @@ Archivos: src/lib/runtime/runtime.ts, src/lib/runtime/conditional-media.ts, src/
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: Fix C1 transcript: cambiar .order(created_at asc).limit(N) -> desc.limit(N)+reverse en 3 call-sites para que detectores reciban tail RECIENTE
   - Archivos: src/lib/runtime/runtime.ts (~70-86, ~371-378), src/lib/sales/process.ts (~260-267)
   - Acción: processStreaming (runtime.ts:70-86): .order('created_at',{ascending:false}).limit(30).then(reverse) antes de [...past, ...messages]. processIncomingMessage (runtime.ts:371-378): .order(desc).limit(20).then(reverse). process.ts second cancel attempt (260-267): .order(desc).limit(20).then(reverse)
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 2`.
 
 ## Constraints
 
