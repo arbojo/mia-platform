@@ -2,13 +2,13 @@
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:23:21.061Z
+updated: 2026-08-30T03:23:27.043Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -71,7 +71,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: processStreaming pasa 10 args. Guards cancelacion/RETENTION_PENDING en systemPrompt de Simulator y Web. Simulator no degradado.
   - Gate/verificación: test: guards en streaming con ctx cancelacion + lint + build
 
-- [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
+- [x] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
   - Objetivo: Parity tests: invariantes core (media y transcript) y escenarios cruzados
   - Archivos: tests/runtime/conditional-media.test.ts, tests/runtime/process-streaming.test.ts, tests/runtime/process-incoming-message.test.ts, tests/sales/events.test.ts, tests/integration/cancellation-state-machine.test.ts, tests nuevos parity
   - Acción: Tests: (1) media.product_id===selected_product.id; (2) producto ambiguo/parcial nunca cruza a media de otro producto; (3) transcript 25+ mensajes tail reciente; (4) eventos producto canonico; (5) cancelacion 2do intento >20 msg detecta tail; (6) post-SALE_WON no reconfirma; (7) RETENTION_PENDING guard en streaming; (8) prompt injection baseline.
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 7`.
 
 ## Constraints
 
