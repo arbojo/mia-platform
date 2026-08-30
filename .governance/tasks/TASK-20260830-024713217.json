@@ -1,0 +1,79 @@
+{
+  "id": "TASK-20260830-024713217",
+  "title": "MIA PARITY MASTER AUDIT — canonical core, transcript/context, product integrity, Clean Nails->Neurotin, Option C eval (read-only, no implementation)",
+  "description": "Second-phase read-only parity master audit. Determine with code+data evidence how Simulator = Web Chat = WhatsApp can share identical semantic MIA behavior (intent, conversation state, context, product selection, response, sale/cancel events, media selection, media dispatch), diverging only where transport/presentation strictly requires. Investigate: (1) entry points and where they diverge; (2) whether a canonical shared core exists, else minimal design for MIA Core -> Semantic Decision -> Channel Adapter; (3) transcript/context (messages, conversation, customer, sales state, cancellation, product, knowledge/catalog) including the BUG in process.ts that reads OLD messages instead of RECENT (order by created_at asc limit 20 returns oldest), correct context contract; (4) product integrity for the Clean Nails->Neurotin incident (user intent -> product resolution -> selected product -> response -> media selection -> media dispatch), all possible causes and which is PROVEN, define invariant DISPATCHED_MEDIA.product_id === SELECTED_PRODUCT.id and where/how to enforce+test; (5) channel parity matrix (product question, purchase, confirmation, cancellation, post-sale, ambiguous product, media, new purchase after sale) with file+line+cause; (6) classify each divergence as BUSINESS LOGIC (-> core) / PRESENTATION (per-channel) / TRANSPORT (per-channel) / BUG (fix) / SOURCE OF TRUTH (decision), especially channel branches; (7) outbound/dispatch audit (text/images/audio/video/media ids/product ids/retries/ordering/Baileys/Web Chat/Simulator) - does any adapter modify semantics; (8) parity test strategy (canonical scenarios run against 3 channels, compare intent/state/selected product/response strategy/text/events/media product_id/outbound payload), NOT implemented. Priority: Clean Nails->Neurotin, two entry points, context/transcript divergence, cancellation, post-SALE_WON, media dispatch, rest. Evaluate Option C (Shared MIA Core) against current state and minimal alternative, choose by evidence not preference. LOOP RULE: READ-ONLY. No code/DB/migrations/commits/deploy/no data-writing E2E. Document bugs, keep investigating. Deliverable: single report + LOOP TERMINATION REPORT, state MISSION_COMPLETE then STOP_FOR_HUMAN.",
+  "scope": {
+    "categories": [
+      "analytics"
+    ],
+    "filesAffected": 0,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "sales",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "ai",
+      "backend",
+      "platform",
+      "sales"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Affected domains: platform, sales. Complexity drivers: cross-cutting (multi-domain). Required agents (5): architect, qa, godzilla, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: confirmed 2 entry points (processStreaming vs processIncomingMessage), transcript bug (asc+limit returns oldest-N) at runtime.ts:77,377 & process.ts:266, Option C evaluated",
+      "timestamp": "2026-08-30T02:47:48.270Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: parity test strategy designed, invariant DISPATCHED_MEDIA.product_id===SELECTED_PRODUCT.id defined with enforce+test locations",
+      "timestamp": "2026-08-30T02:47:49.362Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: adversarial angles documented (oldest-N reads, null product fallback to arbitrary media, no ORDER BY) \"Read-only audit approved: adversarial angles documented (oldest-N reads, null product fallback to arbitrary media, no ORDER BY)\", determine final state",
+      "timestamp": "2026-08-30T02:48:14.275Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: no code changes, no commits, LOOP TERMINATION REPORT delivered",
+      "timestamp": "2026-08-30T02:48:17.910Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: engineering memory will be updated with 3 core causes",
+      "timestamp": "2026-08-30T02:48:21.452Z"
+    }
+  ],
+  "createdAt": "2026-08-30T02:47:13.481Z",
+  "classifiedAt": "2026-08-30T02:47:13.481Z",
+  "approvedAt": "2026-08-30T02:48:21.453Z"
+}

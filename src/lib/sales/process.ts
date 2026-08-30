@@ -257,19 +257,25 @@ export async function handleCancellationWebhook(
     }
   } else {
     // === SECOND CANCEL ATTEMPT: proceed with cancellation ===
+    // C1 (parity): leer el tail RECIENTE (desc+limit), no los mas antiguos.
+    // Sin esto, en conversaciones >20 mensajes la senal real de cancelacion
+    // del usuario se pierde y el detector (slice(-8)) no la detecta.
     const messages = (
       await supabase
         .from('messages')
         .select('role, content')
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: false })
         .limit(20)
     ).data ?? []
 
-    const chatMessages = messages.map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    }))
+    const chatMessages = messages
+      .slice()
+      .reverse()
+      .map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }))
 
     const result = await processCancellation({
       businessId,
@@ -329,9 +335,10 @@ export async function processSaleClosing(params: {
   assistantId: string
   conversationId: string
   customerId: string
+  canonicalProductId?: string | null
   messages: Array<{ role: string; content: string }>
 }): Promise<void> {
-  const { businessId, assistantId, conversationId, customerId, messages } = params
+  const { businessId, assistantId, conversationId, customerId, canonicalProductId, messages } = params
 
   const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
   if (!lastUserMessage) return
@@ -419,6 +426,10 @@ export async function processSaleClosing(params: {
       customerId,
       eventType: event.type,
       productName: event.productName,
+      // B1b: usar el producto canónico resuelto (selected_product.id) en lugar
+      // de re-resolver por texto libre. El evento y la media comparten así la
+      // misma identidad canónica (invariante de parity).
+      productId: canonicalProductId ?? undefined,
       amount: event.amount,
     })
   }
@@ -491,6 +502,7 @@ export async function processSaleClosing(params: {
           customerId,
           eventType: 'FOLLOWUP_REQUIRED',
           productName: product,
+          productId: canonicalProductId ?? undefined,
           metadata: { reason: 'missing_address' },
         })
       }

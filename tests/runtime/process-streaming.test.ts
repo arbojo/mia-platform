@@ -55,10 +55,14 @@ function makeMockSupabase() {
   const chain = {
     select: vi.fn(() => chain),
     eq: vi.fn(() => chain),
+    not: vi.fn(() => chain),
     order: vi.fn(() => chain),
-    limit: vi.fn(() => Promise.resolve({ data: [], error: null })),
+    limit: vi.fn(() => chain),
     insert: insertMock,
+    update: vi.fn(() => chain),
     maybeSingle: mockMaybeSingle,
+    then: (resolve: (v: { data: unknown; error: null }) => unknown) =>
+      Promise.resolve({ data: [], error: null }).then(resolve),
   }
   const fromMock = vi.fn(() => chain)
   const supabase = { from: fromMock }
@@ -99,6 +103,9 @@ describe('processStreaming', () => {
       undefined,
       undefined,
       undefined,
+      null,
+      null,
+      null,
       null
     )
   })
@@ -178,6 +185,9 @@ describe('processStreaming', () => {
       'simulation',
       undefined,
       undefined,
+      null,
+      null,
+      null,
       null
     )
 

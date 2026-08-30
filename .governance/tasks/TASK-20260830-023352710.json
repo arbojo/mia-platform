@@ -1,0 +1,79 @@
+{
+  "id": "TASK-20260830-023352710",
+  "title": "DEEP PARITY & DISPATCH AUDIT — Simulator = Web Chat = WhatsApp (read-only, no implementation)",
+  "description": "Evidence-based deep parity and dispatch audit across the three channels (Simulator, Web Chat, WhatsApp). Mission: prove/demonstrate whether Simulator, Web Chat and WhatsApp can behave identically across message interpretation, intent, conversation state, memory/context, product selection, knowledge, policies/rules, prompt/context, model/provider/config, textual response, media selection, media authorization, payload, dispatch, and actually-delivered message/media. Mandatory investigation of the incident: \"User asked Clean Nails → MIA sent Neurotin content/media\". LOOP RULE: NO IMPLEMENTATION. No functional code, DB, prompt, catalog, knowledge, MIA Lab, dispatch, WhatsApp, Web Chat, Simulator, deploy, or implementation commits. Only allowed artifacts: audit/governance/workshop documents. END STATE: STOP_FOR_HUMAN. This is a research/traceability/evidence/classification/proposal mission only, ending in MISSION_COMPLETE then STOP_FOR_HUMAN for debate before any implementation. E2E B-G officially paused during this audit.",
+  "scope": {
+    "categories": [
+      "analytics"
+    ],
+    "filesAffected": 0,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": false,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "sales",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "ai",
+      "backend",
+      "platform",
+      "sales"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Affected domains: platform, sales. Complexity drivers: cross-cutting (multi-domain). Required agents (5): architect, qa, godzilla, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: mapped 3 pipelines, confirmed processStreaming vs processIncomingMessage divergence at runtime.ts:60-68 vs :356-369, adapters fully audited",
+      "timestamp": "2026-08-30T02:38:33.402Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: test parity matrix built, confirmed no live_customer test, no media.product_id===product.id invariant, WhatsApp real media path never asserted",
+      "timestamp": "2026-08-30T02:38:34.135Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: CRITICAL B1 found - productId=null falls back to arbitrary pending[0] media with no ORDER BY (conditional-media.ts:66-70). Read-only mission; no fixes applied per LOOP rule",
+      "timestamp": "2026-08-30T02:38:44.513Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: no implementation commits made, E2E paused, mission ends STOP_FOR_HUMAN before any implementation",
+      "timestamp": "2026-08-30T02:38:45.846Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Read-only audit approved: evidence log complete, findings classified PROVEN/LIKELY/POSSIBLE/UNKNOWN, mission is proposal-only",
+      "timestamp": "2026-08-30T02:38:46.720Z"
+    }
+  ],
+  "createdAt": "2026-08-30T02:33:52.592Z",
+  "classifiedAt": "2026-08-30T02:33:52.592Z",
+  "approvedAt": "2026-08-30T02:38:46.722Z"
+}

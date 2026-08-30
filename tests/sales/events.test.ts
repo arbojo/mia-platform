@@ -108,6 +108,33 @@ describe('emitSalesEvent', () => {
     const [payload] = table.insert.mock.calls[0]
     expect(payload.product_id).toBeNull()
   })
+
+  it('B1b: usa el productId canonico sin re-resolver por texto libre', async () => {
+    const products = stubTable('products', { data: { id: 'p-otro' }, error: null })
+    const table = stubTable('sales_events', { data: null, error: null })
+    await emitSalesEvent({
+      businessId: BUSINESS_ID,
+      eventType: 'SALE_WON',
+      productName: 'Bota de Cuero',
+      productId: 'p-canónico',
+    })
+    // El productId proporcionado gana: NO se consulta products via ilike.
+    expect(products.ilike).not.toHaveBeenCalled()
+    const [payload] = table.insert.mock.calls[0]
+    expect(payload.product_id).toBe('p-canónico')
+  })
+
+  it('B1b: cae a resolucion por nombre solo cuando no hay productId', async () => {
+    stubTable('products', { data: { id: 'p-1' }, error: null })
+    const table = stubTable('sales_events', { data: null, error: null })
+    await emitSalesEvent({
+      businessId: BUSINESS_ID,
+      eventType: 'PRODUCT_SELECTED',
+      productName: 'Bota de Cuero',
+    })
+    const [payload] = table.insert.mock.calls[0]
+    expect(payload.product_id).toBe('p-1')
+  })
 })
 
 describe('hasClosingEvent', () => {

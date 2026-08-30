@@ -17,13 +17,20 @@ export async function emitSalesEvent(params: {
   customerId?: string | null
   eventType: SalesEventType
   productName?: string | null
+  productId?: string | null
   amount?: number | null
   metadata?: Record<string, unknown>
 }): Promise<string> {
   const supabase = createAdminClient()
 
-  let productId: string | null = null
-  if (params.productName) {
+  let productId: string | null
+  // B1b (parity): si el caller ya resolvió el producto canónico
+  // (selected_product.id), se usa DIRECTAMENTE. No se vuelve a resolver por
+  // texto libre ilike('name'), que es una fuente de verdad independiente y
+  // puede divergir del producto usado para media (invariante roto).
+  if (params.productId) {
+    productId = params.productId
+  } else if (params.productName) {
     const { data: product } = await supabase
       .from('products')
       .select('id')
@@ -32,6 +39,8 @@ export async function emitSalesEvent(params: {
       .limit(1)
       .maybeSingle()
     productId = product?.id ?? null
+  } else {
+    productId = null
   }
 
   const { data, error: salesEventError } = await supabase

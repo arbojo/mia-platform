@@ -1,0 +1,96 @@
+{
+  "id": "TASK-20260830-025948794",
+  "title": "MIA PARITY ETAPA 2 UNIFICAR: fixes quirurjicos C1 (transcript desc+reverse), B1 (media solo del producto canonico + ORDER BY), B1b (eventos desde producto canonico), P1 (guards de cancelacion en todos los canales) + refactor a Shared MIA Core con adapters + parity tests",
+  "description": "ETAPA 2 del MIA PARITY MASTER 3-STAGE LOOP, autorizada por humano (opcion C: fixes quirurjicos primero, luego refactor a Shared MIA Core). Objetivo: mismo input semantico + mismo estado = misma decision de MIA en Simulator, Web Chat y WhatsApp. Invariantes: mismo contexto/conversacion, mismos estados venta/cancelacion, mismo producto canonico (selected_product.id), media solo del producto seleccionado (media.product_id === selected_product.id), ningun canal inventa logica propia, transporte solo entrega/recibe. Bugs a corregir (confirmados en Etapa 1 con evidencia): C1 - transcript .order(asc).limit(N) lee los N mas antiguos en runtime.ts:77, runtime.ts:377, process.ts:266 -> cambiar a desc.limit(N)+reverse para entregar tail reciente a detectores; B1 - resolveConditionalMedia fallback byProduct??pending[0] + query sin ORDER BY en conditional-media.ts:66-70, 28-34 -> no enviar media sin producto canonico + ORDER BY determinista; B1b - emitSalesEvent resuelve product_id por ilike texto libre en events.ts:37-43 -> usar producto canonico selected_product.id; P1 - guards de cancelacion (cancellationContext/lastCancelledOrder/userIntent) solo en WhatsApp, processStreaming pasa 7 args runtime.ts:60-68 vs processIncomingMessage 10 args runtime.ts:356-369 -> inyectar en todos los canales via core compartido. NO romper guards previos: 2392b4f, 8bd9667, f755edf, ab52681. Implementar tests de parity (core, contexto, producto, media, eventos, dispatch, cancelacion, RETENTION_PENDING, post-SALE_WON, compra nueva, productos ambiguos, prompt injection). Al final: tests verdes, lint, build, inspect diff, evidence. NO ejecutar E2E de produccion ni deploy (Etapa 3). STOP_FOR_HUMAN al terminar Etapa 2.",
+  "scope": {
+    "categories": [
+      "backend",
+      "ai",
+      "sales"
+    ],
+    "filesAffected": 8,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "sales",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "ai",
+      "backend",
+      "platform",
+      "sales"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Affected domains: platform, sales. Complexity drivers: 8 files affected, AI behaviour changes, cross-cutting (multi-domain). Required agents (7): architect, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Implement surgical parity fixes C1 (transcript desc+reverse), B1 (media solo producto canonico, no fallback arbitrario, ORDER BY), B1b (eventos desde producto canonico selected_product.id), P1 (inyectar guards cancelacion en processStreaming via core). Tests de invariantes. No rompe guards 2392b4f/8bd9667/f755edf/ab52681.",
+      "timestamp": "2026-08-30T03:00:26.967Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Guardas post-venta/cancelacion inyectados en todos los canales via loadConversationContext (mismo prompt). Sin cambio de modelo/provider. Simulator no degradado (prompt byte-identico).",
+      "timestamp": "2026-08-30T03:00:30.520Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin queries nuevas en hot path. ORDER BY adherido a query existente de conditional-media; transcript usa desc+reverse sin query extra. Sin regresion de tokens/consultas.",
+      "timestamp": "2026-08-30T03:00:33.892Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Parity tests para invariantes media.product_id===selected_product.id, transcript tail reciente (25+ mensajes), eventos desde producto canonico. Lint+build+unit verdes antes de terminar Etapa 2.",
+      "timestamp": "2026-08-30T03:00:43.379Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Adversarial: producto ambiguo con media de otro producto NUNCA despachada; cancelacion 2do intento con >20 mensajes detecta el tail; post-SALE_WON sin reconfirmacion. Estos escenarios bloquean release si fallan.",
+      "timestamp": "2026-08-30T03:00:46.980Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin commits durante Etapa 2 salvo el blueprint Subaru freeze. No deploy/E2E produccion (Etapa 3). STOP_FOR_HUMAN al terminar.",
+      "timestamp": "2026-08-30T03:00:50.953Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registrar en memoria de ingenieria: CAUSA C1 (read oldest-N), B1 (fallback arbitrario de media), B1b (eventos por texto libre), P1 (guards solo WhatsApp) con solucion y evidencia file:line.",
+      "timestamp": "2026-08-30T03:00:54.352Z"
+    }
+  ],
+  "createdAt": "2026-08-30T02:59:48.469Z",
+  "classifiedAt": "2026-08-30T02:59:48.469Z",
+  "approvedAt": "2026-08-30T03:00:54.354Z"
+}

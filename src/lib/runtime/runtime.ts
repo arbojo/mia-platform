@@ -22,6 +22,154 @@ export interface ProcessStreamingResult {
   toStructuredStreamResponse(): Response
 }
 
+export interface CancellationGuards {
+  cancellationContext: { orderNumber: string; hoursAgo: number } | null
+  lastCancelledOrder: {
+    productName: string | null
+    cancelledAt: string
+    hoursAgo: number
+    pending?: boolean
+  } | null
+  userIntent: 'explicit_purchase' | 'casual' | 'order_reference' | null
+}
+
+// C1 (parity): pure helper compartido que convierte el tail DESC (los N mas
+// recientes) en un transcript CRONOLOGICO. Todos los canales lo usan para que
+// el detector y el core vean la ultima intervencion del cliente (misma entrada
+// semantica => misma decision). Antes cada call-site hacia slice().reverse()
+// inline; centralizarlo hace el invariant testeable y evita divergencias.
+export function toChronologicalTranscript<
+  T extends { role: string; content: string }
+>(historyDesc: T[]): Array<{ role: 'user' | 'assistant'; content: string }> {
+  return historyDesc.slice().reverse().map((m) => ({
+    role: m.role as 'user' | 'assistant',
+    content: m.content,
+  }))
+}
+
+// P1 (parity): compute los guards de cancelacion (cancellationContext,
+// lastCancelledOrder, userIntent) de forma IDENTICA para todos los canales
+// (Web Chat streaming y WhatsApp/mensajeria). Antes solo los computaba
+// processIncomingMessage; processStreaming no los pasaba a loadConversationContext
+// y por eso el Web Chat no activaba los guards de post-venta/RETENTION_PENDING.
+// Sin esto, el mismo input semantico en canales distintos producia decisiones
+// distintas (violacion del objetivo parity "mismo input + mismo estado = misma decision").
+export async function resolveCancellationGuards(params: {
+  supabase: ReturnType<typeof createAdminClient>
+  businessId: string
+  customerId: string | undefined
+  conversationId: string | null
+  userContent: string
+}): Promise<CancellationGuards> {
+  const { supabase, businessId, customerId, conversationId, userContent } = params
+
+  let cancellationContext: CancellationGuards['cancellationContext'] = null
+  if (customerId) {
+    const { data: lastConv } = await supabase
+      .from('conversations')
+      .select('id, sales_cancelled_at')
+      .eq('customer_id', customerId)
+      .eq('status', 'completed')
+      .not('sales_cancelled_at', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (lastConv?.sales_cancelled_at) {
+      const cancelledAt = new Date(lastConv.sales_cancelled_at).getTime()
+      const hoursAgo = (Date.now() - cancelledAt) / (1000 * 60 * 60)
+      if (hoursAgo < 24) {
+        const { data: cancelEvent } = await supabase
+          .from('sales_events')
+          .select('metadata')
+          .eq('conversation_id', lastConv.id)
+          .eq('event_type', 'SALE_CANCELLED')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        const orderNumber = (cancelEvent?.metadata as Record<string, unknown>)?.order_number as string | undefined
+        cancellationContext = { orderNumber: orderNumber ?? 'desconocido', hoursAgo: Math.round(hoursAgo * 10) / 10 }
+      }
+    }
+  }
+
+  let lastCancelledOrder: CancellationGuards['lastCancelledOrder'] = null
+  let userIntent: CancellationGuards['userIntent'] = null
+
+  if (customerId) {
+    const { data: customerData } = await supabase
+      .from('customers')
+      .select('last_cancelled_order')
+      .eq('id', customerId)
+      .maybeSingle()
+
+    const rawOrder = customerData?.last_cancelled_order
+    if (rawOrder && typeof rawOrder === 'object' && 'cancelled_at' in rawOrder) {
+      const cancelledAt = new Date(rawOrder.cancelled_at as string).getTime()
+      const hoursAgo = (Date.now() - cancelledAt) / (1000 * 60 * 60)
+
+      const { getSalesConfig } = await import('@/lib/ai/knowledge')
+      const salesConfig = await getSalesConfig(businessId)
+      const windowHours = salesConfig.cancellation_window_hours ?? 24
+
+      if (hoursAgo < windowHours) {
+        lastCancelledOrder = {
+          productName: (rawOrder.product_name as string) ?? null,
+          cancelledAt: rawOrder.cancelled_at as string,
+          hoursAgo: Math.round(hoursAgo * 10) / 10,
+        }
+        userIntent = classifyUserIntent(userContent)
+      }
+    }
+  }
+
+  // RETENTION_PENDING: si la conversacion actual tiene el sentinel (descuento
+  // ofrecido, decision pendiente del cliente), se construye lastCancelledOrder
+  // para activar el guard anti-reconstruccion.
+  if (!lastCancelledOrder && conversationId) {
+    const { data: currentConv } = await supabase
+      .from('conversations')
+      .select('sales_cancelled_at, outcome_updated_at')
+      .eq('id', conversationId)
+      .maybeSingle()
+
+    if (currentConv && isDiscountOfferSentinel(currentConv.sales_cancelled_at)) {
+      const { data: cancelEvent } = await supabase
+        .from('sales_events')
+        .select('metadata, created_at')
+        .eq('conversation_id', conversationId)
+        .eq('event_type', 'SALE_CANCELLED')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const productName = (cancelEvent?.metadata as Record<string, unknown>)?.product_name as string | undefined
+      const eventTime = cancelEvent?.created_at ?? currentConv.outcome_updated_at
+
+      if (eventTime) {
+        const pendingSince = new Date(eventTime).getTime()
+        const hoursAgo = (Date.now() - pendingSince) / (1000 * 60 * 60)
+
+        const { getSalesConfig } = await import('@/lib/ai/knowledge')
+        const salesConfig = await getSalesConfig(businessId)
+        const windowHours = salesConfig.cancellation_window_hours ?? 24
+
+        if (hoursAgo < windowHours) {
+          lastCancelledOrder = {
+            productName: productName ?? null,
+            cancelledAt: eventTime,
+            hoursAgo: Math.round(hoursAgo * 10) / 10,
+            pending: true,
+          }
+          userIntent = classifyUserIntent(userContent)
+        }
+      }
+    }
+  }
+
+  return { cancellationContext, lastCancelledOrder, userIntent }
+}
+
 export async function processStreaming(params: {
   assistantId: string
   businessId: string
@@ -57,6 +205,18 @@ export async function processStreaming(params: {
     conversationOutcome = conv?.outcome ?? null
   }
 
+  // P1 (parity): computar los guards de cancelacion tambien en el flujo streaming
+  // (Web Chat). Antes solo los computaba processIncomingMessage; sin esto, el Web
+  // Chat no activaba los guards de post-venta/RETENTION_PENDING y divergia de
+  // WhatsApp. Ahora ambos canales usan la misma funcion compartida.
+  const { cancellationContext, lastCancelledOrder, userIntent } = await resolveCancellationGuards({
+    supabase,
+    businessId,
+    customerId,
+    conversationId: conversationId ?? null,
+    userContent: messages[messages.length - 1]?.content ?? '',
+  })
+
   const { systemPrompt, usedContext } = await loadConversationContext(
     businessId,
     assistantId,
@@ -64,24 +224,26 @@ export async function processStreaming(params: {
     channel,
     intentTag ?? undefined,
     landingContext,
-    conversationOutcome
+    conversationOutcome,
+    cancellationContext,
+    lastCancelledOrder,
+    userIntent
   )
 
   let chatMessages = messages
   if (conversationId) {
+    // C1 (parity): el transcript debe ser el tail RECIENTE de la conversacion.
+    // .order(desc)+limit(N) entrega los N mas recientes; invertimos el orden
+    // para que queden cronologicos y el detector reciba la ultima intervencion.
     const { data: history } = await supabase
       .from('messages')
       .select('role, content')
       .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
       .limit(30)
 
     if (history && history.length > 0) {
-      const pastMessages = history.map((m) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      }))
-      chatMessages = [...pastMessages, ...messages]
+      chatMessages = [...toChronologicalTranscript(history), ...messages]
     }
   }
 
@@ -194,113 +356,18 @@ export async function processIncomingMessage(
 
   const customer = await resolveCustomer(businessId, wireMessage)
 
-  let cancellationContext: { orderNumber: string; hoursAgo: number } | null = null
-  if (customer.id) {
-    const { data: lastConv } = await supabase
-      .from('conversations')
-      .select('id, sales_cancelled_at')
-      .eq('customer_id', customer.id)
-      .eq('status', 'completed')
-      .not('sales_cancelled_at', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (lastConv?.sales_cancelled_at) {
-      const cancelledAt = new Date(lastConv.sales_cancelled_at).getTime()
-      const hoursAgo = (Date.now() - cancelledAt) / (1000 * 60 * 60)
-      if (hoursAgo < 24) {
-        const { data: cancelEvent } = await supabase
-          .from('sales_events')
-          .select('metadata')
-          .eq('conversation_id', lastConv.id)
-          .eq('event_type', 'SALE_CANCELLED')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        const orderNumber = (cancelEvent?.metadata as Record<string, unknown>)?.order_number as string | undefined
-        cancellationContext = { orderNumber: orderNumber ?? 'desconocido', hoursAgo: Math.round(hoursAgo * 10) / 10 }
-      }
-    }
-  }
-
-  let lastCancelledOrder: { productName: string | null; cancelledAt: string; hoursAgo: number; pending?: boolean } | null = null
-  let userIntent: 'explicit_purchase' | 'casual' | 'order_reference' | null = null
-
-  if (customer.id) {
-    const { data: customerData } = await supabase
-      .from('customers')
-      .select('last_cancelled_order')
-      .eq('id', customer.id)
-      .maybeSingle()
-
-    const rawOrder = customerData?.last_cancelled_order
-    if (rawOrder && typeof rawOrder === 'object' && 'cancelled_at' in rawOrder) {
-      const cancelledAt = new Date(rawOrder.cancelled_at as string).getTime()
-      const hoursAgo = (Date.now() - cancelledAt) / (1000 * 60 * 60)
-
-      const { getSalesConfig } = await import('@/lib/ai/knowledge')
-      const salesConfig = await getSalesConfig(businessId)
-      const windowHours = salesConfig.cancellation_window_hours ?? 24
-
-      if (hoursAgo < windowHours) {
-        lastCancelledOrder = {
-          productName: (rawOrder.product_name as string) ?? null,
-          cancelledAt: rawOrder.cancelled_at as string,
-          hoursAgo: Math.round(hoursAgo * 10) / 10,
-        }
-        userIntent = classifyUserIntent(wireMessage.content)
-      }
-    }
-  }
-
   const conversationId = await resolveConversation(assistantId, customer.id)
 
-  // RETENTION_PENDING: if the current conversation has the sentinel (discount
-  // offered, pending customer decision), construct lastCancelledOrder so the
-  // anti-reconstruction guard activates. This runs AFTER resolveConversation
-  // so we can query the current conversation.
-  if (!lastCancelledOrder && conversationId) {
-    const { data: currentConv } = await supabase
-      .from('conversations')
-      .select('sales_cancelled_at, outcome_updated_at')
-      .eq('id', conversationId)
-      .maybeSingle()
-
-    if (currentConv && isDiscountOfferSentinel(currentConv.sales_cancelled_at)) {
-      const { data: cancelEvent } = await supabase
-        .from('sales_events')
-        .select('metadata, created_at')
-        .eq('conversation_id', conversationId)
-        .eq('event_type', 'SALE_CANCELLED')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      const productName = (cancelEvent?.metadata as Record<string, unknown>)
-        ?.product_name as string | undefined
-      const eventTime = cancelEvent?.created_at ?? currentConv.outcome_updated_at
-
-      if (eventTime) {
-        const pendingSince = new Date(eventTime).getTime()
-        const hoursAgo = (Date.now() - pendingSince) / (1000 * 60 * 60)
-
-        const { getSalesConfig } = await import('@/lib/ai/knowledge')
-        const salesConfig = await getSalesConfig(businessId)
-        const windowHours = salesConfig.cancellation_window_hours ?? 24
-
-        if (hoursAgo < windowHours) {
-          lastCancelledOrder = {
-            productName: productName ?? null,
-            cancelledAt: eventTime,
-            hoursAgo: Math.round(hoursAgo * 10) / 10,
-            pending: true,
-          }
-          userIntent = classifyUserIntent(wireMessage.content)
-        }
-      }
-    }
-  }
+  // P1 (parity): guards de cancelacion compartidos (idénticos para todos los
+  // canales). Reemplaza los tres bloques que antes computaban cancellationContext,
+  // lastCancelledOrder y userIntent de forma inline en processIncomingMessage.
+  const { cancellationContext, lastCancelledOrder, userIntent } = await resolveCancellationGuards({
+    supabase,
+    businessId,
+    customerId: customer.id,
+    conversationId,
+    userContent: wireMessage.content,
+  })
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
@@ -373,14 +440,11 @@ export async function processIncomingMessage(
         .from('messages')
         .select('role, content')
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: false })
         .limit(20)
     : { data: [] }
 
-  const chatMessages = (chatHistory.data ?? []).map((m) => ({
-    role: m.role as 'user' | 'assistant',
-    content: m.content,
-  }))
+  const chatMessages = toChronologicalTranscript(chatHistory.data ?? [])
 
   const result = await executeAI({
     mode: 'complete',
@@ -436,22 +500,11 @@ export async function processIncomingMessage(
     }
   }
 
-  if (mode === 'active' && conversationId) {
-    try {
-      await processSaleClosing({
-        businessId,
-        assistantId,
-        conversationId,
-        customerId: customer.id,
-        messages: [...chatMessages, { role: 'user', content: wireMessage.content }, { role: 'assistant', content: response }],
-      })
-    } catch (err) {
-      console.error('Failed to process sale closing:', err)
-    }
-  }
-
-  // Resolver producto recomendado para asociar la imagen correcta al producto
-  // que el cliente está preguntando (sin esto, la imagen podía ser de otro producto).
+  // Resolver producto recomendado (canónico) para asociar la imagen correcta
+  // al producto que el cliente está preguntando (sin esto, la imagen podía ser
+  // de otro producto). Se resuelve ANTES de processSaleClosing para que los
+  // eventos de cierre lleven el selected_product.id canónico (B1b: los eventos
+  // no deben re-resolver el producto por texto libre cuando ya hay selección).
   let resolvedProduct: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
   if (wireMessage.content) {
     try {
@@ -463,6 +516,21 @@ export async function processIncomingMessage(
       })
     } catch (err) {
       console.error('Failed to resolve recommended product:', err)
+    }
+  }
+
+  if (mode === 'active' && conversationId) {
+    try {
+      await processSaleClosing({
+        businessId,
+        assistantId,
+        conversationId,
+        customerId: customer.id,
+        canonicalProductId: resolvedProduct?.productId ?? productId ?? null,
+        messages: [...chatMessages, { role: 'user', content: wireMessage.content }, { role: 'assistant', content: response }],
+      })
+    } catch (err) {
+      console.error('Failed to process sale closing:', err)
     }
   }
 

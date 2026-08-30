@@ -22,6 +22,7 @@ function makeThenable(data: unknown) {
     select: vi.fn(),
     eq: vi.fn(),
     not: vi.fn(),
+    order: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
     maybeSingle: vi.fn(),
@@ -34,6 +35,7 @@ function makeThenable(data: unknown) {
   thenable.select.mockReturnValue(thenable)
   thenable.eq.mockReturnValue(thenable)
   thenable.not.mockReturnValue(thenable)
+  thenable.order.mockReturnValue(thenable)
   thenable.maybeSingle.mockReturnValue(thenable)
   thenable.insert.mockReturnValue(Promise.resolve({ data: null, error: null }))
   thenable.upsert.mockReturnValue({
@@ -322,6 +324,7 @@ describe('resolveConditionalMedia concurrent dispatch uniqueness', () => {
         select: () => t,
         eq: () => t,
         not: () => t,
+        order: () => t,
         update: () => {
           harness.conversationUpdates += 1
           return t

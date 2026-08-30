@@ -119,6 +119,18 @@
       "gate": "build",
       "passed": true,
       "timestamp": "2026-08-30T02:04:39.979Z"
+    },
+    {
+      "gate": "security_review",
+      "passed": true,
+      "output": "Diff 8bd9667: solo rama de prompt en prompts.ts condicionada a outcome=sold + SALE_WON/SALE_CONFIRMED de DB (misma fuente de verdad, sin nueva autoridad). Sin nuevos endpoints, sin secretos, sin input de usuario interpolado sin escape en instrucciones nuevas. Guard RETENTION_PENDING tiene precedencia (evaluado antes). Multi-tenancy intacto: el contexto sigue scopeado por business/assistant existente.",
+      "timestamp": "2026-08-30T02:16:26.111Z"
+    },
+    {
+      "gate": "performance_review",
+      "passed": true,
+      "output": "Impacto: una condicional mas en buildSystemPrompt (O(1) sobre datos ya cargados por getBusinessContext). Cero queries nuevas, cero llamadas OpenAI nuevas, cero tokens extra salvo ~60 tokens de instrucciones post-venta solo en estado sold. No justifica optimizacion adicional.",
+      "timestamp": "2026-08-30T02:16:26.175Z"
     }
   ]
 }

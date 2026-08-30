@@ -32,6 +32,7 @@ export async function resolveConditionalMedia(params: {
     .eq('is_active', true)
     .not('image_url', 'is', null)
     .not('trigger_condition', 'is', null)
+    .order('created_at', { ascending: true })
 
   const matches = (item: KnowledgeItem): boolean => {
     if (!item.trigger_condition) return false
@@ -63,11 +64,15 @@ export async function resolveConditionalMedia(params: {
   // imagen de ese producto. NUNCA caemos a genéricos (product_id = NULL)
   // porque podrían pertenecer a otro producto (ej. imagen de Neurotin
   // apareciendo cuando el cliente pregunta por Clean Nails).
-  const byProduct = productId
-    ? pending.find((item) => item.product_id === productId)
-    : pending.find((item) => item.product_id === null)
-
-  const selected = byProduct ?? (productId ? null : pending[0])
+  //
+  // MEDIA_INVARIANT (media.product_id === selected_product.id):
+  // cuando NO hay producto canónico (productId null), SOLO se permite media
+  // genérica de marca (product_id === null). NUNCA se cae a `pending[0]` de
+  // otro producto: eso rompería el invariant y podría despachar media de una
+  // campaña ajena (incidente Clean Nails -> Neurotin).
+  const selected = productId
+    ? (pending.find((item) => item.product_id === productId) ?? null)
+    : (pending.find((item) => item.product_id === null) ?? null)
   if (!selected?.image_url) return null
 
   // Envío único por PRODUCTO/sesión: si la imagen de este producto ya se
