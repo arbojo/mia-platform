@@ -2,13 +2,13 @@
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 state: in_progress
-current_step: 7
+current_step: 8
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:26:48.114Z
+updated: 2026-08-30T03:26:53.083Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -87,7 +87,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Ningun CRITICAL/HIGH en archivos modificados. MEDIUM documentados. Reporte adjunto.
   - Gate/verificación: godzilla review sin bloqueo
 
-- [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
+- [x] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
   - Objetivo: Gates finales Etapa 2: lint + build + unit verdes y reporte de terminacion
   - Archivos: Repositorio (verificacion), reporte terminacion Etapa 2
   - Acción: npm run lint (0/0), npm run build (sin errores), unit tests invariantes. Registrar evidencia y redactar reporte terminacion Etapa 2.
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 8`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260830-PARITY-E2` cuando pasen los gates de verificación.
 
 ## Constraints
 
