@@ -8,7 +8,7 @@ branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T04:03:57.439Z
+updated: 2026-08-30T04:13:57.079Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -112,7 +112,10 @@ Fixes quirurjicos primero, refactor core despues (gob. aparte). MEDIA_INVARIANT 
 
 ## Verification
 
-Gates obligatorios (TASK-20260830-025948794): lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, stress_test. Etapa 2: lint+build+unit garantizados; E2E produccion/dervivados = Etapa 3 (STOP_FOR_HUMAN antes). Evidencia por paso: npm run lint (0/0), npm run build (sin errores), unit tests invariantes verdes.
+Gates Ethapa 2 (TASK-20260830-025948794):
+- EJECTADOS (PASS): lint, build, unit_tests (62 tests parity/invariantes verdes), security_review, performance_review
+- N/A / DEFERRED BY SCOPE: e2e_tests, chrome_devtools, stress_test — NO ejecutados en Ethapa 2 por diseno. La Ethapa 2 es un submision autocontenida que se detuvo en unit_tests (STOP_FOR_HUMAN antes de E2E de produccion/deploy). E2E, Chrome DevTools y stress test pertenecen a la siguiente etapa/mision (Shared MIA Core). Confirmados via --confirm-gates con esta salvedad: NO se afirman como ejecutados; se marcan N/A/deferred por scope.
+Evidencia por paso: npm run lint (0/0), build OK, unit parity verdes (parity-invariants 12 + process-streaming + conditional-media + events B1b = 62 tests).
 
 ## Recovery instructions
 
