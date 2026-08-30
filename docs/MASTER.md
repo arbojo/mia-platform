@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `cda8054`.
+> Fuente de verdad: este repositorio en `e6f4c27`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `cda8054` |
+| **Commit HEAD** | `e6f4c27` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T22:04:14-06:00 |
+| **Generado** | 2026-08-29T22:13:57-06:00 |
 
 ---
 
@@ -905,6 +905,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+e6f4c27 subaru: checkpoint TASK-20260830-PARITY-E2 - bloqueado
+a01ab9e chore: gitignore parity/E2E mission artifacts (Q7)
+27f5ee5 docs: regenerate MASTER.md at cda8054
 cda8054 subaru: checkpoint TASK-20260830-PARITY-E2 - bloqueado
 126c635 fix(parity): unifica semantica C1/B1/B1b/P1 entre canales (Etapa 2)
 a075d04 docs: regenerate MASTER.md at 7587909
@@ -922,9 +925,6 @@ b5d2f94 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 56d8b17 docs: regenerate MASTER.md at 60c460a
 60c460a subaru: checkpoint TASK-20260830-PARITY-E2 - listo
 bdff373 docs: regenerate MASTER.md at 8bd9667
-8bd9667 feat: post-sale prompt branch from DB state (TASK-20260830-015556744)
-d431621 docs: regenerate MASTER.md at 2392b4f
-2392b4f fix: contextual short-affirmative gate for conversational sale closing
 ```
 
 ---
