@@ -82,3 +82,13 @@ next-env.d.ts
 
 # foreign agent loop artifacts
 .loop-evidence/
+
+# parity/E2E mission artifacts (decided Q7: gitignore, not committed/deleted)
+DECISION_SALES_CONFIRMATION_LOOP.md
+LOOP_TERMINATION_REPORT.md
+REPORTE_FLUJO_VENTA_CICLO_CONFIRMACION.md
+playwright-results.json
+scripts/verify-fixture.mjs
+tests/integration/
+workshop/audit/
+workshop/governance/*.script.ts
