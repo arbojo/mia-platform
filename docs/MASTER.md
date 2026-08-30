@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `2392b4f`.
+> Fuente de verdad: este repositorio en `8bd9667`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `2392b4f` |
+| **Commit HEAD** | `8bd9667` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T19:13:06-06:00 |
+| **Generado** | 2026-08-29T20:06:41-06:00 |
 
 ---
 
@@ -702,7 +702,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (143)**:
+**Tareas registradas (144)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -849,6 +849,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260825-PRODUCT-ASSETS | Product Asset Unification Implementation | in_progress |
 | TASK-20260828-071346359 | Fix: pedido cancelado re-confirmado en conversaciones nuevas | completed |
 | TASK-20260830-005512058 | Fix cierre conversacional: gate contextual de afirmativas cortas en processSaleClosing + revision RC5 | in_progress |
+| TASK-20260830-015556744 | POST-SALE conversational state: rama post-venta en prompt builder (anti-reconfirmacion tras SALE_WON) | approved |
 
 ---
 
@@ -901,6 +902,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+8bd9667 feat: post-sale prompt branch from DB state (TASK-20260830-015556744)
+d431621 docs: regenerate MASTER.md at 2392b4f
 2392b4f fix: contextual short-affirmative gate for conversational sale closing
 5931d0c docs: regenerate MASTER.md at f755edf
 f755edf fix: harden cancellation sentinel and event compensation
@@ -919,8 +922,6 @@ c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 3d6b0b0 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 9d1ea2b subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 6fe9e3a subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
-43df192 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
-426b776 docs: regenerate MASTER.md at 387977a
 ```
 
 ---
