@@ -1,5 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { detectSaleOutcome, hasCancellationTrigger, hasDiscountAcceptanceTrigger, hasSalesTrigger } from './detect'
+import {
+  detectSaleOutcome,
+  hasCancellationTrigger,
+  hasDiscountAcceptanceTrigger,
+  hasPendingConfirmationRequest,
+  hasSalesTrigger,
+  hasShortAffirmative,
+} from './detect'
 import { processCancellation } from './cancel'
 import {
   applyConversationOutcome,
@@ -366,7 +373,32 @@ export async function processSaleClosing(params: {
   if (isCancelled) return
 
   // === STEP 2: Sales detection (existing flow) ===
-  if (!hasSalesTrigger(lastUserMessage.content)) return
+  // Gate contextual de afirmativas cortas (TASK-20260830-005512058):
+  // una afirmativa corta ("sí", "claro", "dale", ...) SOLO dispara la detección
+  // cuando existe una venta pendiente esperando confirmación explícita.
+  const affirmative = hasShortAffirmative(lastUserMessage.content)
+  if (!hasSalesTrigger(lastUserMessage.content) && !affirmative) return
+  if (affirmative && !hasPendingConfirmationRequest(messages)) return
+  if (affirmative) {
+    // Contrato: outcome === 'pending' + SALE_STARTED existente + sin cierre posterior.
+    // (Sin SALE_WON/SALE_CANCELLED posterior ya está garantizado por steps 1 y 1.5.)
+    const supabaseState = createAdminClient()
+    const [{ data: conv }, { data: started }] = await Promise.all([
+      supabaseState
+        .from('conversations')
+        .select('outcome')
+        .eq('id', conversationId)
+        .maybeSingle(),
+      supabaseState
+        .from('sales_events')
+        .select('id')
+        .eq('conversation_id', conversationId)
+        .eq('event_type', 'SALE_STARTED')
+        .limit(1)
+        .maybeSingle(),
+    ])
+    if (conv?.outcome !== 'pending' || !started) return
+  }
 
   const result = await detectSaleOutcome({
     businessId,

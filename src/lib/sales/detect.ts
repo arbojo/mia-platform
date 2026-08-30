@@ -35,12 +35,12 @@ Devuelve SOLO un JSON con esta forma:
 }
 
 Reglas:
-- outcome "sold" SOLO si el cliente confirmó explícitamente la compra (ej. "sí quiero", "lo llevo", "confirmo el pedido").
+- outcome "sold" SOLO si el cliente confirmó explícitamente la compra (ej. "sí quiero", "lo llevo", "confirmo el pedido", o una afirmativa corta como "sí", "claro", "dale", "ok" inmediatamente después de que el vendedor solicitó confirmar el pedido).
 - outcome "cancelled" SOLO si el cliente quiere cancelar una compra previa (ej. "quiero cancelar", "me arrepentí", "devuélveme"). Solo clasificar como cancelled si hay evidencia clara de una compra anterior en la conversación.
 - outcome "not_interested" si el cliente rechazó o descartó la compra.
 - outcome "interested" si el cliente mostró interés pero aún no confirmó.
 - Emite SALE_WON si hay confirmación de compra; SALE_LOST si hay rechazo.
-- RC5: si el VENDEDOR menciona o pregunta por un pedido que el cliente ya CANCELÓ (ej. "¿te confirmo tu pedido de X?" sobre un pedido cancelado), y el cliente responde "sí", "dale" o "confirmo" SIN mencionar un producto nuevo él mismo, NO emitas SALE_WON: esa confirmación es ambigua y el pedido cancelado ya no existe. Solo emite SALE_WON cuando el CLIENTE mencione explícitamente el producto que quiere comprar en su propia frase de confirmación.
+- RC5 (separación inequívoca de contextos): (a) VENTA NUEVA PENDIENTE DE CIERRE: si el vendedor acaba de solicitar confirmación explícita del pedido y el cliente responde con una afirmativa corta ("sí", "si", "claro", "dale", "va", "ok", "correcto", "exacto") o cualquier otra confirmación, SÍ emite SALE_WON. (b) PEDIDO CANCELADO: si el vendedor menciona o pregunta por un pedido que el cliente ya CANCELÓ (ej. "¿te confirmo tu pedido de X?" sobre un pedido cancelado) y el cliente responde con una afirmativa SIN mencionar un producto nuevo él mismo, NO emitas SALE_WON: esa confirmación es ambigua y el pedido cancelado ya no existe. (c) POST-VENTA CERRADA: si ya existe un SALE_WON previo en la conversación, NO reconstruyas ni reconfirmes el pedido anterior ante saludos o agradecimientos. (d) COMPRA NUEVA EXPLÍCITA: si el CLIENTE menciona explícitamente el producto que quiere comprar en su propia frase, procede con normalidad y emite los eventos correspondientes.
 - amount solo cuando haya un precio acordado o mencionado.
 - No inventes eventos. Solo emite los que tengan evidencia directa en el diálogo.
 - Si no hay suficiente información para clasificar, devuelve outcome "pending" y events [].`
@@ -68,6 +68,68 @@ export function hasSalesTrigger(lastUserMessage: string): boolean {
   ]
   const normalized = lastUserMessage.toLowerCase()
   return triggers.some((t) => normalized.includes(t))
+}
+
+// === Gate contextual de afirmativas cortas (TASK-20260830-005512058) ===
+// Una afirmativa corta SOLO puede disparar el cierre de venta cuando el
+// contexto indica confirmación explícita pendiente. Nunca es un trigger global.
+
+// Afirmativas aprobadas por Council — NO ampliar sin nueva aprobación.
+const SHORT_AFFIRMATIVES = ['si', 'claro', 'dale', 'va', 'ok', 'correcto', 'exacto']
+
+function normalizeForAffirmative(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * Detecta si el mensaje del cliente es una afirmativa corta del set aprobado.
+ * Match por token exacto (tras normalizar acentos, mayúsculas y puntuación),
+ * nunca por substring, para evitar falsos positivos en palabras que las contienen.
+ * Composiciones exclusivas de afirmativas aprobadas ("sí claro", "ok dale") también cuentan.
+ */
+export function hasShortAffirmative(message: string): boolean {
+  const normalized = normalizeForAffirmative(message)
+  if (!normalized) return false
+  const tokens = normalized.split(' ')
+  return tokens.length > 0 && tokens.every((t) => SHORT_AFFIRMATIVES.includes(t))
+}
+
+// Patrones deterministas de "solicitud de confirmación explícita" en mensajes
+// del ASISTENTE. Solo se evalúan mensajes con role === 'assistant', por lo que
+// un intento de prompt injection desde el mensaje del cliente no cuenta.
+const CONFIRMATION_REQUEST_PATTERNS = [
+  /confirm\w*\b[^\n]{0,60}\b(pedido|compra|orden)/i,
+  /\b(pedido|compra|orden)\b[^\n]{0,60}\bconfirm/i,
+  /\bte confirmo\b/i,
+  /\b(quieres|deseas|gustaría|gustaria|procedo|procedemos|avanzo|avanzamos)[^\n]{0,40}\b(confirm|pedido|compra)/i,
+  /\btodo correcto\b[^\n]{0,40}\b(confirm|pedido|compra)/i,
+]
+
+/**
+ * Determina si el último mensaje del asistente ANTERIOR al último mensaje del
+ * cliente solicitó confirmación explícita del pedido. Solo analiza turnos con
+ * role === 'assistant': la afirmativa del cliente no puede simular este contexto.
+ */
+export function hasPendingConfirmationRequest(
+  messages: Array<{ role: string; content: string }>
+): boolean {
+  const lastUserIdx = messages.reduce(
+    (acc, m, i) => (m.role === 'user' ? i : acc),
+    -1
+  )
+  if (lastUserIdx <= 0) return false
+  for (let i = lastUserIdx - 1; i >= 0; i--) {
+    const msg = messages[i]
+    if (msg.role !== 'assistant') continue
+    return CONFIRMATION_REQUEST_PATTERNS.some((p) => p.test(msg.content))
+  }
+  return false
 }
 
 export async function detectSaleOutcome(params: {

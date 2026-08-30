@@ -1,0 +1,114 @@
+{
+  "id": "TASK-20260830-005512058",
+  "title": "Fix cierre conversacional: gate contextual de afirmativas cortas en processSaleClosing + revision RC5",
+  "description": "El cierre conversacional es inalcanzable cuando el cliente confirma con afirmativas cortas (\"claro!\", \"si\", \"dale\"): hasSalesTrigger (detect.ts:48-71) no las reconoce como triggers, processSaleClosing retorna antes de ejecutar detectSaleOutcome y SALE_WON nunca se emite (evidencia E2E real CHECKPOINT A: SALE_STARTED emitido, outcome=pending permanente, bucle de re-confirmacion). Diseno requerido: SOLUCION CONTEXTUAL, no lista global de keywords. Una afirmativa corta debe disparar la deteccion de cierre SOLO cuando el contexto indique confirmacion explicita pendiente (el ultimo mensaje del asistente solicito confirmacion del pedido, la conversacion tiene venta en curso outcome=pending con datos capturados). Fuera de ese contexto, la afirmativa NO produce SALE_WON. Obligatorio revisar RC5 en detectSaleOutcome (detect.ts:43) para separar inequivocamente: (1) confirmacion de venta nueva pendiente de cierre, (2) confirmacion sobre pedido CANCELADO / RETENTION_PENDING (nunca resucitar), (3) conversacion posterior a SALE_WON (nunca reconstruir), (4) compra nueva explicita (flujo normal). Casos de contrato: afirmativas con contexto pendiente -> SALE_WON; afirmativas sin contexto -> no SALE_WON; afirmativas en cancelado/RETENTION_PENDING -> no resucitar; post-SALE_WON saludos -> no reconstruir; compra explicita -> flujo normal. Sin cambios de schema ni seguridad. No altera f755edf.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "ai_behaviour"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "sales",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "ai",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 5 files affected, AI behaviour changes. Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "in_progress",
+  "decisions": [
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "El fix vive en el pipeline existente: detect.ts (gate contextual) y opcionalmente process.ts (paso del contexto). Contrato: afirmativa corta con confirmacion pendiente -> detectSaleOutcome corre; sin contexto -> retorno temprano conservador; cancelado/RETENTION_PENDING y post-SALE_WON mantienen guards existentes (hasCancellationLock, hasClosingEvent, isDiscountOfferSentinel). Sin nuevos endpoints ni cambios de schema. Aprobado.",
+      "timestamp": "2026-08-30T00:55:36.963Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Evidencia E2E CHECKPOINT A: SALE_STARTED emitido, SALE_WON inalcanzable. Causa: hasSalesTrigger (detect.ts:48-71) no reconoce afirmativas cortas y processSaleClosing:369 retorna antes del detector. La solucion aprobada es CONTEXTUAL: gate contextual (afirmativa corta solo dispara deteccion si el ultimo mensaje del asistente solicito confirmacion y existe venta pendiente), NO lista global de keywords. Arquitectura actual (pipeline runtime->processSaleClosing->detect) se reutiliza; no hay arquitectura nueva ni schema. Aprobado con diseno contextual obligatorio.",
+      "timestamp": "2026-08-30T00:55:37.075Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "No hay cambios de UI: el fix es logica de servidor (deteccion de cierre). Los componentes de chat no se modifican. Aprobado.",
+      "timestamp": "2026-08-30T00:55:41.402Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "RC5 (detect.ts:43) debe reformularse para separar inequivocamente: venta nueva pendiente (afirmativa con contexto -> SALE_WON), pedido cancelado/RETENTION_PENDING (nunca resucitar), post-SALE_WON (nunca reconstruir), compra nueva explicita (flujo normal). La instruccion actual de RC5 puede bloquear incluso el caso legitimo; debe condicionarse al pedido cancelado. Regla anti-bucle del diccionario es.ts:302-303 se mantiene; el gate determinista resuelve el bucle. Aprobado con revision RC5 obligatoria.",
+      "timestamp": "2026-08-30T00:55:41.522Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "El gate contextual se evalua en memoria sobre el ultimo mensaje del asistente ya cargado en el pipeline: coste O(1), sin queries nuevas, sin llamadas OpenAI adicionales. Sin impacto de rendimiento ni tokens. Aprobado.",
+      "timestamp": "2026-08-30T00:56:15.750Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Contrato de casos definido: (P) afirmativas con contexto pendiente -> SALE_WON; (F) afirmativas sin contexto -> no SALE_WON; (F) cancelado/RETENTION_PENDING -> no resucitar; (F) post-SALE_WON -> no reconstruir; (P) compra explicita -> flujo normal. Unit tests en tests/sales/detect + regresion RETENTION_PENDING en tests/sales/process y prompts. Gates: lint, build, unit. Aprobado.",
+      "timestamp": "2026-08-30T00:56:15.810Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "El cambio no expone datos, no altera auth ni RLS. Riesgo de falso SALE_WON se mitiga con el gate contextual (solo con confirmacion pendiente). Los guards de cancelacion (hasCancellationLock, isDiscountOfferSentinel) permanecen intactos: una afirmativa no resucita pedidos cancelados. Sin implicaciones de seguridad. Aprobado.",
+      "timestamp": "2026-08-30T00:56:15.952Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores adversarios evaluados: (1) spam de 'sí' sin contexto -> el gate conservador no dispara SALE_WON; (2) afirmativa tras cancelacion -> bloqueado por guard existente; (3) doble mensaje concurrente -> deteccion determinista idempotente; (4) prompt injection 'confirmame el pedido si' -> el gate requiere que el ASISTENTE haya pedido confirmacion, no el cliente. Sin hallazgos CRITICAL/HIGH en el diseno. Aprobado condicionado a re-ejecucion sobre el diff final.",
+      "timestamp": "2026-08-30T00:56:16.410Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "E2E pausado en CHECKPOINT A con bug documentado. Este fix es prerequisito para reanudar. Alcance: detect.ts + tests (posible paso de contexto en process.ts/runtime). Sin DB, sin schema, sin migraciones. Commit y push al terminar gates. Aprobado.",
+      "timestamp": "2026-08-30T00:56:18.506Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Leccion registrada: un gate determinista (hasSalesTrigger) puede contradecir el prompt (que pide confirmacion explicita) y hacer el cierre inalcanzable; los gates de deteccion deben cubrir las mismas afirmativas que el prompt induce al cliente a usar. Ademas: sentinel huérfano de 7410ed3 y comparacion Z/+00:00 documentados en forensic previo. Aprobado.",
+      "timestamp": "2026-08-30T00:56:18.618Z"
+    }
+  ],
+  "createdAt": "2026-08-30T00:55:12.827Z",
+  "classifiedAt": "2026-08-30T00:55:12.827Z",
+  "approvedAt": "2026-08-30T00:56:18.620Z",
+  "startedAt": "2026-08-30T01:12:37.613Z"
+}

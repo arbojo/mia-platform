@@ -6,6 +6,8 @@ vi.mock('@/lib/sales/detect', () => ({
   detectSaleOutcome: vi.fn(),
   hasDiscountAcceptanceTrigger: vi.fn(),
   hasCancellationTrigger: vi.fn(),
+  hasShortAffirmative: vi.fn(),
+  hasPendingConfirmationRequest: vi.fn(),
 }))
 vi.mock('@/lib/sales/events', () => ({
   applyConversationOutcome: vi.fn(),

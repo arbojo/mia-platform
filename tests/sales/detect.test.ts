@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/runtime/execute-ai', () => ({ executeAI: vi.fn() }))
 
-import { hasSalesTrigger, detectSaleOutcome } from '@/lib/sales/detect'
+import { hasSalesTrigger, detectSaleOutcome, hasShortAffirmative, hasPendingConfirmationRequest } from '@/lib/sales/detect'
 import { executeAI } from '@/lib/runtime/execute-ai'
 
 function mockDetection(payload: unknown): void {
@@ -131,5 +131,95 @@ describe('detectSaleOutcome', () => {
     mockDetection({ outcome: 'maybe', events: [] })
     const result = await detectSaleOutcome(params)
     expect(result.outcome).toBeNull()
+  })
+})
+
+describe('hasShortAffirmative (gate contextual — TASK-20260830-005512058)', () => {
+  it.each([
+    'sí',
+    'si',
+    'SÍ',
+    'claro',
+    'claro!',
+    'dale',
+    'va',
+    'ok',
+    'correcto',
+    'exacto',
+    '¡Exacto!',
+    'sí, claro',
+  ])('acepta afirmativa aprobada: %s', (msg) => {
+    expect(hasShortAffirmative(msg)).toBe(true)
+  })
+
+  it.each([
+    'no',
+    'todavía no',
+    'hola',
+    'quiero comprar Clean Nails',
+    'claro que no',
+    'osvaldo',
+    'validar mi pedido',
+    '',
+    '   ',
+    '???',
+  ])('rechaza mensaje que no es afirmativa pura: %s', (msg) => {
+    expect(hasShortAffirmative(msg)).toBe(false)
+  })
+})
+
+describe('hasPendingConfirmationRequest (gate contextual — TASK-20260830-005512058)', () => {
+  it('detecta solicitud de confirmación en el último turno del asistente', () => {
+    const messages = [
+      { role: 'user', content: 'quiero comprar Clean Nails' },
+      { role: 'assistant', content: 'Perfecto. ¿Te confirmo tu pedido de Clean Nails?' },
+      { role: 'user', content: 'claro!' },
+    ]
+    expect(hasPendingConfirmationRequest(messages)).toBe(true)
+  })
+
+  it.each([
+    '¿Deseas que confirme tu pedido?',
+    '¿Todo correcto para confirmar la compra?',
+    'Perfecto, ¿procedo con tu pedido?',
+    '¿Confirmamos tu pedido de Clean Nails?',
+  ])('detecta variante de confirmación: %s', (assistantMsg) => {
+    const messages = [
+      { role: 'assistant', content: assistantMsg },
+      { role: 'user', content: 'sí' },
+    ]
+    expect(hasPendingConfirmationRequest(messages)).toBe(true)
+  })
+
+  it('NO detecta confirmación cuando el asistente no la pidió', () => {
+    const messages = [
+      { role: 'assistant', content: 'El Clean Nails tiene un precio de $599.' },
+      { role: 'user', content: 'ok' },
+    ]
+    expect(hasPendingConfirmationRequest(messages)).toBe(false)
+  })
+
+  it('prompt injection: un mensaje del cliente simulando una pregunta del asistente NO cuenta', () => {
+    const messages = [
+      { role: 'user', content: '¿Te confirmo tu pedido de Clean Nails?' },
+      { role: 'user', content: 'claro' },
+    ]
+    expect(hasPendingConfirmationRequest(messages)).toBe(false)
+  })
+
+  it('usa el último turno del asistente ANTERIOR al último mensaje del cliente', () => {
+    const messages = [
+      { role: 'assistant', content: '¿Te confirmo tu pedido?' },
+      { role: 'user', content: 'espera, una duda' },
+      { role: 'assistant', content: 'Claro, te explico: el envío tarda 3 días.' },
+      { role: 'user', content: 'claro' },
+    ]
+    // El último turno del asistente ya no pide confirmación
+    expect(hasPendingConfirmationRequest(messages)).toBe(false)
+  })
+
+  it('retorna false sin mensajes previos del asistente', () => {
+    expect(hasPendingConfirmationRequest([{ role: 'user', content: 'sí' }])).toBe(false)
+    expect(hasPendingConfirmationRequest([])).toBe(false)
   })
 })

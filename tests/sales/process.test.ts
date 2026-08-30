@@ -7,6 +7,8 @@ vi.mock('@/lib/sales/detect', () => ({
   detectSaleOutcome: vi.fn(),
   hasDiscountAcceptanceTrigger: vi.fn(),
   hasCancellationTrigger: vi.fn(),
+  hasShortAffirmative: vi.fn(),
+  hasPendingConfirmationRequest: vi.fn(),
 }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/sales/events', () => ({
@@ -20,7 +22,7 @@ vi.mock('@/lib/sales/events', () => ({
 }))
 
 import { processSaleClosing, isDiscountOfferSentinel, DISCOUNT_OFFERED_SENTINEL } from '@/lib/sales/process'
-import { hasSalesTrigger, detectSaleOutcome } from '@/lib/sales/detect'
+import { hasSalesTrigger, hasShortAffirmative, hasPendingConfirmationRequest, detectSaleOutcome } from '@/lib/sales/detect'
 import {
   applyConversationOutcome,
   emitSalesEvent,
@@ -333,5 +335,145 @@ describe('isDiscountOfferSentinel', () => {
 
   it('retorna false para una string inválida', () => {
     expect(isDiscountOfferSentinel('not-a-timestamp')).toBe(false)
+  })
+})
+
+// === Gate contextual de afirmativas cortas (TASK-20260830-005512058) ===
+// Mock de DB que despacha por tabla para las queries de estado del gate:
+// conversations.outcome y existencia de SALE_STARTED.
+function mockGateStateDb(state: { outcome: string | null; saleStarted: boolean }) {
+  vi.mocked(createAdminClient).mockImplementationOnce(() => {
+    const from = vi.fn((table: string) => {
+      if (table === 'conversations') {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: { outcome: state.outcome } }),
+            }),
+          }),
+        }
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            eq: () => ({
+              limit: () => ({
+                maybeSingle: async () => ({
+                  data: state.saleStarted ? { id: 'se-started-1' } : null,
+                }),
+              }),
+            }),
+          }),
+        }),
+      }
+    })
+    return { from } as unknown as ReturnType<typeof createAdminClient>
+  })
+}
+
+describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
+  const affirmativeParams = {
+    ...params,
+    messages: [
+      { role: 'user', content: 'quiero comprar Clean Nails' },
+      { role: 'assistant', content: 'Perfecto, ¿te confirmo tu pedido de Clean Nails?' },
+      { role: 'user', content: 'claro!' },
+    ],
+  }
+
+  function setupHappyPath() {
+    vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasShortAffirmative).mockReturnValue(true)
+    vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Clean Nails', amount: 599 }],
+      customerName: 'David',
+    })
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+    vi.mocked(getCustomerName).mockResolvedValue('David')
+    mockGateStateDb({ outcome: 'pending', saleStarted: true })
+  }
+
+  it('afirmativa corta con confirmación pendiente y venta pendiente → corre detección y emite SALE_WON', async () => {
+    setupHappyPath()
+
+    await processSaleClosing(affirmativeParams)
+
+    expect(detectSaleOutcome).toHaveBeenCalled()
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'SALE_WON', productName: 'Clean Nails' })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'sold' })
+    )
+  })
+
+  it('afirmativa corta SIN confirmación pendiente del asistente → NO corre detección', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasShortAffirmative).mockReturnValue(true)
+    vi.mocked(hasPendingConfirmationRequest).mockReturnValue(false)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+
+    await processSaleClosing(affirmativeParams)
+
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+
+  it('afirmativa corta con confirmación pendiente pero outcome !== pending → NO corre detección', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasShortAffirmative).mockReturnValue(true)
+    vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    mockGateStateDb({ outcome: 'sold', saleStarted: true })
+
+    await processSaleClosing(affirmativeParams)
+
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+
+  it('afirmativa corta sin SALE_STARTED previo → NO corre detección', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasShortAffirmative).mockReturnValue(true)
+    vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    mockGateStateDb({ outcome: 'pending', saleStarted: false })
+
+    await processSaleClosing(affirmativeParams)
+
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+
+  it('afirmativa corta en conversación cancelada (cancellation lock) → NO corre detección', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasShortAffirmative).mockReturnValue(true)
+    vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(true)
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+
+    await processSaleClosing(affirmativeParams)
+
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+
+  it('mensaje sin trigger ni afirmativa (negativa "no") → NO corre detección', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(false)
+    vi.mocked(hasShortAffirmative).mockReturnValue(false)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+
+    await processSaleClosing(affirmativeParams)
+
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
   })
 })
