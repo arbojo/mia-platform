@@ -1,23 +1,23 @@
 ---
-task_id: TASK-20260828-CANCEL-LOOP
-title: Fix: pedido cancelado re-confirmado en conversaciones nuevas
-state: completed
-current_step: 6
-total_steps: 6
+task_id: TASK-20260830-PARITY-E2
+title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
+state: frozen
+current_step: 0
+total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
-governance_id: TASK-20260828-071346359
+governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-28T09:36:52.061Z
+updated: 2026-08-30T03:01:10.812Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Fix: pedido cancelado re-confirmado en conversaciones nuevas
+MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 
-Aprobación: TASK-20260828-071346359.
+Aprobación: TASK-20260830-025948794.
 
 ## Scope
 
@@ -31,7 +31,7 @@ Aprobación: TASK-20260828-071346359.
 
 Pasos atómicos aprobados por el Council:
 
-- [x] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
+- [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
   - Objetivo: (qué logra el paso 1)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: (qué logra el paso 3)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: (qué logra el paso 4)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -63,7 +63,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
   - Objetivo: (qué logra el paso 5)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -71,8 +71,24 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [x] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
+- [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
   - Objetivo: (qué logra el paso 6)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 7)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 8)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
   - Dependencia: (paso previo que debe estar terminado, o "ninguna")
@@ -82,13 +98,11 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión TASK-20260828-CANCEL-LOOP completada (6/6 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Godzilla Stress Test (adversarial), Performance Engineer review.
-- Finalizado: 2026-08-28T09:36:52.061Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..8.
 
 ## Next action
 
-Todos los pasos marcados. Ejecutar `subaru complete TASK-20260828-CANCEL-LOOP` cuando pasen los gates de verificación.
+Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
@@ -105,5 +119,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260828-CANCEL-LOOP <n>`.
-6. Al final: `subaru complete TASK-20260828-CANCEL-LOOP`.
+5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260830-PARITY-E2 <n>`.
+6. Al final: `subaru complete TASK-20260830-PARITY-E2`.
