@@ -2,13 +2,13 @@
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:23:16.091Z
+updated: 2026-08-30T03:23:21.061Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -63,7 +63,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Eventos SALE_*/PRODUCT_SELECTED de processSaleClosing llevan product_id canonico cuando disponible.
   - Gate/verificación: unit: evento SALE_WON con producto canonico + lint + build
 
-- [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
+- [x] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
   - Objetivo: Fix P1 guards cancelacion en todos canales: processStreaming (Simulator+Web) carga y pasa cancellationContext/lastCancelledOrder/userIntent
   - Archivos: src/lib/runtime/runtime.ts (processStreaming)
   - Acción: Cargar cancellationContext/lastCancelledOrder/userIntent en processStreaming (patron de processIncomingMessage ~197-303) cuando hay customerId y pasarlos a loadConversationContext (args 8-10).
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 6`.
 
 ## Constraints
 
