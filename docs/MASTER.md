@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b5d2f94`.
+> Fuente de verdad: este repositorio en `7587909`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b5d2f94` |
+| **Commit HEAD** | `7587909` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T21:04:38-06:00 |
+| **Generado** | 2026-08-29T21:27:20-06:00 |
 
 ---
 
@@ -902,6 +902,14 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+7587909 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+0be1c30 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+eeeadaf subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+75317b0 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+7b71a50 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+30ae200 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+7e46f96 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
+72f9aab docs: regenerate MASTER.md at b5d2f94
 b5d2f94 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 85b72f9 docs: regenerate MASTER.md at 2e0bbf8
 2e0bbf8 subaru: checkpoint TASK-20260830-PARITY-E2 - listo
@@ -914,14 +922,6 @@ d431621 docs: regenerate MASTER.md at 2392b4f
 5931d0c docs: regenerate MASTER.md at f755edf
 f755edf fix: harden cancellation sentinel and event compensation
 c0e5cb7 docs: regenerate MASTER.md at ab52681
-ab52681 fix: RETENTION_PENDING guard — block auto-reconstruction while discount pending
-2657585 docs: regenerate MASTER.md at 21bf927
-21bf927 fix: prevent cross-conversation cancelled order reconstruction
-17e9144 docs: regenerate MASTER.md at bbc1b9a
-bbc1b9a chore: record governance gates PASS for TASK-20260828-071346359 (cancel-loop fix)
-029c460 subaru: checkpoint TASK-20260828-CANCEL-LOOP - completado
-a238b1b docs: regenerate MASTER.md at 84fd294
-84fd294 fix: prevent cancelled order re-confirmation in new conversations (TASK-20260828-CANCEL-LOOP)
 ```
 
 ---
