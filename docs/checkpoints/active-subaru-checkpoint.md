@@ -2,13 +2,13 @@
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 state: in_progress
-current_step: 6
+current_step: 7
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:23:27.043Z
+updated: 2026-08-30T03:26:48.114Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -79,7 +79,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Todos tests unitarios nuevos verdes. Invariantes MEDIA y TRANSCRIPT cubiertos por >=1 test.
   - Gate/verificación: unit tests green + lint + build
 
-- [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
+- [x] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
   - Objetivo: Godzilla adversarial review de archivos modificados (re-ejecutar vectores fallidos)
   - Archivos: Todos los archivos modificados pasos 1-6
   - Acción: Reproducir: producto ambiguo con media de otro producto, cancelacion >20 msg, post-SALE_WON, RETENTION_PENDING, media_url insegura, producto parcial, evento producto canonico/null.
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 7`.
+Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 8`.
 
 ## Constraints
 
