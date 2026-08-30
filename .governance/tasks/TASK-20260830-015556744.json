@@ -1,0 +1,124 @@
+{
+  "id": "TASK-20260830-015556744",
+  "title": "POST-SALE conversational state: rama post-venta en prompt builder (anti-reconfirmacion tras SALE_WON)",
+  "description": "Tras SALE_WON+SALE_CONFIRMED, MIA sigue preguntando \"¿Te confirmo tu pedido?\" (evidencia E2E real 2026-08-30). El detector y los eventos son correctos (no hay SALE_WON duplicado); el fallo es del prompt: src/lib/ai/prompts.ts tiene ramas para conversationOutcome cancelled y RETENTION_PENDING (lineas 346-376) pero carece de rama para sold, por lo que las closing policies del diccionario (es.ts:302-303) ordenan pedir confirmacion aun con la venta cerrada. Fuente de autoridad: estado de DB (conversations.outcome=sold + existencia de SALE_WON/SALE_CONFIRMED en sales_events), traducido a contexto por el prompt builder, mismo patron que las ramas de cancelacion existentes. Fix: agregar rama post-venta en prompts.ts que instruya comportamiento post-venta (pedido confirmado, continuar conversacion normal, NO pedir confirmacion, NO reconstruir) cuando outcome=sold y no haya RETENTION_PENDING. Compra nueva explicita debe iniciar nueva intencion sin reutilizar la venta cerrada. Preserva RETENTION_PENDING (venta cancelada no resucitable) e interaccion con 2392b4f (gate contextual exige outcome=pending: afirmativas cortas post-sold no produciran SALE_WON) y f755edf (sentinel/compensacion intactos). Sin cambios de schema, sin tocar es.ts ni i18n, sin DB.",
+  "scope": {
+    "categories": [
+      "bugfix",
+      "ai_behaviour"
+    ],
+    "filesAffected": 2,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": true,
+    "primaryDomain": "sales",
+    "affectedDomains": [],
+    "technicalDomains": [
+      "ai",
+      "backend"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: AI behaviour changes. Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "El fix vive en prompts.ts (rama post-venta condicionada a outcome=sold y ausencia de RETENTION_PENDING). No hay endpoints, schema ni DB nuevos. Interaccion con 2392b4f verificado: el gate contextual exige outcome=pending, por lo que afirmativas post-sold no produciran SALE_WON (correcto por diseno); la rama nueva solo cambia el texto del prompt. Aprobado.",
+      "timestamp": "2026-08-30T01:56:47.785Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI ni componentes. Logica de servidor unicamente. Aprobado.",
+      "timestamp": "2026-08-30T01:56:47.909Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Impacto: una condicion mas en el builder y una seccion breve de prompt condicional; sin llamadas ni queries nuevas (el estado outcome y SALE_WON ya se consultan en el contexto existente). Costo de tokens despreciable. Aprobado.",
+      "timestamp": "2026-08-30T01:56:48.160Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Evidencia E2E: tras SALE_WON, MIA re-pregunta confirmacion. Causa raiz: prompts.ts maneja ramas cancelled/RETENTION_PENDING (346-376) pero no sold; las closing policies del diccionario siguen ordenando pedir confirmacion. Fuente de autoridad correcta: estado DB (outcome=sold + SALE_WON en sales_events) traducido por el prompt builder, mismo patron existente; NO crea autoridad paralela ni toca es.ts. 2 archivos, reutiliza arquitectura. Aprobado.",
+      "timestamp": "2026-08-30T01:56:48.678Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Tests requeridos: (1) prompts.test.ts — outcome=sold + SALE_WON inyecta rama post-venta (no pide confirmacion), RETENTION_PENDING tiene prioridad sobre sold, outcome=sold sin rama previa no regresa, compra explicita no bloqueada; (2) regresion completa de guards ab52681 (RETENTION_PENDING) y detect.test.ts (gate 2392b4f). Gates: lint, build, unit. Aprobado.",
+      "timestamp": "2026-08-30T01:56:48.726Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "La rama post-venta debe inyectar instruccion explícita: pedido confirmado (producto/datos), responder normalmente, NO pedir confirmacion, NO reconstruir; compra explicita nueva inicia nueva intencion. Debe preservar prioridad de RETENTION_PENDING (si hay sentinel/last_cancelled_order pending, esa rama gana). No tocar es.ts: el builder condiciona/regula las policies existentes sin duplicar autoridad. Tokens: instruccion breve. Aprobado.",
+      "timestamp": "2026-08-30T01:56:48.920Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Leccion registrada: los estados conversacionales (pending/sold/cancelled) deben tener ramas explicitas en el prompt builder; un estado sin rama hereda policies de otro estado (bucle post-SALE_WON). Patron aplicado igual que cancelacion. Aprobado.",
+      "timestamp": "2026-08-30T01:56:50.143Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Vectores: (1) prompt injection desde mensaje de usuario simulando venta/post-venta no altera la rama (autoridad = DB, no texto); (2) afirmativa post-sold no produce SALE_WON (gate 2392b4f intacto); (3) RETENTION_PENDING no resucitable con rama nueva presente; (4) sin fuga de datos entre tenants (la rama usa estado de la conversacion actual). Hallazgos MEDIUM documentados, no bloqueantes. Aprobado.",
+      "timestamp": "2026-08-30T01:56:51.212Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Alcance: prompts.ts + tests (prompts.test.ts, detect.test.ts regression). Sin schema/DB/deploy en esta fase. Flujo commit+push tras gates verdes; deploy y E2E solo con autorizacion humana posterior. Aprobado.",
+      "timestamp": "2026-08-30T01:56:51.220Z"
+    }
+  ],
+  "createdAt": "2026-08-30T01:55:56.570Z",
+  "classifiedAt": "2026-08-30T01:55:56.570Z",
+  "approvedAt": "2026-08-30T01:56:51.222Z",
+  "qualityGateResults": [
+    {
+      "gate": "lint",
+      "passed": true,
+      "timestamp": "2026-08-30T02:04:39.831Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "timestamp": "2026-08-30T02:04:39.844Z"
+    },
+    {
+      "gate": "build",
+      "passed": true,
+      "timestamp": "2026-08-30T02:04:39.979Z"
+    }
+  ]
+}

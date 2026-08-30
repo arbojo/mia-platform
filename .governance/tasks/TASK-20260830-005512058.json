@@ -110,5 +110,34 @@
   "createdAt": "2026-08-30T00:55:12.827Z",
   "classifiedAt": "2026-08-30T00:55:12.827Z",
   "approvedAt": "2026-08-30T00:56:18.620Z",
-  "startedAt": "2026-08-30T01:12:37.613Z"
+  "startedAt": "2026-08-30T01:12:37.613Z",
+  "qualityGateResults": [
+    {
+      "gate": "build",
+      "passed": true,
+      "timestamp": "2026-08-30T01:13:50.392Z"
+    },
+    {
+      "gate": "unit_tests",
+      "passed": true,
+      "timestamp": "2026-08-30T01:13:50.546Z"
+    },
+    {
+      "gate": "lint",
+      "passed": true,
+      "timestamp": "2026-08-30T01:13:50.574Z"
+    },
+    {
+      "gate": "security_review",
+      "passed": true,
+      "output": "Diff 2392b4f revisado: solo logica server-side (detect.ts/process.ts); sin nuevos endpoints, sin secrets, sin cambios RLS/schema; mensajes del cliente no pueden simular solicitudes del asistente (hasPendingConfirmationRequest exige ultimo mensaje role=assistant); set afirmativo cerrado y normalizado; sin amplificacion de superficie de ataque. Webhook prod mantiene 401 sin secret (verificado post-deploy).",
+      "timestamp": "2026-08-30T01:51:48.003Z"
+    },
+    {
+      "gate": "performance_review",
+      "passed": true,
+      "output": "Costo marginal cero-medible: hasShortAffirmative/hasPendingConfirmationRequest son comparaciones de strings en memoria sobre mensajes ya cargados; sin queries nuevas (process.ts pasa el ultimo mensaje ya disponible a detectSaleOutcome); sin llamadas OpenAI nuevas; unit suite 117/117 en <1s. Bundle no afectado (codigo server-only).",
+      "timestamp": "2026-08-30T01:51:48.094Z"
+    }
+  ]
 }

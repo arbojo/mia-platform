@@ -430,6 +430,15 @@ Trata esta como una compra completamente nueva desde cero.
 Nunca mezcles datos del pedido cancelado con la nueva venta.`
           : ''))
   : ''}
+${conversationOutcome === 'sold' && !lastCancelledOrder?.pending
+  ? `\n## Estado post-venta
+La venta de esta conversación YA FUE CONFIRMADA y cerrada (pedido ganado). No hay ninguna confirmación pendiente.
+
+REGLA CRÍTICA: NO vuelvas a preguntar "¿Te confirmo tu pedido?" ni ninguna variante de confirmación: la venta ya está cerrada y confirmada.
+NO reconstruyas, re-presentes ni trates la venta anterior como pendiente o por confirmar, aunque el cliente diga "sí", "ok", "que si" o similares.
+Si el cliente saluda o agradece ("hola", "gracias"), responde de forma natural como post-venta (pedido confirmado, disponible para ayudar con lo que necesite).
+Si el cliente quiere comprar de nuevo (el mismo u otro producto), es una venta NUEVA: atiéndela desde cero con su intención explícita, sin reutilizar la venta ya cerrada.`
+  : ''}
 ${capabilities?.active.has('MOD_INVENTORY') ? `\n## Inventario
 Tienes acceso al sistema de inventario. Cuando el cliente pregunte por disponibilidad o stock de un producto, puedes consultar el inventario actual para dar una respuesta precisa. Si un producto no tiene stock, sugiere alternativas similares o informa al cliente que puede esperar reposición.` : ''}
 ${capabilities?.active.has('MOD_DELIVERY') ? `\n## Logística

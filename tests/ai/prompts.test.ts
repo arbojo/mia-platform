@@ -302,4 +302,57 @@ describe('buildMasterPrompt', () => {
       expect(prompt).not.toContain('Guardia de venta cancelada')
     })
   })
+
+  describe('post-sale state (sold + SALE_WON)', () => {
+    it('conversationOutcome=sold → rama post-venta presente', () => {
+      const prompt = build({ conversationOutcome: 'sold' })
+      expect(prompt).toContain('Estado post-venta')
+    })
+
+    it('post-venta instruye NO reconfirmar NI reconstruir la venta cerrada', () => {
+      const prompt = build({ conversationOutcome: 'sold' })
+      expect(prompt).toContain('NO vuelvas a preguntar')
+      expect(prompt).toContain('ya está cerrada y confirmada')
+      expect(prompt).toContain('NO reconstruyas')
+    })
+
+    it('post-venta cubre saludos/gracias/afirmativas sin reconfirmación', () => {
+      const prompt = build({ conversationOutcome: 'sold' })
+      expect(prompt).toContain('"hola", "gracias"')
+      expect(prompt).toContain('"sí", "ok", "que si"')
+    })
+
+    it('post-venta permite compra nueva explícita (no bloquea el flujo de venta)', () => {
+      const prompt = build({ conversationOutcome: 'sold' })
+      expect(prompt).toContain('venta NUEVA')
+      // El catálogo y las reglas de venta siguen presentes
+      expect(prompt).toContain('Bota de Cuero')
+      expect(prompt).toContain('Envío gratis desde $100')
+    })
+
+    it('RETENTION_PENDING gana por precedencia: no se inyecta la rama post-venta', () => {
+      const prompt = build({
+        conversationOutcome: 'sold',
+        lastCancelledOrder: {
+          productName: 'Clean Nails',
+          cancelledAt: new Date().toISOString(),
+          hoursAgo: 1,
+          pending: true,
+        },
+        userIntent: 'casual',
+      })
+      expect(prompt).not.toContain('Estado post-venta')
+      expect(prompt).toContain('Estado de cancelación pendiente')
+    })
+
+    it('sin outcome=sold → sin rama post-venta', () => {
+      const prompt = build({ conversationOutcome: 'pending' })
+      expect(prompt).not.toContain('Estado post-venta')
+    })
+
+    it('sin outcome → sin rama post-venta', () => {
+      const prompt = build()
+      expect(prompt).not.toContain('Estado post-venta')
+    })
+  })
 })
