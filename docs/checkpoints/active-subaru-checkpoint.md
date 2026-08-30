@@ -8,7 +8,7 @@ branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:01:10.812Z
+updated: 2026-08-30T03:03:00.230Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -21,7 +21,7 @@ Aprobación: TASK-20260830-025948794.
 
 ## Scope
 
-- (archivos/módulos/dominios involucrados — completar)
+Archivos: src/lib/runtime/runtime.ts, src/lib/runtime/conditional-media.ts, src/lib/sales/events.ts, src/lib/sales/process.ts, tests/runtime/conditional-media.test.ts, tests/sales/events.test.ts, tests nuevos de parity. Dominio: sales + runtime + AI context.
 
 ## Non-goals
 
@@ -32,68 +32,68 @@ Aprobación: TASK-20260830-025948794.
 Pasos atómicos aprobados por el Council:
 
 - [ ] **Paso 1:** (objetivo del paso 1 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 1)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Fix C1 transcript: cambiar .order(created_at asc).limit(N) -> desc.limit(N)+reverse en 3 call-sites para que detectores reciban tail RECIENTE
+  - Archivos: src/lib/runtime/runtime.ts (~70-86, ~371-378), src/lib/sales/process.ts (~260-267)
+  - Acción: processStreaming (runtime.ts:70-86): .order('created_at',{ascending:false}).limit(30).then(reverse) antes de [...past, ...messages]. processIncomingMessage (runtime.ts:371-378): .order(desc).limit(20).then(reverse). process.ts second cancel attempt (260-267): .order(desc).limit(20).then(reverse)
+  - Dependencia: ninguna
+  - Criterio de terminación: 3 call-sites leen N mas recientes. Test con 25+ mensajes verifica tail verdadero (incluida ultima intervencion).
+  - Gate/verificación: unit transcript tail reciente + lint + build
 
 - [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 2)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Fix B1 media invariant: eliminar fallback arbitrario pending[0] que selecciona media de OTRO producto
+  - Archivos: src/lib/runtime/conditional-media.ts (~28-34, ~66-70)
+  - Acción: Anadir .order('created_at',{ascending:true}) a query candidatos. Seleccion: const selected = productId ? (pending.find(i=>i.product_id===productId) ?? null) : (pending.find(i=>i.product_id===null) ?? null); nunca pending[0] de otro producto si productId null y no generico.
+  - Dependencia: paso 1
+  - Criterio de terminación: productId null y SOLO items de otros productos en pending => null. Test 'uses generic media when no product context' sigue verde.
+  - Gate/verificación: unit nuevo: producto ambiguo NUNCA despacha media de otro producto + lint + build
 
 - [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 3)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Fix B1b eventos: emitSalesEvent usa selected_product.id canonico en lugar de re-resolver por texto libre when caller tiene producto
+  - Archivos: src/lib/sales/events.ts (emitSalesEvent ~37-43)
+  - Acción: Anadir parametro opcional productId a emitSalesEvent. Si se provee, usarlo sin query ilike('name'). Mantener fallback por nombre.
+  - Dependencia: paso 1
+  - Criterio de terminación: caller con productId canonico genera evento con ese id exacto sin query por texto. Test resolucion por nombre sigue verde.
+  - Gate/verificación: unit nuevo: evento con productId canonico no re-resuelve por texto + lint + build
 
 - [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 4)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Pasar selected_product.id canonico en callers de emitSalesEvent (processSaleClosing) y runtime para que eventos y media usen mismo producto
+  - Archivos: src/lib/sales/process.ts (emitSalesEvent en processSaleClosing), src/lib/runtime/runtime.ts
+  - Acción: En processSaleClosing, cuando detectSaleOutcome devuelve eventos, resolver selected_product.id canonico y pasarlo a emitSalesEvent (nuevo param). Producto del evento coincide con producto usado para media.
+  - Dependencia: paso 3
+  - Criterio de terminación: Eventos SALE_*/PRODUCT_SELECTED de processSaleClosing llevan product_id canonico cuando disponible.
+  - Gate/verificación: unit: evento SALE_WON con producto canonico + lint + build
 
 - [ ] **Paso 5:** (objetivo del paso 5 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 5)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Fix P1 guards cancelacion en todos canales: processStreaming (Simulator+Web) carga y pasa cancellationContext/lastCancelledOrder/userIntent
+  - Archivos: src/lib/runtime/runtime.ts (processStreaming)
+  - Acción: Cargar cancellationContext/lastCancelledOrder/userIntent en processStreaming (patron de processIncomingMessage ~197-303) cuando hay customerId y pasarlos a loadConversationContext (args 8-10).
+  - Dependencia: paso 4
+  - Criterio de terminación: processStreaming pasa 10 args. Guards cancelacion/RETENTION_PENDING en systemPrompt de Simulator y Web. Simulator no degradado.
+  - Gate/verificación: test: guards en streaming con ctx cancelacion + lint + build
 
 - [ ] **Paso 6:** (objetivo del paso 6 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 6)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Parity tests: invariantes core (media y transcript) y escenarios cruzados
+  - Archivos: tests/runtime/conditional-media.test.ts, tests/runtime/process-streaming.test.ts, tests/runtime/process-incoming-message.test.ts, tests/sales/events.test.ts, tests/integration/cancellation-state-machine.test.ts, tests nuevos parity
+  - Acción: Tests: (1) media.product_id===selected_product.id; (2) producto ambiguo/parcial nunca cruza a media de otro producto; (3) transcript 25+ mensajes tail reciente; (4) eventos producto canonico; (5) cancelacion 2do intento >20 msg detecta tail; (6) post-SALE_WON no reconfirma; (7) RETENTION_PENDING guard en streaming; (8) prompt injection baseline.
+  - Dependencia: pasos 1-5
+  - Criterio de terminación: Todos tests unitarios nuevos verdes. Invariantes MEDIA y TRANSCRIPT cubiertos por >=1 test.
+  - Gate/verificación: unit tests green + lint + build
 
 - [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 7)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Godzilla adversarial review de archivos modificados (re-ejecutar vectores fallidos)
+  - Archivos: Todos los archivos modificados pasos 1-6
+  - Acción: Reproducir: producto ambiguo con media de otro producto, cancelacion >20 msg, post-SALE_WON, RETENTION_PENDING, media_url insegura, producto parcial, evento producto canonico/null.
+  - Dependencia: paso 6
+  - Criterio de terminación: Ningun CRITICAL/HIGH en archivos modificados. MEDIUM documentados. Reporte adjunto.
+  - Gate/verificación: godzilla review sin bloqueo
 
 - [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
-  - Objetivo: (qué logra el paso 8)
-  - Archivos: (archivos afectados)
-  - Acción: (acción esperada)
-  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
-  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
-  - Gate/verificación: (gate que valida el paso)
+  - Objetivo: Gates finales Etapa 2: lint + build + unit verdes y reporte de terminacion
+  - Archivos: Repositorio (verificacion), reporte terminacion Etapa 2
+  - Acción: npm run lint (0/0), npm run build (sin errores), unit tests invariantes. Registrar evidencia y redactar reporte terminacion Etapa 2.
+  - Dependencia: pasos 1-7
+  - Criterio de terminación: lint/build/unit verdes con evidencia. Reporte Etapa 2 listo.
+  - Gate/verificación: lint + build + unit green
 
 
 ## Current state
@@ -106,11 +106,11 @@ Implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
 
 ## Constraints
 
-- (decisiones arquitectónicas, ADRs, reglas de governance, restricciones de seguridad — completar)
+Fixes quirurjicos primero, refactor core despues (gob. aparte). MEDIA_INVARIANT media.product_id===selected_product.id: NUNCA fallback arbitrario pending[0] de otro producto. TRANSCRIPT_INVARIANT: tail reciente obligatorio (.order desc + reverse). Eventos usan producto canonico, no texto libre si ya hay selected_product.id. Guards 2392b4f/8bd9667/f755edf/ab52681 no rompen. Multi-tenant/RLS (admin para writes). TypeScript estricto sin any.
 
 ## Verification
 
-- (gates obligatorios y estado de ejecución — completar)
+Gates obligatorios (TASK-20260830-025948794): lint, build, unit_tests, e2e_tests, chrome_devtools, security_review, stress_test. Etapa 2: lint+build+unit garantizados; E2E produccion/dervivados = Etapa 3 (STOP_FOR_HUMAN antes). Evidencia por paso: npm run lint (0/0), npm run build (sin errores), unit tests invariantes verdes.
 
 ## Recovery instructions
 
