@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
-state: in_progress
+state: blocked
 current_step: 8
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:26:53.083Z
+updated: 2026-08-30T04:03:57.439Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -98,7 +98,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..8.
+- Misión TASK-20260830-PARITY-E2 BLOQUEADA (state: blocked).
+- Motivo: Etapa 2 certificada; cierre a BLOCKED por deuda documentada: (1) D-DECISION-1 processStreaming no ejecuta processSaleClosing (Q1-C: parity sin 2da llamada AI, se resuelve en nueva mision Shared Core), (2) D-MEDIA-1 WhatsApp sin isResend (Fase 3 planeada), (3) scratch classic-build roto fuera de scope (Q2-C). Next: mision MIA Shared Core Fase 0/1..
+- Bloqueado: 2026-08-30T04:03:57.439Z.
 
 ## Next action
 
