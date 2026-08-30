@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `60c460a`.
+> Fuente de verdad: este repositorio en `2e0bbf8`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `60c460a` |
+| **Commit HEAD** | `2e0bbf8` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T21:01:40-06:00 |
+| **Generado** | 2026-08-29T21:03:34-06:00 |
 
 ---
 
@@ -902,6 +902,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+2e0bbf8 subaru: checkpoint TASK-20260830-PARITY-E2 - listo
+56d8b17 docs: regenerate MASTER.md at 60c460a
 60c460a subaru: checkpoint TASK-20260830-PARITY-E2 - listo
 bdff373 docs: regenerate MASTER.md at 8bd9667
 8bd9667 feat: post-sale prompt branch from DB state (TASK-20260830-015556744)
@@ -920,8 +922,6 @@ a238b1b docs: regenerate MASTER.md at 84fd294
 84fd294 fix: prevent cancelled order re-confirmation in new conversations (TASK-20260828-CANCEL-LOOP)
 e29eeef docs: regenerate MASTER.md at 0107ff5
 0107ff5 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
-c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
-3d6b0b0 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 ```
 
 ---
