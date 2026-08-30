@@ -2,13 +2,13 @@
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:04:15.694Z
+updated: 2026-08-30T03:23:06.043Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: 3 call-sites leen N mas recientes. Test con 25+ mensajes verifica tail verdadero (incluida ultima intervencion).
   - Gate/verificación: unit transcript tail reciente + lint + build
 
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: Fix B1 media invariant: eliminar fallback arbitrario pending[0] que selecciona media de OTRO producto
   - Archivos: src/lib/runtime/conditional-media.ts (~28-34, ~66-70)
   - Acción: Anadir .order('created_at',{ascending:true}) a query candidatos. Seleccion: const selected = productId ? (pending.find(i=>i.product_id===productId) ?? null) : (pending.find(i=>i.product_id===null) ?? null); nunca pending[0] de otro producto si productId null y no generico.
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 3`.
 
 ## Constraints
 
