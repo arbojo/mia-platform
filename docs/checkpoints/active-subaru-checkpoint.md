@@ -2,13 +2,13 @@
 task_id: TASK-20260830-PARITY-E2
 title: MIA Parity Etapa 2 UNIFICAR: fixes quirurjicos C1/B1/B1b/P1 + parity tests
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260830-025948794
 created: 2026-08-23T10:28:37.146Z
-updated: 2026-08-30T03:23:06.043Z
+updated: 2026-08-30T03:23:11.332Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -47,7 +47,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: productId null y SOLO items de otros productos en pending => null. Test 'uses generic media when no product context' sigue verde.
   - Gate/verificación: unit nuevo: producto ambiguo NUNCA despacha media de otro producto + lint + build
 
-- [ ] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
+- [x] **Paso 3:** (objetivo del paso 3 — completar antes de implementar)
   - Objetivo: Fix B1b eventos: emitSalesEvent usa selected_product.id canonico en lugar de re-resolver por texto libre when caller tiene producto
   - Archivos: src/lib/sales/events.ts (emitSalesEvent ~37-43)
   - Acción: Anadir parametro opcional productId a emitSalesEvent. Si se provee, usarlo sin query ilike('name'). Mantener fallback por nombre.
@@ -102,7 +102,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-PARITY-E2 4`.
 
 ## Constraints
 
