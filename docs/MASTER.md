@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7587909`.
+> Fuente de verdad: este repositorio en `cda8054`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7587909` |
+| **Commit HEAD** | `cda8054` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T21:27:20-06:00 |
+| **Generado** | 2026-08-29T22:04:14-06:00 |
 
 ---
 
@@ -702,7 +702,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (144)**:
+**Tareas registradas (147)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -850,6 +850,9 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260828-071346359 | Fix: pedido cancelado re-confirmado en conversaciones nuevas | completed |
 | TASK-20260830-005512058 | Fix cierre conversacional: gate contextual de afirmativas cortas en processSaleClosing + revision RC5 | in_progress |
 | TASK-20260830-015556744 | POST-SALE conversational state: rama post-venta en prompt builder (anti-reconfirmacion tras SALE_WON) | approved |
+| TASK-20260830-023352710 | DEEP PARITY & DISPATCH AUDIT — Simulator = Web Chat = WhatsApp (read-only, no implementation) | approved |
+| TASK-20260830-024713217 | MIA PARITY MASTER AUDIT — canonical core, transcript/context, product integrity, Clean Nails->Neurotin, Option C eval (read-only, no implementation) | approved |
+| TASK-20260830-025948794 | MIA PARITY ETAPA 2 UNIFICAR: fixes quirurjicos C1 (transcript desc+reverse), B1 (media solo del producto canonico + ORDER BY), B1b (eventos desde producto canonico), P1 (guards de cancelacion en todos los canales) + refactor a Shared MIA Core con adapters + parity tests | approved |
 
 ---
 
@@ -902,6 +905,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+cda8054 subaru: checkpoint TASK-20260830-PARITY-E2 - bloqueado
+126c635 fix(parity): unifica semantica C1/B1/B1b/P1 entre canales (Etapa 2)
+a075d04 docs: regenerate MASTER.md at 7587909
 7587909 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 0be1c30 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 eeeadaf subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
@@ -919,9 +925,6 @@ bdff373 docs: regenerate MASTER.md at 8bd9667
 8bd9667 feat: post-sale prompt branch from DB state (TASK-20260830-015556744)
 d431621 docs: regenerate MASTER.md at 2392b4f
 2392b4f fix: contextual short-affirmative gate for conversational sale closing
-5931d0c docs: regenerate MASTER.md at f755edf
-f755edf fix: harden cancellation sentinel and event compensation
-c0e5cb7 docs: regenerate MASTER.md at ab52681
 ```
 
 ---
