@@ -99,7 +99,8 @@ Pasos atómicos aprobados por el Council:
 ## Current state
 
 - Misión TASK-20260830-PARITY-E2 completada (8/8 pasos).
-- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Godzilla Stress Test (adversarial), Performance Engineer review.
+- Gates EJECUTADOS y certificados (PASS): ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests (62 parity/invariant tests), Security Engineer review, Performance Engineer review, Godzilla Stress Test (adversarial — 0 CRITICAL, 0 HIGH, 1 MEDIUM documentado).
+- Gates DEFERRED por scope (NO ejecutados en Etapa 2): e2e_tests (Playwright), chrome_devtools, stress_test — pertenecen a la siguiente misión (Shared MIA Core).
 - Finalizado: 2026-08-30T23:47:25.047Z.
 
 ## Next action
