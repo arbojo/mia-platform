@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f755edf`.
+> Fuente de verdad: este repositorio en `2392b4f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f755edf` |
+| **Commit HEAD** | `2392b4f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-29T17:49:24-06:00 |
+| **Generado** | 2026-08-29T19:13:06-06:00 |
 
 ---
 
@@ -702,7 +702,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (142)**:
+**Tareas registradas (143)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -848,6 +848,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260825-EVIDENCE-REASONING | MIA Evidence Accumulation & Customer State Architecture Review | completed |
 | TASK-20260825-PRODUCT-ASSETS | Product Asset Unification Implementation | in_progress |
 | TASK-20260828-071346359 | Fix: pedido cancelado re-confirmado en conversaciones nuevas | completed |
+| TASK-20260830-005512058 | Fix cierre conversacional: gate contextual de afirmativas cortas en processSaleClosing + revision RC5 | in_progress |
 
 ---
 
@@ -900,6 +901,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+2392b4f fix: contextual short-affirmative gate for conversational sale closing
+5931d0c docs: regenerate MASTER.md at f755edf
 f755edf fix: harden cancellation sentinel and event compensation
 c0e5cb7 docs: regenerate MASTER.md at ab52681
 ab52681 fix: RETENTION_PENDING guard — block auto-reconstruction while discount pending
@@ -918,8 +921,6 @@ c49ab0c subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 6fe9e3a subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 43df192 subaru: checkpoint TASK-20260828-CANCEL-LOOP - en-progreso
 426b776 docs: regenerate MASTER.md at 387977a
-387977a subaru: checkpoint TASK-20260828-CANCEL-LOOP - listo
-681c4b8 fix: remove invalid env section from vercel.json
 ```
 
 ---
