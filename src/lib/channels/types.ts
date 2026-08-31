@@ -116,7 +116,8 @@ export interface CoreInput {
 
 export interface CoreOutput {
   response: string
-  textStream?: ReadableStream<Uint8Array>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  textStream?: any
   product: { productId: string } | null
   media: { imageUrl: string; mediaType: 'image' | 'testimonial' } | null
   interactive?: InteractiveComponent
