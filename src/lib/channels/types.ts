@@ -93,3 +93,37 @@ export interface ChannelAdapter {
 
   getStatus(connection: ChannelConnection): Promise<ChannelStatus>
 }
+
+// ─── Shared MIA Core Contract (Fase 0) ──────────────────────────────────────
+// These interfaces define the unified contract between Channel Adapters and the
+// Shared Core. Adapters translate channel-specific I/O to CoreInput/CoreOutput.
+// The Core processes business logic independent of the channel.
+
+export interface CoreInput {
+  businessId: string
+  assistantId: string
+  customerId?: string
+  conversationId?: string
+  userMessage: string
+  userPayload?: MessagePayload
+  channel: ChannelType | 'simulation'
+  intentTag?: string | null
+  landingContext?: Record<string, unknown>
+  mode: 'stream' | 'complete'
+  requestType: string
+  preResolvedProductId?: string | null
+}
+
+export interface CoreOutput {
+  response: string
+  textStream?: ReadableStream<Uint8Array>
+  product: { productId: string } | null
+  media: { imageUrl: string; mediaType: 'image' | 'testimonial' } | null
+  interactive?: InteractiveComponent
+  metadata: {
+    usedContext: Array<{ type: string; id: string }>
+    conversationId?: string
+    customerId?: string
+    deliver: boolean
+  }
+}
