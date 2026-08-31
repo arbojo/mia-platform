@@ -8,6 +8,7 @@ import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
+import { processSaleClosing } from '@/lib/sales/process'
 import type { CoreInput, CoreOutput } from '@/lib/channels/types'
 
 export async function processCore(input: CoreInput): Promise<CoreOutput> {
@@ -156,6 +157,22 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       }
     }
 
+    // D-DECISION-1: processSaleClosing in complete mode (parity with stream)
+    if (customerId && input.conversationId) {
+      try {
+        await processSaleClosing({
+          businessId: input.businessId,
+          assistantId: input.assistantId,
+          conversationId: input.conversationId,
+          customerId,
+          canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
+          messages: [...chatMessages, { role: 'assistant', content: response }],
+        })
+      } catch (err) {
+        console.error('Failed to process sale closing (complete):', err)
+      }
+    }
+
     return {
       response,
       product: product ? { productId: product.productId } : null,
@@ -192,6 +209,22 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           })
         } catch (err) {
           console.error('Failed to persist assistant message:', err)
+        }
+
+        // D-DECISION-1: processSaleClosing in stream mode (parity with complete)
+        if (customerId && text) {
+          try {
+            await processSaleClosing({
+              businessId: input.businessId,
+              assistantId: input.assistantId,
+              conversationId: input.conversationId,
+              customerId,
+              canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
+              messages: [...chatMessages, { role: 'assistant', content: text }],
+            })
+          } catch (err) {
+            console.error('Failed to process sale closing (stream):', err)
+          }
         }
       }
     },

@@ -419,6 +419,12 @@ export async function processSaleClosing(params: {
     const isClosing = event.type === 'SALE_WON' || event.type === 'SALE_LOST'
     if (isClosing && hasClosed) continue
 
+    // MEDIUM-1: per-event product attribution.
+    // Each event carries the product_id of ITS product, not a global one.
+    // If the event has a productName, let emitSalesEvent resolve the product_id
+    // from the name (single query per event). This ensures multi-product
+    // conversations attribute the correct product to each event.
+    // In single-product conversations, all events resolve to the same product_id.
     await emitSalesEvent({
       businessId,
       assistantId,
@@ -426,10 +432,7 @@ export async function processSaleClosing(params: {
       customerId,
       eventType: event.type,
       productName: event.productName,
-      // B1b: usar el producto canónico resuelto (selected_product.id) en lugar
-      // de re-resolver por texto libre. El evento y la media comparten así la
-      // misma identidad canónica (invariante de parity).
-      productId: canonicalProductId ?? undefined,
+      productId: event.productName ? undefined : canonicalProductId ?? undefined,
       amount: event.amount,
     })
   }

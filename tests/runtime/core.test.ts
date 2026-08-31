@@ -15,12 +15,14 @@ vi.mock('@/lib/conversation/resolver', () => ({
   resolveConnection: vi.fn(),
   resolveConversation: vi.fn(),
 }))
+vi.mock('@/lib/sales/process', () => ({ processSaleClosing: vi.fn() }))
 
 import { processCore } from '@/lib/runtime/core'
 import { loadConversationContext } from '@/lib/conversation/context'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { resolveRecommendedProduct } from '@/lib/runtime/product-recommendation'
 import { resolveConditionalMedia } from '@/lib/runtime/conditional-media'
+import { processSaleClosing } from '@/lib/sales/process'
 
 function makeMockSupabase() {
   const insertMock = vi.fn((_payload: Record<string, unknown>) =>
@@ -164,5 +166,140 @@ describe('processCore', () => {
       null,
       null
     )
+  })
+
+  // D-DECISION-1: processSaleClosing is called in complete mode
+  it('calls processSaleClosing in complete mode with conversationId', async () => {
+    const { generateText } = await import('ai')
+    vi.mocked(generateText).mockResolvedValue({
+      text: 'Sale response',
+      usage: { promptTokens: 10, completionTokens: 5 },
+    } as never)
+
+    await processCore({
+      businessId: FAKE_UUIDS.business,
+      assistantId: FAKE_UUIDS.assistant,
+      customerId: FAKE_UUIDS.customer,
+      conversationId: FAKE_UUIDS.conversation,
+      userMessage: 'Quiero comprar esto',
+      channel: 'simulation',
+      mode: 'complete',
+      requestType: 'live_customer',
+    })
+
+    expect(processSaleClosing).toHaveBeenCalledWith(
+      expect.objectContaining({
+        businessId: FAKE_UUIDS.business,
+        assistantId: FAKE_UUIDS.assistant,
+        conversationId: FAKE_UUIDS.conversation,
+        customerId: FAKE_UUIDS.customer,
+      })
+    )
+  })
+
+  // D-DECISION-1: processSaleClosing is called in stream mode via onFinish
+  it('calls processSaleClosing in stream mode via onFinish', async () => {
+    const { streamText } = await import('ai')
+    vi.mocked(streamText).mockImplementation(((config: { onFinish?: (params: { text: string; usage: { inputTokens: number; outputTokens: number } }) => Promise<void> }) => {
+      // Capture the onFinish callback to call it later
+      setTimeout(async () => {
+        if (config.onFinish) {
+          await config.onFinish({
+            text: 'Sale response',
+            usage: { inputTokens: 10, outputTokens: 5 },
+          })
+        }
+      }, 0)
+      return {
+        textStream: { [Symbol.asyncIterator]: async function* () { yield 'streaming' } },
+        toTextStreamResponse: vi.fn(() => new Response()),
+      }
+    }) as never)
+
+    await processCore({
+      businessId: FAKE_UUIDS.business,
+      assistantId: FAKE_UUIDS.assistant,
+      customerId: FAKE_UUIDS.customer,
+      conversationId: FAKE_UUIDS.conversation,
+      userMessage: 'Quiero comprar esto',
+      channel: 'simulation',
+      mode: 'stream',
+      requestType: 'live_customer',
+    })
+
+    // Wait for setTimeout to execute
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(processSaleClosing).toHaveBeenCalledWith(
+      expect.objectContaining({
+        businessId: FAKE_UUIDS.business,
+        assistantId: FAKE_UUIDS.assistant,
+        conversationId: FAKE_UUIDS.conversation,
+        customerId: FAKE_UUIDS.customer,
+      })
+    )
+  })
+
+  // D-DECISION-1: processSaleClosing is NOT called without conversationId
+  it('does not call processSaleClosing without conversationId', async () => {
+    const { generateText } = await import('ai')
+    vi.mocked(generateText).mockResolvedValue({
+      text: 'Response',
+      usage: { promptTokens: 5, completionTokens: 3 },
+    } as never)
+
+    await processCore({
+      businessId: FAKE_UUIDS.business,
+      assistantId: FAKE_UUIDS.assistant,
+      userMessage: 'Test',
+      channel: 'simulation',
+      mode: 'complete',
+      requestType: 'training',
+    })
+
+    expect(processSaleClosing).not.toHaveBeenCalled()
+  })
+
+  // Cross-channel parity: both modes produce equivalent CoreOutput structure
+  it('stream and complete modes produce equivalent CoreOutput structure', async () => {
+    const { generateText, streamText } = await import('ai')
+    vi.mocked(generateText).mockResolvedValue({
+      text: 'Response',
+      usage: { promptTokens: 5, completionTokens: 3 },
+    } as never)
+    vi.mocked(streamText).mockReturnValue({
+      textStream: { [Symbol.asyncIterator]: async function* () { yield 'streaming' } },
+      toTextStreamResponse: vi.fn(() => new Response()),
+    } as never)
+
+    const completeResult = await processCore({
+      businessId: FAKE_UUIDS.business,
+      assistantId: FAKE_UUIDS.assistant,
+      userMessage: 'Test',
+      channel: 'simulation',
+      mode: 'complete',
+      requestType: 'training',
+    })
+
+    const streamResult = await processCore({
+      businessId: FAKE_UUIDS.business,
+      assistantId: FAKE_UUIDS.assistant,
+      userMessage: 'Test',
+      channel: 'simulation',
+      mode: 'stream',
+      requestType: 'training',
+    })
+
+    // Both should have the same structure
+    expect(typeof completeResult.response).toBe('string')
+    expect(typeof streamResult.response).toBe('string')
+    expect(completeResult).toHaveProperty('product')
+    expect(streamResult).toHaveProperty('product')
+    expect(completeResult).toHaveProperty('media')
+    expect(streamResult).toHaveProperty('media')
+    expect(completeResult).toHaveProperty('metadata')
+    expect(streamResult).toHaveProperty('metadata')
+    expect(completeResult.metadata.deliver).toBe(true)
+    expect(streamResult.metadata.deliver).toBe(true)
   })
 })
