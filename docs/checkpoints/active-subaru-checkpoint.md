@@ -2,13 +2,13 @@
 task_id: TASK-20260830-0363673
 title: Shared MIA Core Fase 0: Contract + Wrapper + Adapter Delegation
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 4
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260830-0363673
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-08-31T00:08:50.871Z
+updated: 2026-08-31T00:12:49.979Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -44,7 +44,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: Interfaces CoreInput y CoreOutput exportadas correctamente. TypeScript compila sin errores.
   - Gate/verificación: typecheck pass
 
-- [ ] **Paso 2:** Crear processCore wrapper en core.ts
+- [x] **Paso 2:** Crear processCore wrapper en core.ts
   - Objetivo: Crear src/lib/runtime/core.ts con la función processCore que delega a la lógica existente
   - Archivos: src/lib/runtime/core.ts (CREAR)
   - Acción: Crear core.ts con processCore(input: CoreInput): Promise<CoreOutput>. La función debe: (1) resolver cancellationGuards, (2) loadConversationContext, (3) loadTranscript con toChronologicalTranscript, (4) resolveRecommendedProduct, (5) resolveConditionalMedia, (6) executeAI, (7) persistMessages, (8) extractEvidence. Cada paso delega a las funciones existentes de runtime.ts. NO agregar processSaleClosing (eso es Fase 1).
@@ -74,7 +74,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-0363673 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-0363673 3`.
 
 ## Constraints
 
