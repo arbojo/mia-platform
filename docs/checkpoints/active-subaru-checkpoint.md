@@ -2,13 +2,13 @@
 task_id: TASK-20260830-0363673
 title: Shared MIA Core Fase 0: Contract + Wrapper + Adapter Delegation
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 4
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260830-0363673
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-08-31T00:12:49.979Z
+updated: 2026-08-31T00:18:35.102Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -52,7 +52,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: core.ts creado con processCore que compila. Todas las llamadas delegan a funciones existentes. Sin lógica nueva.
   - Gate/verificación: typecheck pass + build pass
 
-- [ ] **Paso 3:** Delegar processStreaming e processIncomingMessage a processCore
+- [x] **Paso 3:** Delegar processStreaming e processIncomingMessage a processCore
   - Objetivo: Modificar runtime.ts para que processStreaming e processIncomingMessage creen CoreInput y llamen a processCore
   - Archivos: src/lib/runtime/runtime.ts
   - Acción: En processStreaming: construir CoreInput desde los params, llamar processCore(input), transformar CoreOutput a ProcessStreamingResult. En processIncomingMessage: construir CoreInput desde wireMessage/adapter, llamar processCore(input), transformar CoreOutput a el objeto de retorno actual. Mantener la misma lógica de delivery/shadow/interactive en los adapters.
@@ -74,7 +74,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-0363673 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-0363673 4`.
 
 ## Constraints
 
