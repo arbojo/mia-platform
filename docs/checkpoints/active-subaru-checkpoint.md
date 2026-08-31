@@ -2,13 +2,13 @@
 task_id: TASK-20260830-0363673
 title: Shared MIA Core Fase 0: Contract + Wrapper + Adapter Delegation
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 4
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260830-0363673
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-08-31T00:18:35.102Z
+updated: 2026-08-31T00:20:22.213Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -60,7 +60,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: processStreaming e processIncomingMessage delegan a processCore. Todos los tests existentes pasan (62 PARITY-E2 + unit). Sin cambio de comportamiento.
   - Gate/verificación: lint + build + unit tests
 
-- [ ] **Paso 4:** Tests del contrato + gates finales
+- [x] **Paso 4:** Tests del contrato + gates finales
   - Objetivo: Crear tests del contrato CoreInput/CoreOutput y ejecutar gates de calidad
   - Archivos: src/lib/runtime/core.test.ts (CREAR), repositorio (verificación)
   - Acción: Crear core.test.ts con tests: (1) processCore produce CoreOutput válido, (2) processCore con mode=stream produce textStream, (3) processCore con mode=complete produce response string, (4) processCore maneja zero-state gracefully. Ejecutar lint (0/0), build (sin errores), unit tests (62+ nuevos verdes).
@@ -74,7 +74,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-0363673 4`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260830-0363673` cuando pasen los gates de verificación.
 
 ## Constraints
 
