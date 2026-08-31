@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260830-0363673
 title: Shared MIA Core Fase 0: Contract + Wrapper + Adapter Delegation
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 4
 branch: main
 last_machine: archlinux
 governance_id: TASK-20260830-0363673
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-08-31T00:06:33.347Z
+updated: 2026-08-31T00:08:50.871Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -36,7 +36,7 @@ Archivos: src/lib/runtime/core.ts (CREAR), src/lib/runtime/core.test.ts (CREAR),
 
 Pasos atómicos aprobados por el Council:
 
-- [ ] **Paso 1:** Crear contrato CoreInput/CoreOutput en types.ts
+- [x] **Paso 1:** Crear contrato CoreInput/CoreOutput en types.ts
   - Objetivo: Definir las interfaces CoreInput y CoreOutput en channels/types.ts
   - Archivos: src/lib/channels/types.ts
   - Acción: Agregar interfaces CoreInput y CoreOutput al final del archivo. CoreInput contiene businessId, assistantId, customerId, conversationId, userMessage, userPayload, channel, intentTag, landingContext, mode, requestType, preResolvedProductId. CoreOutput contiene response, textStream, product, media, interactive, metadata.
@@ -74,7 +74,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 1: crear interfaces CoreInput y CoreOutput en channels/types.ts.
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260830-0363673 2`.
 
 ## Constraints
 
