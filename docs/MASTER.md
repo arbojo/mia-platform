@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8008ff0`.
+> Fuente de verdad: este repositorio en `19dea9d`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8008ff0` |
+| **Commit HEAD** | `19dea9d` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-30T18:07:46-06:00 |
+| **Generado** | 2026-08-30T18:09:16-06:00 |
 
 ---
 
@@ -905,6 +905,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+19dea9d feat(core): add CoreInput/CoreOutput contract interfaces (Step 1)
+1933556 subaru: checkpoint TASK-20260830-0363673 - en-progreso
+0f129a6 docs: regenerate MASTER.md at 8008ff0
 8008ff0 subaru: checkpoint TASK-20260830-0363673 - listo
 25d0fb5 docs: regenerate MASTER.md at 894e865
 894e865 subaru: checkpoint TASK-20260830-0363673 - listo
@@ -922,9 +925,6 @@ a075d04 docs: regenerate MASTER.md at 7587909
 0be1c30 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 eeeadaf subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 75317b0 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-7b71a50 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-30ae200 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-7e46f96 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 ```
 
 ---
