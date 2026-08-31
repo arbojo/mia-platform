@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ef9df4a`.
+> Fuente de verdad: este repositorio en `8967e59`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ef9df4a` |
+| **Commit HEAD** | `8967e59` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-30T19:38:04-06:00 |
+| **Generado** | 2026-08-30T19:56:38-06:00 |
 
 ---
 
@@ -906,6 +906,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+8967e59 fix(runtime): remove duplicate message inserts in processIncomingMessage
+9061a4c docs: regenerate MASTER.md at ef9df4a
 ef9df4a feat(core): Fase 1 — D-DECISION-1 sale closing parity + MEDIUM-1 per-event attribution
 59ab2f2 docs: regenerate MASTER.md at 3cb7f18
 3cb7f18 subaru: checkpoint TASK-20260830-0363673 - completado
@@ -924,8 +926,6 @@ b5391ae feat(core): create processCore wrapper with CoreInput/CoreOutput (Step 2
 0f129a6 docs: regenerate MASTER.md at 8008ff0
 8008ff0 subaru: checkpoint TASK-20260830-0363673 - listo
 25d0fb5 docs: regenerate MASTER.md at 894e865
-894e865 subaru: checkpoint TASK-20260830-0363673 - listo
-2624e8d docs: regenerate MASTER.md at a9b5c0b
 ```
 
 ---
