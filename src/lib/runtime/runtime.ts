@@ -235,18 +235,6 @@ export async function processIncomingMessage(
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
-  if (conversationId) {
-    await supabase.from('messages').insert({
-      conversation_id: conversationId,
-      role: 'user',
-      content: wireMessage.content,
-      metadata: {
-        channel,
-        external_id: wireMessage.externalId,
-      },
-    })
-  }
-
   await supabase.from('channel_messages').insert({
     business_id: businessId,
     customer_id: customer.id,
@@ -287,19 +275,6 @@ export async function processIncomingMessage(
   })
 
   const response = coreOutput.response
-
-  if (conversationId) {
-    await supabase.from('messages').insert({
-      conversation_id: conversationId,
-      role: 'assistant',
-      content: response,
-      metadata: {
-        channel,
-        used_context: coreOutput.metadata.usedContext,
-        ...(mode === 'shadow' ? { shadow: true, delivered: false } : {}),
-      },
-    })
-  }
 
   await supabase.from('channel_messages').insert({
     business_id: businessId,
