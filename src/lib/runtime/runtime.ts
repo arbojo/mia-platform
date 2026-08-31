@@ -180,157 +180,32 @@ export async function processStreaming(params: {
   intentTag?: string | null
   channel?: ChannelType | 'simulation'
 }): Promise<ProcessStreamingResult> {
-  const { assistantId, businessId, conversationId, messages, requestType, landingContext, intentTag, channel } = params
+  const { processCore } = await import('./core')
+  const lastUserMessage = params.messages[params.messages.length - 1]
 
-  const supabase = createAdminClient()
-  let customerId: string | undefined
-  if (conversationId) {
-    const { data: conv } = await supabase
-      .from('conversations')
-      .select('customer_id')
-      .eq('id', conversationId)
-      .maybeSingle()
-    if (conv?.customer_id) {
-      customerId = conv.customer_id
-    }
-  }
-
-  let conversationOutcome: string | null = null
-  if (conversationId) {
-    const { data: conv } = await supabase
-      .from('conversations')
-      .select('outcome')
-      .eq('id', conversationId)
-      .maybeSingle()
-    conversationOutcome = conv?.outcome ?? null
-  }
-
-  // P1 (parity): computar los guards de cancelacion tambien en el flujo streaming
-  // (Web Chat). Antes solo los computaba processIncomingMessage; sin esto, el Web
-  // Chat no activaba los guards de post-venta/RETENTION_PENDING y divergia de
-  // WhatsApp. Ahora ambos canales usan la misma funcion compartida.
-  const { cancellationContext, lastCancelledOrder, userIntent } = await resolveCancellationGuards({
-    supabase,
-    businessId,
-    customerId,
-    conversationId: conversationId ?? null,
-    userContent: messages[messages.length - 1]?.content ?? '',
-  })
-
-  const { systemPrompt, usedContext } = await loadConversationContext(
-    businessId,
-    assistantId,
-    customerId,
-    channel,
-    intentTag ?? undefined,
-    landingContext,
-    conversationOutcome,
-    cancellationContext,
-    lastCancelledOrder,
-    userIntent
-  )
-
-  let chatMessages = messages
-  if (conversationId) {
-    // C1 (parity): el transcript debe ser el tail RECIENTE de la conversacion.
-    // .order(desc)+limit(N) entrega los N mas recientes; invertimos el orden
-    // para que queden cronologicos y el detector reciba la ultima intervencion.
-    const { data: history } = await supabase
-      .from('messages')
-      .select('role, content')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: false })
-      .limit(30)
-
-    if (history && history.length > 0) {
-      chatMessages = [...toChronologicalTranscript(history), ...messages]
-    }
-  }
-
-  const lastUserMessage = messages[messages.length - 1]
-  if (conversationId && lastUserMessage) {
-    try {
-      await supabase.from('messages').insert({
-        conversation_id: conversationId,
-        role: 'user',
-        content: lastUserMessage.content,
-      })
-    } catch (err) {
-      console.error('Failed to persist user message:', err)
-    }
-  }
-
-  let product: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
-  if (lastUserMessage) {
-    try {
-      product = await resolveRecommendedProduct({
-        businessId,
-        userMessage: lastUserMessage.content,
-        intentTag: intentTag ?? null,
-        productId: landingContext?.productId ?? null,
-      })
-    } catch (err) {
-      console.error('Failed to resolve recommended product:', err)
-    }
-  }
-
-  // Media condicional (imagenes por trigger): se resuelve tambien en el flujo
-  // streaming (incluido el laboratorio con channel=simulation). El re-pedido
-  // explicito del cliente salta los guards de envio unico.
-  let media: MediaAttachment | null = null
-  if (conversationId && lastUserMessage) {
-    try {
-      media = await resolveConditionalMedia({
-        businessId,
-        customerId,
-        conversationId,
-        userMessage: lastUserMessage.content,
-        intentTag: intentTag ?? null,
-        productId: product?.productId ?? landingContext?.productId ?? null,
-        isResend: isResendRequest(lastUserMessage.content),
-      })
-    } catch (err) {
-      console.error('Failed to resolve conditional media:', err)
-    }
-  }
-  const safeMedia =
-    media && media.imageUrl && isSafeMediaUrl(media.imageUrl)
-      ? { imageUrl: media.imageUrl, mediaType: media.mediaType }
-      : null
-
-  const result = await executeAI({
+  const coreOutput = await processCore({
+    businessId: params.businessId,
+    assistantId: params.assistantId,
+    conversationId: params.conversationId,
+    userMessage: lastUserMessage?.content ?? '',
+    channel: params.channel ?? 'simulation',
+    intentTag: params.intentTag,
+    landingContext: params.landingContext as unknown as Record<string, unknown>,
     mode: 'stream',
-    businessId,
-    assistantId,
-    requestType,
-    system: systemPrompt,
-    messages: chatMessages,
-    onFinish: async ({ text }) => {
-      if (conversationId) {
-        try {
-          await supabase.from('messages').insert({
-            conversation_id: conversationId,
-            role: 'assistant',
-            content: text ?? '',
-            metadata: {
-              used_context: usedContext,
-              ...(product
-                ? { product_id: product.productId, product }
-                : {}),
-              ...(safeMedia ? { media: safeMedia } : {}),
-            },
-          })
-        } catch (err) {
-          console.error('Failed to persist assistant message:', err)
-        }
-      }
-    },
+    requestType: params.requestType,
   })
+
+  const product = coreOutput.product
+    ? { productId: coreOutput.product.productId } as Awaited<ReturnType<typeof resolveRecommendedProduct>>
+    : null
+  const safeMedia = coreOutput.media
 
   return {
-    toTextStreamResponse: () => result.toTextStreamResponse(),
+    toTextStreamResponse: () => new Response(coreOutput.textStream, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    }),
     toStructuredStreamResponse: () =>
-      buildStructuredStreamResponse({ textStream: result.textStream, product, media: safeMedia }),
+      buildStructuredStreamResponse({ textStream: coreOutput.textStream, product, media: safeMedia }),
   }
 }
 
@@ -358,17 +233,6 @@ export async function processIncomingMessage(
 
   const conversationId = await resolveConversation(assistantId, customer.id)
 
-  // P1 (parity): guards de cancelacion compartidos (idénticos para todos los
-  // canales). Reemplaza los tres bloques que antes computaban cancellationContext,
-  // lastCancelledOrder y userIntent de forma inline en processIncomingMessage.
-  const { cancellationContext, lastCancelledOrder, userIntent } = await resolveCancellationGuards({
-    supabase,
-    businessId,
-    customerId: customer.id,
-    conversationId,
-    userContent: wireMessage.content,
-  })
-
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
   if (conversationId) {
@@ -394,8 +258,6 @@ export async function processIncomingMessage(
     status: 'received',
   })
 
-  // PAUSED: the channel is inactive. The message is stored but MIA does not
-  // process it (no AI call, no response, no outgoing record).
   if (mode === 'paused') {
     await supabase
       .from('customers')
@@ -410,53 +272,21 @@ export async function processIncomingMessage(
     }
   }
 
-  let conversationOutcome: string | null = null
-  if (conversationId) {
-    const { data: convOutcome } = await supabase
-      .from('conversations')
-      .select('outcome')
-      .eq('id', conversationId)
-      .maybeSingle()
-    conversationOutcome = convOutcome?.outcome ?? null
-  }
+  const { processCore } = await import('./core')
 
-  const { systemPrompt, usedContext, productId } = await loadConversationContext(
+  const coreOutput = await processCore({
     businessId,
     assistantId,
-    customer.id,
-    channel === 'whatsapp' || channel === 'web' || channel === 'widget' || channel === 'messenger' || channel === 'instagram'
-      ? channel
-      : undefined,
+    customerId: customer.id,
+    conversationId: conversationId ?? undefined,
+    userMessage: wireMessage.content,
+    channel: channel as 'whatsapp' | 'web' | 'widget' | 'messenger' | 'instagram',
     intentTag,
-    undefined,
-    conversationOutcome,
-    cancellationContext,
-    lastCancelledOrder,
-    userIntent
-  )
-
-  const chatHistory = conversationId
-    ? await supabase
-        .from('messages')
-        .select('role, content')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: false })
-        .limit(20)
-    : { data: [] }
-
-  const chatMessages = toChronologicalTranscript(chatHistory.data ?? [])
-
-  const result = await executeAI({
     mode: 'complete',
-    businessId,
-    assistantId,
     requestType: 'live_customer',
-    system: systemPrompt,
-    messages: chatMessages,
-    maxTokens: 500,
   })
 
-  const response = result.content
+  const response = coreOutput.response
 
   if (conversationId) {
     await supabase.from('messages').insert({
@@ -465,7 +295,7 @@ export async function processIncomingMessage(
       content: response,
       metadata: {
         channel,
-        used_context: usedContext,
+        used_context: coreOutput.metadata.usedContext,
         ...(mode === 'shadow' ? { shadow: true, delivered: false } : {}),
       },
     })
@@ -487,46 +317,26 @@ export async function processIncomingMessage(
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
 
-  if (conversationId && customer.id) {
-    try {
-      await extractEvidenceFromCustomerMessage({
-        customerId: customer.id,
-        conversationId,
-        message: wireMessage.content,
-        messageId: `msg-${conversationId}-${Date.now()}`,
-      })
-    } catch (err) {
-      console.error('Evidence extraction failed (non-blocking):', err)
-    }
-  }
-
-  // Resolver producto recomendado (canónico) para asociar la imagen correcta
-  // al producto que el cliente está preguntando (sin esto, la imagen podía ser
-  // de otro producto). Se resuelve ANTES de processSaleClosing para que los
-  // eventos de cierre lleven el selected_product.id canónico (B1b: los eventos
-  // no deben re-resolver el producto por texto libre cuando ya hay selección).
-  let resolvedProduct: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
-  if (wireMessage.content) {
-    try {
-      resolvedProduct = await resolveRecommendedProduct({
-        businessId,
-        userMessage: wireMessage.content,
-        intentTag: intentTag ?? null,
-        productId: productId ?? null,
-      })
-    } catch (err) {
-      console.error('Failed to resolve recommended product:', err)
-    }
-  }
-
+  // Sale closing: handled by adapter (not Core) because it needs mode check
+  const resolvedProduct = coreOutput.product
   if (mode === 'active' && conversationId) {
     try {
+      const chatHistory = conversationId
+        ? await supabase
+            .from('messages')
+            .select('role, content')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: false })
+            .limit(20)
+        : { data: [] }
+      const chatMessages = toChronologicalTranscript(chatHistory.data ?? [])
+
       await processSaleClosing({
         businessId,
         assistantId,
         conversationId,
         customerId: customer.id,
-        canonicalProductId: resolvedProduct?.productId ?? productId ?? null,
+        canonicalProductId: resolvedProduct?.productId ?? null,
         messages: [...chatMessages, { role: 'user', content: wireMessage.content }, { role: 'assistant', content: response }],
       })
     } catch (err) {
@@ -534,16 +344,6 @@ export async function processIncomingMessage(
     }
   }
 
-  const media = mode === 'shadow' ? undefined : await resolveConditionalMedia({
-    businessId,
-    customerId: customer.id,
-    conversationId: conversationId ?? null,
-    userMessage: wireMessage.content,
-    intentTag: intentTag ?? null,
-    productId: resolvedProduct?.productId ?? productId ?? null,
-  })
-
-  // SHADOW: the reply is generated and stored for learning but never sent.
   const deliver = mode !== 'shadow'
 
   let interactive: InteractiveComponent | undefined
@@ -563,8 +363,8 @@ export async function processIncomingMessage(
     response,
     customerId: customer.id,
     conversationId: conversationId ?? '',
-    imageUrl: media?.imageUrl && isSafeMediaUrl(media.imageUrl) ? media.imageUrl : undefined,
-    mediaType: media?.mediaType,
+    imageUrl: coreOutput.media?.imageUrl && isSafeMediaUrl(coreOutput.media.imageUrl) ? coreOutput.media.imageUrl : undefined,
+    mediaType: coreOutput.media?.mediaType,
     interactive,
     deliver,
   }
