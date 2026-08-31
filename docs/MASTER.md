@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `19dea9d`.
+> Fuente de verdad: este repositorio en `b5391ae`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `19dea9d` |
+| **Commit HEAD** | `b5391ae` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-30T18:09:16-06:00 |
+| **Generado** | 2026-08-30T18:12:55-06:00 |
 
 ---
 
@@ -548,7 +548,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-133 módulos:
+134 módulos:
 
 ```
 ai/client.ts
@@ -655,6 +655,7 @@ reasoning/state-loader.ts
 reasoning/state.ts
 runtime/assistant-gate.ts
 runtime/conditional-media.ts
+runtime/core.ts
 runtime/evidence-extraction.ts
 runtime/execute-ai.ts
 runtime/intents.ts
@@ -905,6 +906,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+b5391ae feat(core): create processCore wrapper with CoreInput/CoreOutput (Step 2)
+8b837de subaru: checkpoint TASK-20260830-0363673 - en-progreso
+9e21382 docs: regenerate MASTER.md at 19dea9d
 19dea9d feat(core): add CoreInput/CoreOutput contract interfaces (Step 1)
 1933556 subaru: checkpoint TASK-20260830-0363673 - en-progreso
 0f129a6 docs: regenerate MASTER.md at 8008ff0
@@ -922,9 +926,6 @@ cda8054 subaru: checkpoint TASK-20260830-PARITY-E2 - bloqueado
 126c635 fix(parity): unifica semantica C1/B1/B1b/P1 entre canales (Etapa 2)
 a075d04 docs: regenerate MASTER.md at 7587909
 7587909 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-0be1c30 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-eeeadaf subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-75317b0 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 ```
 
 ---
