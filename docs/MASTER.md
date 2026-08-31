@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a9b5c0b`.
+> Fuente de verdad: este repositorio en `894e865`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a9b5c0b` |
+| **Commit HEAD** | `894e865` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-30T17:47:57-06:00 |
+| **Generado** | 2026-08-30T18:06:40-06:00 |
 
 ---
 
@@ -905,6 +905,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+894e865 subaru: checkpoint TASK-20260830-0363673 - listo
+2624e8d docs: regenerate MASTER.md at a9b5c0b
 a9b5c0b fix(subaru): correct PARITY-E2 completion record — deferred gates not falsely claimed as PASS
 0e7f34f subaru: checkpoint TASK-20260830-PARITY-E2 - completado
 48b8d22 docs: regenerate MASTER.md at e6f4c27
@@ -923,8 +925,6 @@ eeeadaf subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 7e46f96 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 72f9aab docs: regenerate MASTER.md at b5d2f94
 b5d2f94 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
-85b72f9 docs: regenerate MASTER.md at 2e0bbf8
-2e0bbf8 subaru: checkpoint TASK-20260830-PARITY-E2 - listo
 ```
 
 ---
