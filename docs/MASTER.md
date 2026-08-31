@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `b5391ae`.
+> Fuente de verdad: este repositorio en `ce73a00`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `b5391ae` |
+| **Commit HEAD** | `ce73a00` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-30T18:12:55-06:00 |
+| **Generado** | 2026-08-30T18:18:47-06:00 |
 
 ---
 
@@ -906,6 +906,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+ce73a00 feat(core): delegate processStreaming and processIncomingMessage to processCore (Step 3)
+1e84a8a subaru: checkpoint TASK-20260830-0363673 - en-progreso
+cf1644f docs: regenerate MASTER.md at b5391ae
 b5391ae feat(core): create processCore wrapper with CoreInput/CoreOutput (Step 2)
 8b837de subaru: checkpoint TASK-20260830-0363673 - en-progreso
 9e21382 docs: regenerate MASTER.md at 19dea9d
@@ -923,9 +926,6 @@ e6f4c27 subaru: checkpoint TASK-20260830-PARITY-E2 - bloqueado
 a01ab9e chore: gitignore parity/E2E mission artifacts (Q7)
 27f5ee5 docs: regenerate MASTER.md at cda8054
 cda8054 subaru: checkpoint TASK-20260830-PARITY-E2 - bloqueado
-126c635 fix(parity): unifica semantica C1/B1/B1b/P1 entre canales (Etapa 2)
-a075d04 docs: regenerate MASTER.md at 7587909
-7587909 subaru: checkpoint TASK-20260830-PARITY-E2 - en-progreso
 ```
 
 ---
