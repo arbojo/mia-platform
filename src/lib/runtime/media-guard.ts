@@ -71,6 +71,12 @@ export function isSafeMediaUrl(url: string): boolean {
   return isAllowedHost(parsed.hostname)
 }
 
+/**
+ * @deprecated P1-5 (doc 31): `media_sent_products[]` perdió su autoridad
+ * funcional. El dedup autoritativo es el claim atómico conversation × asset
+ * en `chat_media_dispatched` (con estado claimed/dispatched/failed).
+ * Se mantiene SOLO como lectura de transición; no debe usarse como gate.
+ */
 export async function getConversationMediaSentProducts(
   supabase: SupabaseClient<Database>,
   conversationId: string
@@ -84,6 +90,11 @@ export async function getConversationMediaSentProducts(
   return Array.isArray(data?.media_sent_products) ? data.media_sent_products : []
 }
 
+/**
+ * @deprecated P1-5 (doc 31): escritura en `media_sent_products[]` suspendida.
+ * No es atómica (read-modify-write) y duplica el mecanismo de claims. El nuevo
+ * flujo (context-media.ts) escribe el estado del claim en chat_media_dispatched.
+ */
 export async function addConversationMediaSentProduct(
   supabase: SupabaseClient<Database>,
   conversationId: string,

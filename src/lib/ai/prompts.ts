@@ -447,3 +447,51 @@ Tienes acceso al sistema de entregas. Cuando el cliente pregunte por envíos o t
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`
 }
+/**
+ * ─────────────────────────────────────────────────────────────────────────
+ * P1-6 — Media resolution feedback al LLM (doc 28 LLM-RUNTIME-FEEDBACK).
+ * ─────────────────────────────────────────────────────────────────────────
+ *
+ * Feedback MÍNIMO adjunto al prompt por mensaje (doc 28 §3). Regla normativa
+ * (doc 28 §2): el LLM SOLO puede afirmar aquello que el runtime le reporte
+ * como ocurrido. CLAIM ≠ DISPATCHED ≠ DELIVERED (doc 26 §1).
+ */
+export interface MediaResolutionFeedback {
+  scope: string[]
+  explicitScope: string
+  eligible: boolean
+  assetSelected: string | null
+  claim: string
+  dispatched: boolean | 'unknown'
+  delivered: 'unknown'
+}
+
+export function withMediaResolutionFeedback(
+  systemPrompt: string,
+  feedback?: MediaResolutionFeedback | null
+): string {
+  if (!feedback) return systemPrompt
+
+  const scope = feedback.scope.length > 0 ? feedback.scope.join(', ') : 'none'
+  const block = [
+    '## Resolución de media (feedback del runtime)',
+    'media_resolution:',
+    `  scope: ${scope}`,
+    `  explicit_scope: ${feedback.explicitScope}`,
+    `  eligible: ${feedback.eligible}`,
+    `  asset_selected: ${feedback.assetSelected ?? 'null'}`,
+    `  claim: ${feedback.claim}`,
+    `  dispatched: ${feedback.dispatched}`,
+    `  delivered: ${feedback.delivered}`,
+    '',
+    'Reglas no negociables:',
+    '- El envío o no envío de imágenes es decisión exclusiva del runtime.',
+    '- Si dispatched es false o unknown, NO digas que enviaste una imagen.',
+    '- NO prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
+    '- Si claim es existing_hit, esa imagen ya fue enviada antes: reconócelo y ofrece reenviarla solo si el cliente lo pide.',
+    '- Si eligible es false, no había media para el producto en discusión: responde con información textual.',
+    '- No inventes información del producto que no esté en el conocimiento provisto; si no hay evidencia, responde honestamente que no lo sabes.',
+  ].join('\n')
+
+  return `${systemPrompt.trim()}\n\n${block}`
+}

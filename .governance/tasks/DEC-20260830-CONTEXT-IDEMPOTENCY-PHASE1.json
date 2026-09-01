@@ -1,0 +1,88 @@
+{
+  "id": "TASK-20260830-CONTEXT-IDEMPOTENCY-PHASE1",
+  "title": "Context + Idempotency + Media Scope — Phase 1 Implementation (P1-1..P1-8)",
+  "type": "COMPLEX",
+  "status": "in_progress",
+  "created_at": "2026-08-30T00:00:00.000Z",
+  "decision_id": "DEC-20260830-CONTEXT-IDEMPOTENCY-PHASE1",
+  "decision": "DECISION_ACCEPTED",
+  "classification": {
+    "complexity": "COMPLEX",
+    "cross_cutting": true,
+    "domains_affected": ["runtime", "sales", "knowledge", "supabase", "ai"],
+    "schema_changes": true,
+    "new_tables": false,
+    "qualityGates": ["lint", "build", "unit_tests", "security_review", "stress_test"]
+  },
+  "council_required": true,
+  "council_decision": "DEC-20260830-CONTEXT-IDEMPOTENCY-PHASE1",
+  "quality_gates": {
+    "required_tests": 35,
+    "acceptance_criteria": 8,
+    "rollback_authorized": true
+  },
+  "scope": {
+    "authorized": [
+      "P1-1 Conversation-scoped context: migración aditiva active_product_ids uuid[] sobre conversations (docs 23-31)",
+      "P1-2 Explicit-scope determinístico: matching literal + SKU sin LLM en core (D5)",
+      "P1-3 Trigger evaluation dentro del scope: resolveConditionalMedia recibe scope como parámetro; reorder pipeline contexto→trigger→media→LLM",
+      "P1-4 Atomic conversation × asset claims: columna state (claimed/dispatched/failed) sobre chat_media_dispatched",
+      "P1-5 Deprecación de media_sent_products[]: escritura migrada a claim atómico, lectura en transición",
+      "P1-6 LLM media feedback: bloque mínimo contractual (doc 28 §3) en src/lib/ai/prompts.ts",
+      "P1-7 Decision logging: logging estructurado dispatch/no-dispatch (doc 30 §H)",
+      "P1-8 Golden tests GT-01..GT-35 (doc 30) en tests/",
+      "docs/research/context-idempotency/34-COUNCIL-DECISION.md - council decision record",
+      "docs/research/context-idempotency/35-GOVERNANCE-MANIFEST.md - governance manifest summary",
+      "supabase/migrations/ - SOLO migración aditiva active_product_ids + columna state en chat_media_dispatched",
+      "src/lib/runtime/conditional-media.ts - scoped media resolution",
+      "src/lib/runtime/media-guard.ts - deprecación media_sent_products (P1-5)",
+      "src/lib/runtime/runtime.ts - pipeline reorder y scope wiring (P1-3, P1-6)",
+      "src/lib/ai/prompts.ts - bloque media feedback P1-6 (doc 28 §3, nada más)",
+      "tests/ - golden tests GT-01..GT-35 y race/idempotency tests"
+    ],
+    "not_authorized": [
+      "Phase 2: D3 delivered_at / provider receipts / Baileys spike",
+      "Phase 2: D4 identity hardening / cross-channel identity",
+      "Phase 2: D6 customer × asset dedup read path",
+      "customer-level dedup semantics (customer_id write queda como está, read path NO)",
+      "estados delivered/attempted fuera del contrato claimed/dispatched/failed",
+      "nuevos estados no demostrados por la evidencia",
+      "cambios de prompts fuera del bloque P1-6 contractual",
+      "cambios en canales específicos que alteren decisiones de negocio",
+      "migraciones fuera de active_product_ids + state en chat_media_dispatched",
+      "refactor arquitectónico no necesario para P1-1..P1-8",
+      "commit o deploy dentro de Loop 6",
+      "inventar alternativas UX para C-1 (decisión adoptada verbatim en doc 34)"
+    ]
+  },
+  "effort_estimate": {
+    "lines": "800-1200",
+    "days": "5-7",
+    "reason": "Pipeline reorder + scope state + atomic claims + golden test suite GT-01..GT-35 (35 tests) + logging, con orden P1-8→P1-1→P1-2→P1-3→P1-4→P1-5→P1-6→P1-7 (doc 31)"
+  },
+  "implementation_authorized": true,
+  "implementation_conditions": [
+    "Golden Tests GT-01..GT-35 en verde antes de activar cualquier flag (doc 30/31)",
+    "E2E shared-core validation",
+    "WhatsApp (Baileys), WebChat y Lab parity (invariante channel-independent, doc 29)",
+    "Race/idempotency tests del claim atómico (GT-22, GT-23)",
+    "lint, build, unit tests en verde",
+    "deployment smoke test",
+    "Council deviations = 0 (D1/D2/D5/C-1 verbatim, doc 34)",
+    "Subaru checkpoint = completed",
+    "INV-1..INV-5 (doc 22) y regla de no-inención (doc 27) enforceados"
+  ],
+  "decision_artifacts": [
+    "docs/research/context-idempotency/22-FINAL-CONTEXT-IDEMPOTENCY-CONTRACT.md",
+    "docs/research/context-idempotency/24-CONTEXT-STATE-MODEL.md",
+    "docs/research/context-idempotency/26-IDEMPOTENCY-CONTRACT.md",
+    "docs/research/context-idempotency/28-LLM-FEEDBACK-CONTRACT.md",
+    "docs/research/context-idempotency/30-GOLDEN-TEST-SPECIFICATION.md",
+    "docs/research/context-idempotency/31-IMPLEMENTATION-PHASE-BOUNDARY.md",
+    "docs/research/context-idempotency/32-FINAL-CONTRADICTION-REPORT.md",
+    "docs/research/context-idempotency/33-IMPLEMENTATION-READINESS.md",
+    "docs/research/context-idempotency/34-COUNCIL-DECISION.md",
+    "docs/research/context-idempotency/35-GOVERNANCE-MANIFEST.md",
+    "docs/research/context-idempotency/GATE-CHECK-LOOP5.md"
+  ]
+}

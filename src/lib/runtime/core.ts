@@ -3,9 +3,17 @@ import { loadConversationContext } from '@/lib/conversation/context'
 import { resolveCancellationGuards } from './runtime'
 import { toChronologicalTranscript } from './runtime'
 import { executeAI } from './execute-ai'
-import { resolveConditionalMedia } from './conditional-media'
+import { resolveScopeContext } from './context-scope'
+import {
+  resolveContextMedia,
+  setMediaClaimState,
+  logMediaDecision,
+  emptyMediaDecision,
+  type ContextMediaResult,
+} from './context-media'
 import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
+import { withMediaResolutionFeedback } from '@/lib/ai/prompts'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import { processSaleClosing } from '@/lib/sales/process'
@@ -97,26 +105,83 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     }
   }
 
-  let media: Awaited<ReturnType<typeof resolveConditionalMedia>> = null
-  if (input.conversationId && input.userMessage) {
+  // ── P1-1/P1-2/P1-3: contexto + explicit scope + evaluación de media SCOPED ──
+  // El pipeline normativo (doc 25 §1): MESSAGE → CONTEXT → EXPLICIT SCOPE →
+  // TRIGGER EVALUATION (dentro del scope) → ELIGIBILITY → ATOMIC CLAIM → retorno.
+  // El LLM recibe feedback de la resolución (P1-6) porque la resolución ocurre
+  // ANTES de la generación de texto.
+  let mediaResolution: ContextMediaResult = { attachment: null, decision: emptyMediaDecision() }
+  const ranMediaResolution = Boolean(input.conversationId && input.userMessage)
+  if (ranMediaResolution) {
     try {
-      media = await resolveConditionalMedia({
+      const scopeContext = await resolveScopeContext({
+        supabase,
+        businessId: input.businessId,
+        conversationId: input.conversationId ?? null,
+        userMessage: input.userMessage,
+        landingProductId:
+          (input.landingContext as Record<string, unknown>)?.productId as string ??
+          input.preResolvedProductId ??
+          null,
+      })
+
+      mediaResolution = await resolveContextMedia({
         businessId: input.businessId,
         customerId,
-        conversationId: input.conversationId,
+        conversationId: input.conversationId ?? null,
         userMessage: input.userMessage,
         intentTag: input.intentTag ?? null,
-        productId: product?.productId ?? input.preResolvedProductId ?? null,
+        scope: scopeContext.messageScope,
+        scopeSource: scopeContext.source,
+        explicitSource: scopeContext.explicit[0]?.source ?? null,
         isResend: isResendRequest(input.userMessage),
       })
+
+      // P1-7: decisión de media siempre tiene registro del porqué.
+      logMediaDecision({
+        businessId: input.businessId,
+        conversationId: input.conversationId ?? null,
+        userMessage: input.userMessage,
+        decision: mediaResolution.decision,
+      })
     } catch (err) {
-      console.error('Failed to resolve conditional media:', err)
+      console.error('Failed to resolve context media:', err)
     }
   }
+
+  const media = mediaResolution.attachment
   const safeMedia =
     media && media.imageUrl && isSafeMediaUrl(media.imageUrl)
       ? { imageUrl: media.imageUrl, mediaType: media.mediaType }
       : null
+
+  // P1-4: reflejar en el claim el handoff al transport ('dispatched') o el
+  // fallo ('failed'). CLAIMED ≠ DISPATCHED ≠ DELIVERED (doc 26 §1).
+  if (input.conversationId && mediaResolution.attachment) {
+    try {
+      await setMediaClaimState(
+        supabase,
+        input.conversationId,
+        mediaResolution.attachment.knowledgeItemId,
+        safeMedia ? 'dispatched' : 'failed'
+      )
+    } catch (err) {
+      console.error('Failed to persist media claim state:', err)
+    }
+  }
+
+  // P1-6: feedback mínimo de media resolvida adjunto al prompt (doc 28 §3).
+  const systemPromptForAI = ranMediaResolution
+    ? withMediaResolutionFeedback(systemPrompt, {
+        scope: mediaResolution.decision.scope,
+        explicitScope: mediaResolution.decision.explicitScope,
+        eligible: mediaResolution.decision.eligible,
+        assetSelected: mediaResolution.decision.assetSelected,
+        claim: mediaResolution.decision.claim,
+        dispatched: mediaResolution.decision.dispatched,
+        delivered: mediaResolution.decision.delivered,
+      })
+    : systemPrompt
 
   if (input.mode === 'complete') {
     const result = await executeAI({
@@ -124,7 +189,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       businessId: input.businessId,
       assistantId: input.assistantId,
       requestType: input.requestType,
-      system: systemPrompt,
+      system: systemPromptForAI,
       messages: chatMessages,
       maxTokens: 500,
     })
@@ -192,7 +257,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     businessId: input.businessId,
     assistantId: input.assistantId,
     requestType: input.requestType,
-    system: systemPrompt,
+    system: systemPromptForAI,
     messages: chatMessages,
     onFinish: async ({ text }) => {
       if (input.conversationId) {

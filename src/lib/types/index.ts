@@ -217,6 +217,7 @@ export interface Database {
           conversation_id: string
           customer_id: string | null
           knowledge_item_id: string
+          state: 'claimed' | 'dispatched' | 'failed'
           created_at: string
         }
         Insert: {
@@ -225,6 +226,7 @@ export interface Database {
           conversation_id: string
           customer_id?: string | null
           knowledge_item_id: string
+          state?: 'claimed' | 'dispatched' | 'failed'
           created_at?: string
         }
         Update: {
@@ -233,6 +235,7 @@ export interface Database {
           conversation_id?: string
           customer_id?: string | null
           knowledge_item_id?: string
+          state?: 'claimed' | 'dispatched' | 'failed'
           created_at?: string
         }
         Relationships: []
@@ -465,6 +468,7 @@ export interface Database {
           assigned_to: string | null
           handover_reason: string | null
           media_sent_products: string[]
+          active_product_ids: string[]
           sales_cancelled_at: string | null
           created_at: string
         }
@@ -482,6 +486,7 @@ export interface Database {
           assigned_to?: string | null
           handover_reason?: string | null
           media_sent_products?: string[]
+          active_product_ids?: string[]
           sales_cancelled_at?: string | null
           created_at?: string
         }
@@ -499,6 +504,7 @@ export interface Database {
           assigned_to?: string | null
           handover_reason?: string | null
           media_sent_products?: string[]
+          active_product_ids?: string[]
           sales_cancelled_at?: string | null
           created_at?: string
         }
