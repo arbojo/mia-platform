@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8967e59`.
+> Fuente de verdad: este repositorio en `dd83b0b`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8967e59` |
+| **Commit HEAD** | `dd83b0b` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-08-30T19:56:38-06:00 |
+| **Generado** | 2026-09-01T01:37:16-06:00 |
 
 ---
 
@@ -211,10 +211,12 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 54 | 054_cloud_architecture.sql |
 | 55 | 055_capability_foundation.sql |
 | 56 | 056_cross_conversation_cancel_guard.sql |
-| 57 | 20260820000000_analytics_public_wrapper.sql |
-| 58 | 20260820000001_analytics_grant_permissions.sql |
-| 59 | 20260820000002_analytics_security_definer.sql |
-| 60 | 20260820000003_analytics_security_definer.sql |
+| 57 | 057_active_product_ids.sql |
+| 58 | 058_media_claim_state.sql |
+| 59 | 20260820000000_analytics_public_wrapper.sql |
+| 60 | 20260820000001_analytics_grant_permissions.sql |
+| 61 | 20260820000002_analytics_security_definer.sql |
+| 62 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -548,7 +550,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-134 módulos:
+136 módulos:
 
 ```
 ai/client.ts
@@ -655,6 +657,8 @@ reasoning/state-loader.ts
 reasoning/state.ts
 runtime/assistant-gate.ts
 runtime/conditional-media.ts
+runtime/context-media.ts
+runtime/context-scope.ts
 runtime/core.ts
 runtime/evidence-extraction.ts
 runtime/execute-ai.ts
@@ -703,7 +707,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (147)**:
+**Tareas registradas (148)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -854,6 +858,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260830-023352710 | DEEP PARITY & DISPATCH AUDIT — Simulator = Web Chat = WhatsApp (read-only, no implementation) | approved |
 | TASK-20260830-024713217 | MIA PARITY MASTER AUDIT — canonical core, transcript/context, product integrity, Clean Nails->Neurotin, Option C eval (read-only, no implementation) | approved |
 | TASK-20260830-025948794 | MIA PARITY ETAPA 2 UNIFICAR: fixes quirurjicos C1 (transcript desc+reverse), B1 (media solo del producto canonico + ORDER BY), B1b (eventos desde producto canonico), P1 (guards de cancelacion en todos los canales) + refactor a Shared MIA Core con adapters + parity tests | approved |
+| TASK-20260830-CONTEXT-IDEMPOTENCY-PHASE1 | Context + Idempotency + Media Scope — Phase 1 Implementation (P1-1..P1-8) | in_progress |
 
 ---
 
@@ -906,6 +911,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+dd83b0b feat: implement context idempotency phase 1
+d12ce65 test: add E2E shared core fixture validation script
+0784f9c docs: regenerate MASTER.md at 8967e59
 8967e59 fix(runtime): remove duplicate message inserts in processIncomingMessage
 9061a4c docs: regenerate MASTER.md at ef9df4a
 ef9df4a feat(core): Fase 1 — D-DECISION-1 sale closing parity + MEDIUM-1 per-event attribution
@@ -923,9 +931,6 @@ b5391ae feat(core): create processCore wrapper with CoreInput/CoreOutput (Step 2
 9e21382 docs: regenerate MASTER.md at 19dea9d
 19dea9d feat(core): add CoreInput/CoreOutput contract interfaces (Step 1)
 1933556 subaru: checkpoint TASK-20260830-0363673 - en-progreso
-0f129a6 docs: regenerate MASTER.md at 8008ff0
-8008ff0 subaru: checkpoint TASK-20260830-0363673 - listo
-25d0fb5 docs: regenerate MASTER.md at 894e865
 ```
 
 ---
