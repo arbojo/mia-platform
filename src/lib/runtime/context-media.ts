@@ -258,26 +258,12 @@ export async function resolveContextMedia(
     }
   }
 
-  // Idempotency hit (petición repetida del mismo asset): acknowledge, sin re-envío.
-  if (pending.length === 0) {
-    const hitId = blockedClaims[0]?.knowledge_item_id ?? null
-    return {
-      attachment: null,
-      decision: {
-        ...emptyMediaDecision(),
-        explicitScope,
-        scope,
-        eligible: true,
-        assetSelected: hitId,
-        claim: 'existing_hit',
-        reason: 'idempotency hit: asset already claimed/dispatched',
-      },
-    }
-  }
-
-  const selected = pending[0]
-
   // D2 recovery: un asset fallido puede re-claimarse (re-envío del intento).
+  // Se evalúa ANTES del hit de idempotencia: un asset 'failed' NO es un
+  // existing_hit (doc 26 §2) — su re-intento debe recuperarse, no acusar hit.
+  // Previamente este bloque estaba después del return de `pending.length === 0`
+  // (dead code): con un único asset fallido pending quedaba vacío y el hit
+  // ganaba, haciendo la recuperación inalcanzable.
   if (failedIds.size > 0) {
     const failedAsset = matches.find((m) => failedIds.has(m.id))
     if (failedAsset) {
@@ -312,6 +298,26 @@ export async function resolveContextMedia(
       }
     }
   }
+
+  // Idempotency hit (petición repetida del mismo asset): acknowledge, sin re-envío.
+  if (pending.length === 0) {
+    const hitId = blockedClaims[0]?.knowledge_item_id ?? null
+    return {
+      attachment: null,
+      decision: {
+        ...emptyMediaDecision(),
+        explicitScope,
+        scope,
+        eligible: true,
+        assetSelected: hitId,
+        claim: 'existing_hit',
+        reason: 'idempotency hit: asset already claimed/dispatched',
+      },
+    }
+  }
+
+  const selected = pending[0]
+
 
   // Guard de URL (SSRF) ANTES del claim: un URL inseguro nunca se reclama.
   if (!isSafeMediaUrl(selected.image_url ?? '')) {
