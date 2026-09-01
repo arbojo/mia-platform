@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `91db02f`.
+> Fuente de verdad: este repositorio en `ec71fbb`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `91db02f` |
+| **Commit HEAD** | `ec71fbb` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T11:46:01-06:00 |
+| **Generado** | 2026-09-01T14:06:27-06:00 |
 
 ---
 
@@ -911,6 +911,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+ec71fbb Merge remote-tracking branch 'origin/main'
+ac638c9 feat: add simulator channel selection parity poc
+407b128 docs: regenerate MASTER.md at 91db02f
 91db02f test: add context idempotency golden tests GT-01..GT-35 + P1-4 recovery fix
 7ebd542 docs: regenerate MASTER.md at dd83b0b
 dd83b0b feat: implement context idempotency phase 1
@@ -928,9 +931,6 @@ d1c9f63 docs: regenerate MASTER.md at ce73a00
 ce73a00 feat(core): delegate processStreaming and processIncomingMessage to processCore (Step 3)
 1e84a8a subaru: checkpoint TASK-20260830-0363673 - en-progreso
 cf1644f docs: regenerate MASTER.md at b5391ae
-b5391ae feat(core): create processCore wrapper with CoreInput/CoreOutput (Step 2)
-8b837de subaru: checkpoint TASK-20260830-0363673 - en-progreso
-9e21382 docs: regenerate MASTER.md at 19dea9d
 ```
 
 ---
