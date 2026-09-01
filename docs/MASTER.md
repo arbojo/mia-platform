@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `dd83b0b`.
+> Fuente de verdad: este repositorio en `91db02f`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `dd83b0b` |
+| **Commit HEAD** | `91db02f` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T01:37:16-06:00 |
+| **Generado** | 2026-09-01T11:46:01-06:00 |
 
 ---
 
@@ -911,6 +911,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+91db02f test: add context idempotency golden tests GT-01..GT-35 + P1-4 recovery fix
+7ebd542 docs: regenerate MASTER.md at dd83b0b
 dd83b0b feat: implement context idempotency phase 1
 d12ce65 test: add E2E shared core fixture validation script
 0784f9c docs: regenerate MASTER.md at 8967e59
@@ -929,8 +931,6 @@ cf1644f docs: regenerate MASTER.md at b5391ae
 b5391ae feat(core): create processCore wrapper with CoreInput/CoreOutput (Step 2)
 8b837de subaru: checkpoint TASK-20260830-0363673 - en-progreso
 9e21382 docs: regenerate MASTER.md at 19dea9d
-19dea9d feat(core): add CoreInput/CoreOutput contract interfaces (Step 1)
-1933556 subaru: checkpoint TASK-20260830-0363673 - en-progreso
 ```
 
 ---
