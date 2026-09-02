@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `8e537b5`.
+> Fuente de verdad: este repositorio en `34a5c15`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `8e537b5` |
+| **Commit HEAD** | `34a5c15` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T18:29:25-06:00 |
+| **Generado** | 2026-09-01T18:52:23-06:00 |
 
 ---
 
@@ -213,10 +213,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 56 | 056_cross_conversation_cancel_guard.sql |
 | 57 | 057_active_product_ids.sql |
 | 58 | 058_media_claim_state.sql |
-| 59 | 20260820000000_analytics_public_wrapper.sql |
-| 60 | 20260820000001_analytics_grant_permissions.sql |
-| 61 | 20260820000002_analytics_security_definer.sql |
-| 62 | 20260820000003_analytics_security_definer.sql |
+| 59 | 059_retention_discount_config.sql |
+| 60 | 20260820000000_analytics_public_wrapper.sql |
+| 61 | 20260820000001_analytics_grant_permissions.sql |
+| 62 | 20260820000002_analytics_security_definer.sql |
+| 63 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -912,6 +913,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+34a5c15 feat: add configurable retention discount policy
+d3501ba docs: regenerate MASTER.md at 8e537b5
 8e537b5 docs: add behavior parity implementation plan
 80e36da docs: regenerate MASTER.md at d03ff40
 d03ff40 docs: concilio decisions - ADR-028 behavior parity contracts
@@ -930,8 +933,6 @@ d12ce65 test: add E2E shared core fixture validation script
 9061a4c docs: regenerate MASTER.md at ef9df4a
 ef9df4a feat(core): Fase 1 — D-DECISION-1 sale closing parity + MEDIUM-1 per-event attribution
 59ab2f2 docs: regenerate MASTER.md at 3cb7f18
-3cb7f18 subaru: checkpoint TASK-20260830-0363673 - completado
-6f7bdd6 docs: regenerate MASTER.md at cddda71
 ```
 
 ---
