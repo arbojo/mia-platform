@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `d03ff40`.
+> Fuente de verdad: este repositorio en `8e537b5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `d03ff40` |
+| **Commit HEAD** | `8e537b5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T18:07:14-06:00 |
+| **Generado** | 2026-09-01T18:29:25-06:00 |
 
 ---
 
@@ -912,6 +912,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+8e537b5 docs: add behavior parity implementation plan
+80e36da docs: regenerate MASTER.md at d03ff40
 d03ff40 docs: concilio decisions - ADR-028 behavior parity contracts
 4bfbff1 docs: regenerate MASTER.md at 6b40266
 6b40266 docs: add MIA behavior parity PRD
@@ -930,8 +932,6 @@ ef9df4a feat(core): Fase 1 — D-DECISION-1 sale closing parity + MEDIUM-1 per-e
 59ab2f2 docs: regenerate MASTER.md at 3cb7f18
 3cb7f18 subaru: checkpoint TASK-20260830-0363673 - completado
 6f7bdd6 docs: regenerate MASTER.md at cddda71
-cddda71 subaru: checkpoint TASK-20260830-0363673 - en-progreso
-6d5e710 test(core): add CoreInput/CoreOutput contract tests (Step 4)
 ```
 
 ---
