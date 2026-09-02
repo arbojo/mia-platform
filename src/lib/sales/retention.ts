@@ -140,36 +140,93 @@ async function offerDiscount(
     throw error
   }
 
-  const { data: convHistory } = await supabase
-    .from('conversations')
-    .select('outcome, outcome_history')
-    .eq('id', conversationId)
-    .maybeSingle()
+  // RESIDUAL-R2 / Godzilla H1 — el read de convHistory ocurre DESPUÉS del commit
+  // del evento de oferta (emitSalesEvent) y ANTES de la compensación. Si
+  // supabase-js rechaza (throw de red/transporte, no {error}), el evento creado
+  // quedaba vivo (slot ocupado) y el retry caía en ACK_OFFER_DUPLICATE. Misma
+  // protección que el write: ante un throw se compensa id-scoped antes de
+  // re-lanzar (retry limpio que re-oferta).
+  let convHistory: { outcome: string | null; outcome_history: unknown[] } | null = null
+  let convHistoryReadForThrow: Error | null = null
+  try {
+    const readResult = await supabase
+      .from('conversations')
+      .select('outcome, outcome_history')
+      .eq('id', conversationId)
+      .maybeSingle()
+    convHistory = readResult.data as {
+      outcome: string | null
+      outcome_history: unknown[]
+    } | null
+  } catch (readError) {
+    // RESIDUAL-R2: supabase-js rechazó (fallo de red/transporte)
+    convHistoryReadForThrow = readError instanceof Error ? readError : new Error(String(readError))
+    try {
+      if (createdEventId) {
+        const { error: compensateError } = await supabase.from('sales_events').delete().eq('id', createdEventId)
+        if (compensateError) {
+          console.error(
+            'Failed to compensate SALE_CANCELLED: delete returned an error',
+            { conversationId, createdEventId, error: compensateError.message }
+          )
+        }
+      }
+    } catch (compensationError) {
+      console.error(
+        `Failed to compensate SALE_CANCELLED after conversation read failure: ${compensationError instanceof Error ? compensationError.message : String(compensationError)}`,
+        { conversationId, createdEventId }
+      )
+    }
+    throw convHistoryReadForThrow
+  }
 
   const history = Array.isArray(convHistory?.outcome_history) ? convHistory.outcome_history : []
 
-  const { error: discountStateError } = await supabase
-    .from('conversations')
-    .update({
-      sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
-      outcome_updated_at: new Date().toISOString(),
-      outcome_history: [
-        ...history,
-        {
-          outcome: 'cancelled',
-          previous: convHistory?.outcome ?? null,
-          event_type: 'SALE_CANCELLED',
-          reason: 'discount_offered',
-          at: new Date().toISOString(),
-        },
-      ],
-    })
-    .eq('id', conversationId)
+  // BUG-T5 / Godzilla H1 — si el update del sentinel rechaza (throw, no
+  // {error}), la compensación se ejecuta ANTES de re-lanzar. Patrón idéntico al
+  // de discountStateError (error de DB) justo abajo.
+  let discountStateErrorForThrow: Error | null = null
+  let discountStateError: { message: string } | null = null
+  try {
+    const result = await supabase
+      .from('conversations')
+      .update({
+        sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
+        outcome_updated_at: new Date().toISOString(),
+        outcome_history: [
+          ...history,
+          {
+            outcome: 'cancelled',
+            previous: convHistory?.outcome ?? null,
+            event_type: 'SALE_CANCELLED',
+            reason: 'discount_offered',
+            at: new Date().toISOString(),
+          },
+        ],
+      })
+      .eq('id', conversationId)
+    discountStateError = result.error
+  } catch (err) {
+    // BUG-T5: supabase-js rechazó (fallo de red/transporte)
+    discountStateErrorForThrow = err instanceof Error ? err : new Error(String(err))
+    discountStateError = { message: discountStateErrorForThrow.message }
+  }
 
   if (discountStateError) {
+    // F1 + BUG-T5: el write del sentinel falló (DB o transporte) tras crear el
+    // evento → se compensa id-scoped ANTES de re-lanzar (retry limpio).
     try {
       if (createdEventId) {
-        await supabase.from('sales_events').delete().eq('id', createdEventId)
+        const { error: compensateError } = await supabase.from('sales_events').delete().eq('id', createdEventId)
+        // F1-b / ADR-030 — supabase-js no lanza ante un error de DB: el resultado
+        // del DELETE se inspecciona. Una compensación fallida se reporta y el error
+        // original se re-lanza igual (nunca silenciosa).
+        if (compensateError) {
+          console.error(
+            'Failed to compensate SALE_CANCELLED: delete returned an error',
+            { conversationId, createdEventId, error: compensateError.message }
+          )
+        }
       }
     } catch (compensationError) {
       console.error(
@@ -177,6 +234,7 @@ async function offerDiscount(
         { conversationId, createdEventId }
       )
     }
+    if (discountStateErrorForThrow) throw discountStateErrorForThrow
     throw new Error(`Failed to persist cancellation state: ${discountStateError.message}`)
   }
 

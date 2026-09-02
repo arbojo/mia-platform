@@ -101,15 +101,52 @@ export async function processCancellation(
     .replace(/\{order_id\}/g, orderNumber)
     .replace(/\{customer_name\}/g, 'Cliente')
 
+  // F2 / ADR-030 — el motivo proviene del LLM (detection.reason) y es la clave de
+  // partición de los índices UNIQUE parciales de la migración 060. El tag reservado
+  // 'discount_offered' pertenece ÚNICAMENTE al evento de oferta (retention.ts /
+  // process.ts). Si una cancelación real lo escribiera, colisionaría con el slot de
+  // la oferta → 23505 → ack falso sin cancelación efectiva. Determinista: se
+  // neutraliza, la variante real jamás lo transporta.
+  const normalizedReason = detection.reason === 'discount_offered' ? null : detection.reason
+
+  // F1 / ADR-030 — compensación id-scoped: el evento es el commit point. El id
+  // devuelto por emitSalesEvent permite borrar SOLO el evento recién creado si una
+  // escritura posterior (conversación o cliente) falla, liberando el slot de la
+  // partición para que un retry idéntico re-ejecute limpio. Nunca se borra por
+  // conversation_id ni eventos ajenos.
+  let createdEventId: string | null = null
+  // F1-b / ADR-030 — la compensación NUNCA es silenciosa: supabase-js devuelve
+  // { data, error } y no lanza ante un error de DB, así que el resultado del
+  // DELETE se inspecciona explícitamente. Un fallo de compensación se reporta
+  // (escucha/operaciones) y el error original se re-lanza igual: el caller jamás
+  // recibe un falso estado de éxito.
+  const compensateCreatedEvent = async (): Promise<void> => {
+    if (!createdEventId) return
+    try {
+      const { error } = await supabase.from('sales_events').delete().eq('id', createdEventId)
+      if (error) {
+        console.error(
+          `Failed to compensate SALE_CANCELLED: delete returned an error`,
+          { conversationId: params.conversationId, createdEventId, error: error.message }
+        )
+      }
+    } catch (compensationError) {
+      console.error(
+        `Failed to compensate SALE_CANCELLED: ${compensationError instanceof Error ? compensationError.message : String(compensationError)}`,
+        { conversationId: params.conversationId, createdEventId }
+      )
+    }
+  }
+
   try {
-    await emitSalesEvent({
+    createdEventId = await emitSalesEvent({
       businessId: params.businessId,
       assistantId: params.assistantId,
       conversationId: params.conversationId,
       customerId: params.customerId,
       eventType: 'SALE_CANCELLED',
       metadata: {
-        reason: detection.reason,
+        reason: normalizedReason,
         original_sale_event_id: lastWonEvent.id,
         order_number: orderNumber,
         within_window: withinWindow,
@@ -125,34 +162,112 @@ export async function processCancellation(
     throw error
   }
 
-  const { data: conversation } = await supabase
-    .from('conversations')
-    .select('outcome, outcome_history')
-    .eq('id', params.conversationId)
-    .maybeSingle()
+  // RESIDUAL-R1 / Godzilla H1 — el read de conversación ocurre DESPUÉS del
+  // commit del evento (emitSalesEvent) y ANTES de la compensación. Si supabase-js
+  // rechaza (throw de red/transporte, no {error}), el evento creado quedaba vivo
+  // (slot ocupado) y el retry caía en 23505. Misma protección que el write: ante
+  // un throw se compensa id-scoped antes de re-lanzar.
+  let conversation: { sales_cancelled_at: string | null; outcome: string | null; outcome_history: unknown[] } | null = null
+  let conversationReadForThrow: Error | null = null
+  try {
+    const readResult = await supabase
+      .from('conversations')
+      .select('sales_cancelled_at, outcome, outcome_history')
+      .eq('id', params.conversationId)
+      .maybeSingle()
+    conversation = readResult.data as {
+      sales_cancelled_at: string | null
+      outcome: string | null
+      outcome_history: unknown[]
+    } | null
+  } catch (readError) {
+    // RESIDUAL-R1: supabase-js rechazó (fallo de red/transporte)
+    conversationReadForThrow = readError instanceof Error ? readError : new Error(String(readError))
+    await compensateCreatedEvent()
+    throw conversationReadForThrow
+  }
 
   const history = Array.isArray(conversation?.outcome_history) ? conversation.outcome_history : []
+  // Estado pre-intento: valor de sales_cancelled_at antes de este turno (null o el
+  // sentinel de oferta). El revert de F1-a restaura exactamente esto.
+  const previousCancelledAt = conversation?.sales_cancelled_at ?? null
 
-  const { error: conversationError } = await supabase
-    .from('conversations')
-    .update({
-      status: 'completed',
-      sales_cancelled_at: new Date().toISOString(),
-      outcome_updated_at: new Date().toISOString(),
-      outcome_history: [
-        ...history,
-        {
-          outcome: 'cancelled',
-          previous: conversation?.outcome ?? null,
-          event_type: 'SALE_CANCELLED',
-          reason: detection.reason,
-          at: new Date().toISOString(),
-        },
-      ],
-    })
-    .eq('id', params.conversationId)
+  const cancelledAt = new Date().toISOString()
+
+  // F1-a / ADR-030 — compensación de conversación id-scoped al intento actual:
+  // revierte ÚNICAMENTE las columnas que ESTE intento escribió (sales_cancelled_at
+  // + outcome_history) cuando el update de cliente falla tras el commit de
+  // conversación. Anclado por optimisión: el guard .match({ id, sales_cancelled_at:
+  // <timestamp de este intento> }) hace que el UPDATE no matchee filas si otra
+  // ejecución (cancelación legítima/concurrente) ya cambió el estado → nunca pisa
+  // una cancelación posterior. Un fallo del revert se reporta (no silencioso) y el
+  // error original se re-lanza igual.
+  const revertCancelConversationWrite = async (): Promise<void> => {
+    // BUG-T3 / Godzilla H1 — si supabase-js rechaza (fallo de red/transporte,
+    // no {error} sino throw), el error se captura y se reporta sin enmascarar el
+    // error original del caller. Patrón idéntico a compensateCreatedEvent.
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({
+          sales_cancelled_at: previousCancelledAt,
+          outcome_history: history,
+        })
+        .match({ id: params.conversationId, sales_cancelled_at: cancelledAt })
+      if (error) {
+        console.error(
+          `Failed to revert conversation cancellation write after customer update failure`,
+          { conversationId: params.conversationId, cancelledAt, error: error.message }
+        )
+      }
+    } catch (revertError) {
+      console.error(
+        `Failed to revert conversation cancellation write after customer update failure: ${
+          revertError instanceof Error ? revertError.message : String(revertError)
+        }`,
+        { conversationId: params.conversationId, cancelledAt }
+      )
+    }
+  }
+
+  // BUG-T2 / Godzilla H1 — si la escritura de conversación rechaza (throw, no
+  // {error}), la compensación se ejecuta ANTES de re-lanzar. Patrón idéntico al
+  // de conversationError (error de DB) justo abajo.
+  let conversationErrorForThrow: Error | null = null
+  let conversationError: { message: string } | null = null
+  try {
+    const result = await supabase
+      .from('conversations')
+      .update({
+        status: 'completed',
+        sales_cancelled_at: cancelledAt,
+        outcome_updated_at: cancelledAt,
+        outcome_history: [
+          ...history,
+          {
+            outcome: 'cancelled',
+            previous: conversation?.outcome ?? null,
+            event_type: 'SALE_CANCELLED',
+            reason: normalizedReason,
+            at: cancelledAt,
+          },
+        ],
+      })
+      .eq('id', params.conversationId)
+    conversationError = result.error
+  } catch (err) {
+    // BUG-T2: supabase-js rechazó (fallo de red/transporte)
+    conversationErrorForThrow = err instanceof Error ? err : new Error(String(err))
+    conversationError = { message: conversationErrorForThrow.message }
+  }
 
   if (conversationError) {
+    // F1 + BUG-T2: la escritura de conversación falló (DB o transporte) tras
+    // crear el evento → se libera el slot con compensación id-scoped ANTES de
+    // re-lanzar (retry limpio). La conversación no recibió nada de este intento:
+    // no hay revert que hacer.
+    await compensateCreatedEvent()
+    if (conversationErrorForThrow) throw conversationErrorForThrow
     throw new Error(`Failed to persist cancellation state: ${conversationError.message}`)
   }
 
@@ -162,18 +277,38 @@ export async function processCancellation(
       product_id: lastWonEvent.product_id ?? null,
       product_name: (lastWonEvent.metadata as Record<string, unknown>)?.product_name as string | null ?? null,
       cancelled_at: new Date().toISOString(),
-      reason: detection.reason ?? null,
+      reason: normalizedReason,
       event_id: lastWonEvent.id,
     }
 
-    const { error: customerError } = await supabase
-      .from('customers')
-      .update({
-        status: 'lost',
-        last_cancelled_order: lastCancelledOrder as unknown as Record<string, unknown>,
-      })
-      .eq('id', params.customerId)
+    // BUG-T1 / Godzilla H1 — si el update de cliente rechaza (throw, no {error}),
+    // la compensación Y el revert se ejecutan ANTES de re-lanzar. Patrón idéntico
+    // al de customerError (error de DB) justo abajo.
+    let customerErrorForThrow: Error | null = null
+    let customerError: { message: string } | null = null
+    try {
+      const result = await supabase
+        .from('customers')
+        .update({
+          status: 'lost',
+          last_cancelled_order: lastCancelledOrder as unknown as Record<string, unknown>,
+        })
+        .eq('id', params.customerId)
+      customerError = result.error
+    } catch (err) {
+      // BUG-T1: supabase-js rechazó (fallo de red/transporte)
+      customerErrorForThrow = err instanceof Error ? err : new Error(String(err))
+      customerError = { message: customerErrorForThrow.message }
+    }
     if (customerError) {
+      // F1-a + BUG-T1: el update de cliente falló (DB o transporte) tras el commit
+      // de conversación → se borra el evento propio Y se revierte (condicionalmente,
+      // por guard de optimismo) la escritura de conversación de ESTE intento, para
+      // que el retry idéntico re-ejecute limpio y converja al resultado de una
+      // ejecución única.
+      await compensateCreatedEvent()
+      await revertCancelConversationWrite()
+      if (customerErrorForThrow) throw customerErrorForThrow
       throw new Error(`Failed to update customer status after cancellation: ${customerError.message}`)
     }
 
@@ -206,14 +341,14 @@ export async function processCancellation(
     type: 'SALES',
     priority: 'atencion',
     title: 'Pedido cancelado',
-    message: `${customerName} canceló el pedido ${orderNumber}${detection.reason ? `. Motivo: ${detection.reason}` : ''}.`,
+    message: `${customerName} canceló el pedido ${orderNumber}${normalizedReason ? `. Motivo: ${normalizedReason}` : ''}.`,
     source: 'sales-cancellation',
     status: 'pending',
     action_available: 'open_conversation',
     action_payload: {
       conversation_id: params.conversationId,
       order_number: orderNumber,
-      reason: detection.reason,
+      reason: normalizedReason,
     },
   })
 
