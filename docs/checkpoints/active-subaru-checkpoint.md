@@ -1,14 +1,14 @@
 ---
 task_id: H1-RETENTION-REMEDIATION
 title: Retention Idempotency H1 Remediation — throw-safe + reads (R1/R2) — ACCEPTED/FROZEN
-state: in_progress
+state: completed
 current_step: 4
 total_steps: 4
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260902-210942761
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-09-02T22:24:22.961Z
+updated: 2026-09-02T22:24:45.048Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -66,7 +66,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..4.
+- Misión H1-RETENTION-REMEDIATION completada (4/4 pasos).
+- Gates confirmados: ESLint (0 errors, 0 warnings), Production build (no errors), Unit tests pass, Playwright e2e tests pass, Chrome DevTools console and network check, Security Engineer review, Godzilla Stress Test (adversarial).
+- Finalizado: 2026-09-02T22:24:45.048Z.
 
 ## Next action
 
