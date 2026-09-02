@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `85c2f9e`.
+> Fuente de verdad: este repositorio en `fa3db04`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `85c2f9e` |
+| **Commit HEAD** | `fa3db04` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T20:33:14-06:00 |
+| **Generado** | 2026-09-01T21:18:55-06:00 |
 
 ---
 
@@ -866,7 +866,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-30 ADRs en `docs/adr/`:
+31 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -900,6 +900,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 | ADR-028 | 028 — Contratos de Paridad de Comportamiento (Decisiones del Concilio) |
 | ADR-029-retention-core-wiring | 029 — Wiring del Retention Engine en el Core (T1-3) |
+| ADR-030-retention-idempotency | 030 — Idempotencia / Concurrencia del Retention Engine (H1) |
 
 ---
 
@@ -915,6 +916,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+fa3db04 docs: record retention idempotency decision (ADR-030)
+86d33fe docs: regenerate MASTER.md at 85c2f9e
 85c2f9e feat: wire retention engine into core
 24a6281 docs: regenerate MASTER.md at 65657c5
 65657c5 docs: record retention core wiring decision
@@ -933,8 +936,6 @@ ec71fbb Merge remote-tracking branch 'origin/main'
 ac638c9 feat: add simulator channel selection parity poc
 407b128 docs: regenerate MASTER.md at 91db02f
 91db02f test: add context idempotency golden tests GT-01..GT-35 + P1-4 recovery fix
-7ebd542 docs: regenerate MASTER.md at dd83b0b
-dd83b0b feat: implement context idempotency phase 1
 ```
 
 ---
