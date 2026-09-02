@@ -374,14 +374,16 @@ Clean Nails es únicamente un caso de prueba.
 
 ## 9. REQUIERE DECISIÓN DEL CONCILIO (MARCADORES)
 
-- Definir si se introduce contrato estructurado `when → then` para Behavior/Policy ($5.2).
-- Definir Canonical Decision como contrato transpirable por canales (§2, ya prohibido implementar en esta misión).
-- Activar / documentar contrato `intent price` en MIA Lab (badge de trigger por intent) vs alternativas (§5.5).
-- Definir el contrato de Media respecto a “media por intención/producto/contexto” y no solo por keyword (§5.5).
-- Definir quién valida/expande `productId` de landing (provenance del UUID) (§5.6).
-- Definir política de configuración → ejecución (dashboard = fuente de verdad) y si implica mover lógica de prompts/código a datos (§4).
-- Definir contrato de Channel (transporte vs negocio) y estandarización de `channel` hacia Core (§5.4).
-- Biggers sobre bugs §6 #1,#2,#7 (se pueden clasificar como fixes mínimos de robustez — sin ADR — si el Concilio así lo autoriza).
+> **RESUELTO en ETAPA 2 — Concilio**: ver `docs/adr/ADR-028.md`. Los marcadores de abajo se listan como histórico del estado previo; cada uno fue decidido (✅ APROBADA / ⏸️ POSPUESTA / ⚠️ REQUIERE MÁS EVIDENCIA) salvo las excepciones indicadas.
+
+- ✅ **APROBADA** — Definir si se introduce contrato estructurado `when → then` para Behavior/Policy ($5.2).
+- ✅ **APROBADA (principio) / ⏸️ POSPUESTA (diseño `interactive`)** — Definir Canonical Decision como contrato transpirable por canales (§2).
+- ✅ **APROBADA / ⚠️ subdecisión de prioridad REQUIERE MÁS EVIDENCIA** — Activar / documentar contrato `intent price` en MIA Lab (badge de trigger por intent) vs alternativas (§5.5).
+- ✅ **APROBADA** — Definir el contrato de Media respecto a “media por intención/producto/contexto” y no solo por keyword (§5.5).
+- ✅ **APROBADA** — Definir quién valida/expande `productId` de landing (provenance del UUID) (§5.6).
+- ✅ **APROBADA** — Definir política de configuración → ejecución (dashboard = fuente de verdad) y si implica mover lógica de prompts/código a datos (§4).
+- ✅ **APROBADA** — Definir contrato de Channel (transporte vs negocio) y estandarización de `channel` hacia Core (§5.4).
+- ⭕ **PENDIENTE DE AUTORIZACIÓN (ETAPA 3)** — Biggers sobre bugs §6 #1,#2,#7 (se pueden clasificar como fixes mínimos de robustez — sin ADR — si el Concilio así lo autoriza).
 
 ---
 
@@ -389,14 +391,15 @@ Clean Nails es únicamente un caso de prueba.
 
 | Campo | Valor |
 |-------|-------|
-| Versión del PRD | 1.0 |
+| Versión del PRD | 1.1 |
 | Fecha | 2026-09-01 |
-| Fase actual | **Fase 0 (preservación) — PRD creado; ninguna fase siguiente iniciada** |
+| Fase actual | **Fase 2 completada (contratos/Concilio) — ADR-028 aprobado; Fase 3 NO iniciada** |
 | Último hallazgo | Caso Clean Nails: host `96c33f39` (short-id) → PostgreSQL 22P02 → `context-scope.ts` ignora `product.error` → sin scope → sin media. Con UUID completo el caso resuelve. |
-| Decisiones pendientes | Ver §9 (marcadores `REQUIERE DECISIÓN DEL CONCILIO`) |
-| Riesgos | (1) divergencia WhatsApp vs resto (cancelación/tone/interactive); (2) widget cae a channel `simulation`; (3) contrato `intent price` inerte; (4) behavior hardcodeada en código/prompt = CONTRACT GAP; (5) adapters web/messenger/instagram sin transporte; (6) bugs puntuales §6. |
-| Modificaciones permitidas | SOLO este PRD. Ninguna otra modificación (código, DB, prompts, APIs, arquitectura). |
-| Último commit conocido | `7042515` (docs: regenerate MASTER.md at ec71fbb) — HEAD en rama main, sincronizado con origin/main |
+| Decisiones del Concilio | Decisiones 1–6 + Especial (cancelación/descuento) resueltas en `docs/adr/ADR-028.md` (7 ✅, 1 ⏸️ diseño interactive, 1 ⚠️ prioridad media) |
+| Riesgos | (1) divergencia WhatsApp vs resto (cancelación/tone/interactive) — prioridad 1 de implementación; (2) widget cae a channel `simulation`; (3) contrato `intent price` inerte; (4) behavior hardcodeada en código/prompt = CONTRACT GAP; (5) adapters web/messenger/instagram sin transporte; (6) bugs puntuales §6. |
+| Modificaciones permitidas | SOLO documentación (PRD + ADR). Ninguna otra modificación (código, DB, prompts, APIs, arquitectura). |
+| Siguiente paso | ETAPA 3 — PLAN: requiere autorización explícita. No avanzar sin ella. |
+| Último commit conocido | `6b40266` (docs: add MIA behavior parity PRD) — HEAD en rama main, sincronizado con origin/main; ADR-028 pendiente de documento de esta versión |
 | Untracked conocido | `workshop/subaru/gate-status-enrich.json` (NO modificar) |
 | Siguiente acción autorizable | Fase 0 completa → solicitar al Concilio autorización para Fase 1 (Auditoría). Nada automatizado. |
 
