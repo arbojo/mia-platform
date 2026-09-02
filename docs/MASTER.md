@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `fa3db04`.
+> Fuente de verdad: este repositorio en `52dabc4`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `fa3db04` |
+| **Commit HEAD** | `52dabc4` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T21:18:55-06:00 |
+| **Generado** | 2026-09-01T23:45:39-06:00 |
 
 ---
 
@@ -214,10 +214,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 57 | 057_active_product_ids.sql |
 | 58 | 058_media_claim_state.sql |
 | 59 | 059_retention_discount_config.sql |
-| 60 | 20260820000000_analytics_public_wrapper.sql |
-| 61 | 20260820000001_analytics_grant_permissions.sql |
-| 62 | 20260820000002_analytics_security_definer.sql |
-| 63 | 20260820000003_analytics_security_definer.sql |
+| 60 | 060_retention_idempotency.sql |
+| 61 | 20260820000000_analytics_public_wrapper.sql |
+| 62 | 20260820000001_analytics_grant_permissions.sql |
+| 63 | 20260820000002_analytics_security_definer.sql |
+| 64 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -916,6 +917,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+52dabc4 fix: add retention idempotency guards
+04acd0c docs: regenerate MASTER.md at fa3db04
 fa3db04 docs: record retention idempotency decision (ADR-030)
 86d33fe docs: regenerate MASTER.md at 85c2f9e
 85c2f9e feat: wire retention engine into core
@@ -934,8 +937,6 @@ d03ff40 docs: concilio decisions - ADR-028 behavior parity contracts
 7042515 docs: regenerate MASTER.md at ec71fbb
 ec71fbb Merge remote-tracking branch 'origin/main'
 ac638c9 feat: add simulator channel selection parity poc
-407b128 docs: regenerate MASTER.md at 91db02f
-91db02f test: add context idempotency golden tests GT-01..GT-35 + P1-4 recovery fix
 ```
 
 ---
