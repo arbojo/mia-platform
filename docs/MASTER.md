@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `bed7872`.
+> Fuente de verdad: este repositorio en `a613eb7`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `bed7872` |
+| **Commit HEAD** | `a613eb7` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-02T15:22:07-06:00 |
+| **Generado** | 2026-09-02T16:24:45-06:00 |
 
 ---
 
@@ -710,7 +710,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (148)**:
+**Tareas registradas (149)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
@@ -862,6 +862,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260830-024713217 | MIA PARITY MASTER AUDIT — canonical core, transcript/context, product integrity, Clean Nails->Neurotin, Option C eval (read-only, no implementation) | approved |
 | TASK-20260830-025948794 | MIA PARITY ETAPA 2 UNIFICAR: fixes quirurjicos C1 (transcript desc+reverse), B1 (media solo del producto canonico + ORDER BY), B1b (eventos desde producto canonico), P1 (guards de cancelacion en todos los canales) + refactor a Shared MIA Core con adapters + parity tests | approved |
 | TASK-20260830-CONTEXT-IDEMPOTENCY-PHASE1 | Context + Idempotency + Media Scope — Phase 1 Implementation (P1-1..P1-8) | in_progress |
+| TASK-20260902-210942761 | Retention Idempotency H1 Remediation — throw-safe compensation y reads protegidos (R1/R2) | approved |
 
 ---
 
@@ -917,6 +918,13 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+a613eb7 subaru: checkpoint H1-RETENTION-REMEDIATION - completado
+a586527 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
+24789e9 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
+e9a7877 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
+0dccb30 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
+3bbfbea chore: persist governance artifacts for H1 retention idempotency closure (TASK-20260902-210942761)
+c3476de docs: regenerate MASTER.md at bed7872
 bed7872 Merge remote-tracking branch 'origin/main'
 5c0cae4 fix: harden retention idempotency H1 — throw-safe compensation and reads (R1/R2)
 c3da2e4 subaru: checkpoint H1-RETENTION-REMEDIATION - listo
@@ -930,13 +938,6 @@ fa3db04 docs: record retention idempotency decision (ADR-030)
 65657c5 docs: record retention core wiring decision
 8daa7ff docs: regenerate MASTER.md at ec3756b
 ec3756b feat: add deterministic retention engine
-f0b9232 docs: regenerate MASTER.md at 34a5c15
-34a5c15 feat: add configurable retention discount policy
-d3501ba docs: regenerate MASTER.md at 8e537b5
-8e537b5 docs: add behavior parity implementation plan
-80e36da docs: regenerate MASTER.md at d03ff40
-d03ff40 docs: concilio decisions - ADR-028 behavior parity contracts
-4bfbff1 docs: regenerate MASTER.md at 6b40266
 ```
 
 ---
