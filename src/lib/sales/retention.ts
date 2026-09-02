@@ -3,7 +3,7 @@ import { getSalesConfig } from '@/lib/ai/knowledge'
 import { hasCancellationTrigger } from './detect'
 import { DISCOUNT_OFFERED_SENTINEL, isDiscountOfferSentinel } from './process'
 import { processCancellation } from './cancel'
-import { emitSalesEvent, getCustomerName } from './events'
+import { emitSalesEvent, getCustomerName, isRetentionConflictError } from './events'
 
 /**
  * T1-2 — Retention Engine (módulo canal-agnóstico).
@@ -50,6 +50,10 @@ const ACK_ALREADY_CANCELLED =
   'Tu pedido ya fue cancelado anteriormente. ¿Hay algo más en lo que te pueda ayudar?'
 const ACK_NOT_CANCELLATION =
   'No detecté que quisieras cancelar tu pedido. Si efectivamente quieres cancelarlo, responde "sí, quiero cancelar" y lo proceso de inmediato.'
+// H1 / ADR-030 — perdedor de la carrera por el slot único de oferta (23505):
+// otro request concurrente ya ofertó; ack determinista sin LLM ni re-oferta.
+const ACK_OFFER_DUPLICATE =
+  'Ya procesé tu solicitud de cancelación. Revisá mi mensaje anterior, por favor.'
 
 export async function resolveRetentionDecision(
   ctx: RetentionContext
@@ -116,14 +120,25 @@ async function offerDiscount(
   // Atomicidad event-first: el evento se emite ANTES del sentinel y abajo se
   // compensa id-scoped si la escritura de conversación falla (nunca un sentinel
   // huérfano ni borrado de SALE_CANCELLED históricos de la conversación).
-  const createdEventId = await emitSalesEvent({
-    businessId,
-    assistantId,
-    conversationId,
-    customerId,
-    eventType: 'SALE_CANCELLED',
-    metadata: { reason: 'discount_offered' },
-  })
+  let createdEventId: string
+  try {
+    createdEventId = await emitSalesEvent({
+      businessId,
+      assistantId,
+      conversationId,
+      customerId,
+      eventType: 'SALE_CANCELLED',
+      metadata: { reason: 'discount_offered' },
+    })
+  } catch (error) {
+    // H1 / ADR-030: otro request concurrente ya emitió SALE_CANCELLED(discount_offered)
+    // para esta conversación (23505). Respuesta determinista: sin evento propio,
+    // sin sentinel, sin señal, sin LLM.
+    if (isRetentionConflictError(error)) {
+      return { action: 'ack', response: ACK_OFFER_DUPLICATE }
+    }
+    throw error
+  }
 
   const { data: convHistory } = await supabase
     .from('conversations')

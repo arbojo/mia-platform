@@ -18,6 +18,7 @@ vi.mock('@/lib/sales/events', () => ({
   getCustomerName: vi.fn(),
   hasCancellationLock: vi.fn(),
   hasClosingEvent: vi.fn(),
+  isRetentionConflictError: vi.fn(() => false),
   notifySaleToOwner: vi.fn(),
 }))
 vi.mock('@/lib/sales/cancel', () => ({ processCancellation: vi.fn() }))

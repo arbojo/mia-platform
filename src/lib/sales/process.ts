@@ -17,6 +17,7 @@ import {
   getCustomerName,
   hasCancellationLock,
   hasClosingEvent,
+  isRetentionConflictError,
   notifySaleToOwner,
 } from './events'
 import { getSalesConfig } from '@/lib/ai/knowledge'
@@ -209,50 +210,64 @@ export async function handleCancellationWebhook(
       // and the sentinel is never written, so an orphan sentinel cannot occur. The id is
       // used exclusively for id-scoped compensation (never by conversation_id/event_type,
       // so a historical SALE_CANCELLED of the same conversation is never touched).
-      const createdEventId = await emitSalesEvent({
-        businessId,
-        assistantId,
-        conversationId,
-        customerId: customer.id,
-        eventType: 'SALE_CANCELLED',
-        metadata: { reason: 'discount_offered' },
-      })
+      let createdEventId: string | null = null
+      let offerLostRace = false
+      try {
+        createdEventId = await emitSalesEvent({
+          businessId,
+          assistantId,
+          conversationId,
+          customerId: customer.id,
+          eventType: 'SALE_CANCELLED',
+          metadata: { reason: 'discount_offered' },
+        })
+      } catch (error) {
+        // H1 / ADR-030: otro request concurrente ya reclamó el slot único de oferta
+        // para esta conversación (23505). ACK determinista: sin segundo evento, sin
+        // rescribir el sentinel (el ganador ya lo persiste) y sin LLM.
+        if (!isRetentionConflictError(error)) throw error
+        response =
+          'Ya procesé tu solicitud de cancelación. Revisá mi mensaje anterior, por favor.'
+        offerLostRace = true
+      }
 
-      // Only after the event is confirmed, persist the sentinel + outcome history.
-      const { error: discountStateError } = await supabase.from('conversations').update({
-        sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
-        outcome_updated_at: new Date().toISOString(),
-        outcome_history: [
-          ...history,
-          {
-            outcome: 'cancelled',
-            previous: convHistory?.outcome ?? null,
-            event_type: 'SALE_CANCELLED',
-            reason: 'discount_offered',
-            at: new Date().toISOString(),
-          },
-        ],
-      }).eq('id', conversationId)
+      if (!offerLostRace) {
+        // Only after the event is confirmed, persist the sentinel + outcome history.
+        const { error: discountStateError } = await supabase.from('conversations').update({
+          sales_cancelled_at: DISCOUNT_OFFERED_SENTINEL,
+          outcome_updated_at: new Date().toISOString(),
+          outcome_history: [
+            ...history,
+            {
+              outcome: 'cancelled',
+              previous: convHistory?.outcome ?? null,
+              event_type: 'SALE_CANCELLED',
+              reason: 'discount_offered',
+              at: new Date().toISOString(),
+            },
+          ],
+        }).eq('id', conversationId)
 
-      if (discountStateError) {
-        // The event was already created above; the conversation write failed. Compensate
-        // by deleting ONLY the exact event we created (id-scoped), then propagate the error.
-        // This never removes other SALE_CANCELLED events of the conversation.
-        try {
-          if (createdEventId) {
-            await supabase.from('sales_events')
-              .delete()
-              .eq('id', createdEventId)
+        if (discountStateError) {
+          // The event was already created above; the conversation write failed. Compensate
+          // by deleting ONLY the exact event we created (id-scoped), then propagate the error.
+          // This never removes other SALE_CANCELLED events of the conversation.
+          try {
+            if (createdEventId) {
+              await supabase.from('sales_events')
+                .delete()
+                .eq('id', createdEventId)
+            }
+          } catch (compensationError) {
+            console.error(
+              `Failed to compensate SALE_CANCELLED after conversation write failure: ${
+                compensationError instanceof Error ? compensationError.message : String(compensationError)
+              }`,
+              { conversationId, createdEventId }
+            )
           }
-        } catch (compensationError) {
-          console.error(
-            `Failed to compensate SALE_CANCELLED after conversation write failure: ${
-              compensationError instanceof Error ? compensationError.message : String(compensationError)
-            }`,
-            { conversationId, createdEventId }
-          )
+          throw new Error(`Failed to persist cancellation state: ${discountStateError.message}`)
         }
-        throw new Error(`Failed to persist cancellation state: ${discountStateError.message}`)
       }
     }
   } else {

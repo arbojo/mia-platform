@@ -10,6 +10,28 @@ export interface DetectedSaleEvent {
   amount?: number | null
 }
 
+/**
+ * H1 / ADR-030 — error tipado cuando la escritura de un SALE_CANCELLED choca con
+ * un índice UNIQUE parcial (23505 unique_violation): otro request concurrente ya
+ * reclamó el slot (oferta única / cancelación única por conversación). El motor
+ * lo traduce a ACK determinista; NO es un error genérico de transporte.
+ */
+export class SalesEventConflictError extends Error {
+  readonly code = '23505'
+  constructor(
+    readonly eventType: SalesEventType,
+    readonly constraint: string | null,
+    message: string
+  ) {
+    super(message)
+    this.name = 'SalesEventConflictError'
+  }
+}
+
+export function isRetentionConflictError(error: unknown): error is SalesEventConflictError {
+  return error instanceof SalesEventConflictError
+}
+
 export async function emitSalesEvent(params: {
   businessId: string
   assistantId?: string | null
@@ -62,6 +84,13 @@ export async function emitSalesEvent(params: {
     .single()
 
   if (salesEventError) {
+    if (salesEventError.code === '23505') {
+      throw new SalesEventConflictError(
+        params.eventType,
+        (salesEventError as { constraint?: string | null }).constraint ?? null,
+        `Sales event ${params.eventType} already exists: ${salesEventError.message}`
+      )
+    }
     throw new Error(`Failed to emit sales event ${params.eventType}: ${salesEventError.message}`)
   }
 

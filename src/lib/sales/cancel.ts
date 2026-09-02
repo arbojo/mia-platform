@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getSalesConfig } from '@/lib/ai/knowledge'
 import { purgeCancelledOrderFromMemory } from '@/lib/ai/customer-memory'
 import { detectCancellation } from './detect'
-import { emitSalesEvent } from './events'
+import { emitSalesEvent, isRetentionConflictError } from './events'
 import type { LastCancelledOrder } from '@/lib/types'
 
 export interface ProcessCancellationParams {
@@ -20,6 +20,11 @@ export interface ProcessCancellationResult {
   message?: string
   orderNumber?: string
 }
+
+// H1 / ADR-030 — perdedor de la carrera por el slot único de cancelación real
+// (23505): otro request concurrente ya canceló; ack determinista sin evento,
+// sin mia_signals y sin updates duplicados.
+const CANCELLATION_ALREADY_PROCESSED = 'Tu pedido ya fue cancelado.'
 
 export async function processCancellation(
   params: ProcessCancellationParams
@@ -96,19 +101,29 @@ export async function processCancellation(
     .replace(/\{order_id\}/g, orderNumber)
     .replace(/\{customer_name\}/g, 'Cliente')
 
-  await emitSalesEvent({
-    businessId: params.businessId,
-    assistantId: params.assistantId,
-    conversationId: params.conversationId,
-    customerId: params.customerId,
-    eventType: 'SALE_CANCELLED',
-    metadata: {
-      reason: detection.reason,
-      original_sale_event_id: lastWonEvent.id,
-      order_number: orderNumber,
-      within_window: withinWindow,
-    },
-  })
+  try {
+    await emitSalesEvent({
+      businessId: params.businessId,
+      assistantId: params.assistantId,
+      conversationId: params.conversationId,
+      customerId: params.customerId,
+      eventType: 'SALE_CANCELLED',
+      metadata: {
+        reason: detection.reason,
+        original_sale_event_id: lastWonEvent.id,
+        order_number: orderNumber,
+        within_window: withinWindow,
+      },
+    })
+  } catch (error) {
+    // H1 / ADR-030: otro request concurrente ya emitió la cancelación real para
+    // esta conversación (23505). ACK determinista: sin duplicar evento ni
+    // mia_signals, sin reescribir la conversación.
+    if (isRetentionConflictError(error)) {
+      return { processed: true, action: 'confirmed', message: CANCELLATION_ALREADY_PROCESSED }
+    }
+    throw error
+  }
 
   const { data: conversation } = await supabase
     .from('conversations')
