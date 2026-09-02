@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `ec3756b`.
+> Fuente de verdad: este repositorio en `65657c5`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `ec3756b` |
+| **Commit HEAD** | `65657c5` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T19:37:16-06:00 |
+| **Generado** | 2026-09-01T19:45:23-06:00 |
 
 ---
 
@@ -866,7 +866,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-29 ADRs en `docs/adr/`:
+30 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -899,6 +899,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | ADR-022 | 022: Environment Runtime Normalization |
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
 | ADR-028 | 028 — Contratos de Paridad de Comportamiento (Decisiones del Concilio) |
+| ADR-029-retention-core-wiring | 029 — Wiring del Retention Engine en el Core (T1-3) |
 
 ---
 
@@ -914,6 +915,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+65657c5 docs: record retention core wiring decision
+8daa7ff docs: regenerate MASTER.md at ec3756b
 ec3756b feat: add deterministic retention engine
 f0b9232 docs: regenerate MASTER.md at 34a5c15
 34a5c15 feat: add configurable retention discount policy
@@ -932,8 +935,6 @@ ac638c9 feat: add simulator channel selection parity poc
 dd83b0b feat: implement context idempotency phase 1
 d12ce65 test: add E2E shared core fixture validation script
 0784f9c docs: regenerate MASTER.md at 8967e59
-8967e59 fix(runtime): remove duplicate message inserts in processIncomingMessage
-9061a4c docs: regenerate MASTER.md at ef9df4a
 ```
 
 ---
