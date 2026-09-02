@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `65657c5`.
+> Fuente de verdad: este repositorio en `85c2f9e`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `65657c5` |
+| **Commit HEAD** | `85c2f9e` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T19:45:23-06:00 |
+| **Generado** | 2026-09-01T20:33:14-06:00 |
 
 ---
 
@@ -915,6 +915,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+85c2f9e feat: wire retention engine into core
+24a6281 docs: regenerate MASTER.md at 65657c5
 65657c5 docs: record retention core wiring decision
 8daa7ff docs: regenerate MASTER.md at ec3756b
 ec3756b feat: add deterministic retention engine
@@ -933,8 +935,6 @@ ac638c9 feat: add simulator channel selection parity poc
 91db02f test: add context idempotency golden tests GT-01..GT-35 + P1-4 recovery fix
 7ebd542 docs: regenerate MASTER.md at dd83b0b
 dd83b0b feat: implement context idempotency phase 1
-d12ce65 test: add E2E shared core fixture validation script
-0784f9c docs: regenerate MASTER.md at 8967e59
 ```
 
 ---
