@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `34a5c15`.
+> Fuente de verdad: este repositorio en `ec3756b`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `34a5c15` |
+| **Commit HEAD** | `ec3756b` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T18:52:23-06:00 |
+| **Generado** | 2026-09-01T19:37:16-06:00 |
 
 ---
 
@@ -551,7 +551,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-136 módulos:
+137 módulos:
 
 ```
 ai/client.ts
@@ -675,6 +675,7 @@ sales/detect.ts
 sales/events.ts
 sales/intent-classifier.ts
 sales/process.ts
+sales/retention.ts
 sales/widget.ts
 supabase/admin.ts
 supabase/client.ts
@@ -913,6 +914,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+ec3756b feat: add deterministic retention engine
+f0b9232 docs: regenerate MASTER.md at 34a5c15
 34a5c15 feat: add configurable retention discount policy
 d3501ba docs: regenerate MASTER.md at 8e537b5
 8e537b5 docs: add behavior parity implementation plan
@@ -931,8 +934,6 @@ d12ce65 test: add E2E shared core fixture validation script
 0784f9c docs: regenerate MASTER.md at 8967e59
 8967e59 fix(runtime): remove duplicate message inserts in processIncomingMessage
 9061a4c docs: regenerate MASTER.md at ef9df4a
-ef9df4a feat(core): Fase 1 — D-DECISION-1 sale closing parity + MEDIUM-1 per-event attribution
-59ab2f2 docs: regenerate MASTER.md at 3cb7f18
 ```
 
 ---
