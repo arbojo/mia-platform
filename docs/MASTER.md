@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `6b40266`.
+> Fuente de verdad: este repositorio en `d03ff40`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `6b40266` |
+| **Commit HEAD** | `d03ff40` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T17:54:40-06:00 |
+| **Generado** | 2026-09-01T18:07:14-06:00 |
 
 ---
 
@@ -864,7 +864,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 
 ## 12. Decisiones de Arquitectura (ADRs)
 
-28 ADRs en `docs/adr/`:
+29 ADRs en `docs/adr/`:
 
 | ADR | Título |
 | --- | --- |
@@ -896,6 +896,7 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | 027-mia-cloud-architecture | 027: MIA Cloud Architecture |
 | ADR-022 | 022: Environment Runtime Normalization |
 | ADR-023 | 023: API & WebSocket Diagnostic Tooling |
+| ADR-028 | 028 — Contratos de Paridad de Comportamiento (Decisiones del Concilio) |
 
 ---
 
@@ -911,6 +912,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+d03ff40 docs: concilio decisions - ADR-028 behavior parity contracts
+4bfbff1 docs: regenerate MASTER.md at 6b40266
 6b40266 docs: add MIA behavior parity PRD
 7042515 docs: regenerate MASTER.md at ec71fbb
 ec71fbb Merge remote-tracking branch 'origin/main'
@@ -929,8 +932,6 @@ ef9df4a feat(core): Fase 1 — D-DECISION-1 sale closing parity + MEDIUM-1 per-e
 6f7bdd6 docs: regenerate MASTER.md at cddda71
 cddda71 subaru: checkpoint TASK-20260830-0363673 - en-progreso
 6d5e710 test(core): add CoreInput/CoreOutput contract tests (Step 4)
-d1c9f63 docs: regenerate MASTER.md at ce73a00
-ce73a00 feat(core): delegate processStreaming and processIncomingMessage to processCore (Step 3)
 ```
 
 ---
