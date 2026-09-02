@@ -17,6 +17,8 @@ interface SalesConfig {
   allow_cancellation: boolean
   cancellation_window_hours: number
   cancellation_message: string
+  retention_discount_percent: number
+  retention_discount_message: string
 }
 
 const DEFAULTS: SalesConfig = {
@@ -28,6 +30,9 @@ const DEFAULTS: SalesConfig = {
   cancellation_window_hours: 24,
   cancellation_message:
     'Tu cancelación ha sido procesada. Si tienes alguna duda, escríbenos.',
+  retention_discount_percent: 10,
+  retention_discount_message:
+    'Entiendo tu preocupación, {customer_name}. Para agradecerte tu interés, puedo ofrecerte un *{discount_percent}% de descuento* en tu pedido. ¿Te gustaría que te aplique el descuento y confirmemos tu compra?',
 }
 
 const VARIABLE_RE = /\{(\w+)\}/g
@@ -51,6 +56,10 @@ export function SalesConfigForm() {
             cancellation_window_hours:
               data.config.cancellation_window_hours ?? DEFAULTS.cancellation_window_hours,
             cancellation_message: data.config.cancellation_message ?? DEFAULTS.cancellation_message,
+            retention_discount_percent:
+              data.config.retention_discount_percent ?? DEFAULTS.retention_discount_percent,
+            retention_discount_message:
+              data.config.retention_discount_message ?? DEFAULTS.retention_discount_message,
           })
         }
       })
@@ -81,6 +90,7 @@ export function SalesConfigForm() {
         phone: '+54 11 1234-5678',
         customer_name: 'Juan',
         cancel_hours: String(config.cancellation_window_hours),
+        discount_percent: String(config.retention_discount_percent),
       }
       return map[key] ?? `{${key}}`
     })
@@ -187,6 +197,52 @@ export function SalesConfigForm() {
                     }
                     rows={3}
                   />
+                </div>
+                <div className="border-t pt-4">
+                  <p className="mb-3 text-sm font-medium">{t.settings.retentionOffer}</p>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="retention_discount_percent">
+                        {t.settings.retentionDiscountPercent}
+                      </Label>
+                      <Input
+                        id="retention_discount_percent"
+                        type="number"
+                        min={5}
+                        max={20}
+                        value={config.retention_discount_percent}
+                        onChange={(e) =>
+                          setConfig((c) => ({
+                            ...c,
+                            retention_discount_percent: Math.min(
+                              20,
+                              Math.max(5, parseInt(e.target.value, 10) || 10),
+                            ),
+                          }))
+                        }
+                        className="w-32"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t.settings.retentionDiscountMessage}</Label>
+                      <Textarea
+                        value={config.retention_discount_message}
+                        onChange={(e) =>
+                          setConfig((c) => ({
+                            ...c,
+                            retention_discount_message: e.target.value,
+                          }))
+                        }
+                        rows={3}
+                      />
+                      <div className="rounded-md bg-muted p-3 text-xs">
+                        <p className="mb-1 font-medium">{t.settings.preview}:</p>
+                        <p className="whitespace-pre-wrap text-muted-foreground">
+                          {preview(config.retention_discount_message)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             )}

@@ -301,9 +301,21 @@ export type SalesConfig = {
   cancellation_window_hours: number
   follow_up_hours: number
   timezone: string
+  retention_discount_percent: number
+  retention_discount_message: string
   created_at: string
   updated_at: string
 }
+
+/**
+ * Policy tipada de retención (ADR-028 D1 + Decisión Especial).
+ * El motor de retención (T1-2) consumirá únicamente estos campos como
+ * fuente de verdad configurable, nunca strings hardcodeados por canal.
+ */
+export type RetentionDiscountPolicy = Pick<
+  SalesConfig,
+  'retention_discount_percent' | 'retention_discount_message'
+>
 
 export const SALES_CONFIG_DEFAULTS: Omit<SalesConfig, 'business_id' | 'created_at' | 'updated_at'> = {
   confirmation_message:
@@ -316,6 +328,9 @@ export const SALES_CONFIG_DEFAULTS: Omit<SalesConfig, 'business_id' | 'created_a
   cancellation_window_hours: 24,
   follow_up_hours: 48,
   timezone: 'America/Argentina/Buenos_Aires',
+  retention_discount_percent: 10,
+  retention_discount_message:
+    'Entiendo tu preocupación, {customer_name}. Para agradecerte tu interés, puedo ofrecerte un *{discount_percent}% de descuento* en tu pedido. ¿Te gustaría que te aplique el descuento y confirmemos tu compra?',
 }
 
 export async function getExperienceContext(businessId: string, industry: string): Promise<string> {

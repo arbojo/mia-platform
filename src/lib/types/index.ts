@@ -917,6 +917,8 @@ export interface Database {
           cancellation_window_hours: number
           follow_up_hours: number
           timezone: string
+          retention_discount_percent: number
+          retention_discount_message: string
           created_at: string
           updated_at: string
         }
@@ -930,6 +932,8 @@ export interface Database {
           cancellation_window_hours?: number
           follow_up_hours?: number
           timezone?: string
+          retention_discount_percent?: number
+          retention_discount_message?: string
           created_at?: string
           updated_at?: string
         }
@@ -943,6 +947,8 @@ export interface Database {
           cancellation_window_hours?: number
           follow_up_hours?: number
           timezone?: string
+          retention_discount_percent?: number
+          retention_discount_message?: string
           created_at?: string
           updated_at?: string
         }

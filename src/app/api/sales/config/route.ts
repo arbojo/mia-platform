@@ -44,13 +44,38 @@ export async function POST(request: Request) {
       'ask_phone',
       'allow_cancellation',
       'cancellation_window_hours',
+      'retention_discount_percent',
+      'retention_discount_message',
     ] as const
 
     const updates: Record<string, unknown> = {}
     for (const field of allowedFields) {
-      if (field in body) {
-        updates[field] = body[field]
+      if (!(field in body)) continue
+
+      if (field === 'retention_discount_percent') {
+        const percent = Number(body[field])
+        if (!Number.isInteger(percent) || percent < 5 || percent > 20) {
+          return NextResponse.json(
+            { error: 'retention_discount_percent debe ser un entero entre 5 y 20' },
+            { status: 400 },
+          )
+        }
+        updates[field] = percent
+        continue
       }
+
+      if (field === 'retention_discount_message') {
+        if (typeof body[field] !== 'string' || body[field].length > 500) {
+          return NextResponse.json(
+            { error: 'retention_discount_message debe ser un texto de hasta 500 caracteres' },
+            { status: 400 },
+          )
+        }
+        updates[field] = body[field] as string
+        continue
+      }
+
+      updates[field] = body[field]
     }
 
     if (Object.keys(updates).length === 0) {
