@@ -200,6 +200,22 @@ export async function processStreaming(params: {
     : null
   const safeMedia = coreOutput.media
 
+  // T1-3 / ADR-029: la rama de retención devuelve una respuesta COMPLETA, no un
+  // stream del LLM. Se entrega con un único evento en lugar de asumir textStream.
+  if (coreOutput.metadata.retention === true) {
+    const singleEvent = (async function* (): AsyncIterable<string> {
+      yield coreOutput.response
+    })()
+    return {
+      toTextStreamResponse: () =>
+        new Response(coreOutput.response, {
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        }),
+      toStructuredStreamResponse: () =>
+        buildStructuredStreamResponse({ textStream: singleEvent, product: null, media: null }),
+    }
+  }
+
   return {
     toTextStreamResponse: () => new Response(coreOutput.textStream, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
@@ -276,6 +292,9 @@ export async function processIncomingMessage(
 
   const response = coreOutput.response
 
+  // T1-3 / ADR-029: el turno de retención ya fue resuelto por el Core; el
+  // adapter/contenedor NO vuelve a ejecutar processSaleClosing ni interactive.
+  const isRetention = coreOutput.metadata.retention === true
   await supabase.from('channel_messages').insert({
     business_id: businessId,
     customer_id: customer.id,
@@ -294,7 +313,7 @@ export async function processIncomingMessage(
 
   // Sale closing: handled by adapter (not Core) because it needs mode check
   const resolvedProduct = coreOutput.product
-  if (mode === 'active' && conversationId) {
+  if (mode === 'active' && conversationId && !isRetention) {
     try {
       const chatHistory = conversationId
         ? await supabase
@@ -322,7 +341,7 @@ export async function processIncomingMessage(
   const deliver = mode !== 'shadow'
 
   let interactive: InteractiveComponent | undefined
-  if (channel === 'whatsapp' && mode !== 'shadow' && intentTag) {
+  if (channel === 'whatsapp' && mode !== 'shadow' && intentTag && !isRetention) {
     const { data: products } = await supabase
       .from('products')
       .select('*')

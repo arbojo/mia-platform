@@ -17,6 +17,7 @@ import { withMediaResolutionFeedback } from '@/lib/ai/prompts'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import { processSaleClosing } from '@/lib/sales/process'
+import { resolveRetentionDecision } from '@/lib/sales/retention'
 import type { CoreInput, CoreOutput } from '@/lib/channels/types'
 
 export async function processCore(input: CoreInput): Promise<CoreOutput> {
@@ -88,6 +89,60 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       })
     } catch (err) {
       console.error('Failed to persist user message:', err)
+    }
+  }
+
+  // ── T1-3 / ADR-029: retención en el Core, UNA vez por turno ──────────────────
+  // Se evalúa después de persistir el mensaje de usuario y ANTES de
+  // producto/media/prompt/executeAI (punto de entrada ADR-029 §1). La respuesta
+  // canónica corta el pipeline: sin LLM, sin producto/media y sin
+  // processSaleClosing, para que el safety-net nunca interprete este turno como
+  // cancelación real (§5). El flag RETENTION_CORE_ENABLED permite rollback sin
+  // tocar canales. Los IDs ya resueltos se reutilizan tal cual.
+  const retentionEnabled = process.env.RETENTION_CORE_ENABLED !== '0'
+  if (retentionEnabled && input.conversationId && input.userMessage && customerId) {
+    try {
+      const retention = await resolveRetentionDecision({
+        businessId: input.businessId,
+        assistantId: input.assistantId,
+        conversationId: input.conversationId,
+        customerId: customerId ?? null,
+        lastUserMessage: input.userMessage,
+      })
+
+      if (retention.action !== 'none') {
+        const retentionResponse = retention.response ?? ''
+        if (input.conversationId) {
+          try {
+            await supabase.from('messages').insert({
+              conversation_id: input.conversationId,
+              role: 'assistant',
+              content: retentionResponse,
+              metadata: { retention: true },
+            })
+          } catch (err) {
+            console.error('Failed to persist retention response:', err)
+          }
+        }
+
+        return {
+          response: retentionResponse,
+          textStream: undefined,
+          product: null,
+          media: null,
+          metadata: {
+            usedContext,
+            conversationId: input.conversationId,
+            customerId,
+            deliver: true,
+            retention: true,
+          },
+        }
+      }
+    } catch (err) {
+      // Un fallo de la decisión de retención no debe tumbar el turno:
+      // se degrada al pipeline normal (AI/product/media intactos).
+      console.error('Retention decision failed (falling back to normal pipeline):', err)
     }
   }
 

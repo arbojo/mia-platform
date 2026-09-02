@@ -126,5 +126,6 @@ export interface CoreOutput {
     conversationId?: string
     customerId?: string
     deliver: boolean
+    retention?: boolean
   }
 }
