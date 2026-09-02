@@ -2,13 +2,13 @@
 task_id: H1-RETENTION-REMEDIATION
 title: Retention Idempotency H1 Remediation — throw-safe + reads (R1/R2) — ACCEPTED/FROZEN
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 4
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260902-210942761
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-09-02T22:24:09.412Z
+updated: 2026-09-02T22:24:22.961Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -55,7 +55,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
+- [x] **Paso 4:** (objetivo del paso 4 — completar antes de implementar)
   - Objetivo: (qué logra el paso 4)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -70,7 +70,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark H1-RETENTION-REMEDIATION 4`.
+Todos los pasos marcados. Ejecutar `subaru complete H1-RETENTION-REMEDIATION` cuando pasen los gates de verificación.
 
 ## Constraints
 
