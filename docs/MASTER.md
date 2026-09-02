@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `52dabc4`.
+> Fuente de verdad: este repositorio en `bed7872`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `52dabc4` |
+| **Commit HEAD** | `bed7872` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-01T23:45:39-06:00 |
+| **Generado** | 2026-09-02T15:22:07-06:00 |
 
 ---
 
@@ -917,6 +917,10 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+bed7872 Merge remote-tracking branch 'origin/main'
+5c0cae4 fix: harden retention idempotency H1 — throw-safe compensation and reads (R1/R2)
+c3da2e4 subaru: checkpoint H1-RETENTION-REMEDIATION - listo
+51821b2 docs: regenerate MASTER.md at 52dabc4
 52dabc4 fix: add retention idempotency guards
 04acd0c docs: regenerate MASTER.md at fa3db04
 fa3db04 docs: record retention idempotency decision (ADR-030)
@@ -933,10 +937,6 @@ d3501ba docs: regenerate MASTER.md at 8e537b5
 80e36da docs: regenerate MASTER.md at d03ff40
 d03ff40 docs: concilio decisions - ADR-028 behavior parity contracts
 4bfbff1 docs: regenerate MASTER.md at 6b40266
-6b40266 docs: add MIA behavior parity PRD
-7042515 docs: regenerate MASTER.md at ec71fbb
-ec71fbb Merge remote-tracking branch 'origin/main'
-ac638c9 feat: add simulator channel selection parity poc
 ```
 
 ---
