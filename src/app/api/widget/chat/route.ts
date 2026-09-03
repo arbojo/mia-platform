@@ -82,6 +82,7 @@ export async function POST(request: Request) {
       conversationId,
       messages,
       requestType: 'live_customer',
+      channel: 'widget',
       landingContext,
       intentTag: intent,
     })

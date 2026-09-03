@@ -44,6 +44,14 @@ export interface RetentionContext {
   conversationId: string
   customerId: string | null
   lastUserMessage: string
+  /**
+   * LOOP 2.2 — entorno simulado (channel='simulation'). El motor conserva la
+   * respuesta de retención y el estado conversacional (sentinel) para un flujo
+   * oferta → confirmación → ack coherente, pero NO emite efectos comerciales
+   * SALE_*. El Core lo deriva de input.channel === 'simulation'. Ausente/undefined
+   * en canales productivos → comportamiento comercial normal.
+   */
+  simulated?: boolean
 }
 
 const ACK_ALREADY_CANCELLED =
@@ -54,6 +62,10 @@ const ACK_NOT_CANCELLATION =
 // otro request concurrente ya ofertó; ack determinista sin LLM ni re-oferta.
 const ACK_OFFER_DUPLICATE =
   'Ya procesé tu solicitud de cancelación. Revisá mi mensaje anterior, por favor.'
+// LOOP 2.2 — entorno simulado (channel='simulation'): se confirma la cancelación
+// dentro del Lab sin efectos comerciales reales (no se llama processCancellation).
+const ACK_SIMULATED_CONFIRM =
+  'Tu solicitud de cancelación fue confirmada en el entorno de simulación, sin efectos reales sobre la venta.'
 
 export async function resolveRetentionDecision(
   ctx: RetentionContext
@@ -120,24 +132,29 @@ async function offerDiscount(
   // Atomicidad event-first: el evento se emite ANTES del sentinel y abajo se
   // compensa id-scoped si la escritura de conversación falla (nunca un sentinel
   // huérfano ni borrado de SALE_CANCELLED históricos de la conversación).
-  let createdEventId: string
-  try {
-    createdEventId = await emitSalesEvent({
-      businessId,
-      assistantId,
-      conversationId,
-      customerId,
-      eventType: 'SALE_CANCELLED',
-      metadata: { reason: 'discount_offered' },
-    })
-  } catch (error) {
-    // H1 / ADR-030: otro request concurrente ya emitió SALE_CANCELLED(discount_offered)
-    // para esta conversación (23505). Respuesta determinista: sin evento propio,
-    // sin sentinel, sin señal, sin LLM.
-    if (isRetentionConflictError(error)) {
-      return { action: 'ack', response: ACK_OFFER_DUPLICATE }
+  // LOOP 2.2: en entorno simulado (channel='simulation') NO se emite SALE_*
+  // comercial, pero el sentinel sí se conserva para mantener coherente el flujo
+  // oferta → confirmación → ack dentro del Lab.
+  let createdEventId: string | undefined
+  if (!ctx.simulated) {
+    try {
+      createdEventId = await emitSalesEvent({
+        businessId,
+        assistantId,
+        conversationId,
+        customerId,
+        eventType: 'SALE_CANCELLED',
+        metadata: { reason: 'discount_offered' },
+      })
+    } catch (error) {
+      // H1 / ADR-030: otro request concurrente ya emitió SALE_CANCELLED(discount_offered)
+      // para esta conversación (23505). Respuesta determinista: sin evento propio,
+      // sin sentinel, sin señal, sin LLM.
+      if (isRetentionConflictError(error)) {
+        return { action: 'ack', response: ACK_OFFER_DUPLICATE }
+      }
+      throw error
     }
-    throw error
   }
 
   // RESIDUAL-R2 / Godzilla H1 — el read de convHistory ocurre DESPUÉS del commit
@@ -244,6 +261,13 @@ async function offerDiscount(
 async function confirmCancellation(ctx: RetentionContext): Promise<RetentionDecision> {
   const { businessId, assistantId, conversationId, customerId, lastUserMessage } = ctx
   const supabase = createAdminClient()
+
+  // LOOP 2.2 — entorno simulado (channel='simulation'): no se ejecuta la máquina
+  // de cancelación (processCancellation emite SALE_CANCELLED real + señales).
+  // Se confirma dentro del Lab con una respuesta determinista y 0 SALE_*.
+  if (ctx.simulated) {
+    return { action: 'confirm_cancel', response: ACK_SIMULATED_CONFIRM }
+  }
 
   // C1 (paridad): leer el tail RECIENTE (desc+limit), no los más antiguos.
   const messages =

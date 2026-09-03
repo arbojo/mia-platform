@@ -153,21 +153,17 @@ describe('T1-3 wiring (RUNTIME) — C: el safety-net de processSaleClosing NO ej
     expect(outgoingChannelInserts).toHaveLength(1)
   })
 
-  it('complete + active sin rama de retención → processSaleClosing SIGUE ejecutándose (regresión del gate)', async () => {
+  it('complete + active sin rama de retención → el wrapper NO ejecuta processSaleClosing (Core es el único owner)', async () => {
     const { supabase } = makeSupabaseMock()
     vi.mocked(createAdminClient).mockReturnValue(supabase as never)
     mockedProcessCore.mockResolvedValue(normalCoreOutput())
 
     await processIncomingMessage('web', mockWireMessage, {} as never)
 
-    expect(mockedProcessSaleClosing).toHaveBeenCalledTimes(1)
-    expect(mockedProcessSaleClosing).toHaveBeenCalledWith(
-      expect.objectContaining({
-        businessId: FAKE_UUIDS.business,
-        conversationId: FAKE_UUIDS.conversation,
-        customerId: FAKE_UUIDS.customer,
-      })
-    )
+    // Closing idempotency (LOOP 2): el Core ejecuta processSaleClosing una sola
+    // vez (core.test.ts cubre esa ejecución). El wrapper de canal NO debe
+    // añadir una segunda ejecución.
+    expect(mockedProcessSaleClosing).not.toHaveBeenCalled()
   })
 
   it('complete + active + whatsapp: turno de retención NO construye interactive', async () => {

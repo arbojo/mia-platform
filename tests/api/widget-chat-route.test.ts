@@ -172,4 +172,22 @@ describe('POST /api/widget/chat', () => {
     const data = await res.json()
     expect(data).toEqual({ error: 'Sin crédito', code: 'QUOTA_EXCEEDED' })
   })
+
+  it('CHANNEL-PARITY (LOOP 2): entra al Core con channel widget explícito', async () => {
+    // Nota: los mocks legacy de este archivo omiten is_active y fallan
+    // canServeTraffic (fallo pre-existente en HEAD, fuera de scope). Este test
+    // provee el assistant completo para verificar el contrato del channel.
+    mockAdminClient({ id: ASSISTANT_ID, business_id: 'biz-1', is_active: true, status: 'active' })
+    mockStreamingResult()
+
+    await POST(widgetRequest(validBody()))
+
+    expect(processStreaming).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: 'widget',
+        businessId: 'biz-1',
+        requestType: 'live_customer',
+      })
+    )
+  })
 })

@@ -157,4 +157,28 @@ describe('POST /api/chat', () => {
     const data = await res.json()
     expect(data.error).toBe('Internal server error')
   })
+
+  it('CHANNEL-PARITY (LOOP 2): entra al Core con channel simulation explícito', async () => {
+    mockServerClient()
+    mockStreamingResult()
+
+    await POST(postRequest())
+
+    expect(processStreaming).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: 'simulation',
+        businessId: 'biz-1',
+      })
+    )
+  })
+
+  it('CHANNEL-PARITY (LOOP 2): computa intentTag con el mismo detector que los canales', async () => {
+    mockServerClient()
+    mockStreamingResult()
+
+    await POST(postRequest())
+
+    const call = vi.mocked(processStreaming).mock.calls[0][0] as { intentTag?: unknown }
+    expect(call).toHaveProperty('intentTag')
+  })
 })
