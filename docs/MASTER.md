@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `a613eb7`.
+> Fuente de verdad: este repositorio en `3c3f6e8`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `a613eb7` |
+| **Commit HEAD** | `3c3f6e8` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-02T16:24:45-06:00 |
+| **Generado** | 2026-09-03T16:26:05-06:00 |
 
 ---
 
@@ -918,6 +918,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+3c3f6e8 subaru: checkpoint TASK-20260209-ASYNCLEARN001 - listo
+ac330da docs: regenerate MASTER.md at a613eb7
 a613eb7 subaru: checkpoint H1-RETENTION-REMEDIATION - completado
 a586527 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
 24789e9 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
@@ -936,8 +938,6 @@ fa3db04 docs: record retention idempotency decision (ADR-030)
 85c2f9e feat: wire retention engine into core
 24a6281 docs: regenerate MASTER.md at 65657c5
 65657c5 docs: record retention core wiring decision
-8daa7ff docs: regenerate MASTER.md at ec3756b
-ec3756b feat: add deterministic retention engine
 ```
 
 ---
