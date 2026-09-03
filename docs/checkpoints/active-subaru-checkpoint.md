@@ -2,13 +2,13 @@
 task_id: TASK-20260209-ASYNCLEARN001
 title: Ingesta asincrona de archivos y polling en /api/knowledge/learn
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260209-ASYNCLEARN001
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-09-03T22:53:59.637Z
+updated: 2026-09-03T23:01:05.441Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -39,7 +39,7 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
-- [ ] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
+- [x] **Paso 2:** (objetivo del paso 2 — completar antes de implementar)
   - Objetivo: (qué logra el paso 2)
   - Archivos: (archivos afectados)
   - Acción: (acción esperada)
@@ -86,7 +86,7 @@ Pasos atómicos aprobados por el Council:
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260209-ASYNCLEARN001 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260209-ASYNCLEARN001 3`.
 
 ## Constraints
 
