@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import { randomUUID } from 'crypto'
 
 /**
  * TASK-20260209-ASYNCLEARN001 (F1): recepción-only.

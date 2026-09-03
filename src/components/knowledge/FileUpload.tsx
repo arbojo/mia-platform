@@ -45,7 +45,7 @@ export function FileUpload({ businessId, onReportCreated }: FileUploadProps) {
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const [pollFailures, setPollFailures] = useState(0)
+  const [, setPollFailures] = useState(0)
 
   const pollReport = useCallback(
     (reportId: string, total: number) => {
