@@ -170,6 +170,7 @@ export async function POST(request: Request) {
           const partial = await extractKnowledgeFromText(
             `--- Archivo: ${sf.name} ---\n${text}`,
             businessContext,
+            leased.business_id,
             leased.business_id
           )
           acc = mergeResults(acc, partial)
