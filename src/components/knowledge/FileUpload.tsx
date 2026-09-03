@@ -45,12 +45,64 @@ export function FileUpload({ businessId, onReportCreated }: FileUploadProps) {
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const [pollFailures, setPollFailures] = useState(0)
+
+  const pollReport = useCallback(
+    (reportId: string, total: number) => {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/knowledge/learn/${reportId}`)
+          if (!res.ok) throw new Error(`status ${res.status}`)
+          const { report } = (await res.json()) as {
+            report: {
+              status: string
+              files_done: number
+              files_total: number
+              error_reason: string | null
+            }
+          }
+          setPollFailures(0)
+          setUploadMessage(
+            report.status === 'processing'
+              ? `Estoy estudiando tus archivos... (${report.files_done}/${report.files_total || total})`
+              : null
+          )
+
+          if (report.status === 'completed') {
+            clearInterval(interval)
+            setUploading(false)
+            setUploadMessage('¡Ya terminé de estudiar tus archivos!')
+            setTimeout(() => onReportCreated(reportId), 1500)
+          } else if (report.status === 'failed') {
+            clearInterval(interval)
+            setError(report.error_reason ?? 'No pude procesar los archivos.')
+            setUploadMessage(null)
+            setUploading(false)
+          }
+        } catch {
+          // Error de red transitorio: reintentar antes de rendirse.
+          setPollFailures((prev) => {
+            if (prev + 1 >= 5) {
+              clearInterval(interval)
+              setError('Se perdió la conexión con el servidor. Revisa el reporte en unos minutos.')
+              setUploadMessage(null)
+              setUploading(false)
+              return 0
+            }
+            return prev + 1
+          })
+        }
+      }, 2500)
+    },
+    [onReportCreated]
+  )
+
   const handleUpload = async () => {
     if (files.length === 0) return
 
     setUploading(true)
     setError(null)
-    setUploadMessage('Estoy estudiando tus archivos...')
+    setUploadMessage('Subiendo tus archivos...')
 
     try {
       const formData = new FormData()
@@ -69,17 +121,18 @@ export function FileUpload({ businessId, onReportCreated }: FileUploadProps) {
       if (!res.ok) {
         setError(data.error ?? 'Error al procesar los archivos')
         setUploadMessage(null)
+        setUploading(false)
         return
       }
 
-      setUploadMessage('¡Ya terminé de estudiar tus archivos!')
-      setTimeout(() => {
-        onReportCreated(data.report_id)
-      }, 1500)
+      // F3 (TASK-20260209): el POST responde en <1s con report_id; el trabajo
+      // pesado corre en el worker asíncrono. Este hilo solo hace polling.
+      setFiles([])
+      setUploadMessage('Estoy estudiando tus archivos... (0/' + (data.files_total ?? files.length) + ')')
+      pollReport(data.report_id, data.files_total ?? files.length)
     } catch {
-      setError('Error al conectar con el servidor')
+      setError('Error al subir los archivos. Verifica tu conexión e intenta de nuevo.')
       setUploadMessage(null)
-    } finally {
       setUploading(false)
     }
   }

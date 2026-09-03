@@ -1,72 +1,62 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import { extractKnowledgeFromText } from '@/lib/ai/extract'
-import { getBusinessExtractionContext } from '@/lib/ai/knowledge'
-import { PDFParse } from 'pdf-parse'
+import { randomUUID } from 'crypto'
+
+/**
+ * TASK-20260209-ASYNCLEARN001 (F1): recepción-only.
+ * Este endpoint YA NO procesa archivos: valida, persiste los archivos en
+ * Storage, crea el learning_report en 'processing' y devuelve report_id de
+ * inmediato. La extracción/IA corre en el worker asíncrono
+ * (/api/knowledge/learn/process) con lease + estados terminales garantizados.
+ */
 
 const MAX_FILES = 10
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TYPES = ['image/', 'application/pdf', 'text/']
 
-async function extractTextFromPdf(buffer: ArrayBuffer): Promise<string> {
-  const parser = new PDFParse({ data: Buffer.from(buffer) })
-  const result = await parser.getText()
-  return result.text
+interface StoredFile {
+  name: string
+  size: number
+  type: string
+  storage_path: string
 }
 
-async function extractTextFromImage(
-  buffer: ArrayBuffer,
-  mimeType: string
-): Promise<string> {
-  const base64 = Buffer.from(buffer).toString('base64')
-  const dataUrl = `data:${mimeType};base64,${base64}`
+async function saveFileToStorage(
+  admin: ReturnType<typeof createAdminClient>,
+  reportId: string,
+  index: number,
+  file: File
+): Promise<StoredFile> {
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80)
+  const path = `learning/${reportId}/${index}-${safeName}`
 
-  const { getOpenAIClient, MODEL } = await import('@/lib/ai/client')
-  const openai = getOpenAIClient()
+  const { error } = await admin.storage
+    .from('knowledge-media')
+    .upload(path, buffer, { contentType: file.type })
 
-  const completion = await openai.chat.completions.create({
-    model: MODEL,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image_url',
-            image_url: { url: dataUrl },
-          },
-          {
-            type: 'text',
-            text: `Extrae TODO el texto visible en esta imagen. Si es un catálogo, lista de precios, folleto o documento de negocio, extrae toda la información incluyendo nombres de productos, precios, descripciones, beneficios, promociones, y cualquier otro dato relevante.
+  if (error) {
+    throw new Error(`Failed to store "${file.name}": ${error.message}`)
+  }
 
-Si la imagen no contiene texto relevante para un negocio, responde con un texto vacío.`,
-          },
-        ],
-      },
-    ],
-    max_tokens: 4096,
+  return { name: file.name, size: file.size, type: file.type, storage_path: path }
+}
+
+/** Dispara el worker sin bloquear la respuesta (fire-and-forget). */
+function triggerWorker(reportId: string, token: string): void {
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  void fetch(`${origin}/api/knowledge/learn/process`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ report_id: reportId, token }),
+  }).catch((err) => {
+    // Self-heal: el polling del frontend y el lease expirado permiten
+    // re-disparar el procesamiento si este trigger se pierde.
+    console.error('[learn] worker trigger failed (self-heal available):', err)
   })
-
-  return completion.choices[0]?.message?.content ?? ''
 }
 
-async function extractTextFromFile(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer()
-
-  if (file.type === 'application/pdf') {
-    return extractTextFromPdf(buffer)
-  }
-
-  if (file.type.startsWith('image/')) {
-    return extractTextFromImage(buffer, file.type)
-  }
-
-  if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.csv')) {
-    return new TextDecoder().decode(buffer)
-  }
-
-  return ''
-}
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -127,34 +117,16 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
-  const { data: assistant } = await admin
-    .from('assistants')
-    .select('id')
-    .eq('business_id', businessId)
-    .eq('is_active', true)
-    .limit(1)
-    .maybeSingle()
-
-  const { count: knowledgeCount } = await admin
-    .from('knowledge_items')
-    .select('id', { count: 'exact', head: true })
-    .eq('business_id', businessId)
-    .eq('is_active', true)
-
-  const { count: productCount } = await admin
-    .from('products')
-    .select('id', { count: 'exact', head: true })
-    .eq('business_id', businessId)
-    .eq('is_active', true)
-
-  const preparationBefore = Math.min(100, ((knowledgeCount ?? 0) + (productCount ?? 0)) * 3)
+  const processingToken = crypto.randomUUID()
 
   const { data: report, error: reportError } = await admin
     .from('learning_reports')
     .insert({
       business_id: businessId,
       status: 'processing',
-      preparation_before: preparationBefore,
+      files_total: files.length,
+      files_done: 0,
+      processing_token: processingToken,
       files_processed: files.map((f) => ({ name: f.name, size: f.size, type: f.type })),
     })
     .select('id')
@@ -164,84 +136,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create report' }, { status: 500 })
   }
 
+  // F1: persistir archivos y responder INMEDIATAMENTE. Cero trabajo pesado.
   try {
-    const allText: string[] = []
-    for (const file of files) {
-      const text = await extractTextFromFile(file)
-      if (text.trim().length > 0) {
-        allText.push(`--- Archivo: ${file.name} ---\n${text}`)
-      }
+    const stored: StoredFile[] = []
+    for (let i = 0; i < files.length; i++) {
+      stored.push(await saveFileToStorage(admin, report.id, i, files[i]))
     }
-
-    if (allText.length === 0) {
-      await admin
-        .from('learning_reports')
-        .update({ status: 'failed', completed_at: new Date().toISOString() })
-        .eq('id', report.id)
-
-      return NextResponse.json({
-        error: 'No pude leer información de los archivos. Asegúrate de que contengan texto visible.',
-      }, { status: 422 })
-    }
-
-    const combinedText = allText.join('\n\n')
-    const extractionCtx = await getBusinessExtractionContext(businessId)
-    const businessContext = [
-      'Productos existentes:', extractionCtx.existingProducts.join(', ') || 'Ninguno',
-      'Conocimiento existente:', extractionCtx.existingKnowledge.map((k) => `${k.category}: ${k.content}`).join('; ') || 'Ninguno',
-      'Reglas existentes:', extractionCtx.existingRules.map((r) => `${r.category}: ${r.content}`).join('; ') || 'Ninguna',
-    ].join('\n')
-
-    const extraction = await extractKnowledgeFromText(
-      combinedText,
-      businessContext,
-      businessId,
-      assistant?.id ?? businessId
-    )
-
-    const preparationAfter = Math.min(100, preparationBefore +
-      extraction.summary.productsFound * 3 +
-      extraction.summary.knowledgeFound * 2 +
-      extraction.summary.rulesFound * 2 +
-      extraction.summary.faqsFound
-    )
 
     await admin
       .from('learning_reports')
-      .update({
-        status: 'completed',
-        products_found: extraction.summary.productsFound,
-        knowledge_found: extraction.summary.knowledgeFound,
-        rules_found: extraction.summary.rulesFound,
-        prices_found: extraction.summary.pricesFound,
-        benefits_found: extraction.summary.benefitsFound,
-        faqs_found: extraction.summary.faqsFound,
-        promotions_found: extraction.summary.promotionsFound,
-        missing_fields: extraction.missingFields,
-        extracted_products: extraction.products,
-        extracted_knowledge: extraction.knowledge,
-        extracted_rules: extraction.rules,
-        preparation_after: preparationAfter,
-        completed_at: new Date().toISOString(),
-      })
+      .update({ files_processed: stored })
       .eq('id', report.id)
+
+    triggerWorker(report.id, processingToken)
 
     return NextResponse.json({
       report_id: report.id,
-      status: 'completed',
-      summary: extraction.summary,
-      preparation_before: preparationBefore,
-      preparation_after: preparationAfter,
+      status: 'processing',
+      files_total: files.length,
     })
   } catch (error) {
     await admin
       .from('learning_reports')
-      .update({ status: 'failed', completed_at: new Date().toISOString() })
+      .update({
+        status: 'failed',
+        completed_at: new Date().toISOString(),
+        error_reason: error instanceof Error ? error.message : 'Unknown error',
+      })
       .eq('id', report.id)
 
     return NextResponse.json({
-      error: 'Error al analizar los archivos. Intenta de nuevo.',
+      error: 'No pude guardar los archivos. Intenta de nuevo.',
       detail: error instanceof Error ? error.message : 'Unknown error',
     }, { status: 500 })
   }
 }
+
