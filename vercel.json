@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/margin-audit",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/knowledge/learn/process",
+      "schedule": "* * * * *"
     }
   ]
 }

@@ -20,7 +20,15 @@ import { extractTextFromFile } from '@/lib/knowledge/file-extract'
 
 const LEASE_MINUTES = 15
 
+/**
+ * Authorized when either:
+ *  - internal test/self-heal uses MIA_CRON_SECRET (x-mia-cron-secret), or
+ *  - Vercel Cron invokes with x-vercel-cron:1 (auto header, not spoofable).
+ */
 function verifyCronAuth(request: Request): boolean {
+  const vercelCron = request.headers.get('x-vercel-cron')
+  if (vercelCron === '1') return true
+
   const secret = request.headers.get('x-mia-cron-secret')
   const expected = process.env.MIA_CRON_SECRET
   return Boolean(secret && expected && secret === expected)

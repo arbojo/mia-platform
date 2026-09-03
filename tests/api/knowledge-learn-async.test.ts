@@ -27,6 +27,7 @@ function makeAdminMock(overrides: {
   leased?: unknown
   reportRow?: unknown
   insertError?: boolean
+  pending?: unknown
 } = {}) {
   const chain: Record<string, ReturnType<typeof vi.fn>> = {}
   let lastSelect = ''
@@ -41,8 +42,11 @@ function makeAdminMock(overrides: {
   chain.eq = method(() => chain)
   chain.or = method(() => chain)
   chain.order = method(() => chain)
-  chain.limit = method(() => chain)
   chain.not = method(() => chain)
+  chain.update = method(() => chain)
+  chain.limit = vi.fn(() =>
+    Promise.resolve({ data: overrides.pending ?? [], error: null })
+  )
   chain.update = method(() => chain)
   chain.maybeSingle = method(() => Promise.resolve({ data: null, error: null }))
   chain.single = vi.fn(() => {
@@ -228,6 +232,33 @@ describe('WORKER (F2) — /api/knowledge/learn/process', () => {
     expect(data.success).toBe(false)
     expect(data.status).toBe('failed')
     expect(extractKnowledgeFromText).not.toHaveBeenCalled()
+  })
+
+  it('Vercel Cron trigger (x-vercel-cron:1) procesa el reporte pendiente más antiguo', async () => {
+    makeAdminMock({
+      pending: [{ id: FAKE_UUIDS.report }],
+      reportRow: { id: FAKE_UUIDS.report, status: 'processing', processing_token: 'token-ok' },
+      leased: {
+        id: FAKE_UUIDS.report,
+        business_id: FAKE_UUIDS.business,
+        files_total: 1,
+        files_done: 0,
+        files_processed: [{ name: 'c.txt', size: 4, type: 'text/plain', storage_path: 'learning/r/0-c.txt' }],
+      },
+    })
+
+    // Modo cron: sin body, solo header Vercel.
+    const res = await processPost(
+      new Request('http://localhost/api/knowledge/learn/process', {
+        method: 'POST',
+        headers: { 'x-vercel-cron': '1' },
+      })
+    )
+    const data = await res.json()
+
+    expect(data.success).toBe(true)
+    expect(data.status).toBe('completed')
+    expect(extractKnowledgeFromText).toHaveBeenCalledTimes(1)
   })
 })
 
