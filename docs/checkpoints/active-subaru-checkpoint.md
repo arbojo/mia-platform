@@ -1,23 +1,23 @@
 ---
-task_id: TASK-20260209-ASYNCLEARN001
-title: Ingesta asincrona de archivos y polling en /api/knowledge/learn
-state: blocked
+task_id: TASK-20260904-210844465
+title: B3: scope determinista del runtime llega al contexto de generacion de texto (anchor post-cache)
+state: frozen
 current_step: 0
-total_steps: 6
+total_steps: 8
 branch: main
 last_machine: Deivis-Desktop
-governance_id: TASK-20260209-ASYNCLEARN001
+governance_id: TASK-20260904-210844465
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-09-04T21:03:20.669Z
+updated: 2026-09-04T21:18:32.601Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
 
 ## Mission
 
-Ingesta asincrona de archivos y polling en /api/knowledge/learn
+B3: scope determinista del runtime llega al contexto de generacion de texto (anchor post-cache)
 
-Aprobación: TASK-20260209-ASYNCLEARN001.
+Aprobación: TASK-20260904-210844465.
 
 ## Scope
 
@@ -79,12 +79,26 @@ Pasos atómicos aprobados por el Council:
   - Criterio de terminación: (qué debe cumplirse para marcar el paso)
   - Gate/verificación: (gate que valida el paso)
 
+- [ ] **Paso 7:** (objetivo del paso 7 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 7)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
+- [ ] **Paso 8:** (objetivo del paso 8 — completar antes de implementar)
+  - Objetivo: (qué logra el paso 8)
+  - Archivos: (archivos afectados)
+  - Acción: (acción esperada)
+  - Dependencia: (paso previo que debe estar terminado, o "ninguna")
+  - Criterio de terminación: (qué debe cumplirse para marcar el paso)
+  - Gate/verificación: (gate que valida el paso)
+
 
 ## Current state
 
-- Misión TASK-20260209-ASYNCLEARN001 BLOQUEADA (state: blocked).
-- Motivo: Mission abandoned/superseded (administrative block). Previously frozen ASYNCLEARN mission preserved as historical checkpoint only; NOT part of the current B3 media/context mission. Do NOT resume, complete, or run its gates. Evidence preserved in git history..
-- Bloqueado: 2026-09-04T21:03:20.669Z.
+- Misión congelada (state: frozen). Pasos pendientes: 1..8.
 
 ## Next action
 
@@ -105,5 +119,5 @@ Tras un revive en cualquier máquina:
 2. `npx tsx workshop/subaru/cli.ts revive`
 3. Leer el informe: misión, último paso completado, siguiente paso exacto.
 4. Si `DRIFT DETECTED` aparece: NO continuar; resolver la contradicción.
-5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260209-ASYNCLEARN001 <n>`.
-6. Al final: `subaru complete TASK-20260209-ASYNCLEARN001`.
+5. Continuar el paso indicado y ejecutar `subaru mark TASK-20260904-210844465 <n>`.
+6. Al final: `subaru complete TASK-20260904-210844465`.
