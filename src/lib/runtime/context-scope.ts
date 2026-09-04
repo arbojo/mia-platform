@@ -40,9 +40,37 @@ export interface ScopeResolution {
   explicit: ExplicitScopeHit[]
   /** Por qué tomó ese valor messageScope. */
   source: ScopeSource
+  /** Nombre canónico del catálogo por productId (B3: identidad del anchor). */
+  names: Record<string, string>
+}
+
+/** Identidad de producto activo determinística para el anchor B3 (doc 30 §3). */
+export interface ActiveProductIdentity {
+  productId: string
+  name: string
 }
 
 type SupabaseLike = ReturnType<typeof import('@/lib/supabase/admin').createAdminClient>
+
+/** Fila del catálogo activo tal como la consulta canónica de scope la usa. */
+export interface CatalogProduct {
+  id: string
+  name: string
+  sku: string | null
+}
+
+/** Consulta canónica del catálogo activo (la MISMA que ya usaba detectExplicitScopes). */
+async function fetchActiveProducts(
+  supabase: SupabaseLike,
+  businessId: string
+): Promise<CatalogProduct[]> {
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, name, sku')
+    .eq('business_id', businessId)
+    .eq('is_active', true)
+  return (products ?? []) as CatalogProduct[]
+}
 
 export async function loadActiveProductIds(
   supabase: SupabaseLike,
@@ -82,16 +110,13 @@ function hasWord(normalizedMessage: string, word: string): boolean {
 export async function detectExplicitScopes(
   supabase: SupabaseLike,
   businessId: string,
-  userMessage: string
+  userMessage: string,
+  catalog?: CatalogProduct[]
 ): Promise<ExplicitScopeHit[]> {
   const normalizedMessage = normalizeText(userMessage)
   if (!normalizedMessage) return []
 
-  const { data: products } = await supabase
-    .from('products')
-    .select('id, name, sku')
-    .eq('business_id', businessId)
-    .eq('is_active', true)
+  const products = catalog ?? (await fetchActiveProducts(supabase, businessId))
 
   const hits: ExplicitScopeHit[] = []
   const seen = new Set<string>()
@@ -152,23 +177,40 @@ export async function resolveScopeContext(params: {
   const { supabase, businessId, conversationId, userMessage, landingProductId } = params
 
   if (!conversationId || !userMessage) {
-    return { activeProductIds: [], messageScope: [], explicit: [], source: 'none' }
+    return {
+      activeProductIds: [],
+      messageScope: [],
+      explicit: [],
+      source: 'none',
+      names: {},
+    }
   }
 
   const current = await loadActiveProductIds(supabase, conversationId)
 
-  const explicit = await detectExplicitScopes(supabase, businessId, userMessage)
+  // B3: el catálogo canónico se consulta UNA vez y alimenta tanto la detección
+  // de explicit-scope como el mapa de nombres del anchor (0 queries nuevas).
+  const products = await fetchActiveProducts(supabase, businessId)
+  const names: Record<string, string> = {}
+  for (const product of products) {
+    if (product.name) names[product.id] = product.name
+  }
+
+  const explicit = await detectExplicitScopes(supabase, businessId, userMessage, products)
 
   const landingHits: ExplicitScopeHit[] = []
   if (landingProductId) {
     const { data: product } = await supabase
       .from('products')
-      .select('id')
+      .select('id, name')
       .eq('business_id', businessId)
       .eq('id', landingProductId)
       .eq('is_active', true)
       .maybeSingle()
-    if (product) landingHits.push({ productId: product.id, source: 'landing' })
+    if (product) {
+      if (product.name) names[product.id] = product.name
+      landingHits.push({ productId: product.id, source: 'landing' })
+    }
   }
 
   const explicitHits: ExplicitScopeHit[] = [...explicit]
@@ -195,16 +237,53 @@ export async function resolveScopeContext(params: {
       messageScope: explicitHits.map((h) => h.productId),
       explicit: explicitHits,
       source: onlyLanding ? 'landing' : 'explicit',
+      names,
     }
   }
 
   if (current.length === 1) {
-    return { activeProductIds: current, messageScope: current, explicit: [], source: 'context' }
+    return {
+      activeProductIds: current,
+      messageScope: current,
+      explicit: [],
+      source: 'context',
+      names,
+    }
   }
 
   if (current.length > 1) {
-    return { activeProductIds: current, messageScope: [], explicit: [], source: 'ambiguous' }
+    return {
+      activeProductIds: current,
+      messageScope: [],
+      explicit: [],
+      source: 'ambiguous',
+      names,
+    }
   }
 
-  return { activeProductIds: [], messageScope: [], explicit: [], source: 'none' }
+  return { activeProductIds: [], messageScope: [], explicit: [], source: 'none', names }
+}
+
+/**
+ * B3 — Identidad del producto activo para el anchor de generación (doc 30 §3).
+ *
+ * Devuelve la identidad SOLO cuando el scope de ESTE mensaje es un único
+ * producto determinístico de la conversación (explicit o context):
+ *   - ambiguous / none → null (comportamiento actual, sin guess).
+ *   - landing → null: la página ya ancla con su propia nota de contexto en
+ *     buildMasterPrompt (## Producto activo); evita doble anchor.
+ *   - messageScope con 2+ productos (multi-explicit) → null (no es único).
+ * El nombre proviene exclusivamente del catálogo canónico (names), nunca de
+ * texto LLM, Knowledge ni de un fallback arbitrario.
+ */
+export function resolveActiveProductIdentity(
+  scope: ScopeResolution | null
+): ActiveProductIdentity | null {
+  if (!scope) return null
+  if (scope.source !== 'explicit' && scope.source !== 'context') return null
+  if (scope.messageScope.length !== 1) return null
+  const productId = scope.messageScope[0]
+  const name = scope.names[productId]
+  if (!productId || !name) return null
+  return { productId, name }
 }

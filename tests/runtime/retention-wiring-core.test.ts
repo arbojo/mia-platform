@@ -22,11 +22,15 @@ vi.mock('@/lib/runtime/context-media', () => ({
 }))
 vi.mock('@/lib/runtime/context-scope', () => ({
   resolveScopeContext: vi.fn(async () => ({ messageScope: 'none', source: 'none', explicit: [] })),
+  resolveActiveProductIdentity: vi.fn(() => null),
 }))
 vi.mock('@/lib/runtime/media', () => ({ isResendRequest: vi.fn(() => false) }))
 vi.mock('@/lib/runtime/media-guard', () => ({ isSafeMediaUrl: vi.fn(() => true) }))
 vi.mock('@/lib/runtime/evidence-extraction', () => ({ extractEvidenceFromCustomerMessage: vi.fn() }))
-vi.mock('@/lib/ai/prompts', () => ({ withMediaResolutionFeedback: vi.fn((p: string) => p) }))
+vi.mock('@/lib/ai/prompts', () => ({
+  withMediaResolutionFeedback: vi.fn((p: string) => p),
+  withProductScopeAnchor: vi.fn((p: string) => p),
+}))
 vi.mock('@/lib/runtime/runtime', () => ({
   resolveCancellationGuards: vi.fn(),
   toChronologicalTranscript: (

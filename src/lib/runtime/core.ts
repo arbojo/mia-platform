@@ -3,7 +3,7 @@ import { loadConversationContext } from '@/lib/conversation/context'
 import { resolveCancellationGuards } from './runtime'
 import { toChronologicalTranscript } from './runtime'
 import { executeAI } from './execute-ai'
-import { resolveScopeContext } from './context-scope'
+import { resolveActiveProductIdentity, resolveScopeContext, type ScopeResolution } from './context-scope'
 import {
   resolveContextMedia,
   setMediaClaimState,
@@ -13,7 +13,7 @@ import {
 } from './context-media'
 import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
-import { withMediaResolutionFeedback } from '@/lib/ai/prompts'
+import { withMediaResolutionFeedback, withProductScopeAnchor } from '@/lib/ai/prompts'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import { processSaleClosing } from '@/lib/sales/process'
@@ -168,10 +168,12 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
   // El LLM recibe feedback de la resolución (P1-6) porque la resolución ocurre
   // ANTES de la generación de texto.
   let mediaResolution: ContextMediaResult = { attachment: null, decision: emptyMediaDecision() }
+  // B3: scope elevado fuera del try para componer el anchor post-cache.
+  let scopeContext: ScopeResolution | null = null
   const ranMediaResolution = Boolean(input.conversationId && input.userMessage)
   if (ranMediaResolution) {
     try {
-      const scopeContext = await resolveScopeContext({
+      scopeContext = await resolveScopeContext({
         supabase,
         businessId: input.businessId,
         conversationId: input.conversationId ?? null,
@@ -228,24 +230,28 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
   }
 
   // P1-6: feedback mínimo de media resolvida adjunto al prompt (doc 28 §3).
+  // B3: anchor del producto activo determinístico compuesto post-cache (doc 30 §3).
   const systemPromptForAI = ranMediaResolution
-    ? withMediaResolutionFeedback(systemPrompt, {
-        scope: mediaResolution.decision.scope,
-        explicitScope: mediaResolution.decision.explicitScope,
-        eligible: mediaResolution.decision.eligible,
-        assetSelected: mediaResolution.decision.assetSelected,
-        claim: mediaResolution.decision.claim,
-        // P1-6 text coherence: dispatched para el LLM refleja si el runtime YA
-        // resolverá y adjuntará una imagen en ESTE turno. En generación, el
-        // claim nunca está 'dispatched' real (handoff posterior al LLM), por lo
-        // que la decisión llega siempre como 'unknown' y la regla negativa
-        // (prompts) haría que el modelo negara el envío aunque la imagen se
-        // adjunte. Al reflejar safeMedia, el modelo puede reconocer la imagen
-        // que se está compartiendo. NO altera el dispatch real (usa safeMedia
-        // en el claim de abajo).
-        dispatched: safeMedia ? true : mediaResolution.decision.dispatched,
-        delivered: mediaResolution.decision.delivered,
-      })
+    ? withProductScopeAnchor(
+        withMediaResolutionFeedback(systemPrompt, {
+          scope: mediaResolution.decision.scope,
+          explicitScope: mediaResolution.decision.explicitScope,
+          eligible: mediaResolution.decision.eligible,
+          assetSelected: mediaResolution.decision.assetSelected,
+          claim: mediaResolution.decision.claim,
+          // P1-6 text coherence: dispatched para el LLM refleja si el runtime YA
+          // resolverá y adjuntará una imagen en ESTE turno. En generación, el
+          // claim nunca está 'dispatched' real (handoff posterior al LLM), por lo
+          // que la decisión llega siempre como 'unknown' y la regla negativa
+          // (prompts) haría que el modelo negara el envío aunque la imagen se
+          // adjunte. Al reflejar safeMedia, el modelo puede reconocer la imagen
+          // que se está compartiendo. NO altera el dispatch real (usa safeMedia
+          // en el claim de abajo).
+          dispatched: safeMedia ? true : mediaResolution.decision.dispatched,
+          delivered: mediaResolution.decision.delivered,
+        }),
+        resolveActiveProductIdentity(scopeContext)
+      )
     : systemPrompt
 
   if (input.mode === 'complete') {
