@@ -10,7 +10,7 @@ import { isSafeMediaUrl } from './media-guard'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
-import { processSaleClosing, isDiscountOfferSentinel } from '@/lib/sales/process'
+import { isDiscountOfferSentinel } from '@/lib/sales/process'
 import { classifyUserIntent } from '@/lib/sales/intent-classifier'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import type { ChannelAdapter, ChannelType, InteractiveComponent } from '@/lib/channels/types'
@@ -311,33 +311,10 @@ export async function processIncomingMessage(
     .update({ last_interaction: new Date().toISOString() })
     .eq('id', customer.id)
 
-  // Sale closing: handled by adapter (not Core) because it needs mode check
-  const resolvedProduct = coreOutput.product
-  if (mode === 'active' && conversationId && !isRetention) {
-    try {
-      const chatHistory = conversationId
-        ? await supabase
-            .from('messages')
-            .select('role, content')
-            .eq('conversation_id', conversationId)
-            .order('created_at', { ascending: false })
-            .limit(20)
-        : { data: [] }
-      const chatMessages = toChronologicalTranscript(chatHistory.data ?? [])
-
-      await processSaleClosing({
-        businessId,
-        assistantId,
-        conversationId,
-        customerId: customer.id,
-        canonicalProductId: resolvedProduct?.productId ?? null,
-        messages: [...chatMessages, { role: 'user', content: wireMessage.content }, { role: 'assistant', content: response }],
-      })
-    } catch (err) {
-      console.error('Failed to process sale closing:', err)
-    }
-  }
-
+  // Sale closing: el Core es el ÚNICO owner de processSaleClosing (D-DECISION-1,
+  // cierre LOOP 1). El wrapper NO lo vuelve a ejecutar: en modo active el Core
+  // ya lo corrió en complete mode (core.ts) — una segunda llamada duplicaba la
+  // detección AI y arriesgaba señales duplicadas.
   const deliver = mode !== 'shadow'
 
   let interactive: InteractiveComponent | undefined

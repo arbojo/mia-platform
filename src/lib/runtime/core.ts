@@ -108,6 +108,8 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
         conversationId: input.conversationId,
         customerId: customerId ?? null,
         lastUserMessage: input.userMessage,
+        // LOOP 2.2 — el canal simulado NO produce efectos comerciales SALE_*.
+        simulated: input.channel === 'simulation',
       })
 
       if (retention.action !== 'none') {
@@ -277,8 +279,18 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       }
     }
 
-    // D-DECISION-1: processSaleClosing in complete mode (parity with stream)
-    if (customerId && input.conversationId) {
+    // D-DECISION-1: processSaleClosing in complete mode (parity with stream).
+    // LOOP 2.1 (ratificado): requestType='simulation' NUNCA produce eventos
+    // comerciales reales (SALE_WON/SALE_LOST) — cierre simulado sin side effects.
+    // LOOP 2.3 / Opción B (autorizado): 'training' también queda aislado
+    // (requestType='training' + channel='simulation' → 0 SALE_*); 'live_customer'
+    // se preserva (incl. Web Chat cuyo channel puede defaultar a 'simulation').
+    if (
+      customerId &&
+      input.conversationId &&
+      input.requestType !== 'simulation' &&
+      input.requestType !== 'training'
+    ) {
       try {
         await processSaleClosing({
           businessId: input.businessId,
@@ -331,8 +343,16 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           console.error('Failed to persist assistant message:', err)
         }
 
-        // D-DECISION-1: processSaleClosing in stream mode (parity with complete)
-        if (customerId && text) {
+        // D-DECISION-1: processSaleClosing in stream mode (parity with complete).
+        // LOOP 2.1 (ratificado): requestType='simulation' NUNCA produce eventos
+        // comerciales reales (SALE_WON/SALE_LOST) — cierre simulado sin side effects.
+        // LOOP 2.3 / Opción B (autorizado): 'training' también queda aislado.
+        if (
+          customerId &&
+          text &&
+          input.requestType !== 'simulation' &&
+          input.requestType !== 'training'
+        ) {
           try {
             await processSaleClosing({
               businessId: input.businessId,

@@ -1,0 +1,119 @@
+{
+  "id": "TASK-20260209-ASYNCLEARN001",
+  "title": "Ingesta asíncrona de archivos y polling en /api/knowledge/learn — solución de raíz al FUNCTION_INVOCATION_TIMEOUT del botón 'Enséñame'",
+  "description": "OPCIÓN A RATIFICADA POR HUMANO: ingesta asíncrona basada en estados usando la tabla learning_reports existente. PROBLEMA (evidencia HEAD a613eb7): src/app/api/knowledge/learn/route.ts hace trabajo pesado síncrono dentro del request — bucle secuencial de extracción por archivo (route.ts:169-174; PDFs vía pdf-parse, imágenes vía OpenAI vision route.ts:18-51, hasta 10 archivos x 10MB, route.ts:8-9) + UNA llamada monolítica a OpenAI extractKnowledgeFromText (route.ts:195) + persistencia learning_reports (route.ts:209-227). El route NO declara export const maxDuration (vs api/chat/route.ts:5 que sí) → Vercel corta con FUNCTION_INVOCATION_TIMEOUT → FileUpload.tsx:79-80 muestra 'Error al conectar con el servidor'. EFECTO COLATERAL: learning_report queda zombi en status='processing' (creado route.ts:152-159, nunca finalizado). SOLUCIÓN PROPUESTA: (1) endpoint de recepción: valida archivos, crea learning_report status='processing', devuelve report_id inmediatamente (<1s, sin trabajo pesado); (2) worker en background ejecuta extracción+LLM y actualiza el report (processing→completed|failed) con try/catch que garantiza estado terminal; (3) FileUpload.tsx hace polling de estado hasta completar. SIN cambios de prompts, SIN media, SIN knowledge runtime, SIN cancelación.",
+  "scope": {
+    "categories": ["bugfix", "feature", "api_change", "ui_change"],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": true,
+    "primaryDomain": "knowledge",
+    "affectedDomains": ["backend", "frontend", "ai"],
+    "technicalDomains": ["backend", "frontend"]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect", "database", "backend", "frontend", "ai_engineer",
+      "performance", "security", "qa", "godzilla", "release", "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint", "build", "unit_tests", "e2e_tests",
+      "chrome_devtools", "security_review", "stress_test"
+    ],
+    "rationale": "COMPLEX: cambio de contrato API (sync→async), cross-cutting (backend+frontend+AI), 5+ archivos, consume OpenAI (costo), security (authz del polling endpoint y del worker). Manifest creado por concilio en modo análisis; ningún archivo de producción modificado."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "human",
+      "decision": "approve",
+      "rationale": "F0 RATIFICADO: (1) MECANISMO-BACKGROUND = opción (c) worker con lease vía cron, reutilizando la infraestructura de crons existente en vercel.json (margin-audit), sin dependencias de terceros; (2) PROGRESO-GRANULAR = SÍ, migración aditiva con files_done/files_total + locked_at/locked_by (indispensable contra reportes zombis y para progreso visible); (3) ALCANCE-EXTRACCION = partir extracción LLM por archivo (incremental) — desacopla fallos de tokens/timeout y hace el worker resiliente. Opción A (ingesta asíncrona sobre learning_reports) ratificada previamente.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Opción (c) ratificada: worker con lease vía cron, patrón ya presente en vercel.json (/api/cron/margin-audit). Sin dependencias nuevas. Lease garantiza idempotencia y recuperación de reportes zombis.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Migración aditiva única aprobada: files_done/files_total + locked_at/locked_by sobre learning_reports. Sin tocar columnas existentes.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "POST recepción-only (<1s) + GET de estado con authz owner + worker con estados terminales garantizados (try/catch/finally) e idempotencia por lease expirado.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "FileUpload con polling 2-3s, progreso n/total, contrato onReportCreated intacto, errores reales en 'failed' (elimina catch genérico engañoso).",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Extracción por archivo (incremental) ratificada por humano: aísla fallos de tokens/timeout por archivo, consolidación al final, trackAiUsage por archivo, backoff 429.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve_conditional",
+      "rationale": "Aprobado condicionado a: authz owner en GET de estado (replicar guard owner_id del POST), worker con admin client (patrón existente), sin logging de contenido de archivos. Verificar en F2/F3.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Extracción incremental + lease expira > N horas para cleanup de zombis; timeout por archivo definido en F2.",
+      "timestamp": "2026-02-09T00:00:00.000Z"
+    }
+  ],
+  "ratifications": {
+    "MECANISMO-BACKGROUND": "c — worker con lease vía cron (reutiliza vercel.json crons)",
+    "PROGRESO-GRANULAR": "sí — migración aditiva files_done/files_total + locked_at/locked_by",
+    "ALCANCE-EXTRACCION": "por archivo (incremental), consolidación al final"
+  },
+  "pending_ratifications": [],
+  "constraints": {
+    "NO_PROMPT_CHANGES": true,
+    "NO_MEDIA_RUNTIME_CHANGES": true,
+    "NO_CANCELLATION_CHANGES": true,
+    "NO_COMMIT_PUSH_DEPLOY": "hasta autorización explícita del humano",
+    "CREATED_BY": "Concilio en modo análisis (Cline) — sesión posterior a LOOP 2.1",
+    "HEAD_AT_CLASSIFICATION": "a613eb78e0143dcc279fa44a607e4367cd7bf23f"
+  },
+  "created_at": "2026-02-09T00:00:00.000Z",
+  "evidence": [
+    { "file": "src/app/api/knowledge/learn/route.ts", "lines": "169-174", "note": "bucle secuencial bloqueante de extracción" },
+    { "file": "src/app/api/knowledge/learn/route.ts", "lines": "195-200", "note": "llamada monolítica extractKnowledgeFromText" },
+    { "file": "src/app/api/knowledge/learn/route.ts", "lines": "152-159", "note": "report 'processing' creado dentro del request (riesgo zombi)" },
+    { "file": "src/components/knowledge/FileUpload.tsx", "lines": "62-85", "note": "fetch síncrono único + catch genérico 'Error al conectar con el servidor'" },
+    { "file": "src/app/api/chat/route.ts", "lines": "4-5", "note": "contraste: chat sí declara maxDuration; learn no" }
+  ],
+  "preliminary_analysis": {
+    "architect": "PENDING_HUMAN_RATIFICATION — mecanismos background: (a) waitUntil en misma función (frágil), (b) endpoint interno de proceso con auth de servicio, (c) worker vía cron que toma reports status='processing' con lease, (d) cola gestionada (Inngest/QStash). Recomendación preliminar: (c) worker con lease (sin dependencias nuevas, idempotente, sobrevive cold starts) o (d) si se exige inicio inmediato.",
+    "database": "PENDING — learning_reports ya modela el ciclo (status, completed_at, campos de extracción). Gap: progreso granular (files_done/files_total) y lease del worker (locked_at/locked_by) si se elige (c). Ruta: migración aditiva única.",
+    "backend": "PENDING — POST /api/knowledge/learn queda recepción-only (valida + persiste archivos + crea report + devuelve {report_id} <1s). Nuevo GET de estado con authz owner (replicar guard route.ts:91-99). Worker: archivo por archivo, estados terminales SIEMPRE (try/catch/finally), idempotencia por lease expirado.",
+    "frontend": "PENDING — FileUpload.tsx: polling cada 2-3s del estado; UI de progreso n/total; 'completed' → onReportCreated(report_id) (contrato intacto); 'failed' → reason real (sustituye catch genérico de líneas 79-80). Error de red del polling: reintento, no fatal.",
+    "ai_engineer": "PENDING — partir extractKnowledgeFromText por archivo + consolidación; presupuesto de tokens (10x10MB puede exceder contexto); trackAiUsage por archivo; reintentos con backoff ante 429/timeout.",
+    "security": "PENDING — polling endpoint con verificación de ownership (owner_id) como el POST actual; worker con admin client (patrón existente); no loguear contenido de archivos; aislamiento multi-tenant del report.",
+    "qa": "PENDING — unit: recepción inmediata + report creado; worker con estados terminales garantizados (OpenAI falla, archivo corrupto); polling 403 cross-tenant; e2e flujo feliz + timeout simulado.",
+    "performance": "PENDING — extracción secuencial vs paralela con límite; timeout por archivo; cleanup de reportes zombis (processing con lease expirado > N horas).",
+    "godzilla": "PENDING — vectores: worker muerto a mitad, doble ejecución (lease race), OpenAI 429/lento, PDF malicioso, polling infinito si el worker nunca escribe estado terminal.",
+    "release": "PENDING — gates completos; deploy Vercel; sin migraciones destructivas.",
+    "memory_engineer": "PENDING — registrar el patrón 'aceptación inmediata + worker + polling' como patrón de referencia para cargas largas (afin a api/catalog/import/*)."
+  },
+  "pending_ratifications": [
+    "MECANISMO-BACKGROUND: (c) worker con lease vía cron [recomendación preliminar] vs (d) cola gestionada (Inngest/QStash) — decisión humana antes de implementar",
+    "PROGRESO-GRANULAR: ¿migración aditiva única (files_done/files_total + lease) o solo estados existentes?",
+    "ALCANCE-EXTRACCION: ¿partir la extracción LLM por archivo en este loop o solo desacoplar del request?"
+  ]
+}

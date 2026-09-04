@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { processStreaming, RuntimeError } from '@/lib/runtime/runtime'
+import { detectIntent } from '@/lib/runtime/intents'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -56,13 +57,18 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    const lastUserMessage = messages[messages.length - 1]
     const result = await processStreaming({
       assistantId,
       businessId: business.id,
       conversationId,
       messages,
       requestType,
-      channel,
+      channel: channel ?? 'simulation',
+      intentTag:
+        lastUserMessage?.content && lastUserMessage.role === 'user'
+          ? detectIntent(lastUserMessage.content)
+          : null,
     })
 
     return result.toStructuredStreamResponse()

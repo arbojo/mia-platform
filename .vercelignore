@@ -1,0 +1,5 @@
+# Excluir scripts locales de gobernanza gitignored (solo disco, no forman parte del commit/ref desplegado).
+# Estos *.script.ts son utilidades de desarrollo en workshop/governance, gitignored (.gitignore:94),
+# y NO forman parte del ref de despliegue. Su presencia en el directorio local rompe el typecheck
+# de `next build` (Vercel CLI los sube pese a .gitignore). Se excluyen expresamente del deploy.
+workshop/governance/*.script.ts
