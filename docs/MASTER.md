@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7733028`.
+> Fuente de verdad: este repositorio en `f28ea35`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7733028` |
+| **Commit HEAD** | `f28ea35` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-03T21:11:19-06:00 |
+| **Generado** | 2026-09-03T21:55:45-06:00 |
 
 ---
 
@@ -919,6 +919,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+f28ea35 fix: restore whatsapp media and response parity
+6b372c9 docs: regenerate MASTER.md at 7733028
 7733028 Merge commit '570c708'
 0dad0b4 docs: regenerate MASTER.md at 3c3f6e8
 570c708 wip: LOOP 2/2.1 ratified (channel parity + closing-once + simulator SALE isolation) + retention WIP + governance manifest TASK-20260209-ASYNCLEARN001
@@ -937,8 +939,6 @@ c3da2e4 subaru: checkpoint H1-RETENTION-REMEDIATION - listo
 51821b2 docs: regenerate MASTER.md at 52dabc4
 52dabc4 fix: add retention idempotency guards
 04acd0c docs: regenerate MASTER.md at fa3db04
-fa3db04 docs: record retention idempotency decision (ADR-030)
-86d33fe docs: regenerate MASTER.md at 85c2f9e
 ```
 
 ---
