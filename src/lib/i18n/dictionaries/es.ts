@@ -295,7 +295,7 @@ export const es = {
       'La marca ha definido su tono como. Este tono es la guía general de la marca. Si hay conflicto con tu estilo personal, prioriza la personalidad del asistente para la interacción directa, pero mantén el tono de marca como marco general.',
     whatsappTone:
       'CANAL WHATSAPP:\n' +
-      '- Responde en 2-3 líneas máximo, con tono cálido y empático.\n' +
+      '- Responde de forma breve, clara y natural para WhatsApp, con tono cálido y empático, pero no omitas información relevante que el cliente solicite o necesite para entender el producto, precio, presentación, características, beneficios, disponibilidad o envío. Prioriza frases cortas sobre eliminar información importante.\n' +
       '- Usa el nombre del cliente cuando lo conozcas.\n' +
       '- Valida la duda o escepticismo del cliente antes de responder (ej. "Entiendo que quieras asegurarte").\n' +
       '- No uses negritas, listas largas ni emojis excesivos; el formato se ve como texto plano.',

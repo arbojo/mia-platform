@@ -4,9 +4,10 @@
  * isSafeMediaUrl es deliberadamente independiente (sin imports) para ser
  * probado de forma aislada y replicar el mismo criterio que el motor MIA
  * (src/lib/runtime/media-guard.ts): la URL debe ser absoluta, https, sin
- * credenciales, con host público (Supabase Storage `*.supabase.co` o CDN
- * en allowlist) y sin vectores SSRF (localhost, IPs privadas/link-local,
- * .local/.internal).
+ * credenciales, con host público (Supabase Storage `*.supabase.co`, el host
+ * de NEXT_PUBLIC_SUPABASE_URL, CDN en allowlist o hosts extra vía
+ * MEDIA_URL_ALLOWED_HOSTS) y sin vectores SSRF (localhost, IPs privadas/
+ * link-local, .local/.internal).
  */
 
 const PUBLIC_CDN_HOSTS = ['cdn.jsdelivr.net']
@@ -55,8 +56,23 @@ export function isSafeMediaUrl(url: string): boolean {
   if (isBlockedHost(parsed.hostname)) return false
 
   const host = parsed.hostname.toLowerCase()
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  try {
+    const supabaseHost = new URL(supabaseUrl).hostname.toLowerCase()
+    if (host === supabaseHost) return true
+  } catch {
+    // Sin NEXT_PUBLIC_SUPABASE_URL (tests): se evalúa la allowlist base.
+  }
+
   if (host === PUBLIC_HOST_SUFFIX.slice(1) || host.endsWith(PUBLIC_HOST_SUFFIX)) return true
-  return PUBLIC_CDN_HOSTS.includes(host)
+  if (PUBLIC_CDN_HOSTS.includes(host)) return true
+
+  const extra = (process.env.MEDIA_URL_ALLOWED_HOSTS ?? '')
+    .split(',')
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean)
+  return extra.includes(host)
 }
 
 export interface ReplySocket {
