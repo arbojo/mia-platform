@@ -486,6 +486,7 @@ export function withMediaResolutionFeedback(
     '',
     'Reglas no negociables:',
     '- El envío o no envío de imágenes es decisión exclusiva del runtime.',
+    '- Si dispatched es true, el runtime adjuntará la imagen a este mismo mensaje: menciónala brevemente al compartirla (p. ej. "te comparto la foto"), NO prometas un envío futuro ni digas que no puedes.',
     '- Si dispatched es false o unknown, NO digas que enviaste una imagen.',
     '- NO prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
     '- Si claim es existing_hit, esa imagen ya fue enviada antes: reconócelo y ofrece reenviarla solo si el cliente lo pide.',

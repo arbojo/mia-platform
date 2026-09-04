@@ -235,7 +235,15 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
         eligible: mediaResolution.decision.eligible,
         assetSelected: mediaResolution.decision.assetSelected,
         claim: mediaResolution.decision.claim,
-        dispatched: mediaResolution.decision.dispatched,
+        // P1-6 text coherence: dispatched para el LLM refleja si el runtime YA
+        // resolverá y adjuntará una imagen en ESTE turno. En generación, el
+        // claim nunca está 'dispatched' real (handoff posterior al LLM), por lo
+        // que la decisión llega siempre como 'unknown' y la regla negativa
+        // (prompts) haría que el modelo negara el envío aunque la imagen se
+        // adjunte. Al reflejar safeMedia, el modelo puede reconocer la imagen
+        // que se está compartiendo. NO altera el dispatch real (usa safeMedia
+        // en el claim de abajo).
+        dispatched: safeMedia ? true : mediaResolution.decision.dispatched,
         delivered: mediaResolution.decision.delivered,
       })
     : systemPrompt
