@@ -496,3 +496,35 @@ export function withMediaResolutionFeedback(
 
   return `${systemPrompt.trim()}\n\n${block}`
 }
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────
+ * B3 — Product scope anchor al LLM (doc 30 LLM-PRODUCT-SCOPE).
+ * ─────────────────────────────────────────────────────────────────────────
+ *
+ * Inyecta post-cache la identidad del producto activo determinístico de la
+ * conversación. El anchor transporta SOLO identidad canónica
+ * (productId + nombre del catálogo) — sin precio, beneficios, claims ni
+ * información comercial. Se compone en core.ts a partir de
+ * resolveActiveProductIdentity() (context-scope); si el scope no es un único
+ * producto determinístico, se pasa null y la cadena queda intacta.
+ */
+export interface ProductScopeAnchor {
+  productId: string
+  name: string
+}
+
+export function withProductScopeAnchor(
+  systemPrompt: string,
+  anchor: ProductScopeAnchor | null
+): string {
+  if (!anchor) return systemPrompt
+
+  const block = [
+    '## Producto activo en esta conversación',
+    `El producto activo de esta conversación es **${anchor.name}** (product_id: ${anchor.productId}).`,
+    'Cuando el cliente pregunte por "precio", "más información", "beneficios" u otras peticiones genéricas sin especificar producto, ancla tu respuesta a este producto: prioriza su información sobre el resto del catálogo y no lo confundas con otros productos.',
+  ].join('\n')
+
+  return `${systemPrompt.trim()}\n\n${block}`
+}
