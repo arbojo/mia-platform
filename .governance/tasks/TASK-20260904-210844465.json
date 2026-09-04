@@ -1,0 +1,53 @@
+{
+  "id": "TASK-20260904-210844465",
+  "title": "B3: producto activo/scope determinista del runtime llega al contexto de generacion de texto",
+  "description": "B3 (forense media/context): el scope/producto activo que resuelve el runtime (active_product_ids en context-scope.ts) se usa SOLO para media y claims; loadConversationContext (conversation/context.ts) no lo lee y buildMasterPrompt (ai/prompts.ts) recibe el catalogo completo sin producto en conversacion. Consecuencia: en Simulator sin landing, el texto puede responder con cualquier producto mientras media resuelve el scope determinista - divergencia estructural texto/media (casos C02 negro->Bye Canas, C03 $449->Neurofeet). Objetivo: inyectar scope/producto activo en el contexto de generacion para que texto y media operen sobre el mismo producto canonico. Sin heuristicas de color/talla/precio; sin tocar media/idempotencia/triggers/prompts comerciales/datos. Tests de contrato: scope Neurotin->texto Neurotin, scope Back2Fit->texto Back2Fit, sin scope->comportamiento actual.",
+  "scope": {
+    "categories": [
+      "ai_behaviour",
+      "refactor"
+    ],
+    "filesAffected": 5,
+    "hasSchemaChanges": false,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": false,
+    "isCrossCutting": false,
+    "primaryDomain": "sales",
+    "affectedDomains": [
+      "sales"
+    ],
+    "technicalDomains": [
+      "backend",
+      "ai"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 5 files affected, AI behaviour changes. Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
+  },
+  "status": "awaiting_council",
+  "decisions": [],
+  "createdAt": "2026-09-04T21:08:44.628Z",
+  "classifiedAt": "2026-09-04T21:08:44.628Z"
+}
