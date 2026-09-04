@@ -46,8 +46,64 @@
     ],
     "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 5 files affected, AI behaviour changes. Required agents (9): architect, backend, frontend, ai_engineer, performance, qa, godzilla, release, memory_engineer."
   },
-  "status": "awaiting_council",
-  "decisions": [],
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "VALIDADO: perdida del scope en core.ts:174-207 (resuelto y descartado antes de generacion). Seam post-cache junto a withMediaResolutionFeedback. Superficie real: core.ts + prompts.ts + tests (3-4 archivos; runtime.ts/stream-response.ts NO necesarios)",
+      "timestamp": "2026-09-04T21:16:38.329Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Acepto: anchor emitido desde processCore con datos ya disponibles (scopeContext), sin nuevas consultas; LoadedContext no se extiende; sin afectar cache de loadConversationContext",
+      "timestamp": "2026-09-04T21:16:43.637Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Sin cambios de UI en B3; sin surface frontend. OK.",
+      "timestamp": "2026-09-04T21:16:49.024Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Anchor de identidad canonica por ID en el sistema prompt post-cache; sin heuristica ni claims; ambiguous/none mantiene comportamiento actual",
+      "timestamp": "2026-09-04T21:16:54.149Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Anchor es texto estatico post-cache (sin N+1 añadido); coste despreciable; sin impacto perf pertinente",
+      "timestamp": "2026-09-04T21:17:27.392Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Requeridos tests de contrato 1-5, incl. cambio de producto entre turnos (cache TTL); validare lint/build/e2e",
+      "timestamp": "2026-09-04T21:17:32.511Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Auditare los archivos modificados y ejecutare vector de injection en el sistema prompt (anchor); slivers no inventad producto en ambiguous",
+      "timestamp": "2026-09-04T21:17:37.549Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Sin push/deploy ahora; commit local del manifest tras aprobar; NO autorizo push hasta fin de fases",
+      "timestamp": "2026-09-04T21:17:42.795Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registro miembro de esta decision posterior al freeze",
+      "timestamp": "2026-09-04T21:17:48.378Z"
+    }
+  ],
   "createdAt": "2026-09-04T21:08:44.628Z",
-  "classifiedAt": "2026-09-04T21:08:44.628Z"
+  "classifiedAt": "2026-09-04T21:08:44.628Z",
+  "approvedAt": "2026-09-04T21:17:48.379Z"
 }
