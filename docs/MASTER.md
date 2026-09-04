@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `3c3f6e8`.
+> Fuente de verdad: este repositorio en `7733028`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `3c3f6e8` |
+| **Commit HEAD** | `7733028` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-03T16:26:05-06:00 |
+| **Generado** | 2026-09-03T21:11:19-06:00 |
 
 ---
 
@@ -710,10 +710,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (149)**:
+**Tareas registradas (150)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
+| TASK-20260209-ASYNCLEARN001 | Ingesta asíncrona de archivos y polling en /api/knowledge/learn — solución de raíz al FUNCTION_INVOCATION_TIMEOUT del botón 'Enséñame' | approved |
 | TASK-20260729-173000 | Sprint 3 — Business Intelligence & Learning Evolution | in_progress |
 | TASK-20260730-022854 | Sprint 1 — Product Survival | completed |
 | TASK-20260730-025752 | Sprint 2 — Product Trust | completed |
@@ -918,6 +919,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+7733028 Merge commit '570c708'
+0dad0b4 docs: regenerate MASTER.md at 3c3f6e8
+570c708 wip: LOOP 2/2.1 ratified (channel parity + closing-once + simulator SALE isolation) + retention WIP + governance manifest TASK-20260209-ASYNCLEARN001
 3c3f6e8 subaru: checkpoint TASK-20260209-ASYNCLEARN001 - listo
 ac330da docs: regenerate MASTER.md at a613eb7
 a613eb7 subaru: checkpoint H1-RETENTION-REMEDIATION - completado
@@ -935,9 +939,6 @@ c3da2e4 subaru: checkpoint H1-RETENTION-REMEDIATION - listo
 04acd0c docs: regenerate MASTER.md at fa3db04
 fa3db04 docs: record retention idempotency decision (ADR-030)
 86d33fe docs: regenerate MASTER.md at 85c2f9e
-85c2f9e feat: wire retention engine into core
-24a6281 docs: regenerate MASTER.md at 65657c5
-65657c5 docs: record retention core wiring decision
 ```
 
 ---
