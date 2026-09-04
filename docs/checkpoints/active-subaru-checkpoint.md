@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260209-ASYNCLEARN001
 title: Ingesta asincrona de archivos y polling en /api/knowledge/learn
-state: frozen
+state: blocked
 current_step: 0
 total_steps: 6
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260209-ASYNCLEARN001
 created: 2026-08-31T00:06:33.347Z
-updated: 2026-09-03T21:00:04.119Z
+updated: 2026-09-04T21:03:20.669Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -82,7 +82,9 @@ Pasos atómicos aprobados por el Council:
 
 ## Current state
 
-- Misión congelada (state: frozen). Pasos pendientes: 1..6.
+- Misión TASK-20260209-ASYNCLEARN001 BLOQUEADA (state: blocked).
+- Motivo: Mission abandoned/superseded (administrative block). Previously frozen ASYNCLEARN mission preserved as historical checkpoint only; NOT part of the current B3 media/context mission. Do NOT resume, complete, or run its gates. Evidence preserved in git history..
+- Bloqueado: 2026-09-04T21:03:20.669Z.
 
 ## Next action
 
