@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 8
+current_step: 9
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:56:34.866Z
+updated: 2026-09-05T07:56:48.210Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -99,7 +99,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 3.
   - Criterio de terminación: tras import de producto nuevo, `knowledge_items.product_id` = id del producto y `trigger_condition` NULL; resumen contable sin errores.
   - Gate/verificación: unit_tests; invariantes INV-MEDIA-001, -008.
-- [ ] **Paso 9:** Dashboard — alinear declaración con el contrato (INV-MEDIA-015)
+- [x] **Paso 9:** Dashboard — alinear declaración con el contrato (INV-MEDIA-015)
   - Objetivo: la UI declara exactamente el contrato: condición OPCIONAL que refina dentro del producto.
   - Archivos: src/components/catalog/ProductMedia.tsx, src/components/knowledge/MediaBrowser.tsx, src/components/knowledge/MediaEditDialog.tsx, src/components/knowledge/MediaGrid.tsx.
   - Acción: revisar y ajustar wording de hints/labels (ProductMedia.tsx:20, MediaBrowser.tsx:170-181, MediaEditDialog.tsx:111-113, MediaGrid.tsx:57-59) para "la condición refina cuándo se envía; sin condición el medio acompaña al producto"; sin cambios de lógica ni de comportamiento.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 9 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 9`.
+Implementar el Paso 10 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 10`.
 
 ## Constraints
 
