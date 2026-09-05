@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 2
+current_step: 3
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:55:07.315Z
+updated: 2026-09-05T07:55:20.757Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -57,7 +57,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 1.
   - Criterio de terminación: `detectMediaIntent("¿me mandas una foto de Back2Fit?") = true`; `isResend` correcto para T4/T5; `triggerMatches("foto","fotos")` y `("fotos","fotos")` verdaderos; suite del Paso 1 avanza (eligibilidad por intent).
   - Gate/verificación: unit_tests; performance_review (léxico compacto, sin regex catastróficos — añadir chequeo de backtracking).
-- [ ] **Paso 3:** Elegibilidad por scope + selección determinista principal/especializada (R1.3, R3)
+- [x] **Paso 3:** Elegibilidad por scope + selección determinista principal/especializada (R1.3, R3)
   - Objetivo: `trigger_condition` deja de ser requisito existencial; NULL/vacío = incondicional del producto; selección por regla determinista.
   - Archivos: src/lib/runtime/context-media.ts, src/lib/runtime/core.ts (tipos), tests/runtime/context-media-golden.test.ts.
   - Acción: quitar `.not('trigger_condition','is',null)` (context-media.ts:415); elegibilidad = `inScope ∧ (detectMediaIntent ∨ triggerMatch(trigger))`; selección: P1 especializada (condición matchea, orden position ASC → created_at ASC), P2 principal (incondicional del scope o menor orden determinista), P3 ninguna; mantener gates C-1 (scope 0/multi) intactos.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 3`.
+Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 4`.
 
 ## Constraints
 
