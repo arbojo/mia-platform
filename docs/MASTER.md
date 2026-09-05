@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `1b25fe2`.
+> Fuente de verdad: este repositorio en `79c5dcf`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `1b25fe2` |
+| **Commit HEAD** | `79c5dcf` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-05T01:58:17-06:00 |
+| **Generado** | 2026-09-05T01:59:53-06:00 |
 
 ---
 
@@ -922,6 +922,8 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+79c5dcf subaru: checkpoint TASK-20260905-034043506 - completado
+7da4608 docs: regenerate MASTER.md at 1b25fe2
 1b25fe2 subaru: checkpoint TASK-20260905-034043506 - en-progreso
 4d58bb3 subaru: checkpoint TASK-20260905-034043506 - en-progreso
 94358e6 subaru: checkpoint TASK-20260905-034043506 - en-progreso
@@ -940,8 +942,6 @@ e9cefec feat: close media contract runtime dashboard integration
 d72cd93 subaru: checkpoint TASK-20260905-034043506 - listo
 e9292f1 feat: add B3 product scope anchor to generation context
 4497e1a chore: council approvals for B3 (TASK-20260904-210844465, approved)
-f644395 subaru: checkpoint TASK-20260904-210844465 - listo
-6572961 chore: governance artifacts for B3 classification (TASK-20260904-210844465, awaiting_council)
 ```
 
 ---
