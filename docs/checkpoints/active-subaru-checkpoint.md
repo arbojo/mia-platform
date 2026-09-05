@@ -1,14 +1,14 @@
 ---
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
-state: frozen
-current_step: 0
+state: in_progress
+current_step: 1
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:38:22.053Z
+updated: 2026-09-05T07:53:48.534Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -43,7 +43,7 @@ Aprobación: TASK-20260905-034043506. Contrato: DEC-20260904-MEDIA-CONTRACT (un�
 
 Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso depende del anterior (TDD: tests del contrato nuevo primero, código después).
 
-- [ ] **Paso 1:** Contrato nuevo traducido a fixtures y decisiones (TDD baseline)
+- [x] **Paso 1:** Contrato nuevo traducido a fixtures y decisiones (TDD baseline)
   - Objetivo: dejar fijadas las señales de contrato (mediaStatus, decision surface) y hacer roja la suite del contrato nuevo contra HEAD actual.
   - Archivos: tests/runtime/context-media-golden.test.ts, tests/runtime/media.test.ts, src/lib/runtime/context-media.ts (tipos/decisions).
   - Acción: actualizar harness golden (quitar filtro `trigger_condition != null`), definir enum `mediaStatus`, escribir caso normativos T1-T6 + principal/especializada + NULL-incondicional que hoy fallan por diseño.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Blueprint congelado pendiente de aprobación humana. Tras su review: implementar el Paso 1 (el CLI actualiza esta sección con cada mark).
+Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 2`.
 
 ## Constraints
 
