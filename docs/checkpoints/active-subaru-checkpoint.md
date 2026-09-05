@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 3
+current_step: 4
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:55:20.757Z
+updated: 2026-09-05T07:55:34.087Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -64,7 +64,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 2.
   - Criterio de terminación: casos Back2Fit A→A, B→B, C→B, D→A del contrato; Neurofeet sin intent de media NO dispara principal inexistente; genérico solo con scope único (INV-MEDIA-002).
   - Gate/verificación: unit_tests; invariantes INV-MEDIA-001, -002, -004, -005, -007, -014.
-- [ ] **Paso 4:** Resend y nuevo-asset deterministas dentro del scope (R8)
+- [x] **Paso 4:** Resend y nuevo-asset deterministas dentro del scope (R8)
   - Objetivo: la rama de resend (C07) se alcanza sin re-exigir match de trigger; T6 permite segundo asset no-claimado.
   - Archivos: src/lib/runtime/context-media.ts, tests/runtime/context-media-golden.test.ts.
   - Acción: mover/evaluar resend antes del gate de `eligible=false` (rama 229-259); target = asset ya-claimado en la conversación, filtrado por scope; máximo 1 re-presentación por petición; T6 = otro elegible no-claimado del scope, si no existe → acknowledged sin repetir.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 4 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 4`.
+Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 5`.
 
 ## Constraints
 
