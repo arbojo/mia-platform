@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 5
+current_step: 6
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:55:48.746Z
+updated: 2026-09-05T07:56:03.607Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -78,7 +78,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 4.
   - Criterio de terminación: cada razón actual (no active context / C-1 ambiguity / no eligible asset / idempotency hit) mapea a la señal correcta; F03/F04 emiten MEDIA_SCOPE_AMBIGUOUS.
   - Gate/verificación: unit_tests; invariantes INV-MEDIA-003, -008, -010.
-- [ ] **Paso 6:** Prompts truthful y feedback diferenciado (R6, R7)
+- [x] **Paso 6:** Prompts truthful y feedback diferenciado (R6, R7)
   - Objetivo: el LLM refleja el estado real; sin "no puedo enviar imágenes" genérico; `[IMAGEN_DISPONIBLE]` expresado por runtime no por fila DB.
   - Archivos: src/lib/ai/prompts.ts, tests/ai/prompts.test.ts, tests/i18n/prompts-i18n.test.ts.
   - Acción: reescribir `withMediaResolutionFeedback` (prompts.ts:469-498) con mapping mediaStatus→lenguaje (MEDIA_UNAVAILABLE: "todavía no tengo fotos de <producto>"; NOT_RECOGNIZED: textual natural; AMBIGUOUS: pedir aclaración); quitar negación genérica (490, 493); `formatKnowledge` (141-143): `[IMAGEN_DISPONIBLE]` solo si runtime dispara (o remover en favor del feedback).
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 6`.
+Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 7`.
 
 ## Constraints
 
