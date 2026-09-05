@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 1
+current_step: 2
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:53:48.534Z
+updated: 2026-09-05T07:55:07.315Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -50,7 +50,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: ninguna.
   - Criterio de terminación: la suite "contrato media" falla exactamente donde hoy falla el runtime (cada fallo con file:line del comportamiento actual: context-media.ts:415, :430-431; media.ts:18-25; prompts.ts:141-143) .
   - Gate/verificación: unit_tests (rojo controlado y documentado); evidence first.
-- [ ] **Paso 2:** Detección de MEDIA_REQUEST + resend repair (R2)
+- [x] **Paso 2:** Detección de MEDIA_REQUEST + resend repair (R2)
   - Objetivo: intención de media por normalización lingüística + intent semántico en runtime, sin tocar triggers del catálogo.
   - Archivos: src/lib/runtime/media.ts, tests/runtime/media.test.ts.
   - Acción: añadir `detectMediaIntent()` (léxico mínimo: foto/foto(s)/fotito/imagen/imagenes/ensename/muestrame/ver/mostrar/me mandas + palabra-media + verbo de petición; lista extensible en code); reparar `isResendRequest` (auditar señal según contrato 5.8); normalizar dirección de plural de `triggerMatches` (match singular del trigger hacia plural del mensaje y viceversa, sin perder límite de palabra completa).
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 2 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 2`.
+Implementar el Paso 3 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 3`.
 
 ## Constraints
 
