@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 11
+current_step: 12
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:58:01.957Z
+updated: 2026-09-05T07:58:16.376Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -120,7 +120,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 10.
   - Criterio de terminación: 0 hallazgos CRITICAL/HIGH (blocking gate); MEDIUM documentados; sin N+1 (1 query de candidatos + 1 de claims) ni backtracking regex; bandera de invarianzas en verde.
   - Gate/verificación: stress_test; security_review; performance_review.
-- [ ] **Paso 12:** Regresión batería + invariantes + gates + governance complete
+- [x] **Paso 12:** Regresión batería + invariantes + gates + governance complete
   - Objetivo: transformación medible y cierre de la misión con auditoría.
   - Archivos: `workshop/audit/battery-002/` (re-run REPORT-FINAL nuevo, evidencia), `.governance/invariants.json` (INV-MEDIA-001..015), `docs/checkpoints/active-subaru-checkpoint.md`.
   - Acción: re-ejecutar `RESPONSE-BATTERY-002` esperando los 6 FAIL convertidos (C08/C09 dispatch; C05/C07 resend/idempotencia; F03/F04 aclaración truthful); verificar control positivo Neurotin y negativo Bye Canas; registrar INV-MEDIA-001..015 con estado PASS; correr gates completos (lint, build, typecheck, unit_tests, e2e_tests, chrome_devtools, security_review, stress_test, performance_review).
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 12 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 12`.
+Todos los pasos marcados. Ejecutar `subaru complete TASK-20260905-034043506` cuando pasen los gates de verificación.
 
 ## Constraints
 
