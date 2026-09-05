@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `7420f71`.
+> Fuente de verdad: este repositorio en `1b25fe2`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `7420f71` |
+| **Commit HEAD** | `1b25fe2` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-05T01:56:48-06:00 |
+| **Generado** | 2026-09-05T01:58:17-06:00 |
 
 ---
 
@@ -922,6 +922,10 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+1b25fe2 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+4d58bb3 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+94358e6 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+39837d4 docs: regenerate MASTER.md at 7420f71
 7420f71 subaru: checkpoint TASK-20260905-034043506 - en-progreso
 f15b18f subaru: checkpoint TASK-20260905-034043506 - en-progreso
 da519ac subaru: checkpoint TASK-20260905-034043506 - en-progreso
@@ -938,10 +942,6 @@ e9292f1 feat: add B3 product scope anchor to generation context
 4497e1a chore: council approvals for B3 (TASK-20260904-210844465, approved)
 f644395 subaru: checkpoint TASK-20260904-210844465 - listo
 6572961 chore: governance artifacts for B3 classification (TASK-20260904-210844465, awaiting_council)
-6bc7c2b subaru: checkpoint TASK-20260209-ASYNCLEARN001 - bloqueado
-31e4646 fix: media/text coherence - reflect runtime dispatch in LLM feedback so the model never denies a sent image (preserved pre-phase baseline)
-d981d63 docs: regenerate MASTER.md at f28ea35
-f28ea35 fix: restore whatsapp media and response parity
 ```
 
 ---
