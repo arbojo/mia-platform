@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `f28ea35`.
+> Fuente de verdad: este repositorio en `e9cefec`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `f28ea35` |
+| **Commit HEAD** | `e9cefec` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-03T21:55:45-06:00 |
+| **Generado** | 2026-09-05T01:42:33-06:00 |
 
 ---
 
@@ -710,10 +710,11 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 - Manifests de tareas: `.governance/tasks/<id>.json`
 - Log de gobernanza: `.governance/logs/governance-<fecha>.log`
 
-**Tareas registradas (150)**:
+**Tareas registradas (153)**:
 
 | ID | Título | Estado |
 | --- | --- | --- |
+| DEC-20260904-MEDIA-CONTRACT | Media Contract Canonico — CATALOG autoridad + trigger opcional refinador + MEDIA_REQUEST en runtime + seleccion determinista | approved |
 | TASK-20260209-ASYNCLEARN001 | Ingesta asíncrona de archivos y polling en /api/knowledge/learn — solución de raíz al FUNCTION_INVOCATION_TIMEOUT del botón 'Enséñame' | approved |
 | TASK-20260729-173000 | Sprint 3 — Business Intelligence & Learning Evolution | in_progress |
 | TASK-20260730-022854 | Sprint 1 — Product Survival | completed |
@@ -864,6 +865,8 @@ npx tsx workshop/governance/cli.ts validate   # verificar aprobación
 | TASK-20260830-025948794 | MIA PARITY ETAPA 2 UNIFICAR: fixes quirurjicos C1 (transcript desc+reverse), B1 (media solo del producto canonico + ORDER BY), B1b (eventos desde producto canonico), P1 (guards de cancelacion en todos los canales) + refactor a Shared MIA Core con adapters + parity tests | approved |
 | TASK-20260830-CONTEXT-IDEMPOTENCY-PHASE1 | Context + Idempotency + Media Scope — Phase 1 Implementation (P1-1..P1-8) | in_progress |
 | TASK-20260902-210942761 | Retention Idempotency H1 Remediation — throw-safe compensation y reads protegidos (R1/R2) | approved |
+| TASK-20260904-210844465 | B3: producto activo/scope determinista del runtime llega al contexto de generacion de texto | approved |
+| TASK-20260905-034043506 | Implementar DEC-20260904-MEDIA-CONTRACT | approved |
 
 ---
 
@@ -919,6 +922,15 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+e9cefec feat: close media contract runtime dashboard integration
+d72cd93 subaru: checkpoint TASK-20260905-034043506 - listo
+e9292f1 feat: add B3 product scope anchor to generation context
+4497e1a chore: council approvals for B3 (TASK-20260904-210844465, approved)
+f644395 subaru: checkpoint TASK-20260904-210844465 - listo
+6572961 chore: governance artifacts for B3 classification (TASK-20260904-210844465, awaiting_council)
+6bc7c2b subaru: checkpoint TASK-20260209-ASYNCLEARN001 - bloqueado
+31e4646 fix: media/text coherence - reflect runtime dispatch in LLM feedback so the model never denies a sent image (preserved pre-phase baseline)
+d981d63 docs: regenerate MASTER.md at f28ea35
 f28ea35 fix: restore whatsapp media and response parity
 6b372c9 docs: regenerate MASTER.md at 7733028
 7733028 Merge commit '570c708'
@@ -930,15 +942,6 @@ a613eb7 subaru: checkpoint H1-RETENTION-REMEDIATION - completado
 a586527 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
 24789e9 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
 e9a7877 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
-0dccb30 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
-3bbfbea chore: persist governance artifacts for H1 retention idempotency closure (TASK-20260902-210942761)
-c3476de docs: regenerate MASTER.md at bed7872
-bed7872 Merge remote-tracking branch 'origin/main'
-5c0cae4 fix: harden retention idempotency H1 — throw-safe compensation and reads (R1/R2)
-c3da2e4 subaru: checkpoint H1-RETENTION-REMEDIATION - listo
-51821b2 docs: regenerate MASTER.md at 52dabc4
-52dabc4 fix: add retention idempotency guards
-04acd0c docs: regenerate MASTER.md at fa3db04
 ```
 
 ---
