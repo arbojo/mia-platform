@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 6
+current_step: 7
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:56:03.607Z
+updated: 2026-09-05T07:56:18.864Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -85,7 +85,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 5.
   - Criterio de terminación: los textos del feedback cubren las 4 señales; sin promesa de envío futuro; sin afirmar envío inexistente; compatible i18n.
   - Gate/verificación: unit_tests; performance_review (sin crecimiento de tokens por turno); invariantes INV-MEDIA-010.
-- [ ] **Paso 7:** APIs de items: ownership + media genérica incondicional (R1.3)
+- [x] **Paso 7:** APIs de items: ownership + media genérica incondicional (R1.3)
   - Objetivo: la API acepta lo que el runtime ahora emite (media de producto sin condición; media genérica sin condición).
   - Archivos: src/app/api/knowledge/items/route.ts, src/app/api/knowledge/items/[id]/route.ts, tests/api/knowledge-items.test.ts, tests/api/knowledge-items-id.test.ts.
   - Acción: permitir `image_url` con `product_id` y `trigger_condition=null` (y genérica `product_id=null` sin trigger cuando sea explícitamente genérica); mantener validación de ownership del producto y de URL; default `is_active=true`.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 7 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 7`.
+Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 8`.
 
 ## Constraints
 
