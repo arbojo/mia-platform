@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `e9cefec`.
+> Fuente de verdad: este repositorio en `7420f71`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `e9cefec` |
+| **Commit HEAD** | `7420f71` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-05T01:42:33-06:00 |
+| **Generado** | 2026-09-05T01:56:48-06:00 |
 
 ---
 
@@ -922,6 +922,16 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+7420f71 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+f15b18f subaru: checkpoint TASK-20260905-034043506 - en-progreso
+da519ac subaru: checkpoint TASK-20260905-034043506 - en-progreso
+5dcaac3 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+953dc4f subaru: checkpoint TASK-20260905-034043506 - en-progreso
+c9e42bb subaru: checkpoint TASK-20260905-034043506 - en-progreso
+cdc6ce9 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+1f60113 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+8fdfe58 subaru: checkpoint TASK-20260905-034043506 - en-progreso
+1952dbf docs: regenerate MASTER.md at e9cefec
 e9cefec feat: close media contract runtime dashboard integration
 d72cd93 subaru: checkpoint TASK-20260905-034043506 - listo
 e9292f1 feat: add B3 product scope anchor to generation context
@@ -932,16 +942,6 @@ f644395 subaru: checkpoint TASK-20260904-210844465 - listo
 31e4646 fix: media/text coherence - reflect runtime dispatch in LLM feedback so the model never denies a sent image (preserved pre-phase baseline)
 d981d63 docs: regenerate MASTER.md at f28ea35
 f28ea35 fix: restore whatsapp media and response parity
-6b372c9 docs: regenerate MASTER.md at 7733028
-7733028 Merge commit '570c708'
-0dad0b4 docs: regenerate MASTER.md at 3c3f6e8
-570c708 wip: LOOP 2/2.1 ratified (channel parity + closing-once + simulator SALE isolation) + retention WIP + governance manifest TASK-20260209-ASYNCLEARN001
-3c3f6e8 subaru: checkpoint TASK-20260209-ASYNCLEARN001 - listo
-ac330da docs: regenerate MASTER.md at a613eb7
-a613eb7 subaru: checkpoint H1-RETENTION-REMEDIATION - completado
-a586527 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
-24789e9 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
-e9a7877 subaru: checkpoint H1-RETENTION-REMEDIATION - en-progreso
 ```
 
 ---
