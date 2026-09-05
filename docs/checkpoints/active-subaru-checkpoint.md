@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 7
+current_step: 8
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:56:18.864Z
+updated: 2026-09-05T07:56:34.866Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -92,7 +92,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 3.
   - Criterio de terminación: POST/PATCH aceptan los casos que el contrato define; rechazan `product_id` de otro business; respuestas 400/403 correctas.
   - Gate/verificación: unit_tests; security_review (validación de entrada, sin SSRF).
-- [ ] **Paso 8:** Import engine — `product_id` correcto en productos nuevos (INV-MEDIA-001/008)
+- [x] **Paso 8:** Import engine — `product_id` correcto en productos nuevos (INV-MEDIA-001/008)
   - Objetivo: los assets importados quedan vivos y pertenecientes al producto creado.
   - Archivos: src/lib/import/engine.ts, tests/import/engine.test.ts.
   - Acción: en el path new-product usar el `id` del insert (hoy `product_id:''`, engine.ts:152-157) para el `knowledge_items.upsert`; `trigger_condition` permanece `null` (incondicional)
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 8 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 8`.
+Implementar el Paso 9 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 9`.
 
 ## Constraints
 
