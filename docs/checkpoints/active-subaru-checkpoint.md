@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 10
+current_step: 11
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:57:01.003Z
+updated: 2026-09-05T07:58:01.957Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -113,7 +113,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Pasos 2-9.
   - Criterio de terminación: suite verde; B3/retention unused-mocks siguen funcionando; sin `any` ni tipos implícitos (strict).
   - Gate/verificación: unit_tests; typecheck.
-- [ ] **Paso 11:** Godzilla adversarial + seguridad + performance (gates finales de calidad)
+- [x] **Paso 11:** Godzilla adversarial + seguridad + performance (gates finales de calidad)
   - Objetivo: romper el contrato nuevo antes de release.
   - Archivos: tests de ataque (unit adversario) + media-guard.ts solo si un hallazgo lo exige; evidencia con file:line.
   - Acción: prompt injection en feedback media (indirect vía knowledge/trigger), URL no-segura (SSRF, media-guard), re-petición masiva concurrente (raza UNIQUE), ambigüedad multi-producto masiva, abuso de léxico de intent ("ver" fuera de contexto), invariantes dragon (INV-MEDIA-002/003/009/010/011/012).
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 11 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 11`.
+Implementar el Paso 12 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 12`.
 
 ## Constraints
 
