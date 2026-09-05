@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 4
+current_step: 5
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:55:34.087Z
+updated: 2026-09-05T07:55:48.746Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -71,7 +71,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 3.
   - Criterio de terminación: T2 (precio) no repite (existing_hit), T4/T5 resend única, T6 segundo asset o aclaración; C05/C07 ya no mueren en `eligible=false`.
   - Gate/verificación: unit_tests; invariantes INV-MEDIA-011, -012; stress_test parcial (re-petición masiva idempotente).
-- [ ] **Paso 5:** Señales de estado de media (R5, R6, R7) en el decision surface
+- [x] **Paso 5:** Señales de estado de media (R5, R6, R7) en el decision surface
   - Objetivo: distinguir `MEDIA_UNAVAILABLE_FOR_PRODUCT`, `MEDIA_REQUEST_NOT_RECOGNIZED`, `MEDIA_SCOPE_AMBIGUOUS` de no-dispatch por trigger.
   - Archivos: src/lib/runtime/context-media.ts (decision), src/lib/runtime/core.ts (wiring), src/lib/ai/prompts.ts (tipos/interface), tests/runtime/*.
   - Acción: extender `ContextMediaDecision` con `mediaStatus` discriminador (derivado de scope/eligibility/intent/claims); C-1 intacto; adhesión al logMediaDecision.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 5 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 5`.
+Implementar el Paso 6 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 6`.
 
 ## Constraints
 
