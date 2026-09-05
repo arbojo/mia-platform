@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { buildMasterPrompt } from '@/lib/ai/prompts'
+import { buildMasterPrompt, withMediaResolutionFeedback } from '@/lib/ai/prompts'
+import type { MediaResolutionFeedback } from '@/lib/ai/prompts'
 
 const BUSINESS = {
   id: 'b-1',
@@ -142,7 +143,7 @@ describe('buildMasterPrompt', () => {
     expect(prompt).toContain('Cliente prefiere botas café.')
   })
 
-  it('promete una imagen solo en canales que despachan media', () => {
+  it('no promete imágenes estáticamente en el prompt (DP-3): el estado truthful lo aporta el runtime', () => {
     const knowledgeWithImage = [
       {
         question: '¿Envían a todo el país?',
@@ -154,7 +155,7 @@ describe('buildMasterPrompt', () => {
     ] as never
 
     const whatsapp = build({ channel: 'whatsapp', knowledge: knowledgeWithImage })
-    expect(whatsapp).toContain('[IMAGEN_DISPONIBLE]')
+    expect(whatsapp).not.toContain('[IMAGEN_DISPONIBLE]')
 
     const streaming = build({ knowledge: knowledgeWithImage })
     expect(streaming).not.toContain('[IMAGEN_DISPONIBLE]')
@@ -354,5 +355,71 @@ describe('buildMasterPrompt', () => {
       const prompt = build()
       expect(prompt).not.toContain('Estado post-venta')
     })
+  })
+})
+
+describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => {
+  const BASE = '## System'
+
+  const feedback = (mediaStatus: MediaResolutionFeedback['mediaStatus']): MediaResolutionFeedback => ({
+    scope: ['p-1'],
+    explicitScope: 'explicit',
+    eligible: true,
+    mediaStatus,
+    assetSelected: 'a-1',
+    claim: 'created',
+    dispatched: mediaStatus === 'DISPATCHED',
+    delivered: 'unknown',
+  })
+
+  it('mantiene el prompt intacto sin feedback', () => {
+    expect(withMediaResolutionFeedback(BASE, null)).toBe(BASE)
+    expect(withMediaResolutionFeedback(BASE, undefined)).toBe(BASE)
+  })
+
+  it('DISPATCHED: adjunta la imagen en este turno, sin prometer envío futuro ni negar', () => {
+    const out = withMediaResolutionFeedback(BASE, feedback('DISPATCHED'))
+    expect(out).toContain('media_status: DISPATCHED')
+    expect(out).toContain('adjunta la imagen en este mismo mensaje')
+    expect(out).toContain('delivered: unknown')
+    expect(out).not.toContain('prometes un envío futuro')
+  })
+
+  it('MEDIA_UNAVAILABLE_FOR_PRODUCT: honestidad textual, nunca inventar imagen', () => {
+    const out = withMediaResolutionFeedback(BASE, feedback('MEDIA_UNAVAILABLE_FOR_PRODUCT'))
+    expect(out).toContain('media_status: MEDIA_UNAVAILABLE_FOR_PRODUCT')
+    expect(out).toContain('todavía no tengo fotos de ese producto')
+    expect(out).toContain('No afirmes ni inventes ninguna imagen')
+  })
+
+  it('MEDIA_REQUEST_NOT_RECOGNIZED: respuesta textual natural sin capacidad genérica', () => {
+    const out = withMediaResolutionFeedback(BASE, feedback('MEDIA_REQUEST_NOT_RECOGNIZED'))
+    expect(out).toContain('media_status: MEDIA_REQUEST_NOT_RECOGNIZED')
+    expect(out).toContain('No se detectó una solicitud de media clara')
+    expect(out).toContain('responde con naturalidad en texto')
+  })
+
+  it('MEDIA_SCOPE_AMBIGUOUS: pide aclaración, no elige producto ni envía imagen', () => {
+    const out = withMediaResolutionFeedback(BASE, feedback('MEDIA_SCOPE_AMBIGUOUS'))
+    expect(out).toContain('media_status: MEDIA_SCOPE_AMBIGUOUS')
+    expect(out).toContain('pide aclaración de cuál quiere ver')
+    expect(out).toContain('No elijas ni inventes un producto')
+  })
+
+  it('NONE: respuesta textual, jamás incapacidad genérica', () => {
+    const out = withMediaResolutionFeedback(BASE, feedback('NONE'))
+    expect(out).toContain('media_status: NONE')
+    expect(out).toContain('No alegues incapacidad')
+    expect(out).not.toContain('media_status: DISPATCHED')
+  })
+
+  it('reglas no negociables: sin afirmar envío sin attachment del runtime ni promesas futuras (C-1, R7)', () => {
+    for (const mediaStatus of ['DISPATCHED', 'MEDIA_UNAVAILABLE_FOR_PRODUCT', 'MEDIA_REQUEST_NOT_RECOGNIZED', 'MEDIA_SCOPE_AMBIGUOUS', 'NONE'] as const) {
+      const out = withMediaResolutionFeedback(BASE, feedback(mediaStatus))
+      expect(out).toContain('Nunca afirmes que enviaste una imagen si el runtime no la adjuntó (attachment ausente).')
+      expect(out).toContain('No prometas envíos futuros de imágenes')
+      expect(out).toContain('No presentes "no puedo enviar imágenes" como una incapacidad genérica del sistema')
+      expect(out).toContain('El envío o no envío de imágenes es decisión exclusiva del runtime')
+    }
   })
 })

@@ -55,6 +55,22 @@ type ClaimRow = {
   created_at?: string
 }
 
+/**
+ * Señal discriminadora del contrato (DEC-20260904 R5/R6).
+ * `mediaStatus` se implementa en el runtime (decision surface); aquí se
+ * declara como tipo esperado del contrato para verificar cada señal.
+ */
+type ContractMediaStatus =
+  | 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
+  | 'MEDIA_REQUEST_NOT_RECOGNIZED'
+  | 'MEDIA_SCOPE_AMBIGUOUS'
+  | 'DISPATCHED'
+  | 'NONE'
+
+function mediaStatusOf(decision: ContextMediaDecision): ContractMediaStatus | undefined {
+  return (decision as unknown as { mediaStatus?: ContractMediaStatus }).mediaStatus
+}
+
 function kitem(overrides: Partial<KnowledgeRow>): KnowledgeRow {
   return {
     id: 'item-' + Math.random().toString(36).slice(2, 8),
@@ -91,10 +107,10 @@ function makeHarness(opts: {
   const convs = new Map<string, { active_product_ids?: string[] }>(
     Object.entries(opts.conversations ?? {})
   )
-  // SQL real filtra los inactivos y los candidatos sin URL/trigger.
-  const activeKnowledge = (opts.knowledge ?? []).filter(
-    (k) => k.is_active && k.image_url != null && k.trigger_condition != null
-  )
+  // SQL real filtra los inactivos y los candidatos sin URL.
+  // DEC-20260904 R1.3: trigger_condition ya NO es requisito de candidatura.
+  // (cont. anterior: también exigía trigger_condition != null → media NULL = muerta).
+  const activeKnowledge = (opts.knowledge ?? []).filter((k) => k.is_active && k.image_url != null)
   const activeProducts = (opts.products ?? []).filter((p) => p.is_active !== false)
 
   const supabase = {
@@ -905,5 +921,248 @@ describe('Scope helper invariants', () => {
     })
     const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'quiero el XX-999')
     expect(hits).toHaveLength(0)
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// H. DEC-20260904-MEDIA-CONTRACT — contrato canónico (TDD RED)
+// ────────────────────────────────────────────────────────────────
+// Trazabilidad: docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md
+// (R1.3 NULL=incondicional, R2 intent, R3 prioridad especializada→principal,
+//  R4 scope, R5 signals, R6 truthful, R7 feedback, R8 resend/new-asset,
+//  INV-MEDIA-001..015).
+//
+// ESTA SUITE ES RED A PROPÓSITO: codifica el contrato APROBADO ANTES de tocar
+// producción. Los casos RED marcan el comportamiento canónico que el estado
+// actual (3c61c86) no cumple; los casos GUARD marcan behavior ya correcto que
+// NO debe romperse en los pasos 2-5. El harness simula el SQL canónico
+// (sin filtro trigger_condition != null).
+//
+// `mediaStatusOf` lee la señal `mediaStatus` del decision surface (emitida por
+// el runtime): los asserts de este bloque verifican que corresponde a la causa
+// real (DISPATCHED / UNAVAILABLE / NOT_RECOGNIZED / AMBIGUOUS), R5/R6.
+
+describe('DEC-20260904-MEDIA-CONTRACT — R1..R8 / INV-MEDIA (TDD RED)', () => {
+  const run = (
+    h: ReturnType<typeof makeHarness>,
+    userMessage: string,
+    scope: string[],
+    extra: Partial<{ isResend: boolean; scopeSource: 'explicit' | 'ambiguous' }> = {}
+  ) =>
+    resolveContextMedia({
+      businessId: 'biz-1',
+      conversationId,
+      userMessage,
+      scope,
+      scopeSource: (extra.scopeSource ?? 'explicit') as never,
+      supabase: h.supabase as never,
+      ...(extra.isResend ? { isResend: true } : {}),
+    })
+
+  // ——— R1.3: NULL/vacío = media incondicional VIVA (hoy: muerta) ———
+  it('R1.3-INCONDICIONAL: trigger NULL con intención → dispatch del principal (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'clean-img', product_id: 'p-clean', trigger_condition: null, position: 0 })],
+    })
+    const res = await run(h, '¿me mandas una foto del Clean Nails?', ['p-clean'])
+    expect(res.attachment?.knowledgeItemId).toBe('clean-img')
+    expect(res.decision.eligible).toBe(true)
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  it('R1.3-GENERICA: genérica incondicional con scope único → dispatch (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'gen-img', product_id: null, trigger_condition: null })],
+    })
+    const res = await run(h, 'muéstrame la imagen', ['p-1'])
+    expect(res.attachment?.knowledgeItemId).toBe('gen-img')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  // ——— R3: prioridad especializada → principal (casos Back2Fit del battery) ———
+  it('CASE-A: intención + scope, sin match → principal de menor orden (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'bf-a', product_id: 'p-b2f', trigger_condition: 'faja, precio', position: 0 }),
+        kitem({ id: 'bf-b', product_id: 'p-b2f', trigger_condition: 'talla', position: 1 }),
+      ],
+    })
+    const res = await run(h, '¿Me mandas una foto de Back2Fit?', ['p-b2f'])
+    expect(res.attachment?.knowledgeItemId).toBe('bf-a')
+    expect(h.claims.size).toBe(1)
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  it('CASE-B: match de condición especializada (GUARD)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'bf-a', product_id: 'p-b2f', trigger_condition: 'faja, precio', position: 0 }),
+        kitem({ id: 'bf-b', product_id: 'p-b2f', trigger_condition: 'talla', position: 1 }),
+      ],
+    })
+    const res = await run(h, '¿cómo sé mi talla de Back2Fit?', ['p-b2f'])
+    expect(res.attachment?.knowledgeItemId).toBe('bf-b')
+  })
+
+  it('CASE-C: especializada gana sobre principal (GUARD)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'bf-a', product_id: 'p-b2f', trigger_condition: 'faja, precio', position: 0 }),
+        kitem({ id: 'bf-b', product_id: 'p-b2f', trigger_condition: 'talla', position: 1 }),
+      ],
+    })
+    const res = await run(h, '¿me enseñas una foto de las tallas de Back2Fit?', ['p-b2f'])
+    expect(res.attachment?.knowledgeItemId).toBe('bf-b')
+  })
+
+  it('CASE-D: condición del principal matchea por precio (GUARD)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'bf-a', product_id: 'p-b2f', trigger_condition: 'faja, precio', position: 0 }),
+        kitem({ id: 'bf-b', product_id: 'p-b2f', trigger_condition: 'talla', position: 1 }),
+      ],
+    })
+    const res = await run(h, '¿me das el precio de Back2Fit?', ['p-b2f'])
+    expect(res.attachment?.knowledgeItemId).toBe('bf-a')
+  })
+
+  // ——— R4/R6: honestidad (sin dispatch no se afirma disponibilidad) ———
+  it('NEUROFEET-sin-principal: sin match → MEDIA_UNAVAILABLE_FOR_PRODUCT (RED mediaStatus)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({
+          id: 'nf-1',
+          product_id: 'p-nf',
+          trigger_condition: 'precio de la calceta de compresion, precio de la media de compresion',
+        }),
+      ],
+    })
+    const res = await run(h, '¿me mandas una foto de Neurofeet?', ['p-nf'])
+    expect(res.attachment).toBeNull()
+    expect(mediaStatusOf(res.decision)).toBe('MEDIA_UNAVAILABLE_FOR_PRODUCT')
+    // Coherencia: sin dispatch real → sin claim, sin estado de dispatch.
+    expect(h.claims.size).toBe(0)
+    expect(res.decision.dispatched).toBe(false)
+  })
+
+  it('BYE-CANAS: producto sin media → MEDIA_UNAVAILABLE_FOR_PRODUCT (RED mediaStatus)', async () => {
+    const h = makeHarness()
+    const res = await run(h, '¿me muestras el Bye Canas?', ['p-bc'])
+    expect(res.attachment).toBeNull()
+    expect(mediaStatusOf(res.decision)).toBe('MEDIA_UNAVAILABLE_FOR_PRODUCT')
+    // Coherencia: sin media en catálogo → sin claim ni dispatch.
+    expect(h.claims.size).toBe(0)
+    expect(res.decision.dispatched).toBe(false)
+  })
+
+  // ——— R5/R7 + C-1: scope ambiguo nunca elige arbitrario ———
+  it('F03/F04: scope ambiguo → MEDIA_SCOPE_AMBIGUOUS, sin claim (RED mediaStatus)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'bf-a', product_id: 'p-b2f', trigger_condition: 'faja, precio', position: 0 }),
+        kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'neurotin, imagen', position: 1 }),
+      ],
+    })
+    const res = await run(h, '¿me enseñas una foto?', [], { scopeSource: 'ambiguous' })
+    expect(res.attachment).toBeNull()
+    expect(h.claims.size).toBe(0)
+    expect(mediaStatusOf(res.decision)).toBe('MEDIA_SCOPE_AMBIGUOUS')
+    // C-1: ambigüedad → sin claim ni dispatch (nunca elección arbitraria).
+    expect(res.decision.dispatched).toBe(false)
+  })
+
+  it('INV-MEDIA-002: genérica product_id NULL solo con scope único (GUARD)', async () => {
+    const h = makeHarness({ knowledge: [kitem({ id: 'gen', product_id: null, trigger_condition: 'foto' })] })
+    const res = await run(h, 'una foto', ['p-1', 'p-2'])
+    expect(res.attachment).toBeNull()
+    expect(res.decision.reason).toMatch(/multi-scope|ambigu/i)
+  })
+
+  it('INV-MEDIA-005: condición NO cruza productos (GUARD)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'bf-b', product_id: 'p-b2f', trigger_condition: 'talla' })],
+    })
+    const res = await run(h, '¿qué talla usan?', ['p-nt'])
+    expect(res.attachment).toBeNull()
+  })
+
+  it('REQUEST-NO-INTENTO: sin intención de media → MEDIA_REQUEST_NOT_RECOGNIZED (RED mediaStatus)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'gen-img', product_id: null, trigger_condition: null })],
+    })
+    const res = await run(h, '¿cuánto cuesta?', ['p-1'])
+    expect(res.attachment).toBeNull()
+    expect(mediaStatusOf(res.decision)).toBe('MEDIA_REQUEST_NOT_RECOGNIZED')
+    // Coherencia: no hubo MEDIA_REQUEST → sin claim ni dispatch.
+    expect(h.claims.size).toBe(0)
+    expect(res.decision.dispatched).toBe(false)
+  })
+
+  // ——— R8: resend y nuevo asset deterministas sin re-satisfacer trigger ———
+  it('T4: "¿me mandas la foto otra vez?" → resend del ya despachado (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'calcetin, tin, neurotin, imagen' })],
+      claims: [{ knowledge_item_id: 'nt-1', conversation_id: conversationId, state: 'dispatched' }],
+    })
+    const res = await run(h, '¿me mandas la foto otra vez?', ['p-nt'], { isResend: true })
+    expect(res.attachment?.knowledgeItemId).toBe('nt-1')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  it('T5: "enséñamela de nuevo" → resend (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'calcetin, tin, neurotin, imagen' })],
+      claims: [{ knowledge_item_id: 'nt-1', conversation_id: conversationId, state: 'dispatched' }],
+    })
+    const res = await run(h, 'enséñamela de nuevo', ['p-nt'], { isResend: true })
+    expect(res.attachment?.knowledgeItemId).toBe('nt-1')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  it('T6: "¿tienes otra foto?" → nuevo asset no-reclamado, NO el repetido (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'imagen', position: 0 }),
+        kitem({ id: 'nt-2', product_id: 'p-nt', trigger_condition: null, position: 1 }),
+      ],
+      claims: [{ knowledge_item_id: 'nt-1', conversation_id: conversationId, state: 'dispatched' }],
+    })
+    const res = await run(h, '¿tienes otra foto?', ['p-nt'])
+    expect(res.attachment?.knowledgeItemId).toBe('nt-2')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  it('C05: claim previo + intención nueva de foto → otra media, sin repetir (RED)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'calcetin, tin, neurotin, imagen', position: 0 }),
+        kitem({ id: 'gen-fotos', product_id: null, trigger_condition: 'Precio, fotos', position: 1 }),
+      ],
+      claims: [{ knowledge_item_id: 'nt-1', conversation_id: conversationId, state: 'dispatched' }],
+    })
+    const res = await run(h, '¿me enseñas una foto?', ['p-nt'])
+    expect(res.attachment?.knowledgeItemId).toBe('gen-fotos')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+  })
+
+  // ——— INV-MEDIA-009 / 014: guards ya verdes ———
+  it('INV-MEDIA-009: URL insegura nunca se despacha ni se reclama (GUARD)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'unsafe', trigger_condition: 'precio', image_url: 'http://127.0.0.1:3000/x.jpg' }),
+      ],
+    })
+    const res = await run(h, 'precio', ['p-1'])
+    expect(res.attachment).toBeNull()
+    expect(h.claims.size).toBe(0)
+  })
+
+  it('INV-MEDIA-014: misma petición → misma selección (determinismo) (GUARD)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'neurotin' })],
+    })
+    const r1 = await run(h, 'me interesa el Neurotin', ['p-nt'])
+    const r2 = await run(h, 'me interesa el Neurotin', ['p-nt'])
+    expect(r1.decision.assetSelected).toBe(r2.decision.assetSelected)
   })
 })

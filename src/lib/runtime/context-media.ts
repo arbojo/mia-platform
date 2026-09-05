@@ -1,4 +1,4 @@
-import { triggerMatches, intentMatchesTrigger } from './media'
+import { triggerMatches, intentMatchesTrigger, detectMediaIntent, normalizeText } from './media'
 import { isSafeMediaUrl } from './media-guard'
 import type { MediaAttachment } from './conditional-media'
 import type { ScopeSource } from './context-scope'
@@ -28,6 +28,18 @@ type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
 
 export type MediaClaimState = 'claimed' | 'dispatched' | 'failed'
 
+/**
+ * Señal discriminadora truthful del estado de media (DEC-20260904 R5/R6).
+ * Se deriva SIEMPRE del resultado real del runtime (scope/eligibility/
+ * intent/claims), nunca de una inferencia posterior del LLM.
+ */
+export type MediaStatus =
+  | 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
+  | 'MEDIA_REQUEST_NOT_RECOGNIZED'
+  | 'MEDIA_SCOPE_AMBIGUOUS'
+  | 'DISPATCHED'
+  | 'NONE'
+
 export interface ContextMediaDecision {
   /** Productos evaluados (messageScope del turno). */
   scope: string[]
@@ -45,6 +57,8 @@ export interface ContextMediaDecision {
   delivered: 'unknown'
   /** Trazabilidad: por qué no se despachó (para logging P1-7). */
   reason: string | null
+  /** Estado truthful de media (R5/R6): por qué se despachó o NO se despachó. */
+  mediaStatus: MediaStatus
 }
 
 export interface ContextMediaResult {
@@ -76,6 +90,7 @@ export function emptyMediaDecision(): ContextMediaDecision {
     dispatched: false,
     delivered: 'unknown',
     reason: null,
+    mediaStatus: 'NONE',
   }
 }
 
@@ -134,6 +149,7 @@ export function logMediaDecision(params: {
       dispatched: decision.dispatched,
       delivered: decision.delivered,
       reason: decision.reason,
+      mediaStatus: decision.mediaStatus,
     })
   )
 }
@@ -145,6 +161,17 @@ export function logMediaDecision(params: {
  *   CONTEXT/SCOPE → ELIGIBILITY → ASSET SELECTION → ATOMIC CLAIM → result
  * (el dispatch real lo ejecuta el adapter; processCore marca 'dispatched').
  */
+/**
+ * R6 — solo clasificación truthful del no-dispatch: "me muestras / me enseñas
+ * <producto>" es MEDIA_REQUEST según el vocabulario del contrato (§5.2:
+ * mostrar/enseñar) aunque no sea palabra-media literal ni imperativo pronominal
+ * de `detectMediaIntent` (R2). NO altera la selección R3/R4 ni habilita
+ * dispatch; únicamente etiqueta con truthfulidad por qué no se despachó.
+ */
+function isShowMediaRequest(message: string): boolean {
+  return /\bme\s+(?:muestras?|ensenas?)\b/.test(normalizeText(message))
+}
+
 export async function resolveContextMedia(
   params: ResolveContextMediaParams
 ): Promise<ContextMediaResult> {
@@ -166,14 +193,14 @@ export async function resolveContextMedia(
   if (!conversationId) {
     return {
       attachment: null,
-      decision: { ...emptyMediaDecision(), explicitScope, reason: 'no conversation' },
+      decision: { ...emptyMediaDecision(), explicitScope, mediaStatus: 'NONE', reason: 'no conversation' },
     }
   }
 
   if (!userMessage) {
     return {
       attachment: null,
-      decision: { ...emptyMediaDecision(), explicitScope, reason: 'empty message' },
+      decision: { ...emptyMediaDecision(), explicitScope, mediaStatus: 'NONE', reason: 'empty message' },
     }
   }
 
@@ -183,7 +210,12 @@ export async function resolveContextMedia(
       scopeSource === 'ambiguous' ? 'C-1 ambiguity: no explicit scope' : 'no active context'
     return {
       attachment: null,
-      decision: { ...emptyMediaDecision(), explicitScope, reason },
+      decision: {
+        ...emptyMediaDecision(),
+        explicitScope,
+        mediaStatus: scopeSource === 'ambiguous' ? 'MEDIA_SCOPE_AMBIGUOUS' : 'NONE',
+        reason,
+      },
     }
   }
 
@@ -195,6 +227,7 @@ export async function resolveContextMedia(
         ...emptyMediaDecision(),
         explicitScope,
         scope,
+        mediaStatus: 'MEDIA_SCOPE_AMBIGUOUS',
         reason: 'C-1 ambiguity: multi-scope without unique ranking',
       },
     }
@@ -210,25 +243,42 @@ export async function resolveContextMedia(
     scope,
     userMessage,
     intentTag,
+    isResend,
   })
-  const { eligible, pending, matches, blockedClaims, failedIds } = idempotency
+  const { eligible, pending, matches, blockedClaims, failedIds, pool } = idempotency
 
   if (!eligible) {
+    // R6 (DEC-20260904): el estado truthful del no-dispatch depende de si el
+    // mensaje contuvo una MEDIA_REQUEST o no, detectada a partir del resultado
+    // real del runtime (intención), jamás del LLM.
+    const mediaRequested = detectMediaIntent(userMessage) || isShowMediaRequest(userMessage)
     return {
       attachment: null,
       decision: {
         ...emptyMediaDecision(),
         explicitScope,
         scope,
+        mediaStatus: mediaRequested
+          ? 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
+          : 'MEDIA_REQUEST_NOT_RECOGNIZED',
         reason: 'no eligible asset in scope',
       },
     }
   }
 
   // Resend explícito (D2 bypass único): re-presentar el asset ya despachado.
-  if (isResend && pending.length === 0 && blockedClaims.length > 0) {
+  // R8: el destino se busca en `matches`, y si el mensaje no matcheó ningún
+  // trigger (no se re-satisface la condición) se resuelve desde el pool del
+  // scope. Idempotencia conversation × asset intacta (claim 'existing_hit').
+  if (isResend && blockedClaims.length > 0) {
+    // El resend explícito re-presenta el asset ya despachado aunque exista un
+    // nuevo candidato pendiente (p. ej. un principal no reclamado en P2): la
+    // petición "de nuevo"/pronominal manda sobre la selección de asset nuevo.
     const last = blockedClaims[0]
-    const asset = matches.find((m) => m.id === last.knowledge_item_id) ?? null
+    const asset =
+      matches.find((m) => m.id === last.knowledge_item_id) ??
+      pool.find((m) => m.id === last.knowledge_item_id) ??
+      null
     if (!asset || !isSafeMediaUrl(asset.image_url ?? '')) {
       return {
         attachment: null,
@@ -239,6 +289,7 @@ export async function resolveContextMedia(
           eligible: true,
           assetSelected: last.knowledge_item_id,
           claim: 'existing_hit',
+          mediaStatus: 'NONE',
           reason: 'resend target unavailable or unsafe url',
         },
       }
@@ -253,6 +304,7 @@ export async function resolveContextMedia(
         claim: 'existing_hit',
         dispatched: 'unknown',
         delivered: 'unknown',
+        mediaStatus: 'DISPATCHED',
         reason: null,
       },
     }
@@ -279,6 +331,7 @@ export async function resolveContextMedia(
             eligible: true,
             assetSelected: failedAsset.id,
             claim: 'recovered',
+            mediaStatus: 'NONE',
             reason: 'recovered asset has unsafe url',
           },
         }
@@ -293,6 +346,7 @@ export async function resolveContextMedia(
           claim: 'recovered',
           dispatched: 'unknown',
           delivered: 'unknown',
+          mediaStatus: 'DISPATCHED',
           reason: null,
         },
       }
@@ -311,6 +365,7 @@ export async function resolveContextMedia(
         eligible: true,
         assetSelected: hitId,
         claim: 'existing_hit',
+        mediaStatus: 'NONE',
         reason: 'idempotency hit: asset already claimed/dispatched',
       },
     }
@@ -332,6 +387,7 @@ export async function resolveContextMedia(
         scope,
         eligible: true,
         assetSelected: selected.id,
+        mediaStatus: 'NONE',
         reason: 'unsafe media url',
       },
     }
@@ -368,6 +424,7 @@ export async function resolveContextMedia(
         eligible: true,
         assetSelected: selected.id,
         claim: 'existing_hit',
+        mediaStatus: 'NONE',
         reason: 'claim lost race (concurrent dispatch)',
       },
     }
@@ -383,6 +440,7 @@ export async function resolveContextMedia(
       claim: 'created',
       dispatched: 'unknown',
       delivered: 'unknown',
+      mediaStatus: 'DISPATCHED',
       reason: null,
     },
   }
@@ -394,6 +452,8 @@ interface ScopedIdempotency {
   matches: KnowledgeItem[]
   blockedClaims: Array<{ knowledge_item_id: string; created_at?: string }>
   failedIds: Set<string>
+  /** Assets del scope candidatos (para el destino del resend R8). */
+  pool: KnowledgeItem[]
 }
 
 async function resolveScopedIdempotency(params: {
@@ -403,8 +463,9 @@ async function resolveScopedIdempotency(params: {
   scope: string[]
   userMessage: string
   intentTag?: string | null
+  isResend?: boolean
 }): Promise<ScopedIdempotency> {
-  const { supabase, businessId, conversationId, scope, userMessage, intentTag } = params
+  const { supabase, businessId, conversationId, scope, userMessage, intentTag, isResend } = params
 
   const { data: candidates } = await supabase
     .from('knowledge_items')
@@ -412,27 +473,72 @@ async function resolveScopedIdempotency(params: {
     .eq('business_id', businessId)
     .eq('is_active', true)
     .not('image_url', 'is', null)
-    .not('trigger_condition', 'is', null)
+    // R1.3 (DEC-20260904): trigger_condition NULL/vacío = media incondicional
+    // del producto; NO es requisito de candidatura. Se quita el filtro
+    // `.not('trigger_condition', 'is', null)` que la dejaba muerta.
     .order('position', { ascending: true })
     .order('created_at', { ascending: true })
 
   // DELTA POR SCOPE (P1-3): jamás se evalúan triggers contra assets de otro
   // producto. Genéricos (NULL) solo con scope único (doc 25 §4 / doc 24 §6).
   const uniqueScope = scope.length === 1 ? scope[0] : null
-  const inScope = (candidates ?? []).filter(
+  const pool = (candidates ?? [])
+    .filter(
+      (item) =>
+        (uniqueScope !== null && item.product_id === uniqueScope) ||
+        (uniqueScope !== null && item.product_id === null)
+    )
+    // Determinismo (DEC-20260904 INV-MEDIA-014 / DEC-20260825): position ASC
+    // NULLS LAST → created_at ASC → empate por identidad estable (uuid).
+    .sort((a, b) => {
+      const pa = a.position ?? Number.MAX_SAFE_INTEGER
+      const pb = b.position ?? Number.MAX_SAFE_INTEGER
+      if (pa !== pb) return pa - pb
+      const ta = a.created_at ? Date.parse(a.created_at) : 0
+      const tb = b.created_at ? Date.parse(b.created_at) : 0
+      if (ta !== tb) return ta - tb
+      return a.id.localeCompare(b.id)
+    })
+
+  // R1.3: un asset sin condición (NULL/vacío) es media incondicional. NUNCA
+  // construye un trigger artificial (INV-MEDIA-004): solo define elegibilidad
+  // como principal (R3-P2), no matchea condiciones.
+  const hasCondition = (item: KnowledgeItem): boolean =>
+    item.trigger_condition != null && item.trigger_condition.trim().length > 0
+
+  // R3-P1: especializada por condición. La condición refina DENTRO del producto.
+  const conditionMatches = pool.filter(
     (item) =>
-      (uniqueScope !== null && item.product_id === uniqueScope) ||
-      (uniqueScope !== null && item.product_id === null)
+      (hasCondition(item) && triggerMatches(userMessage, item.trigger_condition ?? '')) ||
+      (hasCondition(item) &&
+        intentTag &&
+        intentMatchesTrigger(intentTag, item.trigger_condition ?? ''))
   )
 
-  const matches = inScope.filter(
-    (item) =>
-      (item.trigger_condition ? triggerMatches(userMessage, item.trigger_condition) : false) ||
-      (intentTag && intentMatchesTrigger(intentTag, item.trigger_condition ?? ''))
-  )
+  // R3-P2: principal. Incondicionales (NULL/vacío, R1.3) del scope; si el
+  // producto no declara ninguna, su grupo de media propio (>=2 assets) provee
+  // la "representativa" de menor orden (DEC-20260825: position ASC NULLS LAST
+  // → created_at ASC). Un único asset condicionado NO es grupo (caso
+  // Neurofeet): sin principal no se inventa una representativa (R4 / DP-1).
+  const mediaIntent = detectMediaIntent(userMessage)
+  const ownerAssets = pool.filter((item) => item.product_id === uniqueScope)
+  const principalCandidates = pool.filter((item) => !hasCondition(item))
+  if (principalCandidates.length === 0 && ownerAssets.length >= 2) {
+    principalCandidates.push(ownerAssets[0])
+  }
+  const principals = mediaIntent ? principalCandidates : []
 
-  if (matches.length === 0) {
-    return { eligible: false, pending: [], matches: [], blockedClaims: [], failedIds: new Set() }
+  // R3 orden normativo: especializada por condición PRIMERO; solo sin match de
+  // condición se acude al principal por intención de media. Sin match y sin
+  // intención → ninguna (R3-P3).
+  const matches = conditionMatches.length > 0 ? conditionMatches : principals
+
+  // R8: un resend explícito necesita conocer los claims de la conversación
+  // aunque el mensaje NO matchee ningún trigger (no se re-satisface la
+  // condición). Sin match y sin resend no hace falta leer claims.
+  const needClaims = matches.length > 0 || Boolean(isResend)
+  if (!needClaims) {
+    return { eligible: false, pending: [], matches, blockedClaims: [], failedIds: new Set(), pool }
   }
 
   const { data: claims } = await supabase
@@ -447,18 +553,36 @@ async function resolveScopedIdempotency(params: {
     }
   }
 
-  const blocked: Array<{ knowledge_item_id: string; created_at?: string }> = []
-  const failedIds = new Set<string>()
   const pending = matches.filter((item) => {
     const claim = claimsByItem.get(item.id)
     if (!claim) return true
-    if (claim.state === 'failed') {
-      failedIds.add(item.id)
-      return false // pasa al recover path
-    }
-    blocked.push({ knowledge_item_id: item.id, created_at: claim.created_at ?? undefined })
+    if (claim.state === 'failed') return false // pasa al recover path
     return false
   })
+
+  const blocked: Array<{ knowledge_item_id: string; created_at?: string }> = []
+  const failedIds = new Set<string>()
+
+  // Datos de idempotencia de los assets MATCHED (semántica histórica).
+  for (const item of matches) {
+    const claim = claimsByItem.get(item.id)
+    if (!claim) continue
+    if (claim.state === 'failed') {
+      failedIds.add(item.id)
+      continue
+    }
+    blocked.push({ knowledge_item_id: item.id, created_at: claim.created_at ?? undefined })
+  }
+
+  // R8: sin match de trigger/intención, el destino del resend es el asset del
+  // scope con claim previo (más reciente). Sigue validado por scope.
+  if (matches.length === 0 && isResend) {
+    for (const item of pool) {
+      const claim = claimsByItem.get(item.id)
+      if (!claim || claim.state === 'failed') continue
+      blocked.push({ knowledge_item_id: item.id, created_at: claim.created_at ?? undefined })
+    }
+  }
 
   // El claim más reciente primero (para resend/acknowledge determinístico).
   blocked.sort((a, b) => {
@@ -467,7 +591,10 @@ async function resolveScopedIdempotency(params: {
     return tb - ta
   })
 
-  return { eligible: true, pending, matches, blockedClaims: blocked, failedIds }
+  // Sin match: solo procede (resend) si hay al menos un claim previo en scope.
+  const eligible = matches.length > 0 || (Boolean(isResend) && blocked.length > 0)
+
+  return { eligible, pending, matches, blockedClaims: blocked, failedIds, pool }
 }
 
 function toAttachment(item: KnowledgeItem): MediaAttachment {

@@ -113,3 +113,21 @@ describe('isResendRequest', () => {
     expect(isResendRequest('mándalo otra vez')).toBe(false)
   })
 })
+
+describe('DEC-20260904-MEDIA-CONTRACT — normalización R1.4 y resend R8 (TDD RED)', () => {
+  it('R1.4: trigger plural alcanza intención singular (fotos ⇒ foto)', () => {
+    expect(triggerMatches('¿me mandas una foto?', 'fotos')).toBe(true)
+  })
+
+  it('R1.4: palabra completa — "fotografía" NO es substring de "foto"', () => {
+    expect(triggerMatches('fotografía', 'foto')).toBe(false)
+  })
+
+  it('R8 T5: "enséñamela de nuevo" = resend explícito sin palabra-media literal', () => {
+    expect(isResendRequest('enséñamela de nuevo')).toBe(true)
+  })
+
+  it('R8 T6: "¿tienes otra foto?" NO es resend, es pedido de asset nuevo', () => {
+    expect(isResendRequest('¿tienes otra foto?')).toBe(false)
+  })
+})

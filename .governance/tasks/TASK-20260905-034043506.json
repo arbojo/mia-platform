@@ -1,0 +1,146 @@
+{
+  "id": "TASK-20260905-034043506",
+  "title": "Implementar DEC-20260904-MEDIA-CONTRACT",
+  "description": "Implementar el contrato de media por producto aprobado por el Concilio (DEC-20260904-MEDIA-CONTRACT, unanimidad 15/15): CATALOG como autoridad de existencia; trigger_condition = refinador OPCIONAL (NULL/vacio = medio incondicional del producto, nunca excluido ni muerto); MEDIA_REQUEST explicito via normalizacion linguistica + intent semantico en RUNTIME (prohibido agregar palabras a triggers); seleccion determinista especializada por condicion (position ASC, created_at ASC) -> principal (incondicional/representativa) -> ninguna; idempotencia por (conversation_id, knowledge_item_id) UNIQUE con estado claimed|dispatched|failed; resend explicito T4/T5 alcanzable SIN re-match de trigger (cierra C07); truthful media state en prompts (sin afirmar dispatch no realizado, sin negacion generica de capacidad); C-1 preservado (scope ambiguo/multi-producto -> pedir aclaracion, nunca dispatch arbitrario); distinguir MEDIA_UNAVAILABLE_FOR_PRODUCT vs MEDIA_REQUEST_NOT_RECOGNIZED vs MEDIA_SCOPE_AMBIGUOUS. Cubre los problemas normativos de RB002 (C05 bd23b176, C07 b302a6de, C08 a5ee8b05, C09 2b967028, F03 c363ae0f, F04 45347589). Golden Tests GT-01.. y casos normativos del contrato en verde; invariantes INV-MEDIA-001..015 enforceados en el registry.",
+  "scope": {
+    "categories": [
+      "feature",
+      "ai_behaviour",
+      "schema_change",
+      "api_change",
+      "refactor"
+    ],
+    "filesAffected": 24,
+    "hasSchemaChanges": true,
+    "hasAIConsumerChanges": true,
+    "hasSecurityImplications": true,
+    "isCrossCutting": false,
+    "primaryDomain": "sales",
+    "affectedDomains": [
+      "sales"
+    ],
+    "technicalDomains": [
+      "backend",
+      "ai",
+      "frontend",
+      "database"
+    ]
+  },
+  "classification": {
+    "complexity": "complex",
+    "requiredAgents": [
+      "architect",
+      "database",
+      "backend",
+      "frontend",
+      "ai_engineer",
+      "performance",
+      "security",
+      "qa",
+      "godzilla",
+      "release",
+      "memory_engineer"
+    ],
+    "qualityGates": [
+      "lint",
+      "build",
+      "unit_tests",
+      "e2e_tests",
+      "chrome_devtools",
+      "security_review",
+      "stress_test",
+      "typecheck",
+      "performance_review"
+    ],
+    "rationale": "Classified as COMPLEX complexity. Primary domain: sales. Complexity drivers: 24 files affected, schema changes required, AI behaviour changes, security implications, category requires council. Required agents (11): architect, database, backend, frontend, ai_engineer, performance, security, qa, godzilla, release, memory_engineer."
+  },
+  "status": "approved",
+  "decisions": [
+    {
+      "agentRole": "architect",
+      "decision": "approve",
+      "rationale": "Acepto bajo Evidence First: scope real runtime+ai+dashboard+migracion. R1-R8 se traducen en capas claras con R7 (Catalog autoridad, Knowledge no seleccion, Runtime coordina, Prompt estado real). Seleccion determinista R3 y C-1 R5 sin heuristica de color/talla/precio. Compatible con B3 scope canonico y DEC-20260830.",
+      "timestamp": "2026-09-05T03:41:58.477Z"
+    },
+    {
+      "agentRole": "database",
+      "decision": "approve",
+      "rationale": "Schema solo via migracion incremental nueva, nunca tocar 001/029/058 aplicadas. R8: UNIQUE(conversation_id, knowledge_item_id) ya existe en chat_media_dispatched; media_sent_products deprecado. RLS multi-tenant intacto. Gate typecheck obligatorio.",
+      "timestamp": "2026-09-05T03:42:07.344Z"
+    },
+    {
+      "agentRole": "backend",
+      "decision": "approve",
+      "rationale": "Ejecuto el cambio en context-media.ts/media.ts/core.ts: trigger_condition OPCIONAL como refinador (R1.3/R1.4) eliminando la exclusion de NULL; MEDIA_REQUEST por normalizacion+intent en runtime (R2) sin editar triggers; resend alcanzable sin re-match (C07); claim atomico claimed/dispatched/failed (R8). Sin escritura a datos productivos.",
+      "timestamp": "2026-09-05T03:42:17.492Z"
+    },
+    {
+      "agentRole": "frontend",
+      "decision": "approve",
+      "rationale": "Alineo ProductMedia.tsx, MediaBrowser.tsx, MediaEditDialog.tsx, MediaGrid.tsx, MediaLibrary.tsx con catalogo como autoridad (R1): trigger NULL/vacio se muestra incondicional, nunca muerto. Sin logica de seleccion en UI (R7).",
+      "timestamp": "2026-09-05T03:42:26.895Z"
+    },
+    {
+      "agentRole": "ai_engineer",
+      "decision": "approve",
+      "rationale": "Truthful media state en prompts.ts (R6/R7): feedback distingue MEDIA_UNAVAILABLE_FOR_PRODUCT vs MEDIA_REQUEST_NOT_RECOGNIZED vs MEDIA_SCOPE_AMBIGUOUS; el modelo no afirma dispatch no realizado ni niega capacidad generica. Se conserva el bloqueo de prompts comerciales de la fase decision.",
+      "timestamp": "2026-09-05T03:42:50.720Z"
+    },
+    {
+      "agentRole": "performance",
+      "decision": "approve",
+      "rationale": "Sin N+1: seleccion scoped extrae candidatos por scope con una unica query; el cambio reordena filtros, no anade queries. Validare token cost de MEDIA_REQUEST y latencia en Golden Tests. Gate performance_review.",
+      "timestamp": "2026-09-05T03:43:03.284Z"
+    },
+    {
+      "agentRole": "security",
+      "decision": "approve",
+      "rationale": "Verifico RLS por business_id en seleccion y claims, SSRF guard (isSafeMediaUrl) previo al claim, ausencia de cross-tenant, y que nada en esta tarea abre escritura a datos sin permiso. Gate security_review.",
+      "timestamp": "2026-09-05T03:43:13.711Z"
+    },
+    {
+      "agentRole": "qa",
+      "decision": "approve",
+      "rationale": "Exigire en verde Golden Tests GT-01.. y los 9 casos normativos (Back2Fit A-D, Neurofeet, multi-producto, Bye Canas, idempotencia T1-T6) ademas de lint/build/unit/e2e/typecheck 0 errores y chrome_devtools sin errores de consola.",
+      "timestamp": "2026-09-05T03:43:22.366Z"
+    },
+    {
+      "agentRole": "godzilla",
+      "decision": "approve",
+      "rationale": "Auditare CADA archivo modificado sin excepciones. Vectores: C-1 scope ambiguo (rechazo dispatch), spoofing MEDIA_REQUEST, claim race idempotencia, URL insegura, prompt injection en feedback de estado de media. CRITICAL/HIGH bloquean.",
+      "timestamp": "2026-09-05T03:43:41.925Z"
+    },
+    {
+      "agentRole": "release",
+      "decision": "approve",
+      "rationale": "Commit local de manifest y artefactos tras aprobar. B3 (push diferido documentado TASK-20260904-210844465) NO se altera ni pushea en esta fase: preexistente e intencional. Verificare working tree y ausencia de secretos antes de commit.",
+      "timestamp": "2026-09-05T03:43:52.582Z"
+    },
+    {
+      "agentRole": "memory_engineer",
+      "decision": "approve",
+      "rationale": "Registro miembro de la decision de implementacion del contrato. Invariantes INV-MEDIA-001..015 advertise en applicableInvariants para enforcement en complete().",
+      "timestamp": "2026-09-05T03:44:06.653Z"
+    }
+  ],
+  "createdAt": "2026-09-05T03:40:43.157Z",
+  "classifiedAt": "2026-09-05T03:40:43.157Z",
+  "applicableInvariants": [
+    "INV-MEDIA-001",
+    "INV-MEDIA-002",
+    "INV-MEDIA-003",
+    "INV-MEDIA-004",
+    "INV-MEDIA-005",
+    "INV-MEDIA-006",
+    "INV-MEDIA-007",
+    "INV-MEDIA-008",
+    "INV-MEDIA-009",
+    "INV-MEDIA-010",
+    "INV-MEDIA-011",
+    "INV-MEDIA-012",
+    "INV-MEDIA-013",
+    "INV-MEDIA-014",
+    "INV-MEDIA-015"
+  ],
+  "approvedAt": "2026-09-05T03:44:06.656Z"
+}

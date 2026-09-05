@@ -34,6 +34,7 @@ export function MediaGrid({ items, emptyMessage, productNames, onEdit, onDelete 
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline">{mediaTypeLabel(item.media_type ?? 'image')}</Badge>
+                {!item.product_id && <Badge variant="secondary">Genérica</Badge>}
                 {item.product_id && productNames?.[item.product_id] && (
                   <Badge variant="secondary">{productNames[item.product_id]}</Badge>
                 )}
@@ -53,9 +54,17 @@ export function MediaGrid({ items, emptyMessage, productNames, onEdit, onDelete 
               </div>
             </div>
             <p className="line-clamp-2 text-sm text-gray-700">{item.answer}</p>
-            {item.trigger_condition && (
+            {item.trigger_condition ? (
               <p className="text-xs text-gray-500">
-                Se envía cuando: <span className="text-brand-600">{item.trigger_condition}</span>
+                {!item.product_id && 'Genérica · '}Se envía cuando:{' '}
+                <span className="text-brand-600">{item.trigger_condition}</span>
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500">
+                Incondicional
+                {item.product_id
+                  ? ' · acompaña al producto'
+                  : ' · genérica: acompaña al producto en contexto'}
               </p>
             )}
           </div>

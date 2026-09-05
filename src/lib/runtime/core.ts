@@ -237,6 +237,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           scope: mediaResolution.decision.scope,
           explicitScope: mediaResolution.decision.explicitScope,
           eligible: mediaResolution.decision.eligible,
+          mediaStatus: mediaResolution.decision.mediaStatus,
           assetSelected: mediaResolution.decision.assetSelected,
           claim: mediaResolution.decision.claim,
           // P1-6 text coherence: dispatched para el LLM refleja si el runtime YA

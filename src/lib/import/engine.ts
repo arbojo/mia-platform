@@ -25,14 +25,6 @@ interface ExistingProduct {
   sku: string | null
 }
 
-interface KnowledgeItemUpsert {
-  product_id: string
-  image_url: string
-  trigger_condition: string | null
-  media_type: string
-  business_id: string
-}
-
 export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
   const summary = input.initialSummary ?? emptySummary()
   summary.stockColumnPresent = input.stockColumnPresent
@@ -82,14 +74,6 @@ export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
     // NEW: Always create/overwrite a knowledge_items row for the product image.
     // The product's own image_url column is deprecated — no UI or engine write should
     // set it as the authoritative source. All product images flow through knowledge_items.
-    const knowledgeItemPayload: KnowledgeItemUpsert = {
-      product_id: existingId ?? '',
-      image_url: row.imageUrl ?? '',
-      trigger_condition: null,   // imported images have no conditional trigger
-      media_type: 'image',
-      business_id: input.businessId,
-    }
-
     if (existingId) {
       // Update existing product (keep image_url column as-is for backward compat,
       // but it is no longer the authoritative source)
@@ -130,7 +114,7 @@ export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
       }
     } else {
       // Insert new product
-      const { error } = await input.admin
+      const { data: createdProduct, error } = await input.admin
         .from('products')
         .insert({ name: row.name, sku: row.sku, price: row.price, description: row.description, benefits: row.benefits, image_url: row.imageUrl, business_id: input.businessId })
         .select()
@@ -144,13 +128,24 @@ export async function upsertRows(input: UpsertInput): Promise<ImportSummary> {
         })
         continue
       }
+
+      const createdId = (createdProduct as ExistingProduct | null)?.id
+      if (!createdId) {
+        failed += 1
+        summary.errors.push({
+          row: rowNumber,
+          message: 'Error al crear: el insert no devolvió el id del producto',
+          sku: row.sku ?? undefined,
+        })
+        continue
+      }
       summary.created += 1
 
-      // Also create knowledge_items row for the new product
+      // Also create knowledge_items row for the new product, scoped to the created id
       const { error: kiError } = await input.admin
         .from('knowledge_items')
         .upsert({
-          product_id: '',
+          product_id: createdId,
           image_url: row.imageUrl,
           trigger_condition: null,
           media_type: 'image',

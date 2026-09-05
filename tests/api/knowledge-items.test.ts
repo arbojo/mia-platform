@@ -215,6 +215,25 @@ describe('POST /api/knowledge/items', () => {
     return chain
   }
 
+  const adminWithInsertCapture = () => {
+    const inserts: Record<string, unknown>[] = []
+    vi.mocked(createAdminClient).mockReturnValue({
+      from: vi.fn(() => {
+        const chain: Record<string, unknown> = {
+          insert: (payload: Record<string, unknown>) => {
+            inserts.push(payload)
+            return chain
+          },
+          select: () => chain,
+          single: async () => ({ data: { id: 'item-new' }, error: null }),
+          eq: () => chain,
+        }
+        return chain
+      }),
+    } as never)
+    return inserts
+  }
+
   it('crea el item e invalida la caché de contexto del negocio', async () => {
     const { supabase } = mockServerClient([])
     mockedCreateClient.mockResolvedValue(supabase as never)
@@ -252,6 +271,147 @@ describe('POST /api/knowledge/items', () => {
       })
     )
     expect(res.status).toBe(400)
+    expect(contextMock.invalidateConversationContext).not.toHaveBeenCalled()
+  })
+
+  it('acepta media de producto incondicional (trigger_condition null, R1.3)', async () => {
+    const { supabase } = mockServerClient([])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const inserts = adminWithInsertCapture()
+
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: 'business-1',
+          category: 'faq',
+          question: '¿Foto?',
+          answer: 'Enseño la foto.',
+          image_url: 'https://example.com/img.jpg',
+          trigger_condition: null,
+          product_id: '11111111-2222-3333-4444-555555555555',
+        }),
+      })
+    )
+
+    expect(res.status).toBe(201)
+    expect(inserts).toHaveLength(1)
+    expect(inserts[0]).toMatchObject({
+      business_id: 'business-1',
+      product_id: '11111111-2222-3333-4444-555555555555',
+      trigger_condition: null,
+      image_url: 'https://example.com/img.jpg',
+    })
+  })
+
+  it('acepta media genérica incondicional (sin product_id ni trigger, DP-6)', async () => {
+    const { supabase } = mockServerClient([])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const inserts = adminWithInsertCapture()
+
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: 'business-1',
+          category: 'faq',
+          question: '¿Foto genérica?',
+          answer: 'Genérica.',
+          image_url: 'https://example.com/generic.jpg',
+          trigger_condition: null,
+          product_id: null,
+        }),
+      })
+    )
+
+    expect(res.status).toBe(201)
+    expect(inserts[0]).toMatchObject({
+      product_id: null,
+      trigger_condition: null,
+      image_url: 'https://example.com/generic.jpg',
+    })
+  })
+
+  it('preserva media condicionada (trigger_condition presente)', async () => {
+    const { supabase } = mockServerClient([])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const inserts = adminWithInsertCapture()
+
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: 'business-1',
+          category: 'faq',
+          question: '¿Precio?',
+          answer: 'Precio.',
+          image_url: 'https://example.com/price.jpg',
+          trigger_condition: 'precio',
+          product_id: '11111111-2222-3333-4444-555555555555',
+        }),
+      })
+    )
+
+    expect(res.status).toBe(201)
+    expect(inserts[0]).toMatchObject({ trigger_condition: 'precio' })
+  })
+
+  it('no fuerza is_active en el insert: activo por default de la BD (R1.3)', async () => {
+    const { supabase } = mockServerClient([])
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const inserts = adminWithInsertCapture()
+
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: 'business-1',
+          category: 'faq',
+          question: '¿Foto?',
+          answer: 'Sí.',
+          image_url: 'https://example.com/img.jpg',
+          trigger_condition: null,
+          product_id: '11111111-2222-3333-4444-555555555555',
+        }),
+      })
+    )
+
+    expect(res.status).toBe(201)
+    expect(inserts[0].is_active).toBeUndefined()
+  })
+
+  it('rechaza product_id de otro negocio (ownership)', async () => {
+    const { supabase } = mockServerClient([])
+    supabase.from.mockImplementation((table: string) => {
+      if (table === 'products') return makeChain({ data: null, error: null }, [])
+      return makeChain({ data: { id: 'business-1' }, error: null }, [])
+    })
+    mockedCreateClient.mockResolvedValue(supabase as never)
+
+    const res = await POST(
+      new Request('http://localhost/api/knowledge/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: 'business-1',
+          category: 'faq',
+          question: '¿Foto?',
+          answer: 'Sí.',
+          image_url: 'https://example.com/img.jpg',
+          trigger_condition: null,
+          product_id: '99999999-8888-7777-6666-555555555555',
+        }),
+      })
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({
+      error: 'product_id does not belong to this business',
+    })
     expect(contextMock.invalidateConversationContext).not.toHaveBeenCalled()
   })
 })

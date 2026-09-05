@@ -102,14 +102,14 @@ export function MediaEditDialog({ item, onOpenChange, onSaved }: MediaEditDialog
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="media-edit-trigger">Condición de envío</Label>
+            <Label htmlFor="media-edit-trigger">Condición de envío (opcional)</Label>
             <Input
               id="media-edit-trigger"
               value={trigger}
               onChange={(e) => setTrigger(e.target.value)}
             />
             <p className="text-xs text-gray-500">
-              Palabras clave que activan el envío. Opcional cuando el medio pertenece a un producto.
+              Opcional. La condición refina cuándo se envía el medio; sin condición, acompaña al producto en el chat.
             </p>
           </div>
         </div>

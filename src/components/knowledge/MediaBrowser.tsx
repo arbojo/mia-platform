@@ -122,7 +122,7 @@ export function MediaBrowser({
   }
 
   const canCreate =
-    Boolean(uploadedUrl) && newDescription.trim().length > 0 && (productScope || newTrigger.trim().length > 0)
+    Boolean(uploadedUrl) && newDescription.trim().length > 0
 
   return (
     <div className="space-y-6">
@@ -167,7 +167,7 @@ export function MediaBrowser({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="media-trigger">Condición de envío {productScope ? '(opcional)' : ''}</Label>
+            <Label htmlFor="media-trigger">Condición de envío (opcional)</Label>
             <Textarea
               id="media-trigger"
               value={newTrigger}
@@ -177,8 +177,8 @@ export function MediaBrowser({
             />
             <p className="text-xs text-gray-500">
               {productScope
-                ? 'Se envía con este producto. La condición es opcional: sin ella, el medio acompañará al producto en el chat.'
-                : 'Palabras clave que activan el envío automático.'}
+                ? 'Se envía con este producto. La condición es opcional: sin ella, el medio acompaña al producto en el chat.'
+                : 'La condición es opcional. Sin condición, el medio acompaña al producto en contexto: se envía solo cuando hay un único producto activo en la conversación.'}
             </p>
           </div>
           <Button

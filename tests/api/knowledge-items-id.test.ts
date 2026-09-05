@@ -190,6 +190,113 @@ describe('PATCH /api/knowledge/items/[id]', () => {
     expect(res.status).toBe(404)
     expect(contextMock.invalidateConversationContext).not.toHaveBeenCalled()
   })
+
+  it('preserva media incondicional (trigger_condition null, R1.3)', async () => {
+    const { supabase } = mockServerClient(EXISTING)
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const adminCalls = mockAdmin({ ...EXISTING, trigger_condition: null })
+
+    const res = await PATCH(
+      new Request('http://localhost/api/knowledge/items/item-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: 'https://example.com/img.jpg',
+          trigger_condition: null,
+          product_id: '11111111-2222-3333-4444-555555555555',
+        }),
+      }),
+      { params: Promise.resolve({ id: 'item-1' }) }
+    )
+
+    expect(res.status).toBe(200)
+    const update = adminCalls.find((c) => c.method === 'update')
+    const payload = update!.args[0] as Record<string, unknown>
+    expect(payload).toMatchObject({
+      trigger_condition: null,
+      product_id: '11111111-2222-3333-4444-555555555555',
+      image_url: 'https://example.com/img.jpg',
+    })
+  })
+
+  it('permite convertir a media genérica (product_id null + trigger null)', async () => {
+    const { supabase } = mockServerClient(EXISTING)
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const adminCalls = mockAdmin({ ...EXISTING, product_id: null })
+
+    const res = await PATCH(
+      new Request('http://localhost/api/knowledge/items/item-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: 'https://example.com/generic.jpg',
+          trigger_condition: null,
+          product_id: null,
+        }),
+      }),
+      { params: Promise.resolve({ id: 'item-1' }) }
+    )
+
+    expect(res.status).toBe(200)
+    const update = adminCalls.find((c) => c.method === 'update')
+    const payload = update!.args[0] as Record<string, unknown>
+    expect(payload).toMatchObject({ trigger_condition: null, product_id: null })
+  })
+
+  it('conserva media condicionada al actualizar otros campos', async () => {
+    const { supabase } = mockServerClient(EXISTING)
+    mockedCreateClient.mockResolvedValue(supabase as never)
+    const adminCalls = mockAdmin({ ...EXISTING, image_url: 'https://example.com/price.jpg' })
+
+    const res = await PATCH(
+      new Request('http://localhost/api/knowledge/items/item-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: 'https://example.com/price.jpg',
+          trigger_condition: 'precio',
+          product_id: '11111111-2222-3333-4444-555555555555',
+        }),
+      }),
+      { params: Promise.resolve({ id: 'item-1' }) }
+    )
+
+    expect(res.status).toBe(200)
+    const update = adminCalls.find((c) => c.method === 'update')
+    const payload = update!.args[0] as Record<string, unknown>
+    expect(payload).toMatchObject({
+      trigger_condition: 'precio',
+      product_id: '11111111-2222-3333-4444-555555555555',
+    })
+  })
+
+  it('rechaza product_id de otro negocio en media (ownership)', async () => {
+    const { supabase } = mockServerClient(EXISTING)
+    supabase.from.mockImplementation((table: string) => {
+      if (table === 'products') return makeChain({ data: null, error: null }, [])
+      if (table === 'knowledge_items') return makeChain({ data: EXISTING, error: null }, [])
+      return makeChain({ data: { id: 'business-1' }, error: null }, [])
+    })
+    mockedCreateClient.mockResolvedValue(supabase as never)
+
+    const res = await PATCH(
+      new Request('http://localhost/api/knowledge/items/item-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: 'https://example.com/img.jpg',
+          product_id: '99999999-8888-7777-6666-555555555555',
+        }),
+      }),
+      { params: Promise.resolve({ id: 'item-1' }) }
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({
+      error: 'product_id does not belong to this business',
+    })
+    expect(contextMock.invalidateConversationContext).not.toHaveBeenCalled()
+  })
 })
 
 describe('DELETE /api/knowledge/items/[id]', () => {

@@ -5,6 +5,7 @@ import { DEFAULT_LOCALE } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import type { ChannelType } from '@/lib/channels/types'
 import type { ResolvedCapabilities } from '@/lib/system/capabilities'
+import type { MediaStatus } from '@/lib/runtime/context-media'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -126,23 +127,13 @@ function formatInstructions(instructions: AiInstruction[]): string {
     .join('\n')
 }
 
-function formatKnowledge(
-  knowledge: KnowledgeItem[],
-  ai: PromptDict,
-  activeProductId?: string,
-  channel?: ChannelType | 'simulation'
-): string {
+function formatKnowledge(knowledge: KnowledgeItem[], ai: PromptDict): string {
   if (knowledge.length === 0) return ''
 
   return knowledge
     .map((k) => {
       const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
-      const belongsToActive = !activeProductId || !k.product_id || k.product_id === activeProductId
-      const imageNote =
-        k.image_url && k.trigger_condition && belongsToActive && channel
-          ? `\n[IMAGEN_DISPONIBLE] ${ai.imageAvailable} ("${k.trigger_condition}").`
-          : ''
-      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] ${ai.knowledgeQuestion}: ${k.question}\n${ai.knowledgeAnswer}: ${k.answer}${imageNote}`
+      return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] ${ai.knowledgeQuestion}: ${k.question}\n${ai.knowledgeAnswer}: ${k.answer}`
     })
     .join('\n\n')
 }
@@ -357,7 +348,7 @@ ${formatProducts(products, ai)}
 ${formatRules(rules, ai)}`
 }
 ${formatInstructions(instructions) ? `\n## ${ai.additionalInstructions}\n${formatInstructions(instructions)}` : ''}
-${formatKnowledge(knowledge, ai, landingContext?.productId, channel) ? `\n## ${ai.additionalKnowledge}\n${formatKnowledge(knowledge, ai, landingContext?.productId, channel)}` : ''}
+${formatKnowledge(knowledge, ai) ? `\n## ${ai.additionalKnowledge}\n${formatKnowledge(knowledge, ai)}` : ''}
 ${memory && memory.length > 0 ? `\n## ${ai.businessMemory}\n${formatBusinessMemory(memory, ai)}` : ''}
 ${customerMemory ? `\n## ${ai.customerMemory}\n${customerMemory}` : ''}
 ${formatLessons(recentLessons ?? [], ai) ? `\n## ${ai.whatIveLearned}\n${ai.lastCorrections}\n${formatLessons(recentLessons ?? [], ai)}` : ''}
@@ -454,16 +445,32 @@ ${ai.finalInstructionText}`
  *
  * Feedback MÍNIMO adjunto al prompt por mensaje (doc 28 §3). Regla normativa
  * (doc 28 §2): el LLM SOLO puede afirmar aquello que el runtime le reporte
- * como ocurrido. CLAIM ≠ DISPATCHED ≠ DELIVERED (doc 26 §1).
+ * como ocurrido. CLAIM ≠ DISPATCHED ≠ DELIVERED (doc 26 §1). La directiva
+ * truthful se deriva de mediaStatus (DEC-20260904 R5/R6/R7): el estado real lo
+ * reporta el runtime, nunca lo infiere el LLM desde el texto del cliente.
  */
 export interface MediaResolutionFeedback {
   scope: string[]
   explicitScope: string
   eligible: boolean
+  mediaStatus: MediaStatus
   assetSelected: string | null
   claim: string
   dispatched: boolean | 'unknown'
   delivered: 'unknown'
+}
+
+const MEDIA_STATUS_DIRECTIVE: Record<MediaStatus, string> = {
+  DISPATCHED:
+    'El runtime adjunta la imagen en este mismo mensaje: compártela y menciónala brevemente al compartirla (p. ej. "te comparto la foto"). No digas que no puedes y no prometas un envío futuro.',
+  MEDIA_UNAVAILABLE_FOR_PRODUCT:
+    'El producto en discusión no tiene imágenes disponibles: comunícalo de forma honesta (p. ej. "todavía no tengo fotos de ese producto") y ofrece información textual. No afirmes ni inventes ninguna imagen.',
+  MEDIA_REQUEST_NOT_RECOGNIZED:
+    'No se detectó una solicitud de media clara: responde con naturalidad en texto, sin afirmar ni negar una capacidad genérica de envío de imágenes.',
+  MEDIA_SCOPE_AMBIGUOUS:
+    'La conversación involucra más de un producto: pide aclaración de cuál quiere ver el cliente. No elijas ni inventes un producto y no envíes imagen.',
+  NONE:
+    'Este turno no involucró resolución de media: responde textualmente. No alegues incapacidad de enviar imágenes ni menciones imágenes por tu cuenta.',
 }
 
 export function withMediaResolutionFeedback(
@@ -478,19 +485,22 @@ export function withMediaResolutionFeedback(
     'media_resolution:',
     `  scope: ${scope}`,
     `  explicit_scope: ${feedback.explicitScope}`,
+    `  media_status: ${feedback.mediaStatus}`,
     `  eligible: ${feedback.eligible}`,
     `  asset_selected: ${feedback.assetSelected ?? 'null'}`,
     `  claim: ${feedback.claim}`,
     `  dispatched: ${feedback.dispatched}`,
     `  delivered: ${feedback.delivered}`,
     '',
+    'Instrucción truthful (decisión exclusiva del runtime; obedécela):',
+    `- ${MEDIA_STATUS_DIRECTIVE[feedback.mediaStatus]}`,
+    '',
     'Reglas no negociables:',
-    '- El envío o no envío de imágenes es decisión exclusiva del runtime.',
-    '- Si dispatched es true, el runtime adjuntará la imagen a este mismo mensaje: menciónala brevemente al compartirla (p. ej. "te comparto la foto"), NO prometas un envío futuro ni digas que no puedes.',
-    '- Si dispatched es false o unknown, NO digas que enviaste una imagen.',
-    '- NO prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
-    '- Si claim es existing_hit, esa imagen ya fue enviada antes: reconócelo y ofrece reenviarla solo si el cliente lo pide.',
-    '- Si eligible es false, no había media para el producto en discusión: responde con información textual.',
+    '- El envío o no envío de imágenes es decisión exclusiva del runtime; media_status refleja el resultado real de este turno.',
+    '- Nunca afirmes que enviaste una imagen si el runtime no la adjuntó (attachment ausente).',
+    '- No prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
+    '- No presentes "no puedo enviar imágenes" como una incapacidad genérica del sistema; limítate al estado de media de este turno.',
+    '- Si claim es existing_hit, esa imagen ya fue enviada antes: reconócelo y ofrece reenviarla solo si el cliente lo pida.',
     '- No inventes información del producto que no esté en el conocimiento provisto; si no hay evidencia, responde honestamente que no lo sabes.',
   ].join('\n')
 

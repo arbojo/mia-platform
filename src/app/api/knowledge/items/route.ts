@@ -119,12 +119,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid media_type' }, { status: 400 })
   }
 
-  if (image_url && !trigger_condition && !product_id) {
-    return NextResponse.json(
-      { error: 'trigger_condition or product_id is required when attaching an image' },
-      { status: 400 }
-    )
-  }
+  // R1.3 (DEC-20260904): trigger_condition NULL/vacío = media incondicional
+  // válida y product_id NULL = media genérica. La API crea lo que el runtime
+  // emite; la restricción de dispatch (scope único + intención, INV-MEDIA-002)
+  // vive en el runtime, no aquí. No reintroducir el bloqueo del contrato antiguo.
 
   const { data: business } = await supabase
     .from('businesses')

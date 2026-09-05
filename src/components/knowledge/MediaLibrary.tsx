@@ -11,7 +11,7 @@ export function MediaLibrary({ businessId }: MediaLibraryProps) {
     <MediaBrowser
       businessId={businessId}
       header="Medios generales"
-      hint="Imágenes que MIA envía por condición de envío (palabras clave), sin importar el producto. Para atar un medio a un producto, úsalo desde su ficha en el Catálogo."
+      hint="Medios que MIA envía con cualquier producto en contexto. La condición de envío es opcional: sin ella, el medio acompaña al producto. Para atar un medio a un producto, úsalo desde su ficha en el Catálogo."
     />
   )
 }

@@ -339,6 +339,302 @@
         {"file": "AGENTS.md", "line": 910, "reason": "Section 23 Release Manager responsibilities"},
         {"file": "TECH-DEBT-REMEDIATION-V01 termination report", "line": 0, "reason": "Live demonstration: commit gate blocked by 4 UU protected files"}
       ]
+    },
+    {
+      "id": "INV-MEDIA-001",
+      "statement": "Media pertenece a un producto (product_id NOT NULL) o es generico explicito (product_id NULL); no existe media huerfana sin dueno de scope.",
+      "scope": "domain",
+      "owner": "database",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts tests/component/media-grid.test.tsx tests/component/media-browser.test.tsx tests/import/engine.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 140, "reason": "DEC-20260904 §5.9 INV-MEDIA-001 fuerza Block"},
+        {"file": "src/lib/import/engine.ts", "line": 148, "reason": "Media de producto nuevo se crea con product_id = createdId (F02), nunca ''"},
+        {"file": "src/app/api/knowledge/items/route.ts", "line": 122, "reason": "R1.3: la API acepta trigger_condition NULL y product_id NULL (media generica explicita)"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-002",
+      "statement": "Media no se despacha fuera del active scope del producto; si es generica, solo con scope activo unico y asignable al scope del turno.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 141, "reason": "DEC-20260904 §5.9 INV-MEDIA-002 fuerza Block"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 196, "reason": "resolveContextMedia filtra candidatos por scope; generico solo con scope activo unico"},
+        {"file": "workshop/audit/media-loop-e2e/evidence/E2E-MEDIA-2026-09-05T0646/REPORT.md", "line": 1, "reason": "Harness E2E 9/9 PASS: ningun dispatch fuera de scope"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-003",
+      "statement": "Scope ambiguo (C-1, multi-producto sin jerarquia) jamas selecciona de forma arbitraria; no hay dispatch en scope ambiguo, se pide aclaracion.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 142, "reason": "DEC-20260904 §5.9 INV-MEDIA-003 fuerza Block (C-1 preservado)"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 227, "reason": "scope ambiguo devuelve MEDIA_SCOPE_AMBIGUOUS y attachment null, nunca dispatch"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 425, "reason": "status MEDIA_SCOPE_AMBIGUOUS propagado al prompt para pedir aclaracion"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-004",
+      "statement": "trigger_condition NULL/vacio = medio incondicional del producto: acompaña su scope, nunca es 'muerto' ni excluido de candidatos.",
+      "scope": "domain",
+      "owner": "database",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts tests/component/media-grid.test.tsx tests/component/media-browser.test.tsx tests/api/knowledge-items.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 143, "reason": "DEC-20260904 §5.9 INV-MEDIA-004 fuerza Block"},
+        {"file": "src/app/api/knowledge/items/route.ts", "line": 122, "reason": "R1.3: se elimina el bloqueo del contrato antiguo (imagen require trigger o product_id)"},
+        {"file": "src/components/knowledge/MediaGrid.tsx", "line": 57, "reason": "UI muestra 'Incondicional' cuando trigger_condition es null, nunca 'muerto'"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-005",
+      "statement": "trigger_condition = X refina/condiciona dentro del producto; por si solo ni habilita ni reemplaza la elegibilidad (requiere intencion de media).",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts tests/runtime/media.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 144, "reason": "DEC-20260904 §5.9 INV-MEDIA-005 fuerza Block"},
+        {"file": "src/lib/runtime/media.ts", "line": 37, "reason": "triggerMatches con word boundary: X no otorga elegibilidad sin intencion de media"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 243, "reason": "Eligibilidad evaluada tras intencion/scope; trigger solo refina"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-006",
+      "statement": "MEDIA_REQUEST se detecta por normalizacion linguistica + intent semantico en el runtime; no depende de keywords del catalogo ni se editan triggers.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/media.test.ts tests/runtime/context-media-golden.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 145, "reason": "DEC-20260904 §5.9 INV-MEDIA-006 fuerza Block (opcion D, combinacion controlada)"},
+        {"file": "src/lib/runtime/media.ts", "line": 57, "reason": "detectMediaIntent: señales de intencion (palabra-media o verbo pronominal) sin keywords del catalogo"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 176, "reason": "isShowMediaRequest cubre 'me muestras / me enseñas' (vocabulario §5.2)"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-007",
+      "statement": "Se distingue media principal vs especializada por regla determinista: especializada por condicion (position ASC, created_at ASC) → principal (incondicional/representativa) → ninguna.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 146, "reason": "DEC-20260904 §5.9 INV-MEDIA-007 fuerza Block (R3)"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 424, "reason": "Seleccion determinista por order; sin heuristica de color/precio/talla del LLM"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-008",
+      "statement": "Un asset inexistente no produce dispatch; el dispatch solo emite assets reales con presencia verificable en el catalogo de media del scope.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 147, "reason": "DEC-20260904 §5.9 INV-MEDIA-008 fuerza Block"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 243, "reason": "sin asset elegible en scope → no dispatch (MEDIA_UNAVAILABLE_FOR_PRODUCT)"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-009",
+      "statement": "Un asset inactivo o con URL no segura no produce dispatch (is_active y isSafeMediaUrl se verifican antes del claim).",
+      "scope": "domain",
+      "owner": "security",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 148, "reason": "DEC-20260904 §5.9 INV-MEDIA-009 fuerza Block"},
+        {"file": "src/lib/runtime/media-guard.ts", "line": 1, "reason": "isSafeMediaUrl SSRF guard antes de claim/dispatch"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 331, "reason": "asset con URL insegura → decision con attachment null (nunca se despacha)"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-010",
+      "statement": "MIA jamas afirma al cliente un dispatch que el runtime no realizo; el prompt refleja el estado real reportado por el runtime (truthful).",
+      "scope": "domain",
+      "owner": "ai_engineer",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/ai/prompts.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 149, "reason": "DEC-20260904 §5.9 INV-MEDIA-010 fuerza Block (regla de no-afirmacion R7)"},
+        {"file": "src/lib/ai/prompts.ts", "line": 449, "reason": "MEDIA_STATUS_DIRECTIVE deriva del estado real del runtime (R5/R6/R7)"},
+        {"file": "src/lib/runtime/core.ts", "line": 240, "reason": "mediaStatus propagado de la decision al feedback del prompt"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-011",
+      "statement": "El mismo asset no se repite automaticamente por producto activo sin nueva intencion; la idempotencia (conversation_id, knowledge_item_id) bloquea el re-dispatch.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 150, "reason": "DEC-20260904 §5.9 INV-MEDIA-011 fuerza Block (T1-T3)"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 365, "reason": "claim 'existing_hit': asset ya claimado/dispatchado no se repite"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-012",
+      "statement": "Una intencion explicita (resend T4/T5 o new-asset T6) permite una re-presentacion unica del asset ya despachado, sin exigir re-match de trigger.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/media.test.ts tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 151, "reason": "DEC-20260904 §5.9 INV-MEDIA-012 fuerza Block (cierra C07)"},
+        {"file": "src/lib/runtime/media.ts", "line": 92, "reason": "RESEND_PRONOUN: resend pronominal explicito sin nombrar media"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 292, "reason": "resend resuelve el asset existente desde matches o pool del scope sin re-satisfacer trigger"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-013",
+      "statement": "Producto sin media produce el estado truthful MEDIA_UNAVAILABLE_FOR_PRODUCT explicado, sin URL falsa, sin claim y sin negacion generica de capacidad.",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 152, "reason": "DEC-20260904 §5.9 INV-MEDIA-013 fuerza Block"},
+        {"file": "src/lib/runtime/context-media.ts", "line": 259, "reason": "sin asset elegible con mediaRequested → MEDIA_UNAVAILABLE_FOR_PRODUCT (attachment null)"},
+        {"file": "src/lib/ai/prompts.ts", "line": 456, "reason": "Directiva truthful: comunicar honestamente, no negar capacidad generica"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-014",
+      "statement": "La seleccion de media es determinista y reproducible: misma entrada (scope, mensaje, intencion, catalogo) → misma salida (mismo asset o ninguno).",
+      "scope": "domain",
+      "owner": "backend",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/runtime/context-media-golden.test.ts && npx tsx workshop/audit/media-loop-e2e/tools/e2e-media.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 153, "reason": "DEC-20260904 §5.9 INV-MEDIA-014 fuerza Block"},
+        {"file": "src/lib/runtime/media.ts", "line": 26, "reason": "singularStem determinista (R1.4): mismo input → misma señal normalizada"}
+      ]
+    },
+    {
+      "id": "INV-MEDIA-015",
+      "statement": "Catalog/media y runtime implementan el mismo contrato (R1-R8): el Dashboard declara trigger opcional/refinador y el runtime lo trata como refinador opcional, no como requisito obligatorio.",
+      "scope": "domain",
+      "owner": "architect",
+      "severity": "P1",
+      "status": "confirmed",
+      "verification": {
+        "method": "test",
+        "command": "npx vitest run tests/component/media-grid.test.tsx tests/component/media-browser.test.tsx tests/api/knowledge-items.test.ts tests/runtime/context-media-golden.test.ts",
+        "evidence_required": true
+      },
+      "verification_status": "covered",
+      "failure_behavior": "block_complete",
+      "sources": [
+        {"file": "docs/research/media-contract/01-COUNCIL-DECISION-MEDIA-CONTRACT.md", "line": 154, "reason": "DEC-20260904 §5.9 INV-MEDIA-015 fuerza Block (Dashboard ↔ runtime)"},
+        {"file": "src/components/knowledge/MediaGrid.tsx", "line": 57, "reason": "UI: trigger null mostrado como 'Incondicional', consistente con el runtime"},
+        {"file": "src/components/knowledge/MediaBrowser.tsx", "line": 125, "reason": "canCreate sin exigir trigger: condicion opcional en el Dashboard"}
+      ]
     }
   ]
 }
