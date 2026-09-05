@@ -2,13 +2,13 @@
 task_id: TASK-20260905-034043506
 title: Implementar DEC-20260904-MEDIA-CONTRACT — contrato canonico de multimedia (R1-R8 + INV-MEDIA-001..015)
 state: in_progress
-current_step: 9
+current_step: 10
 total_steps: 12
 branch: main
 last_machine: Deivis-Desktop
 governance_id: TASK-20260905-034043506
 created: 2026-09-05T02:00:00.000Z
-updated: 2026-09-05T07:56:48.210Z
+updated: 2026-09-05T07:57:01.003Z
 ---
 
 # ⛩️ PROTOCOL SUBARU: Checkpoint Activo
@@ -106,7 +106,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
   - Dependencia: Paso 7.
   - Criterio de terminación: textos coherentes con R1.2/R1.3 en los 4 componentes; sin regresiones visuales.
   - Gate/verificación: build; e2e_tests básicos; chrome_devtools (sin errores de consola).
-- [ ] **Paso 10:** Golden Tests GT-01..GT-35 reconvertidos + casos nuevos (paridad)
+- [x] **Paso 10:** Golden Tests GT-01..GT-35 reconvertidos + casos nuevos (paridad)
   - Objetivo: la suite dorada de context-media refleja el contrato nuevo y cubre T1-T6 + principal/especializada + signals.
   - Archivos: tests/runtime/context-media-golden.test.ts, tests/runtime/parity-invariants.test.ts, tests/ai/prompts.test.ts, tests/runtime/retention-wiring-runtime.test.ts, tests/runtime/b3-scope-anchor.test.ts.
   - Acción: reconvertir sin romper paridad (priority/1, idempotencia, C-1, claims); añadir casos: CASOS Back2Fit A-D; Neurofeet sin principal; Bye Canas MEDIA_UNAVAILABLE; F03/F04 MEDIA_SCOPE_AMBIGUOUS; secuencia T1-T6.
@@ -139,7 +139,7 @@ Pasos atómicos aprobados por el Council. Orden secuencial estricto: cada paso d
 
 ## Next action
 
-Implementar el Paso 10 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 10`.
+Implementar el Paso 11 (ver sección "Approved plan") y luego ejecutar `subaru mark TASK-20260905-034043506 11`.
 
 ## Constraints
 
