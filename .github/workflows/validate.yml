@@ -47,10 +47,5 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ vars.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key' }}
           OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY || 'placeholder-key' }}
 
-      - name: Workshop Tests
-        run: |
-          npx tsx workshop/tests/basic-flow.test.ts
-          npx tsx workshop/tests/council-flow.test.ts
-
       - name: Secrets Check (Bruno)
         run: npm run secrets-check

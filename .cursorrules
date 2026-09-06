@@ -1,20 +1,37 @@
-# Reglas de Gobernanza y Arquitectura del Proyecto (MIA / Subaru)
+# Reglas de Desarrollo (MIA Platform)
 
-Este repositorio opera bajo un riguroso sistema de ingeniería multi-agente y gobernanza estricta. Todo agente de IA activo en este espacio (incluyendo Cursor) debe atenerse a las siguientes leyes inquebrantables:
+## 1. Arquitectura
+- Multi-tenant desde el día uno. Toda data acotada a `business_id` via RLS forced.
+- Server Components por defecto. Client Components solo cuando sea necesario (interactividad, hooks).
+- Sin lógica de negocio en UI. Lógica en `src/lib/`, UI en `src/components/`.
+- Componentes < 150 líneas. Usar shadcn/ui.
 
-1. **Jerarquía y Roles (Sistema MIA):**
-   - El agente actúa bajo la estructura definida en `.agents/`. Nunca actúes como un desarrollador autónomo genérico.
-   - Las tareas complejas requieren validación por el Concilio y aprobación del Orchestrator.
+## 2. Quality Gate (Obligatorio antes de merge)
+```
+npm run lint        # 0 errors, 0 warnings
+npx tsc --noEmit    # 0 errors
+npm run test:unit   # 100% pass
+npm run build       # success
+```
 
-2. **Gobernanza Obligatoria (Governance Gate):**
-   - Antes de sugerir, modificar o escribir cualquier línea de código en `src/` o `services/`, o instalar dependencias, **es obligatorio** verificar la tarea activa.
-   - Ejecuta siempre para verificar el estado de la gobernanza y el checkpoint actual:
-     `npx tsx workshop/subaru/cli.ts status`
-   - Si no hay un manifiesto aprobado o se intenta saltar un micro-paso, la acción debe detenerse de inmediato.
+## 3. AI / LLM
+- Nunca hardcodear conocimiento. Todo configurable desde DB.
+- `recordAiUsage()` obligatorio en cada llamada OpenAI con `request_type`.
+- Contexto construido exclusivamente desde DB.
+- Modelo: `gpt-4o-mini` via Vercel AI SDK.
 
-3. **Protocolo Subaru de Continuidad:**
-   - Respeta estrictamente los pasos atómicos del checkpoint activo (`TASK-20260820-ADR027`).
-   - Nunca ejecutes instalaciones de paquetes (`npm install`) ni cambios de implementación estructural si el paso actual del checkpoint está limitado a diseño, documentación o análisis.
+## 4. Base de Datos
+- Migraciones incrementales only. Nunca modificar aplicadas.
+- RLS enabled + forced en todas las tablas.
+- Admin client para writes server-side. Server client para reads.
+- Multi-tenant scope en todas las queries.
 
-4. **Aislamiento y Confirmación:**
-   - No ejecutes comandos en la terminal de manera autónoma sin la confirmación explícita del usuario. Prioriza la seguridad, el modelo multi-tenant y la integridad arquitectónica por encima de la velocidad.
+## 5. Git / Commits
+- Commits convencionales: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`.
+- Atomic commits. Push a main tras CI verde.
+- Deploy automático en merge a main via Vercel.
+
+## 6. Seguridad
+- Sin secretos en código. Variables de entorno only.
+- Validación estricta de inputs en API routes.
+- Least privilege: admin client solo para writes.

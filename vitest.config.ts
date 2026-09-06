@@ -20,7 +20,6 @@ const coverage = {
     '**/.next/**',
     '**/coverage/**',
     '**/tests/**',
-    '**/workshop/**',
     '**/scripts/**',
     '**/*.config.{js,ts}',
     '**/*.d.ts',
@@ -53,15 +52,6 @@ export default defineConfig({
           setupFiles: ['./tests/setup.ts', './tests/setup-component.ts'],
         },
         resolve: { alias },
-      },
-      {
-        test: {
-          name: 'workshop',
-          include: ['workshop/**/*.test.ts'],
-          exclude: ['node_modules', '.next', 'workshop/tests/*.test.ts', 'workshop/council/tests/*.test.ts', 'workshop/intelligence/tests/*.test.ts'],
-          environment: 'node',
-          testTimeout: 60000,
-        },
       },
       {
         test: {
