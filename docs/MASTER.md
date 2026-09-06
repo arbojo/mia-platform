@@ -1,14 +1,14 @@
 # MIA Platform — Documento Maestro de Arquitectura
 
 > **Documento auto-generado.** No lo edites a mano: se regenera en cada commit con `npm run docs:generate`.
-> Fuente de verdad: este repositorio en `79c5dcf`.
+> Fuente de verdad: este repositorio en `97689ee`.
 
 | Metadato | Valor |
 |----------|-------|
-| **Commit HEAD** | `79c5dcf` |
+| **Commit HEAD** | `97689ee` |
 | **Rama** | `main` |
 | **Remoto** | `https://github.com/arbojo/mia-platform` |
-| **Generado** | 2026-09-05T01:59:53-06:00 |
+| **Generado** | 2026-09-06T11:53:22-06:00 |
 
 ---
 
@@ -72,7 +72,7 @@ Patrón de cliente Supabase:
 
 ## 4. Modelo de Datos
 
-72 tablas definidas en `supabase/migrations/`:
+74 tablas definidas en `supabase/migrations/`:
 
 | Tabla | Migración |
 | --- | --- |
@@ -148,6 +148,8 @@ Patrón de cliente Supabase:
 | IF | 051_purchase_advisor_foundation.sql |
 | IF | 053_experience_memory.sql |
 | IF | 053_experience_memory.sql |
+| IF | 061_c1_sales_orders.sql |
+| IF | 061_c1_sales_orders.sql |
 
 Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` del usuario autenticado. Las migraciones son **inmutables** — los cambios de esquema se hacen solo mediante migraciones nuevas.
 
@@ -215,10 +217,11 @@ Todas las tablas tienen **RLS habilitado y forzado**, scoped al `business_id` de
 | 58 | 058_media_claim_state.sql |
 | 59 | 059_retention_discount_config.sql |
 | 60 | 060_retention_idempotency.sql |
-| 61 | 20260820000000_analytics_public_wrapper.sql |
-| 62 | 20260820000001_analytics_grant_permissions.sql |
-| 63 | 20260820000002_analytics_security_definer.sql |
-| 64 | 20260820000003_analytics_security_definer.sql |
+| 61 | 061_c1_sales_orders.sql |
+| 62 | 20260820000000_analytics_public_wrapper.sql |
+| 63 | 20260820000001_analytics_grant_permissions.sql |
+| 64 | 20260820000002_analytics_security_definer.sql |
+| 65 | 20260820000003_analytics_security_definer.sql |
 
 ---
 
@@ -552,7 +555,7 @@ training/MemoryTimeline.tsx
 
 ## 10. Módulos de Lógica (`src/lib/`)
 
-137 módulos:
+139 módulos:
 
 ```
 ai/client.ts
@@ -648,6 +651,7 @@ knowledge/suggestions.ts
 onboarding/derive.ts
 onboarding/quiz.ts
 onboarding/types.ts
+orders/orders.ts
 platform/jwt.ts
 platform/types.ts
 prd/builder.ts
@@ -672,6 +676,7 @@ runtime/runtime.ts
 runtime/stream-response.ts
 runtime/types.ts
 sales/cancel.ts
+sales/canonical-product.ts
 sales/detect.ts
 sales/events.ts
 sales/intent-classifier.ts
@@ -922,6 +927,9 @@ inventory-loop.test.ts
 ## 14. Commits Recientes
 
 ```
+97689ee Merge pull request #1 from arbojo/chore/process-infra-decommission
+6c4d04c feat(c1): sales orders durable identity + order_id propagation
+e521fc6 docs: regenerate MASTER.md at 79c5dcf
 79c5dcf subaru: checkpoint TASK-20260905-034043506 - completado
 7da4608 docs: regenerate MASTER.md at 1b25fe2
 1b25fe2 subaru: checkpoint TASK-20260905-034043506 - en-progreso
@@ -939,9 +947,6 @@ cdc6ce9 subaru: checkpoint TASK-20260905-034043506 - en-progreso
 8fdfe58 subaru: checkpoint TASK-20260905-034043506 - en-progreso
 1952dbf docs: regenerate MASTER.md at e9cefec
 e9cefec feat: close media contract runtime dashboard integration
-d72cd93 subaru: checkpoint TASK-20260905-034043506 - listo
-e9292f1 feat: add B3 product scope anchor to generation context
-4497e1a chore: council approvals for B3 (TASK-20260904-210844465, approved)
 ```
 
 ---
