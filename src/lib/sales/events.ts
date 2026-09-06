@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { resolveCanonicalProductId } from '@/lib/sales/canonical-product'
 import type { Database } from '@/lib/types'
 
 type SalesEventType = Database['public']['Tables']['sales_events']['Row']['event_type']
@@ -40,27 +41,26 @@ export async function emitSalesEvent(params: {
   eventType: SalesEventType
   productName?: string | null
   productId?: string | null
+  orderId?: string | null
   amount?: number | null
   metadata?: Record<string, unknown>
 }): Promise<string> {
   const supabase = createAdminClient()
 
   let productId: string | null
-  // B1b (parity): si el caller ya resolvió el producto canónico
-  // (selected_product.id), se usa DIRECTAMENTE. No se vuelve a resolver por
-  // texto libre ilike('name'), que es una fuente de verdad independiente y
-  // puede divergir del producto usado para media (invariante roto).
+  // C1: bind the event to the Order when one owns it.
+  // C4: resolve product via the CANONICAL resolver for critical persistence.
+  //     NO ilike / fuzzy / substring as a persistence fallback. If a
+  //     productName is provided without an explicit id, we resolve through
+  //     the canonical resolver; ambiguity or no-match => NULL (NO PERSIST).
   if (params.productId) {
     productId = params.productId
   } else if (params.productName) {
-    const { data: product } = await supabase
-      .from('products')
-      .select('id')
-      .eq('business_id', params.businessId)
-      .ilike('name', params.productName.trim())
-      .limit(1)
-      .maybeSingle()
-    productId = product?.id ?? null
+    productId = await resolveCanonicalProductId({
+      businessId: params.businessId,
+      productId: null,
+      name: params.productName,
+    })
   } else {
     productId = null
   }
@@ -72,6 +72,7 @@ export async function emitSalesEvent(params: {
       assistant_id: params.assistantId ?? null,
       conversation_id: params.conversationId ?? null,
       customer_id: params.customerId ?? null,
+      order_id: params.orderId ?? null,
       event_type: params.eventType,
       product_id: productId,
       amount: params.amount ?? null,
