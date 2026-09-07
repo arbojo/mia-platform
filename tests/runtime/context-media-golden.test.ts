@@ -441,6 +441,40 @@ describe('GT-07..GT-13 — Media & asset selection', () => {
     expect(res.decision.assetSelected).toBe('k-1')
   })
 
+  it('GT-08b existing_hit + petición explícita de media → re-despacho (idempotencia intacta)', async () => {
+    const h = makeHarness({
+      claims: [{ knowledge_item_id: 'k-1', conversation_id: conversationId, state: 'dispatched' }],
+      knowledge: [kitem({ id: 'k-1', trigger_condition: 'imagen' })],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'y tienes imagen del bella patch?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('k-1')
+    expect(res.decision.claim).toBe('existing_hit')
+    expect(res.decision.mediaStatus).toBe('DISPATCHED')
+    expect(res.decision.assetSelected).toBe('k-1')
+    expect(res.decision.reason).toBe('existing_hit redispatched on explicit media request')
+    // sin claim nuevo: sigue una sola fila (UNIQUE conversation × asset)
+    expect(h.claims.size).toBe(1)
+  })
+
+  it('GT-08c existing_hit + media request con URL insegura → acknowledge NONE (GUARD)', async () => {
+    const h = makeHarness({
+      claims: [{ knowledge_item_id: 'k-1', conversation_id: conversationId, state: 'dispatched' }],
+      knowledge: [
+        kitem({ id: 'k-1', trigger_condition: 'imagen', image_url: 'http://127.0.0.1:3000/x.jpg' }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'y tienes imagen del bella patch?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment).toBeNull()
+    expect(res.decision.claim).toBe('existing_hit')
+    expect(res.decision.mediaStatus).toBe('NONE')
+  })
+
   it('GT-09 duplicate asset distinto trigger → hit (claim por asset, no por trigger)', async () => {
     const h = makeHarness({
       claims: [{ knowledge_item_id: 'k-1', conversation_id: conversationId, state: 'dispatched' }],

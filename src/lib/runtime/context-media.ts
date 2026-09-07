@@ -387,9 +387,34 @@ export async function resolveContextMedia(
   if (pending.length === 0) {
     const hitId = blockedClaims[0]?.knowledge_item_id ?? null
     // MEDIA-SEMANTIC (contrato §9): existing_hit conserva el contexto semántico
-    // para reconocer la foto ya enviada, SIN re-despachar (idempotencia intacta).
+    // para reconocer la foto ya enviada (idempotencia intacta: el claim no se
+    // duplica). Re-despacho SOLO si el cliente vuelve a pedir media explícita.
     const hitItem =
       matches.find((m) => m.id === hitId) ?? pool.find((m) => m.id === hitId) ?? null
+    // Reenvío a pedido: si el cliente vuelve a pedir media de forma EXPLÍCITA y
+    // el asset ya reclamado vuelve a estar en scope, se re-despacha este turno.
+    // La idempotencia se mantiene (UNIQUE conversation × asset, claim sigue
+    // 'existing_hit', no se crea una segunda fila); solo cambia el estado de
+    // media del presente mensaje. Sin petición explícita → acknowledge NONE.
+    const mediaRequested = detectMediaIntent(userMessage) || isShowMediaRequest(userMessage)
+    if (mediaRequested && hitItem && isSafeMediaUrl(hitItem.image_url ?? '')) {
+      return {
+        attachment: toAttachment(hitItem),
+        decision: {
+          ...emptyMediaDecision(),
+          explicitScope,
+          scope,
+          eligible: true,
+          assetSelected: hitId,
+          claim: 'existing_hit',
+          dispatched: 'unknown',
+          delivered: 'unknown',
+          mediaStatus: 'DISPATCHED',
+          reason: 'existing_hit redispatched on explicit media request',
+          selectedAsset: semanticContextOf(hitItem),
+        },
+      }
+    }
     return {
       attachment: null,
       decision: {

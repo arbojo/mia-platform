@@ -462,4 +462,25 @@ describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => 
     expect(out).not.toContain('descripción_semántica')
     expect(out).not.toContain('producto:')
   })
+
+  it('existing_hit + DISPATCHED → directiva de REENVÍO (no la de primer envío)', () => {
+    const out = withMediaResolutionFeedback(BASE, {
+      ...feedback('DISPATCHED'),
+      claim: 'existing_hit',
+    })
+    expect(out).toContain('Estás REENVIANDO la imagen')
+    expect(out).toContain('reconócelo con naturalidad')
+    expect(out).toContain('No le des excusas ni alegues ninguna incapacidad')
+    expect(out).not.toContain('te comparto la foto')
+  })
+
+  it('existing_hit + NONE → reconoce la foto ya compartida, sin prometer envío futuro', () => {
+    const out = withMediaResolutionFeedback(BASE, {
+      ...feedback('NONE'),
+      claim: 'existing_hit',
+    })
+    expect(out).toContain('reconoce que esa foto ya se compartió antes')
+    expect(out).toContain('no prometas un envío futuro')
+    expect(out).not.toContain('Estás REENVIANDO')
+  })
 })

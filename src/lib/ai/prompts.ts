@@ -474,6 +474,9 @@ export interface MediaResolutionFeedback {
   mediaType?: string | null
 }
 
+const EXISTING_HIT_REDISPATCH_DIRECTIVE =
+  'Estás REENVIANDO la imagen que ya compartiste antes en esta conversación, porque el cliente la pidió de nuevo. El runtime adjunta la imagen en este mismo mensaje: compártela y reconócelo con naturalidad (p. ej. "claro, te reenvío la foto"). No le des excusas ni alegues ninguna incapacidad para enviar imágenes.'
+
 const MEDIA_STATUS_DIRECTIVE: Record<MediaStatus, string> = {
   DISPATCHED:
     'El runtime adjunta la imagen en este mismo mensaje: compártela y menciónala brevemente al compartirla (p. ej. "te comparto la foto"). No digas que no puedes y no prometas un envío futuro.',
@@ -517,14 +520,19 @@ export function withMediaResolutionFeedback(
       : []),
     '',
     'Instrucción truthful (decisión exclusiva del runtime; obedécela):',
-    `- ${MEDIA_STATUS_DIRECTIVE[feedback.mediaStatus]}`,
+    `- ${
+      feedback.claim === 'existing_hit' && feedback.mediaStatus === 'DISPATCHED'
+        ? EXISTING_HIT_REDISPATCH_DIRECTIVE
+        : MEDIA_STATUS_DIRECTIVE[feedback.mediaStatus]
+    }`,
     '',
     'Reglas no negociables:',
     '- El envío o no envío de imágenes es decisión exclusiva del runtime; media_status refleja el resultado real de este turno.',
     '- Nunca afirmes que enviaste una imagen si el runtime no la adjuntó (attachment ausente).',
     '- No prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
     '- No presentes "no puedo enviar imágenes" como una incapacidad genérica del sistema; limítate al estado de media de este turno.',
-    '- Si claim es existing_hit, esa imagen ya fue enviada antes: reconócelo y ofrece reenviarla solo si el cliente lo pida.',
+    '- Si claim es existing_hit y el runtime NO reenvió la imagen este turno (media_status distinto de DISPATCHED), reconoce que esa foto ya se compartió antes y no prometas un envío futuro.',
+    '- Si claim es existing_hit y el runtime SÍ reenvió la imagen (media_status DISPATCHED), sigue la instrucción truthful de reenvío: confírmalo con naturalidad y no repitas la misma respuesta de antes.',
     '- No inventes información del producto que no esté en el conocimiento provisto; si no hay evidencia, responde honestamente que no lo sabes.',
   ].join('\n')
 
