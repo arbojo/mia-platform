@@ -148,27 +148,10 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     }
   }
 
-  let product: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
-  if (input.userMessage) {
-    try {
-      product = await resolveRecommendedProduct({
-        businessId: input.businessId,
-        userMessage: input.userMessage,
-        intentTag: input.intentTag ?? null,
-        productId: (input.landingContext as Record<string, unknown>)?.productId as string ?? input.preResolvedProductId ?? null,
-      })
-    } catch (err) {
-      console.error('Failed to resolve recommended product:', err)
-    }
-  }
-
-  // ── P1-1/P1-2/P1-3: contexto + explicit scope + evaluación de media SCOPED ──
-  // El pipeline normativo (doc 25 §1): MESSAGE → CONTEXT → EXPLICIT SCOPE →
-  // TRIGGER EVALUATION (dentro del scope) → ELIGIBILITY → ATOMIC CLAIM → retorno.
-  // El LLM recibe feedback de la resolución (P1-6) porque la resolución ocurre
-  // ANTES de la generación de texto.
-  let mediaResolution: ContextMediaResult = { attachment: null, decision: emptyMediaDecision() }
-  // B3: scope elevado fuera del try para componer el anchor post-cache.
+  // F2 — scope (messageScope) se resuelve UNA vez y se comparte 1:1 entre
+  // resolveContextMedia y resolveRecommendedProduct (convergen en scope único).
+  // MessageScope es REPLACE, no unión (context-scope): explicit del mensaje, o
+  // el único activo, o [] en sin-scope/ambigüedad C-1.
   let scopeContext: ScopeResolution | null = null
   const ranMediaResolution = Boolean(input.conversationId && input.userMessage)
   if (ranMediaResolution) {
@@ -183,7 +166,35 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           input.preResolvedProductId ??
           null,
       })
+    } catch (err) {
+      console.error('Failed to resolve scope context:', err)
+    }
+  }
 
+  let product: Awaited<ReturnType<typeof resolveRecommendedProduct>> = null
+  if (input.userMessage) {
+    try {
+      product = await resolveRecommendedProduct({
+        businessId: input.businessId,
+        userMessage: input.userMessage,
+        intentTag: input.intentTag ?? null,
+        productId: (input.landingContext as Record<string, unknown>)?.productId as string ?? input.preResolvedProductId ?? null,
+        scope: scopeContext?.messageScope ?? null,
+      })
+    } catch (err) {
+      console.error('Failed to resolve recommended product:', err)
+    }
+  }
+
+  // ── P1-1/P1-2/P1-3: contexto + explicit scope + evaluación de media SCOPED ──
+  // El pipeline normativo (doc 25 §1): MESSAGE → CONTEXT → EXPLICIT SCOPE →
+  // TRIGGER EVALUATION (dentro del scope) → ELIGIBILITY → ATOMIC CLAIM → retorno.
+  // El LLM recibe feedback de la resolución (P1-6) porque la resolución ocurre
+  // ANTES de la generación de texto.
+  let mediaResolution: ContextMediaResult = { attachment: null, decision: emptyMediaDecision() }
+  // B3: scope elevado fuera del try para componer el anchor post-cache.
+  if (scopeContext) {
+    try {
       mediaResolution = await resolveContextMedia({
         businessId: input.businessId,
         customerId,

@@ -11,12 +11,18 @@ export interface ResolveRecommendedProductParams {
   userMessage: string
   intentTag?: string | null
   productId?: string | null
+  /**
+   * F2 — scope del mensaje (`messageScope` de resolveScopeContext). Debe ser
+   * la MISMA fuente que recibe resolveContextMedia para que "product-card" y
+   * "media" converjan. Ver ResolveRecommendedProduct step-2 invariant.
+   */
+  scope?: string[] | null
 }
 
 export async function resolveRecommendedProduct(
   params: ResolveRecommendedProductParams
 ): Promise<ProductReference | null> {
-  const { businessId, userMessage, intentTag, productId } = params
+  const { businessId, userMessage, intentTag, productId, scope } = params
   const supabase = createAdminClient()
 
   // 1. Señal más fuerte: el cliente viene de una landing de producto.
@@ -51,18 +57,34 @@ export async function resolveRecommendedProduct(
     ),
   ]
 
-  if (matchedProductIds.length === 1) {
+  // ── F2: INVARIANTE DE SCOPE (misma fuente que resolveContextMedia) ──────
+  // El scope es `messageScope` de resolveScopeContext (explicit determinístico
+  // del mensaje, o el único producto activo, o [] en sin-scope/ambigüedad C-1).
+  // Restringe SOLO la selección por trigger:
+  //   · scope vacío  (0)    → sin producto por trigger (cae a nombre/fallback)
+  //   · scope único  (1)    → el producto del scope cuyo trigger hace match
+  //   · scope múltiple (N)  → null — ambiguo, nunca adivinar un ganador
+  // El match por nombre literal (paso 2b) y el productId landing (paso 1) son
+  // señales explícitas MÁS FUERTES y NO se restringen por scope: el propio
+  // detectExplicitScopes ya las refleja en messageScope cuando son
+  // determinísticos, así ambos resolvers convergen 1:1.
+  const scopeForMessage = Array.isArray(scope) ? scope : null
+  const matchedByTrigger = scopeForMessage
+    ? matchedProductIds.filter((id) => scopeForMessage.includes(id))
+    : matchedProductIds
+
+  if (matchedByTrigger.length === 1) {
     const { data: product } = await supabase
       .from('products')
       .select('*')
       .eq('business_id', businessId)
-      .eq('id', matchedProductIds[0])
+      .eq('id', matchedByTrigger[0])
       .eq('is_active', true)
       .maybeSingle()
     if (product) return buildProductReference(supabase, product)
     return null
   }
-  if (matchedProductIds.length > 1) return null
+  if (matchedByTrigger.length > 1) return null
 
   // 2b. Match por nombre de producto en el mensaje (ej. "información del Clean Nails").
   const normalizedMessage = normalizeText(userMessage)

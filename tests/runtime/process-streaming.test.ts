@@ -147,6 +147,7 @@ describe('processStreaming', () => {
       userMessage: mockMessages[mockMessages.length - 1].content,
       intentTag: null,
       productId: FAKE_UUIDS.product1,
+      scope: null,
     })
     result.toStructuredStreamResponse()
     expect(buildStructuredStreamResponse).toHaveBeenCalledWith({

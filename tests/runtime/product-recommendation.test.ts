@@ -70,6 +70,10 @@ function makeQuery(result: QueryResult) {
       single = true
       return chain
     }),
+    single: vi.fn(() => {
+      single = true
+      return chain
+    }),
     then: (onFulfilled: (v: unknown) => unknown) =>
       Promise.resolve({ data: single ? (result.single ?? null) : result.data, error: null }).then(onFulfilled),
   }
@@ -140,6 +144,84 @@ describe('resolveRecommendedProduct', () => {
     const result = await resolveRecommendedProduct({ ...baseParams, intentTag: 'price' })
 
     expect(result?.productId).toBe('prod-1')
+  })
+
+  describe('scope F2 (misma fuente que resolveContextMedia)', () => {
+    it('scope vacío [] no resuelve producto por trigger', async () => {
+      mockSupabase({
+        knowledge_items: { data: [knowledgeItem({ trigger_condition: 'uñas acrilicas' })] },
+        products: { data: [], single: null },
+      })
+
+      const result = await resolveRecommendedProduct({
+        ...baseParams,
+        userMessage: '¿hacen uñas acrílicas?',
+        scope: [],
+      })
+
+      expect(result).toBeNull()
+    })
+
+    it('scope único que excluye el trigger no resuelve producto', async () => {
+      mockSupabase({
+        knowledge_items: { data: [knowledgeItem({ trigger_condition: 'uñas acrilicas' })] },
+        products: { data: [], single: null },
+      })
+
+      const result = await resolveRecommendedProduct({
+        ...baseParams,
+        userMessage: '¿hacen uñas acrílicas?',
+        scope: ['prod-otro'],
+      })
+
+      expect(result).toBeNull()
+    })
+
+    it('scope único que incluye el trigger resuelve el producto del scope', async () => {
+      mockSupabase({
+        knowledge_items: { data: [knowledgeItem({ trigger_condition: 'uñas acrilicas' })] },
+        products: { data: [], single: product() },
+      })
+
+      const result = await resolveRecommendedProduct({
+        ...baseParams,
+        userMessage: '¿hacen uñas acrílicas?',
+        scope: ['prod-1'],
+      })
+
+      expect(result?.productId).toBe('prod-1')
+    })
+
+    it('scope múltiple con varios triggers en scope es ambiguo y devuelve null', async () => {
+      mockSupabase({
+        knowledge_items: {
+          data: [
+            knowledgeItem({ id: 'item-1', trigger_condition: 'uñas acrilicas', product_id: 'prod-1' }),
+            knowledgeItem({ id: 'item-2', trigger_condition: 'uñas acrilicas', product_id: 'prod-2' }),
+          ],
+        },
+        products: { data: [], single: null },
+      })
+
+      const result = await resolveRecommendedProduct({
+        ...baseParams,
+        userMessage: '¿hacen uñas acrílicas?',
+        scope: ['prod-1', 'prod-2'],
+      })
+
+      expect(result).toBeNull()
+    })
+
+    it('sin scope (null) conserva el comportamiento por trigger global', async () => {
+      mockSupabase({
+        knowledge_items: { data: [knowledgeItem({ trigger_condition: 'uñas acrilicas' })] },
+        products: { data: [], single: product() },
+      })
+
+      const result = await resolveRecommendedProduct({ ...baseParams, userMessage: '¿hacen uñas acrílicas?' })
+
+      expect(result?.productId).toBe('prod-1')
+    })
   })
 
   it('ambigüedad entre productos distintos devuelve null', async () => {
