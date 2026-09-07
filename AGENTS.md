@@ -493,3 +493,19 @@ No manual gates. No governance CLI. No Subaru checkpoints. No agent council.
 ---
 
 *This document was simplified during the Process Infra Decommission (2026-09). Sections 16, 22, 23, 24, 25 were removed as they described a governance/process layer that has been decommissioned. Historical records remain in git history and `.governance/` (archived).*
+
+---
+
+## 22. Proposed-Code Protection Rule (LOOP Phase 3 Protocol)
+
+Any code proposed as "the solution" in a chat session must pass **Fase 3 of the LOOP protocol** before being written to the working directory:
+
+1. **Diff must be reported with STOP for approval** — not auto-written.
+2. **No direct file creation** from proposed code blocks without explicit human approval (`go` / `approve`).
+3. **If not approved**: deliver as copy-paste block in the response only — never as `middleware/render.ts` or any untracked working-directory file.
+4. **Working-directory hygiene**: untracked artifacts from unapproved proposals (e.g. `middleware/`) must be discarded immediately to avoid confusion with production code.
+5. **Rule applies to all agents** including future sessions — prevents "proposed code" from being mistaken for "committed production code".
+
+**Rationale**: A previous session auto-wrote `middleware/render.ts` (a proposal never approved) into the working tree. The file polluted a `git stash push -u` and risked being committed to `main`. This rule makes that pattern impossible.
+
+**Reference**: see `docs/checkpoints/` for recovery instructions and `docs/adr/011-evidence-first-protocol.md` for the broader evidence-first culture.
