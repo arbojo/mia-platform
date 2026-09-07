@@ -59,6 +59,19 @@ export interface ContextMediaDecision {
   reason: string | null
   /** Estado truthful de media (R5/R6): por qué se despachó o NO se despachó. */
   mediaStatus: MediaStatus
+  /**
+   * MEDIA-SEMANTIC (contrato): contexto del asset seleccionado para el LLM.
+   * TRIGGER DECIDE. DESCRIPTION EXPLICA. La descripción semántica procede del
+   * `answer` del knowledge_item (lo que representa la imagen); NUNCA de
+   * trigger_condition (condición de envío), image_url ni keywords internas.
+   * Solo se puebla cuando el runtime resolvió un asset en este turno.
+   */
+  selectedAsset: {
+    knowledgeItemId: string
+    semanticDescription: string | null
+    mediaType: string
+    productId: string | null
+  } | null
 }
 
 export interface ContextMediaResult {
@@ -91,6 +104,7 @@ export function emptyMediaDecision(): ContextMediaDecision {
     delivered: 'unknown',
     reason: null,
     mediaStatus: 'NONE',
+    selectedAsset: null,
   }
 }
 
@@ -170,6 +184,20 @@ export function logMediaDecision(params: {
  */
 function isShowMediaRequest(message: string): boolean {
   return /\bme\s+(?:muestras?|ensenas?)\b/.test(normalizeText(message))
+}
+
+/**
+ * MEDIA-SEMANTIC: contexto del asset seleccionado. El `answer` describe QUÉ
+ * representa la imagen (nunca la condición de envío). productId NULL = asset
+ * genérico de marca; el core lo ancla al producto activo único del scope.
+ */
+function semanticContextOf(item: KnowledgeItem): NonNullable<ContextMediaDecision['selectedAsset']> {
+  return {
+    knowledgeItemId: item.id,
+    semanticDescription: item.answer,
+    mediaType: item.media_type ?? 'image',
+    productId: item.product_id,
+  }
 }
 
 export async function resolveContextMedia(
@@ -306,6 +334,7 @@ export async function resolveContextMedia(
         delivered: 'unknown',
         mediaStatus: 'DISPATCHED',
         reason: null,
+        selectedAsset: semanticContextOf(asset),
       },
     }
   }
@@ -348,6 +377,7 @@ export async function resolveContextMedia(
           delivered: 'unknown',
           mediaStatus: 'DISPATCHED',
           reason: null,
+          selectedAsset: semanticContextOf(failedAsset),
         },
       }
     }
@@ -356,6 +386,10 @@ export async function resolveContextMedia(
   // Idempotency hit (petición repetida del mismo asset): acknowledge, sin re-envío.
   if (pending.length === 0) {
     const hitId = blockedClaims[0]?.knowledge_item_id ?? null
+    // MEDIA-SEMANTIC (contrato §9): existing_hit conserva el contexto semántico
+    // para reconocer la foto ya enviada, SIN re-despachar (idempotencia intacta).
+    const hitItem =
+      matches.find((m) => m.id === hitId) ?? pool.find((m) => m.id === hitId) ?? null
     return {
       attachment: null,
       decision: {
@@ -367,6 +401,7 @@ export async function resolveContextMedia(
         claim: 'existing_hit',
         mediaStatus: 'NONE',
         reason: 'idempotency hit: asset already claimed/dispatched',
+        selectedAsset: hitItem ? semanticContextOf(hitItem) : null,
       },
     }
   }
@@ -426,6 +461,7 @@ export async function resolveContextMedia(
         claim: 'existing_hit',
         mediaStatus: 'NONE',
         reason: 'claim lost race (concurrent dispatch)',
+        selectedAsset: semanticContextOf(selected),
       },
     }
   }
@@ -442,6 +478,7 @@ export async function resolveContextMedia(
       delivered: 'unknown',
       mediaStatus: 'DISPATCHED',
       reason: null,
+      selectedAsset: semanticContextOf(selected),
     },
   }
 }

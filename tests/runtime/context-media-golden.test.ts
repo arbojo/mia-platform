@@ -41,6 +41,7 @@ type KnowledgeRow = {
   business_id: string
   product_id: string | null
   image_url: string | null
+  answer: string | null
   trigger_condition: string | null
   media_type: 'image' | 'testimonial'
   is_active: boolean
@@ -77,6 +78,7 @@ function kitem(overrides: Partial<KnowledgeRow>): KnowledgeRow {
     business_id: 'biz-1',
     product_id: null,
     image_url: SAFE_URL,
+    answer: null,
     trigger_condition: 'precio',
     media_type: 'image',
     is_active: true,
@@ -1164,5 +1166,146 @@ describe('DEC-20260904-MEDIA-CONTRACT — R1..R8 / INV-MEDIA (TDD RED)', () => {
     const r1 = await run(h, 'me interesa el Neurotin', ['p-nt'])
     const r2 = await run(h, 'me interesa el Neurotin', ['p-nt'])
     expect(r1.decision.assetSelected).toBe(r2.decision.assetSelected)
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// I. MEDIA-SEMANTIC (contrato) — TRIGGER DECIDE. DESCRIPTION EXPLICA.
+// ────────────────────────────────────────────────────────────────
+// El trigger_condition SOLO selecciona el asset; el `answer` del knowledge_item
+// aporta la descripción semántica al LLM. Nunca se expone trigger_condition,
+// image_url ni keywords internas como contexto. existing_hit conserva la
+// semántica SIN redispatch. C-1 intacta: sin asset resuelto no hay semántica.
+
+describe('MEDIA-SEMANTIC — contexto semántico del asset en la decisión', () => {
+  it('TEST-A: trigger selecciona el asset; answer llega como descripción semántica', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({
+          id: 'k-img',
+          trigger_condition: 'precio',
+          media_type: 'image',
+          answer: 'Imagen del empaque de Bella Patch con el kit completo.',
+        }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: '¿cuál es el precio?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('k-img')
+    expect(res.decision.selectedAsset).not.toBeNull()
+    expect(res.decision.selectedAsset?.knowledgeItemId).toBe('k-img')
+    expect(res.decision.selectedAsset?.semanticDescription).toBe(
+      'Imagen del empaque de Bella Patch con el kit completo.'
+    )
+    expect(res.decision.selectedAsset?.mediaType).toBe('image')
+    // asset genérico de marca → productId NULL (el core lo ancla al scope)
+    expect(res.decision.selectedAsset?.productId).toBeNull()
+  })
+
+  it('TEST-A2: asset de producto lleva su product_id al contexto semántico', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({
+          id: 'k-prod',
+          product_id: 'p-1',
+          trigger_condition: 'testimonio',
+          media_type: 'testimonial',
+          answer: 'Testimonio de sanación tras 5 semanas de uso continuo.',
+        }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: '¿tienes testimonios?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.decision.selectedAsset?.productId).toBe('p-1')
+    expect(res.decision.selectedAsset?.semanticDescription).toBe(
+      'Testimonio de sanación tras 5 semanas de uso continuo.'
+    )
+    expect(res.decision.selectedAsset?.mediaType).toBe('testimonial')
+  })
+
+  it('TEST-B: trigger_condition NUNCA es el contexto semántico (aislamiento)', async () => {
+    const trigger = 'precio, costo, cuanto cuesta'
+    const semantic = 'Imagen del producto en su empaque.'
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'k-1', trigger_condition: trigger, answer: semantic })],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'precio',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.decision.selectedAsset?.semanticDescription).toBe(semantic)
+    expect(res.decision.selectedAsset?.semanticDescription).not.toContain('costo')
+    expect(res.decision.selectedAsset?.semanticDescription).not.toContain('precio')
+  })
+
+  it('TEST-D: existing_hit conserva el contexto semántico SIN redispatch', async () => {
+    const h = makeHarness({
+      claims: [{ knowledge_item_id: 'k-1', conversation_id: conversationId, state: 'dispatched' }],
+      knowledge: [
+        kitem({ id: 'k-1', trigger_condition: 'precio', answer: 'Imagen del empaque del producto.' }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'precio',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.decision.claim).toBe('existing_hit')
+    expect(res.attachment).toBeNull()
+    // semántica presente para reconocer la foto ya enviada, sin re-envío
+    expect(res.decision.selectedAsset?.knowledgeItemId).toBe('k-1')
+    expect(res.decision.selectedAsset?.semanticDescription).toBe('Imagen del empaque del producto.')
+  })
+
+  it('TEST-D2: resend explícito conserva contexto semántico (bypass D2 por contrato)', async () => {
+    const h = makeHarness({
+      claims: [{ knowledge_item_id: 'k-1', conversation_id: conversationId, state: 'dispatched' }],
+      knowledge: [
+        kitem({ id: 'k-1', trigger_condition: 'precio', answer: 'Imagen del empaque del producto.' }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'muéstrala de nuevo',
+      scope: ['p-1'], scopeSource: 'explicit', isResend: true, supabase: h.supabase as never,
+    })
+    expect(res.decision.claim).toBe('existing_hit')
+    expect(res.attachment?.knowledgeItemId).toBe('k-1')
+    expect(res.decision.selectedAsset?.semanticDescription).toBe('Imagen del empaque del producto.')
+    expect(res.decision.selectedAsset?.mediaType).toBe('image')
+  })
+
+  it('TEST-E: C-1 intacta — scope ambiguo nunca aporta contexto semántico', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'k-1', trigger_condition: 'foto', answer: 'Foto del producto.' })],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'una foto',
+      scope: ['p-1', 'p-2'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment).toBeNull()
+    expect(res.decision.assetSelected).toBeNull()
+    expect(res.decision.selectedAsset).toBeNull()
+  })
+
+  it('GODZILLA: URL insegura no aporta contexto semántico (sin dispatch real)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({
+          id: 'unsafe',
+          trigger_condition: 'precio',
+          image_url: 'http://127.0.0.1:3000/x.jpg',
+          answer: 'Imagen X.',
+        }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'precio',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment).toBeNull()
+    expect(res.decision.selectedAsset).toBeNull()
   })
 })

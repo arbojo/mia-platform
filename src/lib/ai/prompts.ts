@@ -128,9 +128,13 @@ function formatInstructions(instructions: AiInstruction[]): string {
 }
 
 function formatKnowledge(knowledge: KnowledgeItem[], ai: PromptDict): string {
-  if (knowledge.length === 0) return ''
+  // MEDIA-SEMANTIC (contrato §8): los knowledge_items con imagen (image_url)
+  // NO se exponen como conocimiento general; el medio semántico solo aparece
+  // cuando el runtime selecciona el asset en ese turno (feedback de media).
+  const textual = knowledge.filter((k) => !k.image_url)
+  if (textual.length === 0) return ''
 
-  return knowledge
+  return textual
     .map((k) => {
       const tag = authorityTag({ source: k.source, is_immutable: null, memory_type: null })
       return `[CONOCIMIENTO${tag ? `:${tag}` : ''}] ${ai.knowledgeQuestion}: ${k.question}\n${ai.knowledgeAnswer}: ${k.answer}`
@@ -458,6 +462,16 @@ export interface MediaResolutionFeedback {
   claim: string
   dispatched: boolean | 'unknown'
   delivered: 'unknown'
+  /**
+   * MEDIA-SEMANTIC (contrato): descripción semántica del asset seleccionado
+   * (answer — lo que representa la imagen). Solo si el runtime resolvió un
+   * asset en este turno. NUNCA trigger_condition ni keywords internas.
+   */
+  semanticDescription?: string | null
+  /** Nombre canónico del producto del asset (contexto, no claim). */
+  product?: string | null
+  /** Tipo de medio del asset seleccionado. */
+  mediaType?: string | null
 }
 
 const MEDIA_STATUS_DIRECTIVE: Record<MediaStatus, string> = {
@@ -491,6 +505,16 @@ export function withMediaResolutionFeedback(
     `  claim: ${feedback.claim}`,
     `  dispatched: ${feedback.dispatched}`,
     `  delivered: ${feedback.delivered}`,
+    ...(typeof feedback.semanticDescription === 'string'
+      ? [
+          '',
+          'Contexto del asset seleccionado (descripción semántica del medio):',
+          `  producto: ${feedback.product ?? '—'}`,
+          `  medio: ${feedback.mediaType ?? '—'}`,
+          `  descripción_semántica: ${feedback.semanticDescription}`,
+          '- La imagen adjunta en este turno representa lo que dice la descripción semántica anterior. Al referirte a ella, describe únicamente lo que esa descripción permite afirmar; no inventes detalles visuales que no mencione.',
+        ]
+      : []),
     '',
     'Instrucción truthful (decisión exclusiva del runtime; obedécela):',
     `- ${MEDIA_STATUS_DIRECTIVE[feedback.mediaStatus]}`,

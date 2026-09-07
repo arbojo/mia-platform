@@ -225,6 +225,17 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       ? { imageUrl: media.imageUrl, mediaType: media.mediaType }
       : null
 
+  // MEDIA-SEMANTIC (contrato): contexto del asset seleccionado que llega al
+  // LLM. El nombre del producto se ancla al catálogo canónico de scope
+  // (scopeContext.names): para un asset con product_id usa ese producto; para
+  // genéricos (NULL) el producto activo único del scope. Nunca se envía
+  // trigger_condition, image_url ni keywords internas.
+  const selectedAsset = mediaResolution.decision.selectedAsset
+  const feedbackProductId = selectedAsset?.productId ?? mediaResolution.decision.scope[0] ?? null
+  const feedbackProduct = feedbackProductId
+    ? (scopeContext?.names?.[feedbackProductId] ?? null)
+    : null
+
   // P1-4: reflejar en el claim el handoff al transport ('dispatched') o el
   // fallo ('failed'). CLAIMED ≠ DISPATCHED ≠ DELIVERED (doc 26 §1).
   if (input.conversationId && mediaResolution.attachment) {
@@ -261,6 +272,9 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           // en el claim de abajo).
           dispatched: safeMedia ? true : mediaResolution.decision.dispatched,
           delivered: mediaResolution.decision.delivered,
+          semanticDescription: selectedAsset?.semanticDescription ?? null,
+          product: feedbackProduct,
+          mediaType: selectedAsset?.mediaType ?? null,
         }),
         resolveActiveProductIdentity(scopeContext)
       )

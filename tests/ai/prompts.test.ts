@@ -161,6 +161,27 @@ describe('buildMasterPrompt', () => {
     expect(streaming).not.toContain('[IMAGEN_DISPONIBLE]')
   })
 
+  it('MEDIA-SEMANTIC (contrato §8): la media (image_url) NO aparece como conocimiento general', () => {
+    const prompt = build({
+      knowledge: [
+        KNOWLEDGE,
+        {
+          question: 'Multimedia: image',
+          answer: 'precio, costo, cuanto cuesta',
+          source: 'manual',
+          image_url: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/b-1/img.jpg',
+          trigger_condition: 'precio',
+        } as never,
+      ],
+    })
+    // El conocimiento textual se mantiene intacto.
+    expect(prompt).toContain('¿Envían a todo el país?')
+    expect(prompt).toContain('Sí.')
+    // El item de media no se renderiza como conocimiento genérico.
+    expect(prompt).not.toContain('precio, costo, cuanto cuesta')
+    expect(prompt).not.toContain('Multimedia: image')
+  })
+
   it('incluye la regla anti-bucle de rechazo/desvio en es', () => {
     const prompt = build()
     expect(prompt).toContain('SI EL CLIENTE NIEGA O CAMBIA DE TEMA')
@@ -421,5 +442,24 @@ describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => 
       expect(out).toContain('No presentes "no puedo enviar imágenes" como una incapacidad genérica del sistema')
       expect(out).toContain('El envío o no envío de imágenes es decisión exclusiva del runtime')
     }
+  })
+
+  it('MEDIA-SEMANTIC: con semanticDescription el feedback incluye el contexto del asset', () => {
+    const out = withMediaResolutionFeedback(BASE, {
+      ...feedback('DISPATCHED'),
+      semanticDescription: 'Imagen del empaque de Bella Patch con el kit completo.',
+      product: 'Bella Patch',
+      mediaType: 'image',
+    })
+    expect(out).toContain('descripción_semántica: Imagen del empaque de Bella Patch con el kit completo.')
+    expect(out).toContain('producto: Bella Patch')
+    expect(out).toContain('medio: image')
+    expect(out).toContain('describe únicamente lo que esa descripción permite afirmar')
+  })
+
+  it('MEDIA-SEMANTIC: sin descripción semántica no se inyecta el bloque', () => {
+    const out = withMediaResolutionFeedback(BASE, feedback('DISPATCHED'))
+    expect(out).not.toContain('descripción_semántica')
+    expect(out).not.toContain('producto:')
   })
 })
