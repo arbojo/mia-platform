@@ -404,6 +404,7 @@ describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => 
     expect(out).toContain('adjunta la imagen en este mismo mensaje')
     expect(out).toContain('delivered: unknown')
     expect(out).not.toContain('prometes un envío futuro')
+    expect(out).toContain('NUNCA digas "no tengo imágenes"')
   })
 
   it('MEDIA_UNAVAILABLE_FOR_PRODUCT: honestidad textual, nunca inventar imagen', () => {
@@ -423,8 +424,10 @@ describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => 
   it('MEDIA_SCOPE_AMBIGUOUS: pide aclaración, no elige producto ni envía imagen', () => {
     const out = withMediaResolutionFeedback(BASE, feedback('MEDIA_SCOPE_AMBIGUOUS'))
     expect(out).toContain('media_status: MEDIA_SCOPE_AMBIGUOUS')
-    expect(out).toContain('pide aclaración de cuál quiere ver')
+    expect(out).toContain('Pide aclaración de cuál quiere ver el cliente')
     expect(out).toContain('No elijas ni inventes un producto')
+    expect(out).toContain('enumera los productos disponibles para la foto')
+    expect(out).toContain('NUNCA afirmes que no puedes enviar imágenes')
   })
 
   it('NONE: respuesta textual, jamás incapacidad genérica', () => {
@@ -471,6 +474,7 @@ describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => 
     expect(out).toContain('Estás REENVIANDO la imagen')
     expect(out).toContain('reconócelo con naturalidad')
     expect(out).toContain('No le des excusas ni alegues ninguna incapacidad')
+    expect(out).toContain('NUNCA digas "no tengo imágenes"')
     expect(out).not.toContain('te comparto la foto')
   })
 

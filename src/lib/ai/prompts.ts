@@ -475,17 +475,17 @@ export interface MediaResolutionFeedback {
 }
 
 const EXISTING_HIT_REDISPATCH_DIRECTIVE =
-  'Estás REENVIANDO la imagen que ya compartiste antes en esta conversación, porque el cliente la pidió de nuevo. El runtime adjunta la imagen en este mismo mensaje: compártela y reconócelo con naturalidad (p. ej. "claro, te reenvío la foto"). No le des excusas ni alegues ninguna incapacidad para enviar imágenes.'
+  'Estás REENVIANDO la imagen que ya compartiste antes en esta conversación, porque el cliente la pidió de nuevo. El runtime adjunta la imagen en este mismo mensaje: compártela y reconócelo con naturalidad (p. ej. "claro, te reenvío la foto"). No le des excusas ni alegues ninguna incapacidad para enviar imágenes. NUNCA digas "no tengo imágenes", "no tengo fotos", "no puedo enviarte imágenes" ni ninguna variante: la imagen va adjunta en este mismo turno.'
 
 const MEDIA_STATUS_DIRECTIVE: Record<MediaStatus, string> = {
   DISPATCHED:
-    'El runtime adjunta la imagen en este mismo mensaje: compártela y menciónala brevemente al compartirla (p. ej. "te comparto la foto"). No digas que no puedes y no prometas un envío futuro.',
+    'El runtime adjunta la imagen en este mismo mensaje: compártela y menciónala brevemente al compartirla (p. ej. "te comparto la foto"). NUNCA digas "no tengo imágenes", "no tengo fotos", "no puedo enviarte imágenes" ni ninguna variante: la imagen va adjunta en este mismo turno.',
   MEDIA_UNAVAILABLE_FOR_PRODUCT:
     'El producto en discusión no tiene imágenes disponibles: comunícalo de forma honesta (p. ej. "todavía no tengo fotos de ese producto") y ofrece información textual. No afirmes ni inventes ninguna imagen.',
   MEDIA_REQUEST_NOT_RECOGNIZED:
     'No se detectó una solicitud de media clara: responde con naturalidad en texto, sin afirmar ni negar una capacidad genérica de envío de imágenes.',
   MEDIA_SCOPE_AMBIGUOUS:
-    'La conversación involucra más de un producto: pide aclaración de cuál quiere ver el cliente. No elijas ni inventes un producto y no envíes imagen.',
+    'La conversación involucra más de un producto: NO se envió imagen. Pide aclaración de cuál quiere ver el cliente y enumera los productos disponibles para la foto. No elijas ni inventes un producto. NUNCA afirmes que no puedes enviar imágenes o que no tienes fotos en general: el sistema sí dispone de imágenes de los productos.',
   NONE:
     'Este turno no involucró resolución de media: responde textualmente. No alegues incapacidad de enviar imágenes ni menciones imágenes por tu cuenta.',
 }
@@ -531,6 +531,7 @@ export function withMediaResolutionFeedback(
     '- Nunca afirmes que enviaste una imagen si el runtime no la adjuntó (attachment ausente).',
     '- No prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
     '- No presentes "no puedo enviar imágenes" como una incapacidad genérica del sistema; limítate al estado de media de este turno.',
+    '- Si media_status es DISPATCHED, está PROHIBIDO decir "no tengo imágenes", "no tengo fotos", "no puedo enviarte imágenes" ni cualquier variante: la imagen va adjunta en este mismo turno y debes reconocerla.',
     '- Si claim es existing_hit y el runtime NO reenvió la imagen este turno (media_status distinto de DISPATCHED), reconoce que esa foto ya se compartió antes y no prometas un envío futuro.',
     '- Si claim es existing_hit y el runtime SÍ reenvió la imagen (media_status DISPATCHED), sigue la instrucción truthful de reenvío: confírmalo con naturalidad y no repitas la misma respuesta de antes.',
     '- No inventes información del producto que no esté en el conocimiento provisto; si no hay evidencia, responde honestamente que no lo sabes.',
