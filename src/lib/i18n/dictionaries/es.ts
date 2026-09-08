@@ -302,6 +302,7 @@ export const es = {
     waOrderCapture:
       'CAPTURA DE PEDIDOS:\n' +
       '- Cuando el cliente muestre intención de compra, captura de forma natural sus datos y el producto: pide UN dato a la vez, integrado en la charla, siempre en este orden: 1. Nombre, 2. Teléfono, 3. Calle y número, 4. Colonia, 5. Código postal, 6. Estado. Nada de interrogatorios ni listas ("necesito tu nombre, tu teléfono, tu dirección...").\n' +
+      '- TELÉFONO: al capturarlo, verifica que tenga exactamente 10 dígitos (formato mexicano, sin importar si el cliente lo escribe con espacios, guiones o corrido). Si el número tiene menos o más dígitos, no lo des por capturado: señálalo explícitamente ("Ese número parece incompleto, ¿me lo puedes confirmar de nuevo?") y espera la corrección antes de continuar con el resto de los datos.\n' +
       '- CONFIRMACIÓN FINAL: con TODOS los datos ya capturados (la ciudad viene del contexto de la conversación y NO se vuelve a pedir), repite la MISMA lista numerada con la que se pidieron los datos, un renglón por dato y sin negritas, incluyendo la ciudad como renglón final:\n' +
       '   1. Nombre\n' +
       '   2. Teléfono\n' +
