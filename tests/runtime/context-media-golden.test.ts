@@ -92,7 +92,7 @@ function kitem(overrides: Partial<KnowledgeRow>): KnowledgeRow {
  * Harness que simula Supabase modelando la semántica REAL:
  *  - knowledge_items: filtra is_active=true, image_url y trigger not null
  *    (SQL real); devuelve los candidatos ya filtrados por el engine en JS.
- *  - conversations: persiste active_product_ids (contexto acumulativo).
+ *  - conversations: persiste active_product_ids (contexto de reemplazo, INV-3).
  *  - chat_media_dispatched: upsert onConflict(knowledge_item_id,conversation_id)
  *    con ignoreDuplicates — el perdedor no devuelve filas (PostgREST).
  */
@@ -276,7 +276,7 @@ describe('GT-01..GT-06 — Context scope resolution', () => {
     expect(res.attachment?.knowledgeItemId).toBe('k-neuro')
   })
 
-  it('GT-03 ambiguity after switch: multi-scope acumulado → NO dispatch', async () => {
+  it('GT-03 explicit switch REEMPLAZA el contexto → mensaje genérico resuelve el último producto (INV-3)', async () => {
     const h = makeHarness({
       products: [
         { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
@@ -297,13 +297,14 @@ describe('GT-01..GT-06 — Context scope resolution', () => {
       userMessage: 'Neurotin',
     })
 
-    // Mensaje genérico sin explicit → contexto con 2 activos → ambiguous
+    // INV-3: turno 2 reemplazó el contexto → activo único = Neurotin.
+    // Mensaje genérico sin explicit → contexto single (ya NO ambiguo).
     const third = await resolveScopeContext({
       supabase: h.supabase as never, businessId: 'biz-1', conversationId,
       userMessage: 'tiene garantía?',
     })
-    expect(third.source).toBe('ambiguous')
-    expect(third.messageScope).toEqual([])
+    expect(third.source).toBe('context')
+    expect(third.messageScope).toEqual(['p-neuro'])
 
     const res = await resolveContextMedia({
       businessId: 'biz-1',
@@ -313,8 +314,7 @@ describe('GT-01..GT-06 — Context scope resolution', () => {
       scopeSource: third.source,
       supabase: h.supabase as never,
     })
-    expect(res.attachment).toBeNull()
-    expect(res.decision.reason).toMatch(/ambigu/i)
+    expect(res.attachment?.knowledgeItemId).toBe('k-neuro')
   })
 
   it('GT-04 multi-product explicit: dos productos en un mensaje → sin media sin scope único', async () => {
@@ -385,11 +385,10 @@ describe('GT-01..GT-06 — Context scope resolution', () => {
       ],
     })
 
+    // Set multi persistido vía explicit en UN solo mensaje (INV-3 mantiene
+    // menciones múltiples del mismo turno) → genérico siguiente queda ambiguo.
     await resolveScopeContext({
-      supabase: h.supabase as never, businessId: 'biz-1', conversationId, userMessage: 'A',
-    })
-    await resolveScopeContext({
-      supabase: h.supabase as never, businessId: 'biz-1', conversationId, userMessage: 'B',
+      supabase: h.supabase as never, businessId: 'biz-1', conversationId, userMessage: 'A y B',
     })
 
     const scope = await resolveScopeContext({

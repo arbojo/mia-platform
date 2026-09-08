@@ -142,9 +142,9 @@ describe('B3 — product scope anchor', () => {
     expect(prompt1).toContain('**Neurotin**')
     expect(prompt1).not.toContain('Back2Fit')
 
-    // El contexto histórico persiste, pero el scope del turno 2 es Back2Fit.
+    // INV-3: el explicit-scope del turno 2 REEMPLAZA el contexto (no acumula).
     const turn2 = await h.resolve('ahora quiero saber del Back2Fit')
-    expect(turn2.activeProductIds).toEqual(['p-back', 'p-neuro'])
+    expect(turn2.activeProductIds).toEqual(['p-back'])
     const anchor2 = identity(turn2)
     expect(anchor2).toEqual({ productId: 'p-back', name: 'Back2Fit' })
 
