@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import { invalidateSystemContext } from '@/lib/cache/invalidator'
 
 const KNOWLEDGE_CATEGORIES = ['business_info', 'faq', 'objection', 'process', 'tip'] as const
 const RULE_CATEGORIES = ['zones', 'payment', 'schedule', 'promotions', 'restrictions', 'escalation'] as const
@@ -22,13 +21,31 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { business_id, items } = body as {
-    business_id: string
-    items: TeachItem[]
+  const { business_id, assistant_id, items } = body as {
+    business_id?: string
+    assistant_id?: string
+    items?: TeachItem[]
+  }
+
+  if (!business_id || !assistant_id) {
+    return NextResponse.json({ error: 'Missing business_id or assistant_id' }, { status: 400 })
   }
 
   if (!Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: 'No items provided' }, { status: 400 })
+  }
+
+  const admin = createAdminClient()
+
+  const { data: business } = await admin
+    .from('businesses')
+    .select('id')
+    .eq('id', business_id)
+    .eq('owner_id', user.id)
+    .single()
+
+  if (!business) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const invalid: string[] = []
@@ -57,88 +74,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Items inválidos: ${invalid.join(', ')}` }, { status: 400 })
   }
 
-  const admin = createAdminClient()
-  const created: Array<{ id: string; type: string }> = []
+  const pending: Array<{ id: string; type: string }> = []
 
   for (const item of items) {
-    if (item.type === 'knowledge') {
-      const { data, error } = await admin
-        .from('knowledge_items')
-        .insert({
-          business_id,
-          category: (item.category as (typeof KNOWLEDGE_CATEGORIES)[number]) ?? 'faq',
-          question: item.question?.trim(),
+    const { data: event, error } = await admin
+      .from('learning_events')
+      .insert({
+        business_id,
+        assistant_id,
+        correction_type: item.type,
+        original_response: item.type === 'knowledge' && item.question ? item.question.trim() : '',
+        corrected_response: item.answer,
+        category: item.category ?? null,
+        severity: 'medium',
+        status: 'pending',
+        authorized_by: user.id,
+        knowledge_change: {
+          type: item.type,
+          question: item.question?.trim() ?? null,
           answer: item.answer,
-          source: 'correction',
-          confidence: 'high',
-        })
-        .select('id')
-        .single()
+          category: item.category ?? null,
+        },
+      })
+      .select('id')
+      .single()
 
-      if (!error && data) {
-        created.push({ id: data.id, type: 'knowledge' })
-
-        await admin.from('knowledge_versions').insert({
-          business_id,
-          entity_type: 'knowledge_item',
-          entity_id: data.id,
-          new_value: { question: item.question, answer: item.answer },
-          change_source: 'correction',
-          changed_by: user.id,
-        })
-      }
-    } else if (item.type === 'rule') {
-      const { data, error } = await admin
-        .from('sales_rules')
-        .insert({
-          business_id,
-          category: (item.category as (typeof RULE_CATEGORIES)[number]) ?? 'restrictions',
-          content: item.answer,
-        })
-        .select('id')
-        .single()
-
-      if (!error && data) {
-        created.push({ id: data.id, type: 'rule' })
-
-        await admin.from('knowledge_versions').insert({
-          business_id,
-          entity_type: 'sales_rule',
-          entity_id: data.id,
-          new_value: { content: item.answer },
-          change_source: 'correction',
-          changed_by: user.id,
-        })
-      }
-    } else if (item.type === 'instruction') {
-      const { data, error } = await admin
-        .from('ai_instructions')
-        .insert({
-          business_id,
-          instruction: item.answer,
-          source: 'correction',
-        })
-        .select('id')
-        .single()
-
-      if (!error && data) {
-        created.push({ id: data.id, type: 'instruction' })
-
-        await admin.from('knowledge_versions').insert({
-          business_id,
-          entity_type: 'ai_instruction',
-          entity_id: data.id,
-          new_value: { instruction: item.answer },
-          change_source: 'correction',
-          changed_by: user.id,
-        })
-      }
+    if (!error && event) {
+      pending.push({ id: event.id, type: item.type })
     }
   }
 
-  if (created.length > 0) {
-    invalidateSystemContext(business_id)
-  }
-
-  return NextResponse.json({ created, count: created.length })
+  return NextResponse.json({ pending, count: pending.length })
 }

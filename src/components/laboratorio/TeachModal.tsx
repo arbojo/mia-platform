@@ -11,6 +11,7 @@ interface TeachModalProps {
   businessId: string
   assistantId: string
   conversationId?: string
+  defaultType?: ItemType
   onClose: () => void
   onTaught: () => void
 }
@@ -36,13 +37,13 @@ interface TeachItem {
   category: string
 }
 
-export function TeachModal({ suggestions, businessId, assistantId, conversationId, onClose, onTaught }: TeachModalProps) {
+export function TeachModal({ suggestions, businessId, assistantId, conversationId, defaultType = 'knowledge', onClose, onTaught }: TeachModalProps) {
   const [items, setItems] = useState<TeachItem[]>(
     suggestions.map((s) => ({
-      type: 'knowledge' as ItemType,
+      type: defaultType,
       question: '',
       answer: s,
-      category: 'faq',
+      category: defaultType === 'knowledge' ? 'faq' : 'restrictions',
     }))
   )
   const [loading, setLoading] = useState(false)
@@ -113,12 +114,12 @@ export function TeachModal({ suggestions, businessId, assistantId, conversationI
   if (feedback && feedback.saved > 0) {
     return (
       <div className="animate-elastic-pop p-6 text-center space-y-4">
-        <p className="text-2xl">✨</p>
+        <p className="text-2xl">📥</p>
         <p className="font-medium text-gray-900">
-          ¡MIA ya sabe esto! Se guardaron {feedback.saved} de {feedback.total}.
+          Enviado a revisión: {feedback.saved} de {feedback.total}.
         </p>
         <p className="text-sm text-gray-500">
-          La próxima vez que un cliente pregunte algo similar, MIA responderá con esta información.
+          Esta enseñanza quedó pendiente en el Laboratorio. MIA la usará cuando la apruebes.
         </p>
         {feedback.skipped.length > 0 && (
           <ul className="text-sm text-amber-600 list-disc list-inside text-left">

@@ -550,6 +550,12 @@ export interface Database {
           authorized_by: string | null
           created_at: string
           resolved_at: string | null
+          business_id: string
+          correction_type: 'knowledge' | 'rule' | 'instruction' | 'product' | 'mistake_prevention'
+          severity: 'low' | 'medium' | 'high' | 'critical' | null
+          category: string | null
+          is_active: boolean
+          expires_at: string | null
         }
         Insert: {
           id?: string
@@ -563,6 +569,12 @@ export interface Database {
           authorized_by?: string | null
           created_at?: string
           resolved_at?: string | null
+          business_id: string
+          correction_type: 'knowledge' | 'rule' | 'instruction' | 'product' | 'mistake_prevention'
+          severity?: 'low' | 'medium' | 'high' | 'critical' | null
+          category?: string | null
+          is_active?: boolean
+          expires_at?: string | null
         }
         Update: {
           id?: string
@@ -576,6 +588,12 @@ export interface Database {
           authorized_by?: string | null
           created_at?: string
           resolved_at?: string | null
+          business_id?: string
+          correction_type?: 'knowledge' | 'rule' | 'instruction' | 'product' | 'mistake_prevention'
+          severity?: 'low' | 'medium' | 'high' | 'critical' | null
+          category?: string | null
+          is_active?: boolean
+          expires_at?: string | null
         }
         Relationships: []
       }

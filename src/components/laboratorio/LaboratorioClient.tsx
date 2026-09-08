@@ -5,6 +5,7 @@ import { SimulationModes, type SimulationMode } from '@/components/laboratorio/S
 import { ContextPanel } from '@/components/laboratorio/ContextPanel'
 import { SessionEvaluation } from '@/components/laboratorio/SessionEvaluation'
 import { SessionHistory } from '@/components/laboratorio/SessionHistory'
+import { PendingTeachList } from '@/components/laboratorio/PendingTeachList'
 import { TeachModal } from '@/components/laboratorio/TeachModal'
 import { UsageBar } from '@/components/laboratorio/UsageBar'
 import { LabChatWindow } from '@/components/laboratorio/LabChatWindow'
@@ -52,12 +53,14 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null)
   const [teachSuggestions, setTeachSuggestions] = useState<string[] | null>(null)
+  const [teachDefaultType, setTeachDefaultType] = useState<'knowledge' | 'rule' | 'instruction'>('knowledge')
   const [tokenUsage, setTokenUsage] = useState({ input: 0, output: 0, cost: 0 })
   const [messageCount, setMessageCount] = useState(0)
   const [activeScenario, setActiveScenario] = useState<Scenario | null>(null)
   const [coachingFeedback, setCoachingFeedback] = useState<string[]>([])
   const [coachingScore, setCoachingScore] = useState<number | null>(null)
   const [chatKey, setChatKey] = useState(0)
+  const [pendingRefreshKey, setPendingRefreshKey] = useState(0)
 
   const selectedBusiness = businesses.find((b) => b.id === businessId)
   const assistants = selectedBusiness?.assistants ?? []
@@ -113,13 +116,15 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
     setChatKey((k) => k + 1)
   }
 
-  const handleTeach = (suggestions: string[]) => {
+  const handleTeach = (suggestions: string[], defaultType: 'knowledge' | 'rule' | 'instruction') => {
     setTeachSuggestions(suggestions)
+    setTeachDefaultType(defaultType)
   }
 
   const handleTeachClose = () => {
     setTeachSuggestions(null)
     loadSessions()
+    setPendingRefreshKey((k) => k + 1)
   }
 
   const handleExport = () => {
@@ -194,6 +199,12 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
             onDelete={handleDeleteSession}
             onClear={handleClearSessions}
           />
+          {assistantId && (
+            <PendingTeachList
+              key={pendingRefreshKey}
+              assistantId={assistantId}
+            />
+          )}
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
@@ -272,6 +283,7 @@ export function LaboratorioClient({ businesses }: LaboratorioClientProps) {
                 businessId={businessId}
                 assistantId={assistantId}
                 conversationId={currentConversationId ?? undefined}
+                defaultType={teachDefaultType}
                 onClose={() => setTeachSuggestions(null)}
                 onTaught={handleTeachClose}
               />
