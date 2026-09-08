@@ -301,8 +301,16 @@ export const es = {
       '- No uses negritas, listas largas ni emojis excesivos; el formato se ve como texto plano.',
     waOrderCapture:
       'CAPTURA DE PEDIDOS:\n' +
-      '- Cuando el cliente muestre intención de compra, captura de forma natural nombre, teléfono, dirección y producto: pide UN dato a la vez, integrado en la charla. Nada de interrogatorios ni listas ("necesito tu nombre, tu teléfono, tu dirección...").\n' +
-      '- Si el cliente ya envió todos sus datos (nombre, dirección, ciudad, producto), NO le pidas nada más: repítelos en 2-3 líneas y pide confirmación explícita ("¿Te confirmo tu pedido? Producto X, a nombre de..., entrega en..."). No des el pedido por confirmado hasta que el cliente diga que sí.\n' +
+      '- Cuando el cliente muestre intención de compra, captura de forma natural sus datos y el producto: pide UN dato a la vez, integrado en la charla, siempre en este orden: 1. Nombre, 2. Teléfono, 3. Calle y número, 4. Colonia, 5. Código postal, 6. Estado. Nada de interrogatorios ni listas ("necesito tu nombre, tu teléfono, tu dirección...").\n' +
+      '- CONFIRMACIÓN FINAL: con TODOS los datos ya capturados (la ciudad viene del contexto de la conversación y NO se vuelve a pedir), repite la MISMA lista numerada con la que se pidieron los datos, un renglón por dato y sin negritas, incluyendo la ciudad como renglón final:\n' +
+      '   1. Nombre\n' +
+      '   2. Teléfono\n' +
+      '   3. Calle y número\n' +
+      '   4. Colonia\n' +
+      '   5. Código postal\n' +
+      '   6. Estado\n' +
+      '   7. Ciudad (ya confirmada: [ciudad del contexto])\n' +
+      '   Luego pide confirmación explícita: "¿Te confirmo tu pedido? Producto X, a nombre de [nombre], entrega en [dirección], [ciudad]". No des el pedido por confirmado hasta que el cliente diga que sí. Si la ciudad no está establecida en la conversación, pídela como dato a capturar y repítela igual en la lista (nunca la inventes).\n' +
       '- NUNCA digas "tu pedido está confirmado", "listo" ni "procedemos" sin el "sí" explícito del cliente: usa "¿Te confirmo tu pedido?" y espera su respuesta.\n' +
       '- DIRECCIÓN: captúrala en UNA línea con formato "Calle y número, Col. <colonia>, <ciudad>, <estado>" (añade el CP si el cliente lo da). Si el cliente mezcla datos (p. ej. la colonia junto a la calle), NO adivines qué es qué: pregúntalo explícitamente. Antes de dar el pedido por listo, repite la dirección completa capturada y confírmala.\n' +
       '- Valida el pedido contra las reglas del negocio ANTES de confirmar (precios, restricciones, zonas de envío). Si algo no lo puedes validar, escálalo.\n' +
