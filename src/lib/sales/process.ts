@@ -377,6 +377,7 @@ export async function processSaleClosing(params: {
   messages: Array<{ role: string; content: string }>
 }): Promise<void> {
   const { businessId, assistantId, conversationId, customerId, canonicalProductId, messages } = params
+  const supabaseAdmin = createAdminClient()
 
   const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
   if (!lastUserMessage) return
@@ -453,16 +454,72 @@ export async function processSaleClosing(params: {
 
   if (!result.outcome && result.events.length === 0) return
 
+  // CLOSING-EVENT CUSTOMER PAYLOAD (TASK-20260908):
+  // detectSaleOutcome ya extrajo nombre/teléfono/ciudad/dirección. El SALE_WON
+  // debe nacer con esos datos EN su metadata (delivery.handle_sale_won lee
+  // metadata->'customer'), sin esperar al update de public.customers del final.
+  // Fallback a closingProfile cubre el caso "perfil ya enriquecido" (recompra);
+  // la ventana de re-extracción del transcript cubre captura <= últimas 12 msgs.
+  const isClosingFlow = result.events.some(
+    (e) => e.type === 'SALE_WON' || e.type === 'SALE_LOST'
+  )
+  const closingProfile =
+    isClosingFlow ? await getCustomerData(customerId) : null
+  const closingCustomer =
+    isClosingFlow
+      ? {
+          name:
+            result.customerName ??
+            closingProfile?.name ??
+            (await getCustomerName(customerId)) ??
+            null,
+          phone: result.phone ?? closingProfile?.phone ?? null,
+          city: result.city ?? closingProfile?.city ?? null,
+          address: result.address ?? closingProfile?.address ?? null,
+        }
+      : undefined
+
   for (const event of result.events) {
     const isClosing = event.type === 'SALE_WON' || event.type === 'SALE_LOST'
     if (isClosing && hasClosed) continue
 
     // MEDIUM-1: per-event product attribution.
-    // Each event carries the product_id of ITS product, not a global one.
-    // If the event has a productName, let emitSalesEvent resolve the product_id
-    // from the name (single query per event). This ensures multi-product
-    // conversations attribute the correct product to each event.
-    // In single-product conversations, all events resolve to the same product_id.
+    // Always prefer canonicalProductId (resolved by resolveRecommendedProduct,
+    // a direct DB query). Previously bypassed when productName was present,
+    // causing emitSalesEvent to fall through to the broken RPC resolver.
+    const resolvedProductId = canonicalProductId ?? undefined
+
+    // SALE_WON amount resolution: LLM extraction is unreliable (transcript
+    // rarely contains prices). Fall back to products.price via direct DB lookup.
+    let amount = event.amount ?? null
+    if (!amount && event.type === 'SALE_WON') {
+      try {
+        if (resolvedProductId) {
+          const { data: prod } = await supabaseAdmin
+            .from('products')
+            .select('price')
+            .eq('business_id', businessId)
+            .eq('id', resolvedProductId)
+            .single()
+          amount = prod?.price ?? null
+        }
+        if (!amount && event.productName) {
+          const name = event.productName.trim()
+          const { data: prod } = await supabaseAdmin
+            .from('products')
+            .select('price')
+            .eq('business_id', businessId)
+            .eq('is_active', true)
+            .ilike('name', name)
+            .limit(1)
+            .maybeSingle()
+          amount = prod?.price ?? null
+        }
+      } catch (err) {
+        console.error('Price lookup failed (amount stays null):', err)
+      }
+    }
+
     await emitSalesEvent({
       businessId,
       assistantId,
@@ -470,8 +527,12 @@ export async function processSaleClosing(params: {
       customerId,
       eventType: event.type,
       productName: event.productName,
-      productId: event.productName ? undefined : canonicalProductId ?? undefined,
-      amount: event.amount,
+      productId: resolvedProductId,
+      amount,
+      metadata:
+        event.type === 'SALE_WON' && closingCustomer
+          ? { customer: closingCustomer }
+          : undefined,
     })
   }
 

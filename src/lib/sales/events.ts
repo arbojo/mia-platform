@@ -72,7 +72,10 @@ export async function emitSalesEvent(params: {
       assistant_id: params.assistantId ?? null,
       conversation_id: params.conversationId ?? null,
       customer_id: params.customerId ?? null,
-      order_id: params.orderId ?? null,
+      // Guard TASK-20260908: order_id solo se persiste cuando C1 lo provee
+      // (columna existe tras aplicar 061_c1_sales_orders.sql al remote; hoy no
+      // está → incluir el key rompe TODO insert a sales_events).
+      ...(params.orderId ? { order_id: params.orderId } : {}),
       event_type: params.eventType,
       product_id: productId,
       amount: params.amount ?? null,
