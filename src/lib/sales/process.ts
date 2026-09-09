@@ -453,6 +453,31 @@ export async function processSaleClosing(params: {
 
   if (!result.outcome && result.events.length === 0) return
 
+  // CLOSING-EVENT CUSTOMER PAYLOAD (TASK-20260908):
+  // detectSaleOutcome ya extrajo nombre/teléfono/ciudad/dirección. El SALE_WON
+  // debe nacer con esos datos EN su metadata (delivery.handle_sale_won lee
+  // metadata->'customer'), sin esperar al update de public.customers del final.
+  // Fallback a closingProfile cubre el caso "perfil ya enriquecido" (recompra);
+  // la ventana de re-extracción del transcript cubre captura <= últimas 12 msgs.
+  const isClosingFlow = result.events.some(
+    (e) => e.type === 'SALE_WON' || e.type === 'SALE_LOST'
+  )
+  const closingProfile =
+    isClosingFlow ? await getCustomerData(customerId) : null
+  const closingCustomer =
+    isClosingFlow
+      ? {
+          name:
+            result.customerName ??
+            closingProfile?.name ??
+            (await getCustomerName(customerId)) ??
+            null,
+          phone: result.phone ?? closingProfile?.phone ?? null,
+          city: result.city ?? closingProfile?.city ?? null,
+          address: result.address ?? closingProfile?.address ?? null,
+        }
+      : undefined
+
   for (const event of result.events) {
     const isClosing = event.type === 'SALE_WON' || event.type === 'SALE_LOST'
     if (isClosing && hasClosed) continue
@@ -472,6 +497,10 @@ export async function processSaleClosing(params: {
       productName: event.productName,
       productId: event.productName ? undefined : canonicalProductId ?? undefined,
       amount: event.amount,
+      metadata:
+        event.type === 'SALE_WON' && closingCustomer
+          ? { customer: closingCustomer }
+          : undefined,
     })
   }
 

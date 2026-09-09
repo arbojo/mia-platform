@@ -119,6 +119,14 @@ describe('processSaleClosing', () => {
       eventType: 'SALE_WON',
       productName: 'Combo 1',
       amount: 120,
+      metadata: {
+        customer: {
+          name: 'Juan',
+          phone: null,
+          city: null,
+          address: 'Av. Siempre Viva 123',
+        },
+      },
     })
     expect(applyConversationOutcome).toHaveBeenCalledWith({
       conversationId: 'conv-1',
