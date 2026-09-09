@@ -212,4 +212,37 @@ describe('processIncomingMessage', () => {
       processIncomingMessage('widget', badMessage, {} as never)
     ).rejects.toThrow()
   })
+
+  it('ignores duplicate message by external_id (Capa 2: DB check)', async () => {
+    const { supabase, chain } = makeSupabaseMock()
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
+
+    // Mock the duplicate check to return an existing message
+    // The chain mock is typed for null data by default; override with existing message
+    ;(chain.maybeSingle as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ data: { id: 'existing-msg-id' }, error: null })
+
+    const duplicateMessage = { ...mockWireMessage, externalId: 'duplicate-ext-id' }
+    const result = await processIncomingMessage('widget', duplicateMessage, {} as never)
+
+    expect(result.deliver).toBe(false)
+    expect(result.response).toBe('')
+    expect(executeAI).not.toHaveBeenCalled()
+  })
+
+  it('ignores duplicate message caught by DB unique constraint (Capa 3: 23505)', async () => {
+    const { supabase, mockInsert } = makeSupabaseMock()
+    vi.mocked(createAdminClient).mockReturnValue(supabase as never)
+
+    // First insert attempt fails with unique_violation (23505)
+    const pgError = new Error('duplicate key value violates unique constraint') as Error & { code: string }
+    pgError.code = '23505'
+    mockInsert.mockRejectedValueOnce(pgError)
+
+    const duplicateMessage = { ...mockWireMessage, externalId: 'duplicate-ext-id-2' }
+    const result = await processIncomingMessage('widget', duplicateMessage, {} as never)
+
+    expect(result.deliver).toBe(false)
+    expect(result.response).toBe('')
+    expect(executeAI).not.toHaveBeenCalled()
+  })
 })

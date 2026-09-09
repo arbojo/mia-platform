@@ -251,16 +251,57 @@ export async function processIncomingMessage(
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
-  await supabase.from('channel_messages').insert({
-    business_id: businessId,
-    customer_id: customer.id,
-    channel,
-    direction: 'incoming',
-    content: wireMessage.content,
-    external_id: wireMessage.externalId,
-    external_customer_id: wireMessage.customerExternalId,
-    status: 'received',
-  })
+  // CAPA 2: Application-level idempotency check (before any processing).
+  // If message with same external_id already exists for this business+channel,
+  // treat as duplicate and return early without calling Core.
+  if (wireMessage.externalId) {
+    const { data: existing } = await supabase
+      .from('channel_messages')
+      .select('id')
+      .eq('business_id', businessId)
+      .eq('channel', channel)
+      .eq('external_id', wireMessage.externalId)
+      .eq('direction', 'incoming')
+      .maybeSingle()
+
+    if (existing) {
+      console.log(`[runtime] Duplicate message ignored (DB check): ${wireMessage.externalId}`)
+      return {
+        response: '',
+        customerId: customer.id,
+        conversationId: conversationId ?? '',
+        deliver: false,
+      }
+    }
+  }
+
+  // CAPA 3: DB constraint safety net.
+  // If two requests race past Capa 2, the UNIQUE index will reject the second.
+  // Catch the unique_violation (23505) and treat as duplicate.
+  try {
+    await supabase.from('channel_messages').insert({
+      business_id: businessId,
+      customer_id: customer.id,
+      channel,
+      direction: 'incoming',
+      content: wireMessage.content,
+      external_id: wireMessage.externalId,
+      external_customer_id: wireMessage.customerExternalId,
+      status: 'received',
+    })
+  } catch (error) {
+    const pgError = error as { code?: string; message?: string }
+    if (pgError?.code === '23505') {
+      console.log(`[runtime] Duplicate message caught by DB constraint: ${wireMessage.externalId}`)
+      return {
+        response: '',
+        customerId: customer.id,
+        conversationId: conversationId ?? '',
+        deliver: false,
+      }
+    }
+    throw error
+  }
 
   if (mode === 'paused') {
     await supabase

@@ -110,6 +110,13 @@ export class SessionManager {
   private readonly cooldownAudio = new Map<string, CooldownStore>()
   private readonly pendingReplyTimers = new Map<string, Set<NodeJS.Timeout>>()
 
+  // In-memory message deduplication (Capa 1: survives process lifetime,
+  // cleared on bridge restart; TTL prevents unbounded growth).
+  // Key: businessId -> Set of processed message IDs (msg.key.id from Baileys).
+  private readonly processedMessageIds = new Map<string, Set<string>>()
+  private readonly processedMessageTimestamps = new Map<string, Map<string, number>>()
+  private readonly MESSAGE_DEDUP_TTL_MS = 60 * 60 * 1000
+
   constructor(config: BridgeConfig) {
     this.config = config
     this.store = new SupabaseAuthStore(config)
@@ -601,6 +608,19 @@ export class SessionManager {
     this.trackReplyTimer(businessId, timer)
   }
 
+  private cleanupMessageDedup(businessId: string): void {
+    const ids = this.processedMessageIds.get(businessId)
+    const timestamps = this.processedMessageTimestamps.get(businessId)
+    if (!ids || !timestamps) return
+    const now = Date.now()
+    for (const [msgId, ts] of timestamps) {
+      if (now - ts > this.MESSAGE_DEDUP_TTL_MS) {
+        ids.delete(msgId)
+        timestamps.delete(msgId)
+      }
+    }
+  }
+
   private async handleMessages(
     session: ActiveSession,
     messages: WAMessage[],
@@ -610,7 +630,20 @@ export class SessionManager {
 
     session.lastActivityAt = Date.now()
 
+    // CAPA 1: In-memory deduplication (fast, zero-latency first line of defense).
+    // Uses msg.key.id from Baileys which is stable per message across reconnects.
+    const seenIds = this.processedMessageIds.get(session.businessId) ?? new Set<string>()
+    const seenTimestamps = this.processedMessageTimestamps.get(session.businessId) ?? new Map<string, number>()
+    this.processedMessageIds.set(session.businessId, seenIds)
+    this.processedMessageTimestamps.set(session.businessId, seenTimestamps)
+    this.cleanupMessageDedup(session.businessId)
+
     for (const msg of messages) {
+      const externalId = msg.key?.id ?? ''
+      if (externalId && seenIds.has(externalId)) {
+        console.log(`[session-manager] Duplicate message ignored (in-memory): ${externalId}`)
+        continue
+      }
       if (!msg.key || msg.key.fromMe) continue
       if (msg.key.remoteJid && isJidStatusBroadcast(msg.key.remoteJid)) continue
       if (msg.key.remoteJid && isJidGroup(msg.key.remoteJid)) continue
@@ -622,7 +655,6 @@ export class SessionManager {
       const extracted = extractMessage(msg.message as Record<string, unknown>)
       if (!extracted.content) continue
 
-      const externalId = msg.key.id ?? ''
       const timestamp = toTimestamp(msg.messageTimestamp ?? undefined)
       const waId = jidNormalizedUser(remoteJid)
       const content = extracted.content
@@ -651,6 +683,13 @@ export class SessionManager {
             isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
           )
         )
+
+        // Track as processed after successful forward to MIA (even if shadow/deliver=false).
+        // If sendToMia threw, we don't track — allowing a potential retry on next reconnect.
+        if (externalId) {
+          seenIds.add(externalId)
+          seenTimestamps.set(externalId, Date.now())
+        }
 
         // Shadow mode (deliver: false): MIA processed and stored the reply
         // for learning but must NOT send it to the customer.
