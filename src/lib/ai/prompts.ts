@@ -339,7 +339,11 @@ ${ai.rejectionPivotRule}
 ${ai.closingMaxAttempts}
 ${ai.closingDeclineStop}
 ${ai.closingTopicShift}
-${salesConfig ? `${salesConfig.ask_address ? ai.salesAskAddress : ''}${salesConfig.ask_phone ? ai.salesAskPhone : ''}` : ''}
+${salesConfig
+      ? `${salesConfig.ask_address ? ai.salesAskAddress : ''}${salesConfig.ask_phone ? ai.salesAskPhone : ''}`
+      : capturesOrderData
+        ? `${ai.salesAskAddress}${ai.salesAskPhone}`
+        : ''}
 ${salesConfig?.allow_cancellation ? ai.salesCancellationAllowed.replace('{hours}', String(salesConfig.cancellation_window_hours)) : ai.salesCancellationDenied}
 
 ## ${ai.businessInfo}
