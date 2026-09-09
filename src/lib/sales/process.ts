@@ -377,6 +377,7 @@ export async function processSaleClosing(params: {
   messages: Array<{ role: string; content: string }>
 }): Promise<void> {
   const { businessId, assistantId, conversationId, customerId, canonicalProductId, messages } = params
+  const supabaseAdmin = createAdminClient()
 
   const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
   if (!lastUserMessage) return
@@ -483,11 +484,42 @@ export async function processSaleClosing(params: {
     if (isClosing && hasClosed) continue
 
     // MEDIUM-1: per-event product attribution.
-    // Each event carries the product_id of ITS product, not a global one.
-    // If the event has a productName, let emitSalesEvent resolve the product_id
-    // from the name (single query per event). This ensures multi-product
-    // conversations attribute the correct product to each event.
-    // In single-product conversations, all events resolve to the same product_id.
+    // Always prefer canonicalProductId (resolved by resolveRecommendedProduct,
+    // a direct DB query). Previously bypassed when productName was present,
+    // causing emitSalesEvent to fall through to the broken RPC resolver.
+    const resolvedProductId = canonicalProductId ?? undefined
+
+    // SALE_WON amount resolution: LLM extraction is unreliable (transcript
+    // rarely contains prices). Fall back to products.price via direct DB lookup.
+    let amount = event.amount ?? null
+    if (!amount && event.type === 'SALE_WON') {
+      try {
+        if (resolvedProductId) {
+          const { data: prod } = await supabaseAdmin
+            .from('products')
+            .select('price')
+            .eq('business_id', businessId)
+            .eq('id', resolvedProductId)
+            .single()
+          amount = prod?.price ?? null
+        }
+        if (!amount && event.productName) {
+          const name = event.productName.trim()
+          const { data: prod } = await supabaseAdmin
+            .from('products')
+            .select('price')
+            .eq('business_id', businessId)
+            .eq('is_active', true)
+            .ilike('name', name)
+            .limit(1)
+            .maybeSingle()
+          amount = prod?.price ?? null
+        }
+      } catch (err) {
+        console.error('Price lookup failed (amount stays null):', err)
+      }
+    }
+
     await emitSalesEvent({
       businessId,
       assistantId,
@@ -495,8 +527,8 @@ export async function processSaleClosing(params: {
       customerId,
       eventType: event.type,
       productName: event.productName,
-      productId: event.productName ? undefined : canonicalProductId ?? undefined,
-      amount: event.amount,
+      productId: resolvedProductId,
+      amount,
       metadata:
         event.type === 'SALE_WON' && closingCustomer
           ? { customer: closingCustomer }
