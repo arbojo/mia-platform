@@ -247,12 +247,21 @@ export function buildMasterPrompt(params: {
     ? `\n\n${ai.toneNote} "${brand.tone_of_voice}".`
     : ''
 
+  // Captura de datos granular (un dato a la vez) en todos los canales
+  // conversacionales. WhatsApp conserva su tono propio; Web/Widget/Lab la
+  // aplican salvo en landings, donde landingNote prohíbe capturar datos por
+  // chat (el formulario los captura).
+  const capturesOrderData =
+    (channel === 'whatsapp' || channel === 'web' || channel === 'widget' || channel === 'simulation') &&
+    !landingContext
+
   const channelNote =
-    channel === 'whatsapp'
-      ? `\n\n${ai.whatsappTone}\n\n${ai.waOrderCapture}${intentTag ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}` : ''}`
-      : intentTag
-        ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}`
-        : ''
+    (capturesOrderData
+      ? `\n\n${channel === 'whatsapp' ? `${ai.whatsappTone}\n\n` : ''}${ai.waOrderCapture}`
+      : channel === 'whatsapp'
+        ? `\n\n${ai.whatsappTone}`
+        : '') +
+    (intentTag ? `\n\n${ai.intentTagDirective} INTENT_TAG: ${intentTag}` : '')
 
   const landingNote = landingContext
     ? `\n\n## Contexto de esta página\nEstás incrustado en la página de venta de ${landingContext.brand ?? business.name}. Tu trabajo es resolver dudas y vender dentro de esta página. NUNCA pidas datos personales ni de pedido en el chat (nombre, teléfono, dirección, ciudad): esos datos los captura el formulario de compra de la página. Cuando el cliente muestre intención de compra (pregunte por precio, envío o formas de pago), invítalo a completar su pedido en el formulario de la misma página y no lo envíes a ningún otro sitio.`
@@ -330,7 +339,11 @@ ${ai.rejectionPivotRule}
 ${ai.closingMaxAttempts}
 ${ai.closingDeclineStop}
 ${ai.closingTopicShift}
-${salesConfig ? `${salesConfig.ask_address ? ai.salesAskAddress : ''}${salesConfig.ask_phone ? ai.salesAskPhone : ''}` : ''}
+${salesConfig
+      ? `${salesConfig.ask_address ? ai.salesAskAddress : ''}${salesConfig.ask_phone ? ai.salesAskPhone : ''}`
+      : capturesOrderData
+        ? `${ai.salesAskAddress}${ai.salesAskPhone}`
+        : ''}
 ${salesConfig?.allow_cancellation ? ai.salesCancellationAllowed.replace('{hours}', String(salesConfig.cancellation_window_hours)) : ai.salesCancellationDenied}
 
 ## ${ai.businessInfo}

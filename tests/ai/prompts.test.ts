@@ -222,11 +222,12 @@ describe('buildMasterPrompt', () => {
     expect(prompt).toContain('Do not repeat the same hook or question in consecutive messages')
   })
 
-  it('waOrderCapture: formato de dirección de una línea y no auto-confirmar', () => {
+  it('captura consolidada: lista 1-7 + AFIRMACIÓN CLARA en Control de Cierre (fallback sin sales_config)', () => {
     const prompt = build({ channel: 'whatsapp' })
-    expect(prompt).toContain('DIRECCIÓN: captúrala en UNA línea')
-    expect(prompt).toContain('Col. <colonia>')
+    expect(prompt).toContain('7. Ciudad (ya confirmada: [ciudad del contexto])')
+    expect(prompt).toContain('AFIRMACIÓN CLARA')
     expect(prompt).toContain('NUNCA digas "tu pedido está confirmado"')
+    expect(prompt).toContain('Acepta cualquier forma válida en México')
   })
 
   it('waOrderCapture: formato de dirección de una línea y no auto-confirmar en en', () => {

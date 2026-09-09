@@ -15,8 +15,11 @@ import { normalizeText } from './media'
  *   - Un trigger aislado / keyword genérico NO cambia el producto activo
  *     (INV-1).
  *   - TTL = vida de conversación (D1): sin decay intra-conversación en Fase 1.
- *   - Multi-producto = acumulación ordenada (doc 22 §3, INV-5): un producto
- *     nuevo se agrega al frente; los anteriores permanecen.
+ *   - El explicit-scope del mensaje REEMPLAZA el contexto persistido (INV-3):
+ *     los productos mencionados en el turno pasan a ser el active set
+ *     (más-reciente-primero, dedup); los anteriores se descartan.
+ *   - Menciones múltiples en el MISMO mensaje persisten como set multi [A,B]:
+ *     el turno siguiente genérico cae en ambigüedad (C-1, sin dispatch media).
  *   - El scope de un mensaje es: explicit-scopes del propio mensaje si los
  *     hay; si no, el contexto único; si hay 2+ activos y ningún explicit →
  *     ambigüedad → C-1 (no dispatch de media).
@@ -150,7 +153,7 @@ export async function detectExplicitScopes(
   return hits
 }
 
-/** Merge de contexto con nuevos productos explícitos (más-reciente-primero, set). */
+/** Dedup + orden más-reciente-primero. Para REPLACE (INV-3) el caller pasa current=[]; la unión no se usa. */
 export function orderActiveProducts(current: string[], additions: string[]): string[] {
   const seen = new Set<string>()
   const result: string[] = []
@@ -219,10 +222,10 @@ export async function resolveScopeContext(params: {
   }
 
   if (explicitHits.length > 0) {
-    const next = orderActiveProducts(
-      current,
-      explicitHits.map((h) => h.productId)
-    )
+    // INV-3: el explicit-scope del mensaje REEMPLAZA el contexto persistido
+    // (no se acumula entre turnos). Menciones múltiples del MISMO turno se
+    // mantienen como set multi en `next`.
+    const next = orderActiveProducts([], explicitHits.map((h) => h.productId))
     const changed = next.length !== current.length || next.some((id, i) => id !== current[i])
     if (changed) {
       try {

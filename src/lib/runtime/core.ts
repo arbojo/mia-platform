@@ -57,7 +57,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     input.businessId,
     input.assistantId,
     customerId,
-    input.channel === 'simulation' ? undefined : input.channel,
+    input.channel,
     input.intentTag ?? undefined,
     input.landingContext as Parameters<typeof loadConversationContext>[5],
     conversationOutcome,
