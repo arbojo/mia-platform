@@ -12,9 +12,10 @@ interface DeliveryOrder {
   city: string | null
   amount: number | null
   paid_at_sale: boolean
-  items: unknown
+  items: Array<{ name?: string; amount?: number | null; quantity?: number | null }>
   status: string
   created_at: string
+  product_name: string | null
 }
 
 const STATUS_OPTIONS = [
@@ -24,6 +25,30 @@ const STATUS_OPTIONS = [
   { value: 'incidence', label: 'Con incidencia' },
   { value: 'cancelled', label: 'Canceladas' },
 ]
+
+function orderProductLabel(order: DeliveryOrder): string {
+  const items = Array.isArray(order.items) ? order.items : []
+  const fromItems = items
+    .map((item) => {
+      const label = typeof item?.name === 'string' ? item.name : null
+      if (!label) return null
+      const qty = typeof item.quantity === 'number' ? item.quantity : null
+      return qty ? `${label} ×${qty}` : label
+    })
+    .filter((label): label is string => Boolean(label))
+  if (fromItems.length > 0) return fromItems.join(', ')
+  if (order.product_name) return order.product_name
+  return 'Sin producto'
+}
+
+function formatCreatedAt(iso: string): string {
+  return new Date(iso).toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
 export function DeliveryOrdersPanel({ businessId }: { businessId: string }) {
   const [orders, setOrders] = useState<DeliveryOrder[]>([])
@@ -108,6 +133,15 @@ export function DeliveryOrdersPanel({ businessId }: { businessId: string }) {
                   {order.paid_at_sale && (
                     <span className="text-xs font-normal"> · pagado</span>
                   )}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+                  {order.phone ? `Tel: ${order.phone}` : 'Sin teléfono'}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+                  {orderProductLabel(order)}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+                  {formatCreatedAt(order.created_at)}
                 </p>
               </div>
               {order.status === 'pending_assignment' && (
