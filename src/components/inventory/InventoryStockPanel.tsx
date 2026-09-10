@@ -68,6 +68,15 @@ export function InventoryStockPanel({ businessId }: { businessId: string }) {
     }
   }
 
+  async function setQuantity(item: StockItem, raw: string) {
+    if (raw.trim() === '') return
+    const target = Math.floor(Number(raw))
+    if (!Number.isFinite(target) || target < 0) return
+    const delta = target - item.quantity
+    if (delta === 0) return
+    await adjust(item, delta)
+  }
+
   async function setThreshold(item: StockItem, value: number) {
     setBusyId(item.product_id)
     setError(null)
@@ -132,6 +141,20 @@ export function InventoryStockPanel({ businessId }: { businessId: string }) {
                 <span className="text-sm font-bold" style={{ color: 'var(--atmosphere-text)' }}>
                   {item.quantity} uds
                 </span>
+                <input
+                  key={`${item.product_id}:${item.quantity}`}
+                  type="number"
+                  min={0}
+                  defaultValue={item.quantity}
+                  disabled={busyId === item.product_id}
+                  onBlur={(e) => setQuantity(item, e.currentTarget.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.currentTarget.blur()
+                  }}
+                  className="w-20 rounded-lg border px-2 py-1.5 text-xs disabled:opacity-50"
+                  style={{ borderColor: 'var(--atmosphere-border)', color: 'var(--atmosphere-text)' }}
+                  aria-label={`Ajustar cantidad de ${item.product_name}`}
+                />
               </div>
 
               <div className="flex items-center gap-2">
