@@ -473,6 +473,7 @@ Important architectural decisions are documented in `docs/adr/`. Each ADR follow
 | [019](docs/adr/019-delivery-hub.md) | Delivery Hub — Módulo Logístico Aislado + Portal del Repartidor | Accepted |
 | [026](docs/adr/026-super-admin-platform-dashboard.md) | Super Admin Platform Dashboard | Accepted |
 | [027](docs/adr/027-mia-cloud-architecture.md) | MIA Cloud Architecture | Proposed |
+| [031](docs/adr/ADR-031-inv3-scope-replace.md) | INV-3: Reemplazo del Scope Persistido + Staleness pre-INV-3 | Accepted |
 
 ---
 

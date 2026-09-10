@@ -23,6 +23,12 @@ import { normalizeText } from './media'
  *   - El scope de un mensaje es: explicit-scopes del propio mensaje si los
  *     hay; si no, el contexto único; si hay 2+ activos y ningún explicit →
  *     ambigüedad → C-1 (no dispatch de media).
+ *
+ * Staleness conocido (pre-INV-3): las conversaciones creadas antes de
+ * 2026-09-08T01:41 UTC (deploy del replace INV-3) pueden tener
+ * active_product_ids acumulado con varios productos. Es comportamiento
+ * esperado: el scope se auto-corrige en la próxima mención explícita de
+ * producto (REPLACE, INV-3). NO requiere limpieza manual de datos.
  */
 
 export type ExplicitScopeSource = 'literal' | 'sku' | 'landing'
@@ -98,6 +104,55 @@ export async function persistActiveProductIds(
     .from('conversations')
     .update({ active_product_ids: productIds })
     .eq('id', conversationId)
+}
+
+/**
+ * Clasifica el error de persistencia de active_product_ids para decidir el
+ * logging. Un fallo de escritura NO debe pasar desapercibido: el scope se
+ * resuelve en memoria y la conversación sigue funcionando, pero la DB
+ * conserva un estado stale hasta la próxima mención explícita.
+ */
+export function classifyScopePersistenceError(err: unknown): {
+  kind: 'rls' | 'constraint' | 'data' | 'network' | 'unknown'
+  code: string | null
+  hint: string | null
+} {
+  const code = (err as { code?: string } | null)?.code ?? null
+  const hint = (err as { hint?: string } | null)?.hint ?? null
+  let kind: 'rls' | 'constraint' | 'data' | 'network' | 'unknown' = 'unknown'
+  if (code) {
+    if (code === '42501' || code === '42502' || code === '42503') kind = 'rls'
+    else if (code.startsWith('23')) kind = 'constraint'
+    else if (code.startsWith('22')) kind = 'data'
+    else if (code === 'ECONNREFUSED' || code === 'ETIMEDOUT' || code === 'ENOTFOUND') kind = 'network'
+  }
+  return { kind, code, hint }
+}
+
+/** Log visible/alertable de un fallo de persistencia de scope (no silencioso). */
+export function logScopePersistenceFailure(params: {
+  conversationId: string
+  businessId: string
+  attempted: string[]
+  error: unknown
+}): void {
+  const { conversationId, businessId, attempted, error } = params
+  const { kind, code, hint } = classifyScopePersistenceError(error)
+  const context = `business=${businessId} conversation=${conversationId} attempted=[${attempted.join(', ')}]`
+
+  // Cada tipo de error tiene su causa más probable y su acción sugerida.
+  const guidance: Record<string, string> = {
+    rls: 'Posible violación de RLS: usar el admin client para writes server-side (AGENTS.md §5.5).',
+    constraint: `Constraint DB: ${hint ?? 'revisar integridad del dato'}.`,
+    data: 'Tipo de dato inválido en active_product_ids (espera string[] de UUIDs).',
+    network: 'Fallo de red hacia Supabase — reintentar más tarde.',
+    unknown: 'Error no clasificado — revisar stack completo.',
+  }
+
+  console.error(
+    `[context-scope][ALERT] Failed to persist active_product_ids (${kind}): ${context} — ${guidance[kind]}`,
+    error
+  )
 }
 
 function hasWord(normalizedMessage: string, word: string): boolean {
@@ -225,13 +280,24 @@ export async function resolveScopeContext(params: {
     // INV-3: el explicit-scope del mensaje REEMPLAZA el contexto persistido
     // (no se acumula entre turnos). Menciones múltiples del MISMO turno se
     // mantienen como set multi en `next`.
+    // Nota stale pre-INV-3: conversaciones anteriores a 2026-09-08T01:41 UTC
+    // podían tener active_product_ids acumulado; la primera mención explícita
+    // de producto en esta versión lo reemplaza por completo (auto-corrección,
+    // sin limpieza manual).
     const next = orderActiveProducts([], explicitHits.map((h) => h.productId))
     const changed = next.length !== current.length || next.some((id, i) => id !== current[i])
     if (changed) {
       try {
         await persistActiveProductIds(supabase, conversationId, next)
       } catch (err) {
-        console.error('[context-scope] Failed to persist active_product_ids:', err)
+        // INV-3 hardening: NO tragar el error en silencio. El scope en memoria
+        // sigue siendo `next` para este turno, pero la DB puede quedar stale.
+        logScopePersistenceFailure({
+          conversationId,
+          businessId,
+          attempted: next,
+          error: err,
+        })
       }
     }
     const onlyLanding = explicitHits.every((h) => h.source === 'landing')
