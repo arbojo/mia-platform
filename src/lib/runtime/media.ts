@@ -21,7 +21,7 @@ function singularStem(word: string): string {
   return word
 }
 
-function wordBoundaryPattern(keyword: string): string {
+export function wordBoundaryPattern(keyword: string): string {
   const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   // Tolerancia a plural/singular: "envio" alcanza "envíos", "flor" alcanza "flores".
   // Se exige palabra completa (límite previo y posterior), por lo que "precio"

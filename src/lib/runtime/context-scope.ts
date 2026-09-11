@@ -1,4 +1,5 @@
 import { normalizeText } from './media'
+import { matchesProductAlias, productAliasPhrases } from './product-aliases'
 
 /**
  * ─────────────────────────────────────────────────────────────────────────
@@ -107,8 +108,9 @@ function hasWord(normalizedMessage: string, word: string): boolean {
 }
 
 /**
- * Detecta el explicit-scope determinístico (D5): SOLO nombre literal o SKU.
- * Alias por LLM, anáfora o keywords jamás mutan scope — no se detectan acá.
+ * Detecta el explicit-scope determinístico (D5): SOLO nombre literal, SKU o
+ * alias registrado del catálogo (ver product-aliases.ts). Alias por LLM,
+ * anáfora o keywords jamás mutan scope — no se detectan acá.
  */
 export async function detectExplicitScopes(
   supabase: SupabaseLike,
@@ -147,6 +149,17 @@ export async function detectExplicitScopes(
     if (matched && !seen.has(product.id)) {
       seen.add(product.id)
       hits.push({ productId: product.id, source: 'literal' })
+      continue
+    }
+
+    if (!seen.has(product.id)) {
+      const aliasMatched = productAliasPhrases(name).some((alias) =>
+        matchesProductAlias(normalizedMessage, alias)
+      )
+      if (aliasMatched) {
+        seen.add(product.id)
+        hits.push({ productId: product.id, source: 'literal' })
+      }
     }
   }
 

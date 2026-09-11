@@ -994,6 +994,135 @@ describe('Scope helper invariants', () => {
     const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'quiero el XX-999')
     expect(hits).toHaveLength(0)
   })
+
+  it('detectExplicitScopes: alias multi-palabra "back to fit" resuelve Back2Fit (literal)', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes informacion del back to fit?')
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.productId).toBe('p-back')
+    expect(hits[0]?.source).toBe('literal')
+  })
+
+  it('detectExplicitScopes: variantes "back 2 fit" y "back fit" resuelven Back2Fit', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    for (const phrase of ['back 2 fit', 'back fit']) {
+      const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', `hablame del ${phrase}`)
+      expect(hits.some((hit) => hit.productId === 'p-back')).toBe(true)
+    }
+  })
+
+  it('detectExplicitScopes: alias "faja" con límite de palabra y tolerancia de plural', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const singular = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes imagen de la faja?')
+    const plural = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes fajas?')
+    expect(singular.some((hit) => hit.productId === 'p-back')).toBe(true)
+    expect(plural.some((hit) => hit.productId === 'p-back')).toBe(true)
+  })
+
+  it('detectExplicitScopes: alias no produce falso positivo en subpalabra ("fajita")', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'venden alguna fajita?')
+    expect(hits).toHaveLength(0)
+  })
+
+  it('detectExplicitScopes: alias solo aplica a productos con ese nombre canónico', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-clean', name: 'Clean Nails', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes fajas?')
+    expect(hits).toHaveLength(0)
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// ALIAS — Determinístico (regresión incidente Back2Fit 2026-09-11)
+// ────────────────────────────────────────────────────────────────
+// Incidencia: con CleanNails como contexto activo, "tienes imagen de la
+// faja?" NO explicitaba scope → quedaba anclado a CleanNails → dispatch de
+// un asset (láser) de otro producto. Los alias ("back to fit", "faja")
+// hacen que "faja"/"fajas" y "back to fit" expliciten Back2Fit
+// determinísticamente (fuente 'literal'), mutando el contexto (INV-3).
+
+describe('ALIAS — explicit scope determinístico (regresión Back2Fit)', () => {
+  it('incidente: "tienes imagen de la faja?" con CleanNails activo → scope Back2Fit', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-back', name: 'Back2Fit', sku: null },
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+      ],
+      conversations: {
+        [conversationId]: { active_product_ids: ['p-clean'] },
+      },
+    })
+
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tienes imagen de la faja?',
+    })
+
+    expect(scope.source).toBe('explicit')
+    expect(scope.messageScope).toEqual(['p-back'])
+    expect(scope.names?.['p-back']).toBe('Back2Fit')
+  })
+
+  it('incidente: media dispatch del asset Back2Fit, no del láser de CleanNails', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-back', name: 'Back2Fit', sku: null },
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+      ],
+      knowledge: [
+        kitem({ id: 'k-back-img', product_id: 'p-back', trigger_condition: 'faja, precio' }),
+        kitem({ id: 'k-clean-laser', product_id: 'p-clean', trigger_condition: 'imagen' }),
+      ],
+      conversations: {
+        [conversationId]: { active_product_ids: ['p-clean'] },
+      },
+    })
+
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tienes imagen de la faja?',
+    })
+    expect(scope.messageScope).toEqual(['p-back'])
+
+    const res = await resolveContextMedia({
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tienes imagen de la faja?',
+      scope: scope.messageScope,
+      scopeSource: scope.source,
+      supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('k-back-img')
+    expect(res.attachment?.knowledgeItemId).not.toBe('k-clean-laser')
+  })
+
+  it('"back to fit" explicita Back2Fit determinísticamente', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tendras informacion del back to fit?',
+    })
+    expect(scope.source).toBe('explicit')
+    expect(scope.messageScope).toEqual(['p-back'])
+  })
 })
 
 // ────────────────────────────────────────────────────────────────
