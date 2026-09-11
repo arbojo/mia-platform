@@ -13,6 +13,7 @@ import {
 } from './context-media'
 import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
+import { repairMediaDenial } from './media-negation-guard'
 import { withMediaResolutionFeedback, withProductScopeAnchor } from '@/lib/ai/prompts'
 import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
@@ -293,15 +294,34 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
 
     const response = result.content
 
+    // ── Media negation guard (determinístico, capa adicional al prompt) ──────
+    // safeMedia === true ⇔ el runtime YA decidió DESPACHAR la imagen en este
+    // turno (media_status DISPATCHED). El LLM puede ignorar la directiva
+    // truthful y negar la imagen de todos modos; no confiamos en el LLM
+    // (mismo patrón que la resolución determinística del monto en
+    // sales/process.ts). Se corrige ANTES de persistir y de salir.
+    const mediaGuard = safeMedia
+      ? repairMediaDenial(response, { productName: feedbackProduct })
+      : { text: response, corrected: false, matched: [] }
+    const finalResponse = mediaGuard.text
+    if (mediaGuard.corrected) {
+      console.log(
+        `[media-negation-guard] denied-image phrase detected & corrected (conversation ${input.conversationId ?? 'n/a'}): ${mediaGuard.matched.join(' | ')}`
+      )
+    }
+
     if (input.conversationId) {
       await supabase.from('messages').insert({
         conversation_id: input.conversationId,
         role: 'assistant',
-        content: response,
+        content: finalResponse,
         metadata: {
           used_context: usedContext,
           ...(product ? { product_id: product.productId, product } : {}),
           ...(safeMedia ? { media: safeMedia } : {}),
+          ...(mediaGuard.corrected
+            ? { media_negation_guard: { corrected: true, matched: mediaGuard.matched } }
+            : {}),
         },
       })
     }
@@ -338,7 +358,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           conversationId: input.conversationId,
           customerId,
           canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
-          messages: [...chatMessages, { role: 'assistant', content: response }],
+          messages: [...chatMessages, { role: 'assistant', content: finalResponse }],
         })
       } catch (err) {
         console.error('Failed to process sale closing (complete):', err)
@@ -346,7 +366,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     }
 
     return {
-      response,
+      response: finalResponse,
       product: product ? { productId: product.productId } : null,
       media: safeMedia,
       metadata: {
@@ -354,6 +374,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
         conversationId: input.conversationId,
         customerId,
         deliver: true,
+        ...(mediaGuard.corrected ? { mediaNegationGuard: true } : {}),
       },
     }
   }
@@ -367,16 +388,30 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     system: systemPromptForAI,
     messages: chatMessages,
     onFinish: async ({ text }) => {
+      const rawText = text ?? ''
+      const mediaGuard = safeMedia
+        ? repairMediaDenial(rawText, { productName: feedbackProduct })
+        : { text: rawText, corrected: false, matched: [] }
+      const finalText = mediaGuard.text
+      if (mediaGuard.corrected) {
+        console.log(
+          `[media-negation-guard] denied-image phrase detected & corrected in stream (conversation ${input.conversationId ?? 'n/a'}): ${mediaGuard.matched.join(' | ')}`
+        )
+      }
+
       if (input.conversationId) {
         try {
           await supabase.from('messages').insert({
             conversation_id: input.conversationId,
             role: 'assistant',
-            content: text ?? '',
+            content: finalText,
             metadata: {
               used_context: usedContext,
               ...(product ? { product_id: product.productId, product } : {}),
               ...(safeMedia ? { media: safeMedia } : {}),
+              ...(mediaGuard.corrected
+                ? { media_negation_guard: { corrected: true, matched: mediaGuard.matched } }
+                : {}),
             },
           })
         } catch (err) {
@@ -389,7 +424,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
         // LOOP 2.3 / Opción B (autorizado): 'training' también queda aislado.
         if (
           customerId &&
-          text &&
+          finalText &&
           input.requestType !== 'simulation' &&
           input.requestType !== 'training'
         ) {
@@ -400,7 +435,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
               conversationId: input.conversationId,
               customerId,
               canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
-              messages: [...chatMessages, { role: 'assistant', content: text }],
+              messages: [...chatMessages, { role: 'assistant', content: finalText }],
             })
           } catch (err) {
             console.error('Failed to process sale closing (stream):', err)

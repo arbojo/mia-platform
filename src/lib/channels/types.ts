@@ -127,5 +127,6 @@ export interface CoreOutput {
     customerId?: string
     deliver: boolean
     retention?: boolean
+    mediaNegationGuard?: boolean
   }
 }
