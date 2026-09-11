@@ -1,4 +1,11 @@
 import { normalizeText } from './media'
+import { matchesProductAlias, productAliasPhrases } from './product-aliases'
+import {
+  compactProductName,
+  detectsDifferentProductSignal,
+  matchCompactTiers,
+  tokenConcats,
+} from './product-matcher'
 
 /**
  * ─────────────────────────────────────────────────────────────────────────
@@ -27,9 +34,17 @@ import { normalizeText } from './media'
 
 export type ExplicitScopeSource = 'literal' | 'sku' | 'landing'
 
+/**
+ * Tier determinístico que produjo el hit (observabilidad).
+ * literal=nombre T1, alias=registro (T3), compact=compacto exacto (T2),
+ * fuzzy=Damerau<=1 (T4), sku=SKU compacto.
+ */
+export type ExplicitScopeTier = 'literal' | 'alias' | 'compact' | 'fuzzy' | 'sku' | 'landing'
+
 export interface ExplicitScopeHit {
   productId: string
   source: ExplicitScopeSource
+  tier: ExplicitScopeTier
 }
 
 export type ScopeSource = 'explicit' | 'landing' | 'context' | 'ambiguous' | 'none'
@@ -45,6 +60,14 @@ export interface ScopeResolution {
   source: ScopeSource
   /** Nombre canónico del catálogo por productId (B3: identidad del anchor). */
   names: Record<string, string>
+  /**
+   * (b) Política conservadora: el scope quedó como 'context' (heredado) pero
+   * el mensaje parece referirse (con señal sub-umbral, determinística) a un
+   * producto DISTINTO del activo. NUNCA muta active_product_ids ni claims:
+   * solo le ordena a resolveContextMedia NO despachar media este turno.
+   * Siempre false salvo en el branch de contexto.
+   */
+  uncertainDifferentProduct: boolean
 }
 
 /** Identidad de producto activo determinística para el anchor B3 (doc 30 §3). */
@@ -107,8 +130,16 @@ function hasWord(normalizedMessage: string, word: string): boolean {
 }
 
 /**
- * Detecta el explicit-scope determinístico (D5): SOLO nombre literal o SKU.
- * Alias por LLM, anáfora o keywords jamás mutan scope — no se detectan acá.
+ * Detecta el explicit-scope determinístico (D5). Un nombre de producto puede
+ * referenciarse por MULTIPLES capas determinísticas, todas del mismo rango
+ * de confianza (mutan scope igual que el literal):
+ *   T1 literal  — nombre del catálogo tal cual ("Clean Nails")
+ *   T2 compacto — nombre compactado sin espacios ("cleannails", "back 2 fit")
+ *   T3 alias    — registro por producto ("faja" → Back2Fit, product-aliases.ts)
+ *   T4 fuzzy    — Damerau-Levenshtein <= 1 sobre el compacto, solo >= 6 chars
+ *                 ("backfit" → back2fit; umbral validado contra el catálogo)
+ *   SKU         — código compactado ("CN-001" → "cn001")
+ * Alias por LLM, anáfora o keywords genéricas jamás mutan scope.
  */
 export async function detectExplicitScopes(
   supabase: SupabaseLike,
@@ -123,6 +154,7 @@ export async function detectExplicitScopes(
 
   const hits: ExplicitScopeHit[] = []
   const seen = new Set<string>()
+  const concats = tokenConcats(normalizedMessage)
 
   // Mensaje compacto (sin espacios ni puntuación) para match robusto de SKU
   // (ej. "CN-001" → "cn001" dentro de "tengo cn-001" → "tengocn001").
@@ -133,7 +165,7 @@ export async function detectExplicitScopes(
     if (compactSku.length >= 2 && compactSku.length <= 32 && compactMessage.includes(compactSku)) {
       if (!seen.has(product.id)) {
         seen.add(product.id)
-        hits.push({ productId: product.id, source: 'sku' })
+        hits.push({ productId: product.id, source: 'sku', tier: 'sku' })
       }
       continue
     }
@@ -146,7 +178,31 @@ export async function detectExplicitScopes(
 
     if (matched && !seen.has(product.id)) {
       seen.add(product.id)
-      hits.push({ productId: product.id, source: 'literal' })
+      hits.push({ productId: product.id, source: 'literal', tier: 'literal' })
+      continue
+    }
+
+    if (!seen.has(product.id)) {
+      const aliasMatched = productAliasPhrases(name).some((alias) =>
+        matchesProductAlias(normalizedMessage, alias)
+      )
+      if (aliasMatched) {
+        seen.add(product.id)
+        hits.push({ productId: product.id, source: 'literal', tier: 'alias' })
+        continue
+      }
+    }
+
+    if (!seen.has(product.id)) {
+      const compactTier = matchCompactTiers(
+        normalizedMessage,
+        concats,
+        compactProductName(product.name)
+      )
+      if (compactTier) {
+        seen.add(product.id)
+        hits.push({ productId: product.id, source: 'literal', tier: compactTier })
+      }
     }
   }
 
@@ -186,6 +242,7 @@ export async function resolveScopeContext(params: {
       explicit: [],
       source: 'none',
       names: {},
+      uncertainDifferentProduct: false,
     }
   }
 
@@ -212,7 +269,7 @@ export async function resolveScopeContext(params: {
       .maybeSingle()
     if (product) {
       if (product.name) names[product.id] = product.name
-      landingHits.push({ productId: product.id, source: 'landing' })
+      landingHits.push({ productId: product.id, source: 'landing', tier: 'landing' })
     }
   }
 
@@ -241,16 +298,28 @@ export async function resolveScopeContext(params: {
       explicit: explicitHits,
       source: onlyLanding ? 'landing' : 'explicit',
       names,
+      uncertainDifferentProduct: false,
     }
   }
 
   if (current.length === 1) {
+    // (b) Señal conservadora: el scope es 'context' (heredado) pero el mensaje
+    // parece referirse a un producto DISTINTO del activo. Solo etiqueta; jamás
+    // muta active_product_ids. resolveContextMedia decide NO despachar media.
+    const normalizedMessage = normalizeText(userMessage)
+    const uncertainDifferentProduct = detectsDifferentProductSignal({
+      normalizedMessage,
+      concats: tokenConcats(normalizedMessage),
+      lexicon: products.map((p) => ({ id: p.id, compact: compactProductName(p.name) })),
+      scopedProductId: current[0],
+    })
     return {
       activeProductIds: current,
       messageScope: current,
       explicit: [],
       source: 'context',
       names,
+      uncertainDifferentProduct,
     }
   }
 
@@ -261,10 +330,18 @@ export async function resolveScopeContext(params: {
       explicit: [],
       source: 'ambiguous',
       names,
+      uncertainDifferentProduct: false,
     }
   }
 
-  return { activeProductIds: [], messageScope: [], explicit: [], source: 'none', names }
+  return {
+    activeProductIds: [],
+    messageScope: [],
+    explicit: [],
+    source: 'none',
+    names,
+    uncertainDifferentProduct: false,
+  }
 }
 
 /**

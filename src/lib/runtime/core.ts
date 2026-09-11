@@ -205,6 +205,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
         scopeSource: scopeContext.source,
         explicitSource: scopeContext.explicit[0]?.source ?? null,
         isResend: isResendRequest(input.userMessage),
+        uncertainDifferentProduct: scopeContext.uncertainDifferentProduct ?? false,
       })
 
       // P1-7: decisión de media siempre tiene registro del porqué.

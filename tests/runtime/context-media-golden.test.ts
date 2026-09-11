@@ -67,6 +67,7 @@ type ContractMediaStatus =
   | 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
   | 'MEDIA_REQUEST_NOT_RECOGNIZED'
   | 'MEDIA_SCOPE_AMBIGUOUS'
+  | 'MEDIA_SCOPE_UNCERTAIN'
   | 'DISPATCHED'
   | 'NONE'
 
@@ -994,6 +995,135 @@ describe('Scope helper invariants', () => {
     const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'quiero el XX-999')
     expect(hits).toHaveLength(0)
   })
+
+  it('detectExplicitScopes: alias multi-palabra "back to fit" resuelve Back2Fit (literal)', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes informacion del back to fit?')
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.productId).toBe('p-back')
+    expect(hits[0]?.source).toBe('literal')
+  })
+
+  it('detectExplicitScopes: variantes "back 2 fit" y "back fit" resuelven Back2Fit', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    for (const phrase of ['back 2 fit', 'back fit']) {
+      const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', `hablame del ${phrase}`)
+      expect(hits.some((hit) => hit.productId === 'p-back')).toBe(true)
+    }
+  })
+
+  it('detectExplicitScopes: alias "faja" con límite de palabra y tolerancia de plural', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const singular = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes imagen de la faja?')
+    const plural = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes fajas?')
+    expect(singular.some((hit) => hit.productId === 'p-back')).toBe(true)
+    expect(plural.some((hit) => hit.productId === 'p-back')).toBe(true)
+  })
+
+  it('detectExplicitScopes: alias no produce falso positivo en subpalabra ("fajita")', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'venden alguna fajita?')
+    expect(hits).toHaveLength(0)
+  })
+
+  it('detectExplicitScopes: alias solo aplica a productos con ese nombre canónico', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-clean', name: 'Clean Nails', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes fajas?')
+    expect(hits).toHaveLength(0)
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// ALIAS — Determinístico (regresión incidente Back2Fit 2026-09-11)
+// ────────────────────────────────────────────────────────────────
+// Incidencia: con CleanNails como contexto activo, "tienes imagen de la
+// faja?" NO explicitaba scope → quedaba anclado a CleanNails → dispatch de
+// un asset (láser) de otro producto. Los alias ("back to fit", "faja")
+// hacen que "faja"/"fajas" y "back to fit" expliciten Back2Fit
+// determinísticamente (fuente 'literal'), mutando el contexto (INV-3).
+
+describe('ALIAS — explicit scope determinístico (regresión Back2Fit)', () => {
+  it('incidente: "tienes imagen de la faja?" con CleanNails activo → scope Back2Fit', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-back', name: 'Back2Fit', sku: null },
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+      ],
+      conversations: {
+        [conversationId]: { active_product_ids: ['p-clean'] },
+      },
+    })
+
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tienes imagen de la faja?',
+    })
+
+    expect(scope.source).toBe('explicit')
+    expect(scope.messageScope).toEqual(['p-back'])
+    expect(scope.names?.['p-back']).toBe('Back2Fit')
+  })
+
+  it('incidente: media dispatch del asset Back2Fit, no del láser de CleanNails', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-back', name: 'Back2Fit', sku: null },
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+      ],
+      knowledge: [
+        kitem({ id: 'k-back-img', product_id: 'p-back', trigger_condition: 'faja, precio' }),
+        kitem({ id: 'k-clean-laser', product_id: 'p-clean', trigger_condition: 'imagen' }),
+      ],
+      conversations: {
+        [conversationId]: { active_product_ids: ['p-clean'] },
+      },
+    })
+
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tienes imagen de la faja?',
+    })
+    expect(scope.messageScope).toEqual(['p-back'])
+
+    const res = await resolveContextMedia({
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tienes imagen de la faja?',
+      scope: scope.messageScope,
+      scopeSource: scope.source,
+      supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('k-back-img')
+    expect(res.attachment?.knowledgeItemId).not.toBe('k-clean-laser')
+  })
+
+  it('"back to fit" explicita Back2Fit determinísticamente', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-back', name: 'Back2Fit', sku: null }],
+    })
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tendras informacion del back to fit?',
+    })
+    expect(scope.source).toBe('explicit')
+    expect(scope.messageScope).toEqual(['p-back'])
+  })
 })
 
 // ────────────────────────────────────────────────────────────────
@@ -1383,5 +1513,189 @@ describe('MEDIA-SEMANTIC — contexto semántico del asset en la decisión', () 
     })
     expect(res.attachment).toBeNull()
     expect(res.decision.selectedAsset).toBeNull()
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// I. MATCHER-GENERAL (a) — tiers determinísticos del explicit scope
+// (Back2Fit extensivo: T2 compacto exacto + T4 fuzzy Damerau<=1)
+// ────────────────────────────────────────────────────────────────
+
+describe('MATCHER-GENERAL — tiers determinísticos del explicit scope (a)', () => {
+  const REAL_CATALOG = [
+    { id: 'p-brain-eval', name: 'MIA Brain — Evaluation', sku: null },
+    { id: 'p-brain-pro', name: 'MIA Brain — Professional', sku: null },
+    { id: 'p-brain-cloud', name: 'MIA Brain — Cloud', sku: null },
+    { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+    { id: 'p-neurotin', name: 'Neurotin', sku: 'NT-001' },
+    { id: 'p-bella', name: 'Bella Patch', sku: null },
+    { id: 'p-byecanas', name: 'Bye Canas', sku: null },
+    { id: 'p-neurofeet', name: 'Neurofeet', sku: null },
+    { id: 'p-back', name: 'Back2Fit', sku: null },
+  ]
+
+  it('T2 compacto exacto: "me pasas info de cleannails" → Clean Nails (tier compact)', async () => {
+    const hits = await detectExplicitScopes(
+      {} as never,
+      'biz-1',
+      'me pasas info de cleannails',
+      REAL_CATALOG
+    )
+    expect(hits).toEqual([{ productId: 'p-clean', source: 'literal', tier: 'compact' }])
+  })
+
+  it('T3 alias multi-palabra: "quiero ver back 2 fit" → Back2Fit (tier alias)', async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'quiero ver back 2 fit', REAL_CATALOG)
+    expect(hits).toEqual([{ productId: 'p-back', source: 'literal', tier: 'alias' }])
+  })
+
+  it('T4 fuzzy: "hablame de backfit" (1 edición) → Back2Fit (tier fuzzy)', async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'hablame de backfit', REAL_CATALOG)
+    expect(hits).toEqual([{ productId: 'p-back', source: 'literal', tier: 'fuzzy' }])
+  })
+
+  it('T3 alias multi-palabra: "y el back fit?" → Back2Fit (tier alias; registry)', async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'y el back fit?', REAL_CATALOG)
+    expect(hits).toEqual([{ productId: 'p-back', source: 'literal', tier: 'alias' }])
+  })
+
+  it('anti-FP: "trajeron el back?" (token corto, sin alias) NO dispara Back2Fit', async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'trajeron el back?', REAL_CATALOG)
+    expect(hits).toEqual([])
+  })
+
+  it('anti-FP: "tienes el bachfit?" (2 ediciones) NO dispara Back2Fit — umbral conservador', async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'tienes el bachfit?', REAL_CATALOG)
+    expect(hits).toEqual([])
+  })
+
+  it("anti-FP colisión catálogo: 'neurofit' (dist 2) NO dispara Neurotin ni Neurofeet", async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'que tal el neurofit?', REAL_CATALOG)
+    expect(hits.map((h) => h.productId)).toEqual([])
+  })
+
+  it('C-1 multi certero: "neurotin y neurofeet" → ambos hits explicit', async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'neurotin y neurofeet', REAL_CATALOG)
+    expect(hits.map((h) => h.productId).sort()).toEqual(['p-neurofeet', 'p-neurotin'])
+  })
+
+  it("anti-FP substring: 'cleannailsspa' jamás cose 'cleannails' dentro de un token", async () => {
+    const hits = await detectExplicitScopes({} as never, 'biz-1', 'cleannailsspa es genial', REAL_CATALOG)
+    expect(hits).toEqual([])
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// J. (b) POLÍTICA CONSERVADORA — MEDIA_SCOPE_UNCERTAIN
+// (contexto heredado + referente rival débil → no dispatch)
+// ────────────────────────────────────────────────────────────────
+
+describe('MEDIA-SCOPE-UNCERTAIN — contexto heredado con referente rival débil (b)', () => {
+  it('guard: "manda la foto del neuro" con Clean Nails activo → NO media (MEDIA_SCOPE_UNCERTAIN)', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+        { id: 'p-neurotin', name: 'Neurotin', sku: 'NT-001' },
+      ],
+      knowledge: [kitem({ id: 'k-clean', product_id: 'p-clean', trigger_condition: 'foto' })],
+      conversations: { [conversationId]: { active_product_ids: ['p-clean'] } },
+    })
+
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'manda la foto del neuro',
+    })
+    expect(scope.source).toBe('context')
+    expect(scope.uncertainDifferentProduct).toBe(true)
+
+    const res = await resolveContextMedia({
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'manda la foto del neuro',
+      scope: scope.messageScope,
+      scopeSource: scope.source,
+      uncertainDifferentProduct: scope.uncertainDifferentProduct,
+      supabase: h.supabase as never,
+    })
+    expect(res.decision.eligible).toBe(true)
+    expect(res.attachment).toBeNull()
+    expect(mediaStatusOf(res.decision)).toBe('MEDIA_SCOPE_UNCERTAIN')
+  })
+
+  it('anti-FP guard directo: "manda la foto" (sin rival) con scope context despacha normal', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+        { id: 'p-neurotin', name: 'Neurotin', sku: 'NT-001' },
+      ],
+      knowledge: [kitem({ id: 'k-clean', product_id: 'p-clean', trigger_condition: 'foto' })],
+      conversations: { [conversationId]: { active_product_ids: ['p-clean'] } },
+    })
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never, businessId: 'biz-1', conversationId,
+      userMessage: 'manda la foto',
+    })
+    expect(scope.uncertainDifferentProduct).toBe(false)
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'manda la foto',
+      scope: scope.messageScope, scopeSource: scope.source,
+      uncertainDifferentProduct: scope.uncertainDifferentProduct,
+      supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('k-clean')
+    expect(res.decision.mediaStatus).not.toBe('MEDIA_SCOPE_UNCERTAIN')
+  })
+
+  it('anti-FP: "y cuánto cuesta?" sobre contexto heredado no genera señal rival', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+        { id: 'p-neurotin', name: 'Neurotin', sku: 'NT-001' },
+      ],
+      conversations: { [conversationId]: { active_product_ids: ['p-clean'] } },
+    })
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never, businessId: 'biz-1', conversationId,
+      userMessage: 'y cuánto cuesta?',
+    })
+    expect(scope.uncertainDifferentProduct).toBe(false)
+  })
+
+  it('anti-FP: "es una bella tarde" no genera señal rival ("bella" < umbral de prefijo)', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+        { id: 'p-bella', name: 'Bella Patch', sku: null },
+      ],
+      conversations: { [conversationId]: { active_product_ids: ['p-clean'] } },
+    })
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never, businessId: 'biz-1', conversationId,
+      userMessage: 'es una bella tarde',
+    })
+    expect(scope.uncertainDifferentProduct).toBe(false)
+  })
+
+  it('retry explícito (isResend) bypassa la guarda conservadora', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-clean', name: 'Clean Nails', sku: 'CN-001' },
+        { id: 'p-neurotin', name: 'Neurotin', sku: 'NT-001' },
+      ],
+      knowledge: [kitem({ id: 'k-clean', product_id: 'p-clean', trigger_condition: 'foto' })],
+      claims: [{ knowledge_item_id: 'k-clean', conversation_id: conversationId, state: 'dispatched' }],
+      conversations: { [conversationId]: { active_product_ids: ['p-clean'] } },
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId,
+      userMessage: 'manda la foto del neuro de nuevo',
+      scope: ['p-clean'], scopeSource: 'context',
+      uncertainDifferentProduct: true, isResend: true,
+      supabase: h.supabase as never,
+    })
+    expect(res.decision.mediaStatus).not.toBe('MEDIA_SCOPE_UNCERTAIN')
+    expect(res.attachment?.knowledgeItemId).toBe('k-clean')
   })
 })

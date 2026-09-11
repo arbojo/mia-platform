@@ -46,6 +46,7 @@ export type MediaStatus =
   | 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
   | 'MEDIA_REQUEST_NOT_RECOGNIZED'
   | 'MEDIA_SCOPE_AMBIGUOUS'
+  | 'MEDIA_SCOPE_UNCERTAIN'
   | 'DISPATCHED'
   | 'NONE'
 
@@ -98,6 +99,12 @@ export interface ResolveContextMediaParams {
   scopeSource: ScopeSource
   explicitSource?: 'literal' | 'sku' | 'landing'
   isResend?: boolean
+  /**
+   * (b) Política conservadora: true cuando el scope quedó como 'context'
+   * (heredado) pero la señal determinística sugiere que el mensaje se refiere
+   * a un producto DISTINTO del activo. El guard respeta isResend (retry).
+   */
+  uncertainDifferentProduct?: boolean | null
   /** Client inyectable para tests. Si se omite, se crea un admin client. */
   supabase?: SupabaseLike
 }
@@ -222,6 +229,7 @@ export async function resolveContextMedia(
     scopeSource,
     explicitSource,
     isResend = false,
+    uncertainDifferentProduct,
     supabase: injectedSupabase,
   } = params
 
@@ -299,6 +307,26 @@ export async function resolveContextMedia(
           ? 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
           : 'MEDIA_REQUEST_NOT_RECOGNIZED',
         reason: 'no eligible asset in scope',
+      },
+    }
+  }
+
+  // (b) Política conservadora (Back2Fit incident): el scope es 'context'
+  // (contexto heredado de un turno anterior) y la señal determinística sugiere
+  // que el mensaje se refiere a un producto DISTINTO del activo. NO se despacha
+  // media del producto equivocado; la respuesta textural diría la verdad con
+  // el estado truthful MEDIA_SCOPE_UNCERTAIN. El retry explícito (isResend)
+  // sigue permitido. Nunca muta scope ni claims.
+  if (uncertainDifferentProduct && !isResend && explicitScope === 'context') {
+    return {
+      attachment: null,
+      decision: {
+        ...emptyMediaDecision(),
+        explicitScope,
+        scope,
+        eligible: true,
+        mediaStatus: 'MEDIA_SCOPE_UNCERTAIN',
+        reason: 'context scope but message references different product',
       },
     }
   }
