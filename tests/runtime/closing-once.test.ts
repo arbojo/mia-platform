@@ -19,9 +19,6 @@ vi.mock('@/lib/sales/process', () => ({
 vi.mock('@/lib/sales/intent-classifier', () => ({
   classifyUserIntent: vi.fn(() => null),
 }))
-vi.mock('@/lib/runtime/conditional-media', () => ({
-  resolveConditionalMedia: vi.fn(() => null),
-}))
 vi.mock('@/lib/runtime/media', () => ({
   isResendRequest: vi.fn(() => false),
 }))

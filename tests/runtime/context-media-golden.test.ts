@@ -26,7 +26,9 @@ import {
  *
  * C-1 (doc 24 §5/§6, doc 25 §3):
  *   0 scopes  → NO DISPATCH
- *   1 scope   → scoped media (assets del scope + genéricos product_id NULL)
+ *   1 scope   → scoped media (assets del scope + genéricos product_id NULL
+ *               SOLO sin trigger). R1.3-hardening 08-19/09-07: un genérico NULL
+ *               con trigger de producto ("Precio, fotos") queda fuera del pool.
  *   2+ scopes → NO DISPATCH salvo explicit-scope determinístico del mensaje
  *
  * D2 (doc 26 §2): same conversation × asset → no re-presentación;
@@ -76,7 +78,7 @@ function kitem(overrides: Partial<KnowledgeRow>): KnowledgeRow {
   return {
     id: 'item-' + Math.random().toString(36).slice(2, 8),
     business_id: 'biz-1',
-    product_id: null,
+    product_id: 'p-1',
     image_url: SAFE_URL,
     answer: null,
     trigger_condition: 'precio',
@@ -518,25 +520,60 @@ describe('GT-07..GT-13 — Media & asset selection', () => {
     expect(h.claims.size).toBe(0)
   })
 
-  it('GT-12 asset product_id NULL + scope único → permitido; + múltiple → NO', async () => {
-    const h = makeHarness({
-      knowledge: [kitem({ id: 'k-gen', product_id: null, trigger_condition: 'precio' })],
+  it('GT-12 genérico product_id NULL: sin trigger → permitido; con trigger → NO (R1.3-hardening); múltiple → NO', async () => {
+    // NULL + SIN trigger → fallback genérico legítimo en scope único.
+    const hUncond = makeHarness({
+      knowledge: [kitem({ id: 'k-gen', product_id: null, trigger_condition: null })],
     })
-    // scope único → genérico permitido
     const single = await resolveContextMedia({
-      businessId: 'biz-1', conversationId, userMessage: 'precio',
-      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+      businessId: 'biz-1', conversationId, userMessage: 'muéstrame la imagen',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: hUncond.supabase as never,
     })
     expect(single.attachment?.knowledgeItemId).toBe('k-gen')
 
-    // scope múltiple → genérico NO
+    // NULL + trigger ("Precio, fotos") → NUNCA entra al pool, ni con scope único.
     const c2 = 'conv-' + Math.random().toString(36).slice(2, 8)
-    const multi = await resolveContextMedia({
+    const hTrigger = makeHarness({
+      knowledge: [kitem({ id: 'k-gen-trig', product_id: null, trigger_condition: 'Precio, fotos' })],
+    })
+    const trig = await resolveContextMedia({
       businessId: 'biz-1', conversationId: c2, userMessage: 'precio',
-      scope: ['p-1', 'p-2'], scopeSource: 'explicit', supabase: h.supabase as never,
+      scope: ['p-1'], scopeSource: 'explicit', supabase: hTrigger.supabase as never,
+    })
+    expect(trig.attachment).toBeNull()
+    expect(hTrigger.claims.size).toBe(0)
+
+    // scope múltiple → genérico NO (C-1, invariante previo).
+    const c3 = 'conv-' + Math.random().toString(36).slice(2, 8)
+    const multi = await resolveContextMedia({
+      businessId: 'biz-1', conversationId: c3, userMessage: 'precio',
+      scope: ['p-1', 'p-2'], scopeSource: 'explicit', supabase: hTrigger.supabase as never,
     })
     expect(multi.attachment).toBeNull()
     expect(multi.decision.reason).toMatch(/multi-scope/i)
+  })
+
+  it('GT-12b R1.3-HARDENING (incidente 08-19/09-07): el genérico NULL con trigger de precio NO gana al asset del producto', async () => {
+    // Escenario exacto del incidente: el cliente pregunta por un producto del
+    // scope (Bella Patch) y matchea precio; en el pool hay además un genérico
+    // de marca (product_id NULL) con el trigger "Precio, fotos" y position menor
+    // (antes ganaba por orden). Ahora el genérico no entra al pool → SIEMPRE
+    // se despacha el asset del producto.
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'k-generico', product_id: null, trigger_condition: 'Precio, fotos', position: 0 }),
+        kitem({ id: 'k-bella', product_id: 'p-1', trigger_condition: 'precio', position: 1 }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId,
+      userMessage: '¿cuál es el precio del Bella Patch?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('k-bella')
+    expect(res.decision.assetSelected).toBe('k-bella')
+    // el genérico NULL+trigger jamás se claima
+    expect(h.claims.get(`k-generico::${conversationId}`)).toBeUndefined()
   })
 
   it('GT-13 malformed trigger (frase completa no keyword) → sin media, sin crash', async () => {
@@ -1167,16 +1204,18 @@ describe('DEC-20260904-MEDIA-CONTRACT — R1..R8 / INV-MEDIA (TDD RED)', () => {
     expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
   })
 
-  it('C05: claim previo + intención nueva de foto → otra media, sin repetir (RED)', async () => {
+  it('C05: claim previo + intención nueva de foto → otra media del MISMO producto, sin repetir (GUARD)', async () => {
+    // (R1.3-hardening) antes el "otro asset" era un genérico NULL+trigger;
+    // ese patrón quedó fuera del pool. Se modela como asset del producto.
     const h = makeHarness({
       knowledge: [
         kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'calcetin, tin, neurotin, imagen', position: 0 }),
-        kitem({ id: 'gen-fotos', product_id: null, trigger_condition: 'Precio, fotos', position: 1 }),
+        kitem({ id: 'nt-2', product_id: 'p-nt', trigger_condition: 'Precio, fotos', position: 1 }),
       ],
       claims: [{ knowledge_item_id: 'nt-1', conversation_id: conversationId, state: 'dispatched' }],
     })
     const res = await run(h, '¿me enseñas una foto?', ['p-nt'])
-    expect(res.attachment?.knowledgeItemId).toBe('gen-fotos')
+    expect(res.attachment?.knowledgeItemId).toBe('nt-2')
     expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
   })
 
@@ -1211,19 +1250,23 @@ describe('DEC-20260904-MEDIA-CONTRACT — R1..R8 / INV-MEDIA (TDD RED)', () => {
 // semántica SIN redispatch. C-1 intacta: sin asset resuelto no hay semántica.
 
 describe('MEDIA-SEMANTIC — contexto semántico del asset en la decisión', () => {
-  it('TEST-A: trigger selecciona el asset; answer llega como descripción semántica', async () => {
+  it('TEST-A: media de marca incondicional (NULL, sin trigger) → answer como descripción semántica, productId NULL', async () => {
+    // (R1.3-hardening) la genérica de marca con trigger quedó fuera del pool;
+    // la genérica legítima es NULL INCONDICIONAL y se despacha por intención
+    // de media. TRIGGER/INTENT DECIDE, DESCRIPTION EXPLICA.
     const h = makeHarness({
       knowledge: [
         kitem({
           id: 'k-img',
-          trigger_condition: 'precio',
+          product_id: null,
+          trigger_condition: null,
           media_type: 'image',
           answer: 'Imagen del empaque de Bella Patch con el kit completo.',
         }),
       ],
     })
     const res = await resolveContextMedia({
-      businessId: 'biz-1', conversationId, userMessage: '¿cuál es el precio?',
+      businessId: 'biz-1', conversationId, userMessage: 'muéstrame la imagen',
       scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
     })
     expect(res.attachment?.knowledgeItemId).toBe('k-img')

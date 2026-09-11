@@ -9,7 +9,6 @@ vi.mock('@/lib/conversation/context', () => ({ loadConversationContext: vi.fn() 
 vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/runtime/product-recommendation', () => ({ resolveRecommendedProduct: vi.fn() }))
-vi.mock('@/lib/runtime/conditional-media', () => ({ resolveConditionalMedia: vi.fn() }))
 vi.mock('@/lib/runtime/media', () => ({ isResendRequest: vi.fn(() => false) }))
 vi.mock('@/lib/runtime/media-guard', () => ({ isSafeMediaUrl: vi.fn(() => true) }))
 vi.mock('@/lib/runtime/evidence-extraction', () => ({ extractEvidenceFromCustomerMessage: vi.fn() }))
@@ -24,7 +23,6 @@ import { processCore } from '@/lib/runtime/core'
 import { loadConversationContext } from '@/lib/conversation/context'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { resolveRecommendedProduct } from '@/lib/runtime/product-recommendation'
-import { resolveConditionalMedia } from '@/lib/runtime/conditional-media'
 import { processSaleClosing } from '@/lib/sales/process'
 
 const FAKE_UUIDS = {
@@ -56,8 +54,7 @@ beforeEach(() => {
       Promise.resolve({ data: [], error: null }).then(resolve),
   }
   vi.mocked(createAdminClient).mockReturnValue({ from: vi.fn(() => chain) } as never)
-  vi.mocked(resolveRecommendedProduct).mockResolvedValue(null)
-  vi.mocked(resolveConditionalMedia).mockResolvedValue(null)
+vi.mocked(resolveRecommendedProduct).mockResolvedValue(null)
 })
 
 async function mockGenerate(text: string) {
