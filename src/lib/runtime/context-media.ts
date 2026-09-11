@@ -1,6 +1,5 @@
 import { triggerMatches, intentMatchesTrigger, detectMediaIntent, normalizeText } from './media'
 import { isSafeMediaUrl } from './media-guard'
-import type { MediaAttachment } from './conditional-media'
 import type { ScopeSource } from './context-scope'
 import type { Database } from '@/lib/types'
 
@@ -27,6 +26,16 @@ type SupabaseLike = ReturnType<typeof import('@/lib/supabase/admin').createAdmin
 type KnowledgeItem = Database['public']['Tables']['knowledge_items']['Row']
 
 export type MediaClaimState = 'claimed' | 'dispatched' | 'failed'
+
+/**
+ * Adjunto de media resuelto. Trasladado desde conditional-media.ts (resolver
+ * legacy P1-0, eliminado): única fuente de la forma de attachment.
+ */
+export interface MediaAttachment {
+  knowledgeItemId: string
+  imageUrl: string
+  mediaType: 'image' | 'testimonial'
+}
 
 /**
  * Señal discriminadora truthful del estado de media (DEC-20260904 R5/R6).
@@ -544,11 +553,19 @@ async function resolveScopedIdempotency(params: {
   // DELTA POR SCOPE (P1-3): jamás se evalúan triggers contra assets de otro
   // producto. Genéricos (NULL) solo con scope único (doc 25 §4 / doc 24 §6).
   const uniqueScope = scope.length === 1 ? scope[0] : null
+
+  // R1.3: un asset sin condición (NULL/vacío) es media incondicional. Se define
+  // ANTES del pool para que el filtro (callback síncrono) pueda referenciarla.
+  const hasCondition = (item: KnowledgeItem): boolean =>
+    item.trigger_condition != null && item.trigger_condition.trim().length > 0
+
   const pool = (candidates ?? [])
     .filter(
       (item) =>
         (uniqueScope !== null && item.product_id === uniqueScope) ||
-        (uniqueScope !== null && item.product_id === null)
+        (uniqueScope !== null &&
+          item.product_id === null &&
+          !hasCondition(item))
     )
     // Determinismo (DEC-20260904 INV-MEDIA-014 / DEC-20260825): position ASC
     // NULLS LAST → created_at ASC → empate por identidad estable (uuid).
@@ -565,8 +582,6 @@ async function resolveScopedIdempotency(params: {
   // R1.3: un asset sin condición (NULL/vacío) es media incondicional. NUNCA
   // construye un trigger artificial (INV-MEDIA-004): solo define elegibilidad
   // como principal (R3-P2), no matchea condiciones.
-  const hasCondition = (item: KnowledgeItem): boolean =>
-    item.trigger_condition != null && item.trigger_condition.trim().length > 0
 
   // R3-P1: especializada por condición. La condición refina DENTRO del producto.
   const conditionMatches = pool.filter(

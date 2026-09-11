@@ -5,7 +5,6 @@ vi.mock('@/lib/ai/knowledge', () => ({
   getSalesConfig: vi.fn().mockResolvedValue({ cancellation_window_hours: 24 }),
 }))
 
-import { resolveConditionalMedia } from '@/lib/runtime/conditional-media'
 import {
   toChronologicalTranscript,
   resolveCancellationGuards,
@@ -14,55 +13,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 const NOW = Date.now()
 const MS = 3600 * 1000
-
-function item(overrides: Record<string, unknown>) {
-  return {
-    id: overrides.id ?? `item-${Math.random().toString(36).slice(2, 8)}`,
-    business_id: 'biz-1',
-    image_url: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/img.jpg',
-    trigger_condition: 'precio',
-    media_type: 'image',
-    product_id: null,
-    ...overrides,
-  }
-}
-
-function makeThenable(result: unknown) {
-  const thenable: Record<string, unknown> = {
-    select: vi.fn(),
-    eq: vi.fn(),
-    not: vi.fn(),
-    order: vi.fn(),
-    insert: vi.fn(),
-    update: vi.fn(),
-    upsert: vi.fn(),
-    maybeSingle: vi.fn(),
-    then: (onFulfilled: (v: { data: unknown; error: null }) => unknown) =>
-      Promise.resolve(result).then(onFulfilled),
-  }
-  ;(thenable.select as ReturnType<typeof vi.fn>).mockReturnValue(thenable)
-  ;(thenable.eq as ReturnType<typeof vi.fn>).mockReturnValue(thenable)
-  ;(thenable.not as ReturnType<typeof vi.fn>).mockReturnValue(thenable)
-  ;(thenable.order as ReturnType<typeof vi.fn>).mockReturnValue(thenable)
-  ;(thenable.update as ReturnType<typeof vi.fn>).mockReturnValue(thenable)
-  ;(thenable.maybeSingle as ReturnType<typeof vi.fn>).mockReturnValue(thenable)
-  ;(thenable.upsert as ReturnType<typeof vi.fn>).mockReturnValue({
-    select: () => Promise.resolve({ data: [{ knowledge_item_id: 'claimed' }], error: null }),
-  })
-  return thenable
-}
-
-function mockSupabaseForMedia(candidates: unknown[]) {
-  const supabase = {
-    from: vi.fn((table: string) => {
-      if (table === 'knowledge_items') return makeThenable({ data: candidates, error: null })
-      if (table === 'conversations') return makeThenable({ data: { media_sent_products: [] }, error: null })
-      return makeThenable({ data: [], error: null })
-    }),
-  }
-  vi.mocked(createAdminClient).mockReturnValue(supabase as never)
-  return supabase
-}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -95,47 +45,6 @@ describe('PARITY C1 — transcript invariant (toChronologicalTranscript)', () =>
 
   it('GODZILLA zero-state: transcript vacio no crashea', () => {
     expect(toChronologicalTranscript([])).toEqual([])
-  })
-})
-
-describe('PARITY B1 — media invariant (media.product_id === selected_product.id)', () => {
-  const base = {
-    businessId: 'biz-1',
-    customerId: 'cust-1',
-    conversationId: 'conv-1',
-    userMessage: '¿cuál es el precio?',
-  }
-
-  it('nunca cae a media de OTRO producto cuando el productId es conocido', async () => {
-    const neurotin = item({ id: 'neurotin-img', product_id: 'prod-neurotin', trigger_condition: 'informacion' })
-    mockSupabaseForMedia([neurotin])
-    const result = await resolveConditionalMedia({ ...base, productId: 'prod-clean-nails' })
-    expect(result).toBeNull()
-  })
-
-  it('REGRESION incidente Clean Nails->Neurotin: sin producto canonico SOLO se sirve media de marca (product_id null), nunca pending[0] de campana ajena', async () => {
-    // Solo existe media con product_id asignado (ej. Neurotin) y el turno no
-    // tiene producto canonico. ANTES el fallback `pending[0]` despachaba la
-    // imagen ajena; ahora debe devolver null.
-    const foreign = item({ id: 'neurotin-img', product_id: 'prod-neurotin' })
-    mockSupabaseForMedia([foreign])
-    const result = await resolveConditionalMedia({ ...base, productId: null })
-    expect(result).toBeNull()
-  })
-
-  it('sirve media generica de marca cuando NO hay producto canonico y existe', async () => {
-    const generic = item({ id: 'generic-1', product_id: null })
-    mockSupabaseForMedia([generic])
-    const result = await resolveConditionalMedia({ ...base, productId: null })
-    expect(result).toMatchObject({ knowledgeItemId: 'generic-1' })
-  })
-
-  it('sirve SOLO la media del producto canonico cuando hay varios candidatos', async () => {
-    const clean = item({ id: 'clean-1', product_id: 'prod-clean-nails' })
-    const other = item({ id: 'other-1', product_id: 'prod-otro' })
-    mockSupabaseForMedia([clean, other])
-    const result = await resolveConditionalMedia({ ...base, productId: 'prod-clean-nails' })
-    expect(result).toMatchObject({ knowledgeItemId: 'clean-1' })
   })
 })
 

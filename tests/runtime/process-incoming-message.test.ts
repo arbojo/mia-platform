@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/channels/identity', () => ({ resolveCustomer: vi.fn() }))
@@ -18,9 +18,6 @@ vi.mock('@/lib/sales/process', () => ({
 }))
 vi.mock('@/lib/sales/intent-classifier', () => ({
   classifyUserIntent: vi.fn(() => null),
-}))
-vi.mock('@/lib/runtime/conditional-media', () => ({
-  resolveConditionalMedia: vi.fn(() => null),
 }))
 vi.mock('@/lib/runtime/media', () => ({
   isResendRequest: vi.fn(() => false),

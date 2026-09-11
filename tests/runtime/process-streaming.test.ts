@@ -6,7 +6,6 @@ vi.mock('@/lib/conversation/context', () => ({ loadConversationContext: vi.fn() 
 vi.mock('@/lib/ai/cost', () => ({ trackAiUsage: vi.fn() }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/runtime/product-recommendation', () => ({ resolveRecommendedProduct: vi.fn() }))
-vi.mock('@/lib/runtime/conditional-media', () => ({ resolveConditionalMedia: vi.fn() }))
 vi.mock('@/lib/runtime/stream-response', () => ({ buildStructuredStreamResponse: vi.fn() }))
 
 import { processStreaming } from '@/lib/runtime/runtime'
@@ -15,7 +14,6 @@ import { streamText } from 'ai'
 import { trackAiUsage } from '@/lib/ai/cost'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { resolveRecommendedProduct } from '@/lib/runtime/product-recommendation'
-import { resolveConditionalMedia } from '@/lib/runtime/conditional-media'
 import { buildStructuredStreamResponse } from '@/lib/runtime/stream-response'
 import { FAKE_UUIDS, mockMessages } from '../fixtures'
 
@@ -82,7 +80,6 @@ beforeEach(() => {
   vi.mocked(streamText).mockReturnValue(mockStreamTextResult as never)
   vi.mocked(trackAiUsage).mockResolvedValue(undefined)
   vi.mocked(resolveRecommendedProduct).mockResolvedValue(null)
-  vi.mocked(resolveConditionalMedia).mockResolvedValue(null)
   vi.mocked(buildStructuredStreamResponse).mockReturnValue(new Response())
 })
 
@@ -157,20 +154,13 @@ describe('processStreaming', () => {
     })
   })
 
-  it('passes the channel to loadConversationContext and resolves conditional media', async () => {
+  it('passes the channel to loadConversationContext', async () => {
     const { supabase, mockMaybeSingle } = makeMockSupabase()
     mockMaybeSingle.mockResolvedValueOnce({
       data: { customer_id: FAKE_UUIDS.customer },
       error: null,
     })
     vi.mocked(createAdminClient).mockReturnValue(supabase as never)
-
-    const media = {
-      knowledgeItemId: 'item-media-1',
-      imageUrl: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/img.jpg',
-      mediaType: 'image' as const,
-    }
-    vi.mocked(resolveConditionalMedia).mockResolvedValue(media)
 
     const result = await processStreaming({
       ...defaultParams,
@@ -190,20 +180,6 @@ describe('processStreaming', () => {
       null,
       null,
       null
-    )
-
-    expect(resolveConditionalMedia).toHaveBeenCalledWith({
-      businessId: FAKE_UUIDS.business,
-      customerId: FAKE_UUIDS.customer,
-      conversationId: FAKE_UUIDS.conversation,
-      userMessage: mockMessages[mockMessages.length - 1].content,
-      intentTag: null,
-      productId: null,
-      isResend: false,
-    })
-
-    expect(buildStructuredStreamResponse).toHaveBeenCalledWith(
-      expect.objectContaining({ media: { imageUrl: media.imageUrl, mediaType: media.mediaType } })
     )
   })
 
