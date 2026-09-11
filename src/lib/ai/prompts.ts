@@ -499,6 +499,8 @@ const MEDIA_STATUS_DIRECTIVE: Record<MediaStatus, string> = {
     'No se detectó una solicitud de media clara: responde con naturalidad en texto, sin afirmar ni negar una capacidad genérica de envío de imágenes.',
   MEDIA_SCOPE_AMBIGUOUS:
     'La conversación involucra más de un producto: NO se envió imagen. Pide aclaración de cuál quiere ver el cliente y enumera los productos disponibles para la foto. No elijas ni inventes un producto. NUNCA afirmes que no puedes enviar imágenes o que no tienes fotos en general: el sistema sí dispone de imágenes de los productos.',
+  MEDIA_SCOPE_UNCERTAIN:
+    'El mensaje parece referirse a un producto distinto del conversado pero la referencia es ambigua: NO se envió imagen para evitar mandar la foto equivocada. Responde con naturalidad en texto y aclara de qué producto está hablando el cliente (o identifica cuál quiere ver) antes de ofrecer una foto. NUNCA afirmes que no tienes fotos ni que el sistema no puede enviar imágenes: solo evita adjuntar la imagen del producto equivocado.',
   NONE:
     'Este turno no involucró resolución de media: responde textualmente. No alegues incapacidad de enviar imágenes ni menciones imágenes por tu cuenta.',
 }
