@@ -72,10 +72,19 @@ async function resolveConnectionMode(
     .select('mode')
     .eq('business_id', businessId)
     .eq('channel', channel)
+    .eq('status', 'connected')
     .limit(1)
     .maybeSingle()
 
-  return connection?.mode ?? 'active'
+  if (!connection) {
+    throw new RuntimeError(
+      `No active connection of channel ${channel} configured for business ${businessId}`,
+      'CONNECTION_NOT_FOUND',
+      404
+    )
+  }
+
+  return connection.mode ?? 'active'
 }
 
 export async function resolveConversation(

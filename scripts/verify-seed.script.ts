@@ -1,12 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { guardProduction } from './production-guard'
 
 const env: Record<string, string> = {}
 for (const line of readFileSync(resolve(process.cwd(), '.env.local'), 'utf8').split('\n')) {
   const m = line.match(/^([A-Z0-9_]+)=(.*)$/)
   if (m) env[m[1]] = m[2].trim()
 }
+
+guardProduction({ url: env.NEXT_PUBLIC_SUPABASE_URL, label: 'verify-seed' })
+
 const c = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 const bid = '4fb7418d-6c98-4a09-9094-4e4e4b2006a6'

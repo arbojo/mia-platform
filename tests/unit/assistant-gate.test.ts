@@ -10,12 +10,14 @@ describe('canServeTraffic — canonical runtime gate', () => {
     expect(canServeTraffic(true, 'active')).toBe(true)
   })
 
-  it('allows active + draft', () => {
-    expect(canServeTraffic(true, 'draft')).toBe(true)
+  it('blocks draft regardless of is_active', () => {
+    expect(canServeTraffic(true, 'draft')).toBe(false)
+    expect(canServeTraffic(false, 'draft')).toBe(false)
   })
 
-  it('allows active + training', () => {
-    expect(canServeTraffic(true, 'training')).toBe(true)
+  it('blocks training regardless of is_active', () => {
+    expect(canServeTraffic(true, 'training')).toBe(false)
+    expect(canServeTraffic(false, 'training')).toBe(false)
   })
 
   it('blocks inactive status regardless of is_active', () => {
@@ -30,13 +32,10 @@ describe('canServeTraffic — canonical runtime gate', () => {
     expect(canServeTraffic(false, 'training')).toBe(false)
   })
 
-  it('blocks null/undefined status when is_active=false', () => {
+  it('blocks null/undefined status regardless of is_active', () => {
+    expect(canServeTraffic(true, null)).toBe(false)
+    expect(canServeTraffic(true, undefined)).toBe(false)
     expect(canServeTraffic(false, null)).toBe(false)
     expect(canServeTraffic(false, undefined)).toBe(false)
-  })
-
-  it('allows null/undefined status when is_active=true', () => {
-    expect(canServeTraffic(true, null)).toBe(true)
-    expect(canServeTraffic(true, undefined)).toBe(true)
   })
 })

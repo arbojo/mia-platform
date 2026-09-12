@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { guardProduction } from './production-guard'
 
 const VITANOVA_OWNER_EMAIL = 'arbojo@gmail.com'
 
@@ -383,6 +384,8 @@ async function main() {
     console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local')
     process.exit(1)
   }
+
+  guardProduction({ url, label: 'seed-vitanova' })
 
   const supabase = createClient(url, serviceRole)
 

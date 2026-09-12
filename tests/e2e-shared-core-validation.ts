@@ -6,10 +6,11 @@
  * This script makes REAL DB writes and REAL OpenAI API calls.
  * It is designed for controlled validation against a dev/staging database only.
  *
- * Run: E2E_VALIDATE=true npx tsx tests/e2e-shared-core-validation.ts
+ * Run: E2E_VALIDATE=true E2E_BIZ_ID=<test-biz> E2E_ASST_ID=<test-asst> npx tsx tests/e2e-shared-core-validation.ts
  *
  * DO NOT run against production. DO NOT commit secrets.
- * Business/assistant IDs are read from env or default to Vitanova dev fixtures.
+ * Business/assistant IDs MUST be provided explicitly via env — this script
+ * never defaults to a real business, and refuses to run against Vitanova fixtures.
  */
 
 // ─── Production guard ────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ import 'dotenv/config'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { createClient } from '@supabase/supabase-js'
+import { guardProduction } from '../scripts/production-guard'
 
 // ─── Load real env vars (override any stubs) ─────────────────────────────────
 const envPath = resolve(__dirname, '../.env.local')
@@ -40,15 +42,38 @@ for (const line of envLocal.split('\n')) {
   process.env[key] = val
 }
 
+guardProduction({ url: process.env.NEXT_PUBLIC_SUPABASE_URL, label: 'E2E fixture validation' })
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   { auth: { autoRefreshToken: false, persistSession: false } }
 )
 
-// ─── Config (override via env vars for reuse against other businesses) ────────
-const BIZ_ID = process.env.E2E_BIZ_ID || '4fb7418d-6c98-4a09-9094-4e4e4b2006a6'  // default: Vitanova
-const ASST_ID = process.env.E2E_ASST_ID || '2f57cd29-fef3-4167-8745-4f02b57d4850' // default: MIA
+// ─── Config (REQUIRED — never defaults to a real business) ─────────────────────
+const VITANOVA_BIZ_ID = '4fb7418d-6c98-4a09-9094-4e4e4b2006a6'
+const VITANOVA_ASST_ID = '2f57cd29-fef3-4167-8745-4f02b57d4850'
+
+const BIZ_ID = process.env.E2E_BIZ_ID ?? ''
+const ASST_ID = process.env.E2E_ASST_ID ?? ''
+
+if (!BIZ_ID || !ASST_ID) {
+  console.error(
+    '\n⛔ BLOCKED: E2E validation requires explicit E2E_BIZ_ID and E2E_ASST_ID.\n' +
+      '   This script NEVER defaults to a real business (e.g. Vitanova).\n' +
+      '   Create an isolated test business first, then run:\n' +
+      '   E2E_VALIDATE=true E2E_BIZ_ID=<test-biz> E2E_ASST_ID=<test-asst> npx tsx tests/e2e-shared-core-validation.ts\n'
+  )
+  process.exit(1)
+}
+
+if (BIZ_ID === VITANOVA_BIZ_ID || ASST_ID === VITANOVA_ASST_ID) {
+  console.error(
+    '\n⛔ BLOCKED: E2E validation refuses to run against Vitanova fixtures.\n' +
+      '   Use an isolated test business instead.\n'
+  )
+  process.exit(1)
+}
 
 let custId = ''
 let cust2Id = ''
