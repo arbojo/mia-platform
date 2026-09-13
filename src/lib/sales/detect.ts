@@ -274,6 +274,95 @@ export function hasCancellationTrigger(lastUserMessage: string): boolean {
   })
 }
 
+// === Clasificador de intención de compra NUEVA en conversaciones cerradas ===
+// Se evalúa únicamente cuando la conversación tiene un cierre previo (ciclos de
+// venta múltiples permitidos en un mismo hilo). Buckets:
+//   delivery_issue → queja de entrega fallida: NO abre ciclo, emite señal a
+//                    mia_signals (nunca silenciosa).
+//   followup       → seguimiento/reconfirmación del pedido cerrado: bloqueo duro.
+//   explicit       → recompra explícita (verbo de compra + contexto de producto,
+//                    o reorden autocontenido): abre ciclo y permite nuevo cierre.
+//   ambiguous      → puede ser recompra o reenvío/mención: corre detección LLM,
+//                    pero el cierre exige evidencia de flujo nuevo (SALE_STARTED/
+//                    PRODUCT_SELECTED) en el resultado de ESTE turno.
+// Precedencia determinista: delivery_issue > followup > differ-ent-product > explicit > ambiguous.
+
+const normalizeNfd = (text: string): string =>
+  text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+const DELIVERY_ISSUE_PATTERNS = [
+  /no (me |)(ha |habia |había |han |)(llegado|llegó|llego|recibido|recibi|recibí)/,
+  /sigo sin (recibir|recibir el|recibirlo)/,
+  /(pedido|paquete|envio|envío).{0,25}no (me |)(ha |)(llegado|llegó|llego)/,
+  /nunca (me |)(llegó|llego|recibí|recibi)/,
+  /todav[ií]a no (me |)(llega|llegó|llego|llegado)/,
+  /ya (pague|pagué|pago).{0,30}(no me llega|no me llego|no he recibido)/,
+  /no recib[ií] nada/,
+]
+
+const FOLLOWUP_PATTERNS = [
+  /(ya va|va en camino|viene en camino|en camino)/,
+  /cu[áa]ndo (llega|llegará|llegara|va a llegar|me llega|me va a llegar|me llego)/,
+  /d[oó]nde est[áa] mi (pedido|envio|envío|paquete)/,
+  /y mi (pedido|envio|envío)/,
+  /c[oó]mo va (mi |el |)(pedido|envio|envío|reparto)/,
+  /(status|estatus|seguimiento).{0,20}(pedido|envio|envío|entrega|reparto)/,
+  /me lo cambian|me lo cambio|me (lo )?cambias|(que )?me lo cambien|quiero (cambiarlo|cambiar|devolverlo)/,
+  /^((muchas )?gracias|perfecto|excelente|listo)/,
+  /reenvi[ae]rme el pedido|me reenv[ií]as el pedido/,
+]
+
+// Reorden autocontenido: se refiere al pedido anterior por su naturaleza ("repetir",
+// "el mismo de antes") sin necesitar contexto de producto del turno para desambiguar.
+const EXPLICIT_REORDER_PATTERNS = [
+  /repetir (el |)pedido|repite(me | |)(el |)(primer |)pedido|repet[ií] (el |)(primer |)pedido/,
+  /el (mismo|mismo producto|mismo modelo) (de |que )(la vez pasada|antes|anterior)|otra vez el pedido|de nuevo el pedido|otro igual al (de |de la vez pasada|anterior)/,
+  /quiero reponer|reponer el producto|necesito reponer|reponer (este|esto|el) /,
+]
+
+// Compra anafórica: pronombres/elipsis sobre el producto activo (requiere productId).
+const ANAPHORIC_PURCHASE_PATTERNS = [
+  /lo quiero|lo llevo|lo pido|d[áa]melo|d[áa]me otro|quiero otro|quiero m[áa]s|necesito otro|me llevo otro|otro igual|m[áa]ndame|ord[ée]name|rec[áa]rgame/,
+  /(quiero|necesito|me gustar[ií]a|voy a comprar|quiero comprar|me llevo|comprarlo|comprarla) (otro|uno|m[áa]s|de nuevo|el|la|lo)/,
+  // solo el verbo de compra + contexto de producto del turno (productId) basta
+  /\b(quiero|necesito|me gustar[ií]a|voy a comprar|quiero comprar)\b/,
+]
+
+// Producto DISTINTO al activo: posible compra nueva pero de otro SKU — el scope
+// activo (productId) NO corresponde a lo pedido → se degrada a ambiguous.
+const DIFFERENT_PRODUCT_PATTERNS = [
+  /otro producto|el otro|otro modelo|otra presentaci[oó]n|otra presentacion|otro color|otra talla|otra marca|diferente|otro de la|otra cosa|algo distinto/,
+]
+
+const AMBIGUOUS_PATTERNS = [
+  /me (lo |)mandas de nuevo|me (lo |)env[ií]as de nuevo/,
+  /otra vez (lo mismo|la misma|el mismo)/,
+  /lo mismo (de |que )la vez pasada|lo mismo de antes/,
+  /el (que |)me (vendiste|dijiste|mostraste) antes|ese que (vi |mostraste )antes/,
+  /igual al (que |)anterior|igual al (de |de la vez pasada)/,
+  /ese mismo|quiero el mismo/,
+  /uno igual|el igual/,
+]
+
+export function isExplicitNewPurchaseIntent(
+  message: string,
+  productId: string | null
+): 'explicit' | 'followup' | 'delivery_issue' | 'ambiguous' {
+  const normalized = normalizeNfd(message)
+
+  if (DELIVERY_ISSUE_PATTERNS.some((p) => p.test(normalized))) return 'delivery_issue'
+  if (FOLLOWUP_PATTERNS.some((p) => p.test(normalized))) return 'followup'
+  if (DIFFERENT_PRODUCT_PATTERNS.some((p) => p.test(normalized))) return 'ambiguous'
+  if (EXPLICIT_REORDER_PATTERNS.some((p) => p.test(normalized))) return 'explicit'
+  // Frases ambiguas conocidas (p.ej. "quiero el mismo", "me lo mandas de nuevo") se
+  // evalúan ANTES de la compra anafórica: no son evidencia suficiente por sí solas.
+  if (AMBIGUOUS_PATTERNS.some((p) => p.test(normalized))) return 'ambiguous'
+  if (productId && ANAPHORIC_PURCHASE_PATTERNS.some((p) => p.test(normalized))) {
+    return 'explicit'
+  }
+  return 'ambiguous'
+}
+
 const CANCELLATION_SYSTEM_PROMPT = `Eres un analizador de intenciones de cancelación de compra.
 Analiza la conversación y determina si el cliente confirma que quiere cancelar un pedido reciente.
 

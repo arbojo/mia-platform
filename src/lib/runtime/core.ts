@@ -253,6 +253,8 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     }
   }
 
+  const activeProductIdentity = resolveActiveProductIdentity(scopeContext)
+
   // P1-6: feedback mínimo de media resolvida adjunto al prompt (doc 28 §3).
   // B3: anchor del producto activo determinístico compuesto post-cache (doc 30 §3).
   const systemPromptForAI = ranMediaResolution
@@ -278,7 +280,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           product: feedbackProduct,
           mediaType: selectedAsset?.mediaType ?? null,
         }),
-        resolveActiveProductIdentity(scopeContext)
+        activeProductIdentity
       )
     : systemPrompt
 
@@ -359,6 +361,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           conversationId: input.conversationId,
           customerId,
           canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
+          productContextId: activeProductIdentity?.productId ?? null,
           messages: [...chatMessages, { role: 'assistant', content: finalResponse }],
         })
       } catch (err) {
@@ -436,6 +439,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
               conversationId: input.conversationId,
               customerId,
               canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
+              productContextId: activeProductIdentity?.productId ?? null,
               messages: [...chatMessages, { role: 'assistant', content: finalText }],
             })
           } catch (err) {

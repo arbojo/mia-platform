@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/runtime/execute-ai', () => ({ executeAI: vi.fn() }))
 
-import { hasSalesTrigger, detectSaleOutcome, hasShortAffirmative, hasPendingConfirmationRequest } from '@/lib/sales/detect'
+import { hasSalesTrigger, detectSaleOutcome, hasShortAffirmative, hasPendingConfirmationRequest, isExplicitNewPurchaseIntent } from '@/lib/sales/detect'
 import { executeAI } from '@/lib/runtime/execute-ai'
 
 function mockDetection(payload: unknown): void {
@@ -221,5 +221,55 @@ describe('hasPendingConfirmationRequest (gate contextual — TASK-20260830-00551
   it('retorna false sin mensajes previos del asistente', () => {
     expect(hasPendingConfirmationRequest([{ role: 'user', content: 'sí' }])).toBe(false)
     expect(hasPendingConfirmationRequest([])).toBe(false)
+  })
+})
+
+describe('isExplicitNewPurchaseIntent (recompra en conversaciones cerradas)', () => {
+  it('clasifica queja de entrega fallida como delivery_issue ANTES que cualquier reorden', () => {
+    expect(isExplicitNewPurchaseIntent('esa vez no me llegó, ¿me lo mandas de nuevo?', 'p-1')).toBe('delivery_issue')
+    expect(isExplicitNewPurchaseIntent('no me ha llegado nada de mi pedido', 'p-1')).toBe('delivery_issue')
+    expect(isExplicitNewPurchaseIntent('ya pagué y todavía no me llega', 'p-1')).toBe('delivery_issue')
+    expect(isExplicitNewPurchaseIntent('nunca recibí el paquete', 'p-1')).toBe('delivery_issue')
+  })
+
+  it('clasifica seguimiento de estatus como followup (bloqueo anti-loop)', () => {
+    expect(isExplicitNewPurchaseIntent('¿ya va en camino mi pedido?', 'p-1')).toBe('followup')
+    expect(isExplicitNewPurchaseIntent('¿cuándo llega?', 'p-1')).toBe('followup')
+    expect(isExplicitNewPurchaseIntent('¿dónde está mi pedido?', 'p-1')).toBe('followup')
+    expect(isExplicitNewPurchaseIntent('¿y mi envío?', 'p-1')).toBe('followup')
+    expect(isExplicitNewPurchaseIntent('quiero que me lo cambien', 'p-1')).toBe('followup')
+    expect(isExplicitNewPurchaseIntent('gracias, quedó perfecto', 'p-1')).toBe('followup')
+  })
+
+  it('clasifica like reorder autocontenido como explicit SIN necesidad de productId', () => {
+    expect(isExplicitNewPurchaseIntent('repite el pedido del Clean Nails', null)).toBe('explicit')
+    expect(isExplicitNewPurchaseIntent('repetí el primer pedido', null)).toBe('explicit')
+    expect(isExplicitNewPurchaseIntent('el mismo de la vez pasada', null)).toBe('explicit')
+    expect(isExplicitNewPurchaseIntent('quiero reponer el producto', null)).toBe('explicit')
+  })
+
+  it('clasifica compra anafórica como explicit solo CON contexto de producto (productId)', () => {
+    expect(isExplicitNewPurchaseIntent('quiero comprarlo', 'p-clean-nails')).toBe('explicit')
+    expect(isExplicitNewPurchaseIntent('lo quiero', 'p-clean-nails')).toBe('explicit')
+    expect(isExplicitNewPurchaseIntent('dámelo', 'p-clean-nails')).toBe('explicit')
+    expect(isExplicitNewPurchaseIntent('otro igual', 'p-clean-nails')).toBe('explicit')
+    // Sin contexto de producto → no hay evidencia suficiente → ambiguous
+    expect(isExplicitNewPurchaseIntent('quiero comprarlo', null)).toBe('ambiguous')
+  })
+
+  it('producto DISTINTO al activo degrada a ambiguous aunque haya verbo de compra', () => {
+    expect(isExplicitNewPurchaseIntent('ahora quiero el otro producto', 'p-viejo')).toBe('ambiguous')
+    expect(isExplicitNewPurchaseIntent('quiero otro modelo', 'p-viejo')).toBe('ambiguous')
+    expect(isExplicitNewPurchaseIntent('quiero otra presentación', 'p-viejo')).toBe('ambiguous')
+  })
+
+  it('frases ambiguas sin evidencia de reorden → ambiguous', () => {
+    expect(isExplicitNewPurchaseIntent('¿me lo mandas de nuevo?', 'p-1')).toBe('ambiguous')
+    expect(isExplicitNewPurchaseIntent('otra vez lo mismo', 'p-1')).toBe('ambiguous')
+    expect(isExplicitNewPurchaseIntent('quiero el mismo', 'p-1')).toBe('ambiguous')
+  })
+
+  it('mensajes neutros en conversación cerrada → ambiguous (gating por evidencia decide)', () => {
+    expect(isExplicitNewPurchaseIntent('¿y qué más tienen?', 'p-1')).toBe('ambiguous')
   })
 })
