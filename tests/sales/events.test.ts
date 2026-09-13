@@ -3,15 +3,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: vi.fn(),
 }))
+vi.mock('@/lib/sales/canonical-product', () => ({
+  resolveCanonicalProductId: vi.fn(),
+}))
 
 import {
   emitSalesEvent,
   hasClosingEvent,
+  getSaleCycleState,
+  emitDeliveryIssueSignal,
   applyConversationOutcome,
   notifySaleToOwner,
   getCustomerName,
 } from '@/lib/sales/events'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { resolveCanonicalProductId } from '@/lib/sales/canonical-product'
 
 const mockedAdmin = vi.mocked(createAdminClient)
 
@@ -31,10 +37,21 @@ function makeTable(name: string) {
     ilike: vi.fn(() => table),
     in: vi.fn(() => table),
     limit: vi.fn(() => table),
+    order: vi.fn(() => table),
+    contains: vi.fn(() => table),
     single: vi.fn(() => table),
     maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null } as StubResult)),
     then: (resolve: (value: unknown) => unknown) =>
       resolve(Promise.resolve({ data: null, error: null } as StubResult)),
+  }
+  return table
+}
+
+const resolveTable = (name: string) => {
+  let table = tables.get(name)
+  if (!table) {
+    table = makeTable(name)
+    tables.set(name, table)
   }
   return table
 }
@@ -56,14 +73,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   tables.clear()
   mockedAdmin.mockReturnValue({
-    from: vi.fn((name: string) => {
-      let table = tables.get(name)
-      if (!table) {
-        table = makeTable(name)
-        tables.set(name, table)
-      }
-      return table
-    }),
+    from: vi.fn(resolveTable),
+    schema: vi.fn(() => ({ from: vi.fn(resolveTable) })),
   } as never)
 })
 
@@ -83,23 +94,27 @@ describe('emitSalesEvent', () => {
     expect(payload.metadata).toEqual({})
   })
 
-  it('resuelve product_id cuando existe el producto', async () => {
-    const products = stubTable('products', { data: { id: 'p-1' }, error: null })
+  it('resuelve product_id por el resolver canónico cuando existe el producto', async () => {
+    vi.mocked(resolveCanonicalProductId).mockResolvedValue('p-1')
     const table = stubTable('sales_events', { data: null, error: null })
     await emitSalesEvent({
       businessId: BUSINESS_ID,
       eventType: 'PRODUCT_SELECTED',
       productName: 'Bota de Cuero',
     })
-    expect(products.ilike).toHaveBeenCalledWith('name', 'Bota de Cuero')
+    expect(resolveCanonicalProductId).toHaveBeenCalledWith({
+      businessId: BUSINESS_ID,
+      productId: null,
+      name: 'Bota de Cuero',
+    })
     const [payload] = table.insert.mock.calls[0]
     expect(payload.product_id).toBe('p-1')
     expect((payload.metadata as { product_name: string }).product_name).toBe('Bota de Cuero')
   })
 
-  it('no resuelve product_id cuando el producto no existe', async () => {
+  it('persiste product_id null cuando el resolver canónico no encuentra match', async () => {
+    vi.mocked(resolveCanonicalProductId).mockResolvedValue(null)
     const table = stubTable('sales_events', { data: null, error: null })
-    stubTable('products', { data: null, error: null })
     await emitSalesEvent({
       businessId: BUSINESS_ID,
       eventType: 'PRODUCT_SELECTED',
@@ -125,7 +140,7 @@ describe('emitSalesEvent', () => {
   })
 
   it('B1b: cae a resolucion por nombre solo cuando no hay productId', async () => {
-    stubTable('products', { data: { id: 'p-1' }, error: null })
+    vi.mocked(resolveCanonicalProductId).mockResolvedValue('p-1')
     const table = stubTable('sales_events', { data: null, error: null })
     await emitSalesEvent({
       businessId: BUSINESS_ID,
@@ -146,6 +161,140 @@ describe('hasClosingEvent', () => {
   it('devuelve false cuando no existe', async () => {
     stubTable('sales_events', { data: null, error: null })
     expect(await hasClosingEvent(CONVERSATION_ID)).toBe(false)
+  })
+})
+
+describe('getSaleCycleState', () => {
+  it('reconoce conversación cerrada SIN ciclo nuevo', async () => {
+    stubTable('sales_events', {
+      data: [{ event_type: 'SALE_WON', created_at: '2026-08-30T12:00:00Z' }],
+      error: null,
+    })
+    expect(await getSaleCycleState(CONVERSATION_ID)).toEqual({
+      hasClosed: true,
+      hasOpenCycle: false,
+    })
+  })
+
+  it('detecta ciclo nuevo abierto DESPUÉS del cierre (recompra en curso)', async () => {
+    stubTable('sales_events', {
+      data: [
+        { event_type: 'SALE_STARTED', created_at: '2026-09-12T01:15:00Z' },
+        { event_type: 'SALE_WON', created_at: '2026-08-30T12:00:00Z' },
+      ],
+      error: null,
+    })
+    expect(await getSaleCycleState(CONVERSATION_ID)).toEqual({
+      hasClosed: true,
+      hasOpenCycle: true,
+    })
+  })
+
+  it('ignora eventos PREVIOS al cierre al calcular el ciclo abierto', async () => {
+    stubTable('sales_events', {
+      data: [
+        { event_type: 'SALE_WON', created_at: '2026-08-30T12:00:00Z' },
+        { event_type: 'SALE_STARTED', created_at: '2026-08-25T10:00:00Z' },
+      ],
+      error: null,
+    })
+    expect(await getSaleCycleState(CONVERSATION_ID)).toEqual({
+      hasClosed: true,
+      hasOpenCycle: false,
+    })
+  })
+
+  it('conversación sin cierre con venta en curso estándar', async () => {
+    stubTable('sales_events', {
+      data: [{ event_type: 'SALE_STARTED', created_at: '2026-09-12T01:15:00Z' }],
+      error: null,
+    })
+    expect(await getSaleCycleState(CONVERSATION_ID)).toEqual({
+      hasClosed: false,
+      hasOpenCycle: true,
+    })
+  })
+
+  it('devolucion/cancelación cuentan como cierre', async () => {
+    stubTable('sales_events', {
+      data: [{ event_type: 'SALE_CANCELLED', created_at: '2026-08-30T12:00:00Z' }],
+      error: null,
+    })
+    expect(await getSaleCycleState(CONVERSATION_ID)).toEqual({
+      hasClosed: true,
+      hasOpenCycle: false,
+    })
+  })
+
+  it('conversación sin eventos → sin cierre y sin ciclo abierto', async () => {
+    stubTable('sales_events', { data: [], error: null })
+    expect(await getSaleCycleState(CONVERSATION_ID)).toEqual({
+      hasClosed: false,
+      hasOpenCycle: false,
+    })
+  })
+})
+
+describe('emitDeliveryIssueSignal', () => {
+  it('inserta señal de entrega no recibida con order_number del pedido delivery', async () => {
+    stubTable('mia_signals', { data: null, error: null })
+    stubTable('orders', { data: { order_number: 'ORD-000012' }, error: null })
+    stubTable('customers', { data: { name: 'David Ramírez' }, error: null })
+
+    await emitDeliveryIssueSignal({
+      businessId: BUSINESS_ID,
+      conversationId: CONVERSATION_ID,
+      customerId: CUSTOMER_ID,
+      complaint: 'esa vez no me llegó nada del pedido',
+    })
+
+    const mia = tables.get('mia_signals')!
+    expect(mia.insert).toHaveBeenCalledTimes(1)
+    const [payload] = mia.insert.mock.calls[0]
+    expect(payload.type).toBe('CUSTOMER')
+    expect(payload.priority).toBe('atencion')
+    expect(payload.source).toBe('sales-delivery-issue')
+    expect(payload.status).toBe('pending')
+    expect(payload.title).toContain('ORD-000012')
+    expect(payload.message).toContain('David Ramírez')
+    expect(payload.action_available).toBe('open_conversation')
+    expect(payload.action_payload).toMatchObject({
+      conversation_id: CONVERSATION_ID,
+      order_number: 'ORD-000012',
+      complaint: 'esa vez no me llegó nada del pedido',
+    })
+  })
+
+  it('no duplica señal cuando ya existe una pendiente para la conversación', async () => {
+    stubTable('mia_signals', { data: { id: 'sig-1' }, error: null })
+    stubTable('customers', { data: { name: 'David' }, error: null })
+
+    await emitDeliveryIssueSignal({
+      businessId: BUSINESS_ID,
+      conversationId: CONVERSATION_ID,
+      customerId: CUSTOMER_ID,
+      complaint: 'no me llegó',
+    })
+
+    expect(tables.get('mia_signals')!.insert).not.toHaveBeenCalled()
+  })
+
+  it('resuelve el # de pedido desde SALE_WON cuando delivery no tiene orden', async () => {
+    stubTable('mia_signals', { data: null, error: null })
+    stubTable('orders', { data: null, error: null })
+    stubTable('sales_events', { data: { id: 'won-1' }, error: null })
+    stubTable('customers', { data: null, error: null })
+
+    await emitDeliveryIssueSignal({
+      businessId: BUSINESS_ID,
+      conversationId: CONVERSATION_ID,
+      customerId: CUSTOMER_ID,
+      complaint: 'no recibí el paquete',
+    })
+
+    const [payload] = tables.get('mia_signals')!.insert.mock.calls[0]
+    expect(payload.title).toBe('Entrega no recibida — VTA-WON-1')
+    expect(payload.message).toContain('Cliente reporta')
   })
 })
 

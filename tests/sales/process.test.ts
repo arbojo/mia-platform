@@ -9,27 +9,36 @@ vi.mock('@/lib/sales/detect', () => ({
   hasCancellationTrigger: vi.fn(),
   hasShortAffirmative: vi.fn(),
   hasPendingConfirmationRequest: vi.fn(),
+  isExplicitNewPurchaseIntent: vi.fn(),
 }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/sales/events', () => ({
   applyConversationOutcome: vi.fn(),
+  emitDeliveryIssueSignal: vi.fn(),
   emitSalesEvent: vi.fn(),
   getCustomerData: vi.fn(),
   getCustomerName: vi.fn(),
+  getSaleCycleState: vi.fn(),
   hasCancellationLock: vi.fn(),
-  hasClosingEvent: vi.fn(),
   notifySaleToOwner: vi.fn(),
 }))
 
 import { processSaleClosing, isDiscountOfferSentinel, DISCOUNT_OFFERED_SENTINEL } from '@/lib/sales/process'
-import { hasSalesTrigger, hasShortAffirmative, hasPendingConfirmationRequest, detectSaleOutcome } from '@/lib/sales/detect'
+import {
+  hasSalesTrigger,
+  hasShortAffirmative,
+  hasPendingConfirmationRequest,
+  detectSaleOutcome,
+  isExplicitNewPurchaseIntent,
+} from '@/lib/sales/detect'
 import {
   applyConversationOutcome,
+  emitDeliveryIssueSignal,
   emitSalesEvent,
   getCustomerData,
   getCustomerName,
+  getSaleCycleState,
   hasCancellationLock,
-  hasClosingEvent,
   notifySaleToOwner,
 } from '@/lib/sales/events'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -66,13 +75,17 @@ vi.mocked(createAdminClient).mockReturnValue({
 beforeEach(() => {
   vi.mocked(hasSalesTrigger).mockReset()
   vi.mocked(detectSaleOutcome).mockReset()
+  vi.mocked(isExplicitNewPurchaseIntent).mockReset()
   vi.mocked(applyConversationOutcome).mockReset()
   vi.mocked(emitSalesEvent).mockReset()
+  vi.mocked(emitDeliveryIssueSignal).mockReset()
   vi.mocked(getCustomerData).mockReset()
   vi.mocked(getCustomerName).mockReset()
   vi.mocked(hasCancellationLock).mockReset()
-  vi.mocked(hasClosingEvent).mockReset()
   vi.mocked(notifySaleToOwner).mockReset()
+  vi.mocked(getSaleCycleState).mockReset()
+  vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
+  vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('ambiguous')
   mockUpdate.mockClear()
   maybeSingle.mockResolvedValue({ data: null })
 })
@@ -105,7 +118,7 @@ describe('processSaleClosing', () => {
       address: 'Av. Siempre Viva 123',
     })
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue('Juan')
 
@@ -150,33 +163,106 @@ describe('processSaleClosing', () => {
     expect(mockUpdate).toHaveBeenCalled()
   })
 
-  it('skips events when the conversation already closed', async () => {
+  it('conversación cerrada SIN ciclo nuevo + followup → bloqueo anti-loop (sin LLM)', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
     vi.mocked(detectSaleOutcome).mockResolvedValue({
       outcome: 'sold',
       events: [{ type: 'SALE_WON', amount: null }],
     })
-    vi.mocked(hasClosingEvent).mockResolvedValue(true)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: true, hasOpenCycle: false })
+    vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('followup')
 
     await processSaleClosing(params)
 
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
     expect(emitSalesEvent).not.toHaveBeenCalled()
     expect(applyConversationOutcome).not.toHaveBeenCalled()
     expect(notifySaleToOwner).not.toHaveBeenCalled()
   })
 
-  it('does not emit any events when the conversation is already closed (blindaje anti-loop)', async () => {
+  it('queja de entrega en conversación cerrada → señal mia_signals, sin ciclo nuevo', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
-    vi.mocked(detectSaleOutcome).mockResolvedValue({
-      outcome: 'sold',
-      events: [{ type: 'PRODUCT_SELECTED', productName: 'Combo 1' }],
-    })
-    vi.mocked(hasClosingEvent).mockResolvedValue(true)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: true, hasOpenCycle: false })
+    vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('delivery_issue')
 
     await processSaleClosing(params)
 
+    expect(emitDeliveryIssueSignal).toHaveBeenCalledWith({
+      businessId: 'biz-1',
+      conversationId: 'conv-1',
+      customerId: 'cust-1',
+      complaint: 'sí, confirmo el pedido',
+    })
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+
+  it('recompra EXPLÍCITA tras cierre sin ciclo abierto → abre nuevo ciclo y emite venta', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [
+        { type: 'SALE_STARTED', productName: 'Clean Nails' },
+        { type: 'SALE_WON', productName: 'Clean Nails', amount: 599 },
+      ],
+      customerName: 'David',
+      address: 'Clemente Aguirre 301',
+    })
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: true, hasOpenCycle: false })
+    vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('explicit')
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+    vi.mocked(getCustomerName).mockResolvedValue('David')
+
+    await processSaleClosing(params)
+
+    expect(hasSalesTrigger).toHaveBeenCalled()
+    expect(detectSaleOutcome).toHaveBeenCalled()
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'SALE_WON', productName: 'Clean Nails', amount: 599 })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'sold' })
+    )
+  })
+
+  it('intención AMBIGUA tras cierre sin evidencia de flujo nuevo (sin SALE_STARTED) → descarta SALE_WON (RC5c)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Clean Nails', amount: 599 }],
+    })
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: true, hasOpenCycle: false })
+    vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('ambiguous')
+
+    await processSaleClosing(params)
+
+    expect(detectSaleOutcome).toHaveBeenCalled()
     expect(emitSalesEvent).not.toHaveBeenCalled()
     expect(applyConversationOutcome).not.toHaveBeenCalled()
+    expect(notifySaleToOwner).not.toHaveBeenCalled()
+  })
+
+  it('cambio de producto activo (ambiguo por producto distinto) → requiere flujo nuevo para cerrar', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [
+        { type: 'PRODUCT_SELECTED', productName: 'Neurotin', amount: 449 },
+        { type: 'SALE_WON', productName: 'Neurotin', amount: 449 },
+      ],
+    })
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: true, hasOpenCycle: false })
+    vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('ambiguous')
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+    vi.mocked(getCustomerName).mockResolvedValue('David')
+
+    await processSaleClosing(params)
+
+    // Evidencia de flujo nuevo (PRODUCT_SELECTED) presente → cierre permitido
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'SALE_WON', productName: 'Neurotin' })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalled()
   })
 
   it('updates customer address when provided', async () => {
@@ -187,7 +273,7 @@ describe('processSaleClosing', () => {
       address: 'Calle 1',
     })
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue(null)
 
@@ -205,7 +291,7 @@ describe('processSaleClosing', () => {
       phone: '5491100000000',
     })
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(getCustomerData).mockResolvedValue(null)
 
     await processSaleClosing(params)
@@ -239,7 +325,7 @@ describe('processSaleClosing', () => {
       outcome: 'cancelled',
       events: [],
     })
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
 
     await processSaleClosing(params)
 
@@ -257,7 +343,7 @@ describe('processSaleClosing', () => {
       address: 'Av. Siempre Viva 123',
     })
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue(null)
 
@@ -280,7 +366,7 @@ describe('processSaleClosing', () => {
       address: 'Calle 1',
     })
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(getCustomerData).mockResolvedValue({ name: 'Nombre Existente', phone: null, city: null, address: null })
 
     await processSaleClosing(params)
@@ -296,7 +382,7 @@ describe('processSaleClosing', () => {
       address: 'Calle 1',
     })
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(getCustomerData).mockResolvedValue(null)
     mockUpdate.mockImplementationOnce(() => ({
       eq: vi.fn().mockResolvedValue({ error: { message: 'db write failed' } }),
@@ -347,37 +433,8 @@ describe('isDiscountOfferSentinel', () => {
 })
 
 // === Gate contextual de afirmativas cortas (TASK-20260830-005512058) ===
-// Mock de DB que despacha por tabla para las queries de estado del gate:
-// conversations.outcome y existencia de SALE_STARTED.
-function mockGateStateDb(state: { outcome: string | null; saleStarted: boolean }) {
-  vi.mocked(createAdminClient).mockImplementationOnce(() => {
-    const from = vi.fn((table: string) => {
-      if (table === 'conversations') {
-        return {
-          select: () => ({
-            eq: () => ({
-              maybeSingle: async () => ({ data: { outcome: state.outcome } }),
-            }),
-          }),
-        }
-      }
-      return {
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              limit: () => ({
-                maybeSingle: async () => ({
-                  data: state.saleStarted ? { id: 'se-started-1' } : null,
-                }),
-              }),
-            }),
-          }),
-        }),
-      }
-    })
-    return { from } as unknown as ReturnType<typeof createAdminClient>
-  })
-}
+// Una afirmativa corta SOLO dispara la detección cuando existe un ciclo de venta
+// abierto (SALE_STARTED/PRODUCT_SELECTED posterior al último cierre, o sin cierre).
 
 describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
   const affirmativeParams = {
@@ -394,7 +451,7 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     vi.mocked(hasShortAffirmative).mockReturnValue(true)
     vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
     vi.mocked(detectSaleOutcome).mockResolvedValue({
       outcome: 'sold',
       events: [{ type: 'SALE_WON', productName: 'Clean Nails', amount: 599 }],
@@ -402,10 +459,9 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     })
     vi.mocked(getCustomerData).mockResolvedValue(null)
     vi.mocked(getCustomerName).mockResolvedValue('David')
-    mockGateStateDb({ outcome: 'pending', saleStarted: true })
   }
 
-  it('afirmativa corta con confirmación pendiente y venta pendiente → corre detección y emite SALE_WON', async () => {
+  it('afirmativa corta con confirmación pendiente y ciclo abierto → corre detección y emite SALE_WON', async () => {
     setupHappyPath()
 
     await processSaleClosing(affirmativeParams)
@@ -424,7 +480,7 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     vi.mocked(hasShortAffirmative).mockReturnValue(true)
     vi.mocked(hasPendingConfirmationRequest).mockReturnValue(false)
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
 
     await processSaleClosing(affirmativeParams)
 
@@ -432,13 +488,12 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     expect(emitSalesEvent).not.toHaveBeenCalled()
   })
 
-  it('afirmativa corta con confirmación pendiente pero outcome !== pending → NO corre detección', async () => {
+  it('afirmativa corta en conversación cerrada SIN ciclo nuevo → NO corre detección (RC5c)', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(false)
     vi.mocked(hasShortAffirmative).mockReturnValue(true)
     vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
-    mockGateStateDb({ outcome: 'sold', saleStarted: true })
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: true, hasOpenCycle: false })
 
     await processSaleClosing(affirmativeParams)
 
@@ -446,13 +501,12 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     expect(emitSalesEvent).not.toHaveBeenCalled()
   })
 
-  it('afirmativa corta sin SALE_STARTED previo → NO corre detección', async () => {
+  it('afirmativa corta sin SALE_STARTED previo (sin ciclo abierto) → NO corre detección', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(false)
     vi.mocked(hasShortAffirmative).mockReturnValue(true)
     vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
-    mockGateStateDb({ outcome: 'pending', saleStarted: false })
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: false })
 
     await processSaleClosing(affirmativeParams)
 
@@ -465,7 +519,7 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     vi.mocked(hasShortAffirmative).mockReturnValue(true)
     vi.mocked(hasPendingConfirmationRequest).mockReturnValue(true)
     vi.mocked(hasCancellationLock).mockResolvedValue(true)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
 
     await processSaleClosing(affirmativeParams)
 
@@ -477,7 +531,7 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(false)
     vi.mocked(hasShortAffirmative).mockReturnValue(false)
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
-    vi.mocked(hasClosingEvent).mockResolvedValue(false)
+    vi.mocked(getSaleCycleState).mockResolvedValue({ hasClosed: false, hasOpenCycle: true })
 
     await processSaleClosing(affirmativeParams)
 

@@ -115,6 +115,122 @@ export async function hasClosingEvent(conversationId: string): Promise<boolean> 
   return Boolean(data)
 }
 
+export interface SaleCycleState {
+  hasClosed: boolean
+  /** Existe una venta en curso DESPUÉS del último cierre (SALE_STARTED/PRODUCT_SELECTED). */
+  hasOpenCycle: boolean
+}
+
+/**
+ * Estado del ciclo de venta de una conversación, en una sola consulta.
+ *
+ * Reemplaza el early-return anti-loop basado solo en hasClosingEvent: permite
+ * recompra legítima (nuevo ciclo tras cierre) a la vez que blinda contra la
+ * reconfirmación de un cierre anterior. Sin ningún evento de cierre, hasClosed
+ * es false y hasOpenCycle refleja la existencia de una venta en curso estándar.
+ */
+export async function getSaleCycleState(conversationId: string): Promise<SaleCycleState> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('sales_events')
+    .select('event_type, created_at')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: false })
+    .limit(100)
+  const events = data ?? []
+
+  const closing = events.find(
+    (e) => e.event_type === 'SALE_WON' || e.event_type === 'SALE_LOST' || e.event_type === 'SALE_CANCELLED'
+  )
+  if (!closing) {
+    return {
+      hasClosed: false,
+      hasOpenCycle: events.some(
+        (e) => e.event_type === 'SALE_STARTED' || e.event_type === 'PRODUCT_SELECTED'
+      ),
+    }
+  }
+
+  const closingTime = new Date(closing.created_at).getTime()
+  return {
+    hasClosed: true,
+    hasOpenCycle: events.some(
+      (e) =>
+        (e.event_type === 'SALE_STARTED' || e.event_type === 'PRODUCT_SELECTED') &&
+        new Date(e.created_at).getTime() > closingTime
+    ),
+  }
+}
+
+export async function emitDeliveryIssueSignal(params: {
+  businessId: string
+  conversationId: string
+  customerId: string
+  complaint: string
+}): Promise<void> {
+  const supabase = createAdminClient()
+
+  // Idempotencia: si ya existe una señal NO resuelta de queja de entrega para
+  // esta conversación, no duplicar. El chat sigue fluyendo normal de todos modos.
+  const { data: existing } = await supabase
+    .from('mia_signals')
+    .select('id')
+    .eq('source', 'sales-delivery-issue')
+    .eq('status', 'pending')
+    .contains('action_payload', { conversation_id: params.conversationId })
+    .limit(1)
+    .maybeSingle()
+  if (existing) return
+
+  let orderNumber: string | null = null
+  try {
+    const { data: order } = await supabase
+      .schema('delivery')
+      .from('orders')
+      .select('order_number')
+      .eq('conversation_id', params.conversationId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    orderNumber = order?.order_number ?? null
+  } catch {
+    // schema delivery no disponible — se resuelve el # de pedido por SALE_WON
+  }
+  if (!orderNumber) {
+    const { data: saleWon } = await supabase
+      .from('sales_events')
+      .select('id')
+      .eq('conversation_id', params.conversationId)
+      .eq('event_type', 'SALE_WON')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (saleWon) {
+      orderNumber = await fetchOrderNumber(saleWon.id)
+    }
+  }
+
+  const customer = await getCustomerData(params.customerId)
+  const customerName = customer?.name?.trim() || 'Cliente'
+  const complaintPreview = params.complaint.trim().slice(0, 200)
+
+  await supabase.from('mia_signals').insert({
+    business_id: params.businessId,
+    type: 'CUSTOMER',
+    priority: 'atencion',
+    title: orderNumber ? `Entrega no recibida — ${orderNumber}` : 'Entrega no recibida',
+    message: `${customerName} reporta que no recibió su pedido${orderNumber ? ` ${orderNumber}` : ''}. Queja: “${complaintPreview}”.`,
+    source: 'sales-delivery-issue',
+    status: 'pending',
+    action_available: 'open_conversation',
+    action_payload: {
+      conversation_id: params.conversationId,
+      order_number: orderNumber,
+      complaint: complaintPreview,
+    },
+  })
+}
+
 export async function applyConversationOutcome(params: {
   conversationId: string
   outcome: ConversationOutcome

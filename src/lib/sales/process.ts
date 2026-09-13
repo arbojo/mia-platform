@@ -6,17 +6,19 @@ import {
   hasPendingConfirmationRequest,
   hasSalesTrigger,
   hasShortAffirmative,
+  isExplicitNewPurchaseIntent,
 } from './detect'
 import { processCancellation } from './cancel'
 import {
   applyConversationOutcome,
+  emitDeliveryIssueSignal,
   emitSaleConfirmed,
   emitSalesEvent,
   fetchOrderNumber,
   getCustomerData,
   getCustomerName,
+  getSaleCycleState,
   hasCancellationLock,
-  hasClosingEvent,
   isRetentionConflictError,
   notifySaleToOwner,
 } from './events'
@@ -374,13 +376,28 @@ export async function processSaleClosing(params: {
   conversationId: string
   customerId: string
   canonicalProductId?: string | null
+  productContextId?: string | null
   messages: Array<{ role: string; content: string }>
 }): Promise<void> {
-  const { businessId, assistantId, conversationId, customerId, canonicalProductId, messages } = params
+  const {
+    businessId,
+    assistantId,
+    conversationId,
+    customerId,
+    canonicalProductId,
+    productContextId,
+    messages,
+  } = params
   const supabaseAdmin = createAdminClient()
 
   const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
   if (!lastUserMessage) return
+
+  // Contexto de producto del turno: el id del producto recomendado del turno (query
+  // directa a DB) o, en su defecto, el anchor del producto activo del scope. En la
+  // recompra ("quiero comprarlo") el id canónico del turno puede ser null pero el
+  // anchor del scope resuelve al producto en diálogo.
+  const productId = canonicalProductId ?? productContextId ?? null
 
   // SAFETY NET: primary interception is in webhook/route.ts via
   // handleCancellationWebhook(). This check exists as belt-and-suspenders
@@ -410,9 +427,34 @@ export async function processSaleClosing(params: {
     return
   }
 
-  // === STEP 1: Anti-loop — skip if closing event already exists ===
-  const hasClosed = await hasClosingEvent(conversationId)
-  if (hasClosed) return
+  // === STEP 1: Estado del ciclo de venta (anti-loop + recompra legítima) ===
+  // La conversación es UN hilo de WhatsApp para siempre (resolver.ts); los ciclos
+  // de venta son múltiples y permitidos por C1/ADR. Se lee el estado en UNA
+  // consulta: cierre previo + ciclo nuevo abierto DESPUÉS de ese cierre.
+  const cycleState = await getSaleCycleState(conversationId)
+
+  // === STEP 1.1: Queja de entrega fallida (post-cierre) — señal, nunca silenciosa ===
+  // No abre ciclo de venta, pero dispara mia_signals para que David/el equipo
+  // actúe. Se detecta ANTES del pre-gate porque frases como "no me llegó nada"
+  // no pasan el pre-gate de ventas y no deben silenciarse igualmente.
+  let newPurchaseIntent: 'explicit' | 'followup' | 'delivery_issue' | 'ambiguous' | null = null
+  if (cycleState.hasClosed) {
+    newPurchaseIntent = isExplicitNewPurchaseIntent(lastUserMessage.content, productId)
+    if (newPurchaseIntent === 'delivery_issue') {
+      await emitDeliveryIssueSignal({
+        businessId,
+        conversationId,
+        customerId,
+        complaint: lastUserMessage.content,
+      })
+      return
+    }
+    // Anti-loop: cierre previo y SIN ciclo nuevo abierto → solo procede recompra
+    // explícita. Seguimiento/reconfirmación del pedido cerrado (followup) queda
+    // bloqueado sin pagar LLM. La afirmativa "ok" sobre un pedido viejo también
+    // se quiebra aquí si no hay SALE_STARTED posterior al cierre.
+    if (!cycleState.hasOpenCycle && newPurchaseIntent === 'followup') return
+  }
 
   // === STEP 1.5: Cancellation lock — blocks sale closing on cancelled conversations ===
   const isCancelled = await hasCancellationLock(conversationId)
@@ -421,30 +463,11 @@ export async function processSaleClosing(params: {
   // === STEP 2: Sales detection (existing flow) ===
   // Gate contextual de afirmativas cortas (TASK-20260830-005512058):
   // una afirmativa corta ("sí", "claro", "dale", ...) SOLO dispara la detección
-  // cuando existe una venta pendiente esperando confirmación explícita.
+  // cuando existe un ciclo de venta abierto esperando confirmación explícita.
   const affirmative = hasShortAffirmative(lastUserMessage.content)
   if (!hasSalesTrigger(lastUserMessage.content) && !affirmative) return
   if (affirmative && !hasPendingConfirmationRequest(messages)) return
-  if (affirmative) {
-    // Contrato: outcome === 'pending' + SALE_STARTED existente + sin cierre posterior.
-    // (Sin SALE_WON/SALE_CANCELLED posterior ya está garantizado por steps 1 y 1.5.)
-    const supabaseState = createAdminClient()
-    const [{ data: conv }, { data: started }] = await Promise.all([
-      supabaseState
-        .from('conversations')
-        .select('outcome')
-        .eq('id', conversationId)
-        .maybeSingle(),
-      supabaseState
-        .from('sales_events')
-        .select('id')
-        .eq('conversation_id', conversationId)
-        .eq('event_type', 'SALE_STARTED')
-        .limit(1)
-        .maybeSingle(),
-    ])
-    if (conv?.outcome !== 'pending' || !started) return
-  }
+  if (affirmative && !cycleState.hasOpenCycle) return
 
   const result = await detectSaleOutcome({
     businessId,
@@ -453,6 +476,22 @@ export async function processSaleClosing(params: {
   })
 
   if (!result.outcome && result.events.length === 0) return
+
+  // === STEP 2.5: ¿Se permite cerrar un nuevo ciclo desde el estado detectado? ===
+  // Recompra/cierre solo cuando: (a) no hubo cierre previo, (b) hay un ciclo nuevo
+  // abierto tras el cierre, (c) intención EXPLICITA de compra nueva (reorden
+  // autocontenido / verbo de compra con producto), o (d) intención ambigua con
+  // EVIDENCIA de flujo nuevo en ESTE resultado (SALE_STARTED/PRODUCT_SELECTED).
+  // Sin eso, un resultado SALE_WON sobre una conversación cerrada es
+  // reconfirmación del pedido viejo → se descarta (RC5c).
+  const newCycleFlow = result.events.some(
+    (e) => e.type === 'SALE_STARTED' || e.type === 'PRODUCT_SELECTED'
+  )
+  const allowClosing =
+    !cycleState.hasClosed ||
+    cycleState.hasOpenCycle ||
+    newPurchaseIntent === 'explicit' ||
+    (newPurchaseIntent === 'ambiguous' && newCycleFlow)
 
   // CLOSING-EVENT CUSTOMER PAYLOAD (TASK-20260908):
   // detectSaleOutcome ya extrajo nombre/teléfono/ciudad/dirección. El SALE_WON
@@ -481,13 +520,13 @@ export async function processSaleClosing(params: {
 
   for (const event of result.events) {
     const isClosing = event.type === 'SALE_WON' || event.type === 'SALE_LOST'
-    if (isClosing && hasClosed) continue
+    if (isClosing && !allowClosing) continue
 
     // MEDIUM-1: per-event product attribution.
     // Always prefer canonicalProductId (resolved by resolveRecommendedProduct,
     // a direct DB query). Previously bypassed when productName was present,
     // causing emitSalesEvent to fall through to the broken RPC resolver.
-    const resolvedProductId = canonicalProductId ?? undefined
+    const resolvedProductId = productId ?? undefined
 
     // SALE_WON amount resolution: LLM extraction is unreliable (transcript
     // rarely contains prices). Fall back to products.price via direct DB lookup.
@@ -540,7 +579,7 @@ export async function processSaleClosing(params: {
   // 'cancelled' is never a valid conversations.outcome (CHECK, migration 025).
   // Cancellation state lives exclusively in sales_cancelled_at + SALE_CANCELLED
   // event and is handled by the interception paths above.
-  if (result.outcome && result.outcome !== 'cancelled' && !hasClosed) {
+  if (result.outcome && result.outcome !== 'cancelled' && allowClosing) {
     await applyConversationOutcome({
       conversationId,
       outcome: result.outcome,
