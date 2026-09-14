@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/runtime/execute-ai', () => ({ executeAI: vi.fn() }))
 
-import { hasSalesTrigger, detectSaleOutcome, hasShortAffirmative, hasPendingConfirmationRequest, isExplicitNewPurchaseIntent } from '@/lib/sales/detect'
+import { hasSalesTrigger, detectSaleOutcome, hasShortAffirmative, hasPendingConfirmationRequest, isExplicitNewPurchaseIntent, hasCancellationTrigger } from '@/lib/sales/detect'
 import { executeAI } from '@/lib/runtime/execute-ai'
 
 function mockDetection(payload: unknown): void {
@@ -41,6 +41,36 @@ describe('hasSalesTrigger', () => {
 
   it('is case insensitive', () => {
     expect(hasSalesTrigger('QUIERO CONFIRMAR')).toBe(true)
+  })
+})
+
+describe('hasCancellationTrigger (causa raíz ORD-000012)', () => {
+  it.each([
+    'cancelo la compra',
+    'quiero cancelar mi pedido',
+    'cancelé la compra',
+    'ya fue cancelado mi pedido',
+    'la venta quedó cancelada',
+    'tuve que anular la compra',
+  ])('detecta intención de cancelar: %s', (msg) => {
+    expect(hasCancellationTrigger(msg)).toBe(true)
+  })
+
+  it("'cancele' cubre también 'cancelé' (NFD normaliza ambas a 'cancele')", () => {
+    expect(hasCancellationTrigger('cancele la venta')).toBe(true)
+    expect(hasCancellationTrigger('cancelé la venta')).toBe(true)
+    expect(hasCancellationTrigger('CANCELO LA COMPRA')).toBe(true)
+  })
+
+  it.each([
+    'hola, ¿cómo estás?',
+    '¿me explicas el precio?',
+    'gracias, chau',
+    'sí, quiero confirmar el pedido',
+    'me llevo el combo',
+    '¿cuánto cuesta?',
+  ])('rechaza mensajes normales de venta: %s', (msg) => {
+    expect(hasCancellationTrigger(msg)).toBe(false)
   })
 })
 

@@ -399,9 +399,16 @@ export async function processSaleClosing(params: {
   // anchor del scope resuelve al producto en diálogo.
   const productId = canonicalProductId ?? productContextId ?? null
 
-  // SAFETY NET: primary interception is in webhook/route.ts via
-  // handleCancellationWebhook(). This check exists as belt-and-suspenders
-  // in case a cancellation message reaches this path (e.g., training chat).
+  // === STEP 0.5: Cancellation Intention Gate — structural turn block ===
+  // If the CURRENT customer message expresses cancellation intent, this turn
+  // never proceeds to sales detection: no SALE_WON/SALE_STARTED/PRODUCT_SELECTED
+  // is emitted, regardless of what the customer said before. Unlike the RC6 guard
+  // in handleCancellationWebhook/retention, this gate does NOT require a prior
+  // SALE_WON: cancellation intent in the current turn blocks sale closing whether
+  // or not there is a sale to cancel. (Root cause ORD-000012: "Cancelo la compra"
+  // missed CANCELLATION_KEYWORDS → hasCancellationTrigger=false → this gate never
+  // fired → detectSaleOutcome emitted a spurious SALE_WON. Fixed in detect.ts by
+  // adding the first-person conjugations.)
   if (hasCancellationTrigger(lastUserMessage.content)) {
     const supabaseClient = createAdminClient()
     const { data: convState } = await supabaseClient
@@ -415,6 +422,9 @@ export async function processSaleClosing(params: {
       !isDiscountOfferSentinel(convState.sales_cancelled_at)
     if (isFullyCancelled) return
 
+    // No prior sale → processCancellation returns denied ("No se encontró una
+    // venta reciente para cancelar.") without emitting anything. In BOTH cases
+    // (denied/confirmed) the turn stays blocked: it never degrades to detection.
     await processCancellation({
       businessId,
       assistantId,
@@ -423,7 +433,6 @@ export async function processSaleClosing(params: {
       lastUserMessage: lastUserMessage.content,
       messages,
     })
-    // Blindaje: cancelación tiene prioridad absoluta sobre detección de ventas
     return
   }
 

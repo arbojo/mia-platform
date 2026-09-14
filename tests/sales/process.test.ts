@@ -12,6 +12,9 @@ vi.mock('@/lib/sales/detect', () => ({
   isExplicitNewPurchaseIntent: vi.fn(),
 }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
+vi.mock('@/lib/sales/cancel', () => ({
+  processCancellation: vi.fn(),
+}))
 vi.mock('@/lib/sales/events', () => ({
   applyConversationOutcome: vi.fn(),
   emitDeliveryIssueSignal: vi.fn(),
@@ -30,7 +33,9 @@ import {
   hasPendingConfirmationRequest,
   detectSaleOutcome,
   isExplicitNewPurchaseIntent,
+  hasCancellationTrigger,
 } from '@/lib/sales/detect'
+import { processCancellation } from '@/lib/sales/cancel'
 import {
   applyConversationOutcome,
   emitDeliveryIssueSignal,
@@ -62,6 +67,8 @@ vi.mocked(createAdminClient).mockReturnValue({
     update: mockUpdate,
     select: vi.fn(() => ({
       eq: vi.fn(() => ({
+        // Gate §0.5: select('sales_cancelled_at').eq('id').maybeSingle()
+        maybeSingle,
         eq: vi.fn(() => ({
           order: vi.fn(() => ({
             limit: vi.fn(() => ({ maybeSingle })),
@@ -74,6 +81,8 @@ vi.mocked(createAdminClient).mockReturnValue({
 
 beforeEach(() => {
   vi.mocked(hasSalesTrigger).mockReset()
+  vi.mocked(hasCancellationTrigger).mockReset()
+  vi.mocked(processCancellation).mockReset()
   vi.mocked(detectSaleOutcome).mockReset()
   vi.mocked(isExplicitNewPurchaseIntent).mockReset()
   vi.mocked(applyConversationOutcome).mockReset()
@@ -535,6 +544,78 @@ describe('processSaleClosing — gate contextual de afirmativas cortas', () => {
 
     await processSaleClosing(affirmativeParams)
 
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+})
+
+// === STEP 0.5: Cancellation Intention Gate (bloqueo estructural del turno) ===
+// El mensaje ACTUAL del cliente expresa intención de cancelar → el turno NUNCA
+// procede a detección de venta, SIN exigir un SALE_WON previo. Reproduce la
+// causa raíz de ORD-000012: una cancelación que llega ANTES de que exista la
+// venta ya no puede terminar en SALE_WON espurio + orden de delivery.
+
+describe('processSaleClosing — Cancellation Intention Gate (STEP 0.5)', () => {
+  const cancelMessages = {
+    ...params,
+    messages: [
+      { role: 'user', content: 'hola' },
+      { role: 'assistant', content: 'hola, ¿en qué te ayudo?' },
+      { role: 'user', content: 'sí, quiero confirmar el pedido' },
+      { role: 'assistant', content: '¿Te confirmo tu pedido del Combo 1?' },
+      { role: 'user', content: 'cancelo la compra' },
+    ],
+  }
+
+  it('bloquea el cierre del turno cuando el mensaje actual cancela, SIN SALE_WON previo [ORD-000012]', async () => {
+    vi.mocked(hasCancellationTrigger).mockReturnValue(true)
+    vi.mocked(processCancellation).mockResolvedValue({
+      processed: true,
+      action: 'denied',
+      message: 'No se encontró una venta reciente para cancelar.',
+    })
+    maybeSingle.mockResolvedValue({ data: null })
+
+    await processSaleClosing(cancelMessages)
+
+    // El gate corta ANTES de STEP 2: aunque el historial parezca venta ("compra"),
+    // el turno actual es una cancelación → el detector jamás corre.
+    expect(hasSalesTrigger).not.toHaveBeenCalled()
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+    expect(applyConversationOutcome).not.toHaveBeenCalled()
+    expect(processCancellation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'conv-1',
+        lastUserMessage: 'cancelo la compra',
+      })
+    )
+  })
+
+  it('el gate NO consulta ni exige un SALE_WON previo (bloqueo incondicional)', async () => {
+    vi.mocked(hasCancellationTrigger).mockReturnValue(true)
+    vi.mocked(processCancellation).mockResolvedValue({
+      processed: true,
+      action: 'confirmed',
+      message: 'Tu pedido fue cancelado.',
+    })
+    maybeSingle.mockResolvedValue({ data: null })
+
+    await processSaleClosing(params)
+
+    expect(detectSaleOutcome).not.toHaveBeenCalled()
+    expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+
+  it('conversación ya cancelada (fully cancelled) → retorna sin reprocesar', async () => {
+    vi.mocked(hasCancellationTrigger).mockReturnValue(true)
+    maybeSingle.mockResolvedValue({
+      data: { sales_cancelled_at: '2026-09-01T10:00:00.000Z' },
+    })
+
+    await processSaleClosing(params)
+
+    expect(processCancellation).not.toHaveBeenCalled()
     expect(detectSaleOutcome).not.toHaveBeenCalled()
     expect(emitSalesEvent).not.toHaveBeenCalled()
   })

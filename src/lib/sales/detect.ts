@@ -236,6 +236,10 @@ export async function detectSaleOutcome(params: {
 
 const CANCELLATION_KEYWORDS = [
   'cancelar', 'cancela', 'anular', 'anula', 'devolver', 'devuelvo',
+  // Primera persona / participio (desync con intent-classifier.ts — causa raíz
+  // ORD-000012): "Cancelo la compra" no matcheaba → hasCancellationTrigger=false.
+  // 'cancele' cubre también 'cancelé' (NFD: ambas normalizan a "cancele").
+  'cancelo', 'cancele', 'cancelado', 'cancelada',
   'no quiero', 'ya no quiero', 'me arrepentí', 'me arrepenti',
   'dame de baja', 'baja', 'reembolso', 'revertir', 'deshacer',
   'cambié de opinión', 'cambie de opinion', 'no lo quiero más',
