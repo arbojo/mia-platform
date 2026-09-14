@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 
+type TeachType = 'knowledge' | 'rule' | 'instruction'
+
 interface Evaluation {
   score: number
   criteria: {
@@ -22,7 +24,15 @@ interface SessionEvaluationProps {
   conversationId: string
   assistantId: string
   sessionId: string
-  onTeach: (suggestions: string[]) => void
+  onTeach: (suggestions: string[], defaultType: TeachType) => void
+}
+
+const CRITERION_TO_TYPE: Record<string, TeachType> = {
+  product_knowledge: 'knowledge',
+  rule_following: 'rule',
+  empathy: 'instruction',
+  closing: 'instruction',
+  objection_handling: 'instruction',
 }
 
 export function SessionEvaluation({
@@ -133,7 +143,13 @@ export function SessionEvaluation({
       )}
 
       <Button
-        onClick={() => onTeach(evaluation.suggestions)}
+        onClick={() => {
+          const weakest = (Object.keys(evaluation.criteria) as Array<keyof Evaluation['criteria']>)
+            .reduce((acc, key) =>
+              evaluation.criteria[key] < evaluation.criteria[acc] ? key : acc
+            )
+          onTeach(evaluation.suggestions, CRITERION_TO_TYPE[weakest] ?? 'instruction')
+        }}
         className="w-full bg-brand-600 hover:bg-brand-700"
       >
         ✨ Enseñarle esto a {assistantId ? 'MIA' : 'la asistente'}

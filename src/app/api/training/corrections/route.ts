@@ -50,6 +50,7 @@ export async function POST(request: Request) {
   const { data: learningEvent, error: eventError } = await admin
     .from('learning_events')
     .insert({
+      business_id: assistant.business_id,
       message_id,
       assistant_id,
       original_response,
