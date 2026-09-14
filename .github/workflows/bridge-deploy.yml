@@ -1,0 +1,51 @@
+name: Bridge Deploy (Fly.io)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/whatsapp-bridge/**'
+  workflow_dispatch:
+
+concurrency:
+  group: bridge-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy bridge a Fly.io
+    runs-on: ubuntu-latest
+    # Entorno con Required reviewers (David) -> GitHub pausa el deploy hasta aprobacion.
+    # Para pasar a auto-deploy total, quitar esta linea y el workflow corre directo.
+    environment: bridge-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: services/whatsapp-bridge/package-lock.json
+
+      - name: Gate verde (typecheck + tests del bridge)
+        working-directory: services/whatsapp-bridge
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy a Fly.io
+        working-directory: services/whatsapp-bridge
+        run: flyctl deploy --remote-only -a mia-whatsapp-bridge
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Smoke check /healthz
+        run: |
+          sleep 5
+          curl -fsS --retry 15 --retry-connrefused --retry-delay 3 \
+            https://mia-whatsapp-bridge.fly.dev/healthz
