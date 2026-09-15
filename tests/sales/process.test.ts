@@ -12,6 +12,7 @@ vi.mock('@/lib/sales/detect', () => ({
   isExplicitNewPurchaseIntent: vi.fn(),
 }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
+vi.mock('@/lib/runtime/context-scope', () => ({ detectExplicitScopes: vi.fn() }))
 vi.mock('@/lib/sales/cancel', () => ({
   processCancellation: vi.fn(),
 }))
@@ -47,6 +48,7 @@ import {
   notifySaleToOwner,
 } from '@/lib/sales/events'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { detectExplicitScopes } from '@/lib/runtime/context-scope'
 
 const params = {
   businessId: 'biz-1',
@@ -61,6 +63,7 @@ const params = {
 }
 
 const maybeSingle = vi.fn()
+const mockSingle = vi.fn<() => Promise<{ data: null | Record<string, unknown> }>>(async () => ({ data: null }))
 const mockUpdate = vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) }))
 vi.mocked(createAdminClient).mockReturnValue({
   from: vi.fn(() => ({
@@ -73,6 +76,8 @@ vi.mocked(createAdminClient).mockReturnValue({
           order: vi.fn(() => ({
             limit: vi.fn(() => ({ maybeSingle })),
           })),
+          single: mockSingle,
+          ilike: vi.fn(() => ({ limit: vi.fn(() => ({ maybeSingle })) })),
         })),
       })),
     })),
@@ -97,6 +102,10 @@ beforeEach(() => {
   vi.mocked(isExplicitNewPurchaseIntent).mockReturnValue('ambiguous')
   mockUpdate.mockClear()
   maybeSingle.mockResolvedValue({ data: null })
+  mockSingle.mockReset()
+  mockSingle.mockResolvedValue({ data: null })
+  vi.mocked(detectExplicitScopes).mockReset()
+  vi.mocked(detectExplicitScopes).mockResolvedValue([])
 })
 
 describe('processSaleClosing', () => {
@@ -618,5 +627,155 @@ describe('processSaleClosing — Cancellation Intention Gate (STEP 0.5)', () => 
     expect(processCancellation).not.toHaveBeenCalled()
     expect(detectSaleOutcome).not.toHaveBeenCalled()
     expect(emitSalesEvent).not.toHaveBeenCalled()
+  })
+})
+
+describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', () => {
+  it('resuelve producto por nombre LLM (hit único) → snapshot items + amount + deal', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith({
+      businessId: 'biz-1',
+      assistantId: 'assistant-1',
+      conversationId: 'conv-1',
+      customerId: 'cust-1',
+      eventType: 'SALE_WON',
+      productName: 'Tiras Bella Patch',
+      productId: undefined,
+      amount: 499,
+      metadata: {
+        customer: { name: null, phone: null, city: null, address: null },
+        items: [{ product_id: 'prod-9901', name: 'Bella Patch', price: 499, quantity: 1 }],
+      },
+    })
+    expect(applyConversationOutcome).toHaveBeenCalledWith({
+      conversationId: 'conv-1',
+      outcome: 'sold',
+      dealValue: 499,
+      customerId: 'cust-1',
+      eventType: 'SALE_WON',
+    })
+  })
+
+  it('match ambiguo o sin-match → NO fabrica snapshot ni amount (C4)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'N/A' }],
+    })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith({
+      businessId: 'biz-1',
+      assistantId: 'assistant-1',
+      conversationId: 'conv-1',
+      customerId: 'cust-1',
+      eventType: 'SALE_WON',
+      productName: 'N/A',
+      productId: undefined,
+      amount: null,
+      metadata: { customer: { name: null, phone: null, city: null, address: null } },
+    })
+    expect(applyConversationOutcome).toHaveBeenCalledWith({
+      conversationId: 'conv-1',
+      outcome: 'sold',
+      dealValue: null,
+      customerId: 'cust-1',
+      eventType: 'SALE_WON',
+    })
+  })
+
+  it('canonicalProductId presente → lo usa (C4) sin consultar el matcher LLM', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+    })
+    mockSingle.mockResolvedValue({ data: { id: 'prod-canon', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing({ ...params, canonicalProductId: 'prod-canon' })
+
+    expect(detectExplicitScopes).not.toHaveBeenCalled()
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        productId: 'prod-canon',
+        amount: 499,
+        metadata: expect.objectContaining({
+          items: [{ product_id: 'prod-canon', name: 'Bella Patch', price: 499, quantity: 1 }],
+        }),
+      })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ dealValue: 499 })
+    )
+  })
+
+  it('LLM amount presente → no se sobreescribe', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch', amount: 550 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 550,
+        metadata: expect.objectContaining({
+          items: [{ product_id: 'prod-9901', name: 'Bella Patch', price: 499, quantity: 1 }],
+        }),
+      })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ dealValue: 550 })
+    )
+  })
+
+  it('eventos no-SALE_WON no generan snapshot propio', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [
+        { type: 'SALE_STARTED', productName: 'Combo 1' },
+        { type: 'SALE_WON', productName: 'Combo 1', amount: 120 },
+      ],
+    })
+    vi.mocked(getCustomerData).mockResolvedValue(null)
+    vi.mocked(getCustomerName).mockResolvedValue('Juan')
+
+    await processSaleClosing(params)
+
+    expect(detectExplicitScopes).toHaveBeenCalledTimes(1)
+    expect(emitSalesEvent).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ eventType: 'SALE_STARTED' })
+    )
+    expect(emitSalesEvent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ eventType: 'SALE_WON' })
+    )
   })
 })

@@ -26,6 +26,7 @@ import { getSalesConfig } from '@/lib/ai/knowledge'
 import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
 import { resolveCustomer } from '@/lib/channels/identity'
 import type { WireMessage } from '@/lib/runtime/types'
+import { detectExplicitScopes } from '@/lib/runtime/context-scope'
 
 /**
  * Sentinel value for sales_cancelled_at indicating a discount offer was
@@ -535,38 +536,76 @@ export async function processSaleClosing(params: {
     // Always prefer canonicalProductId (resolved by resolveRecommendedProduct,
     // a direct DB query). Previously bypassed when productName was present,
     // causing emitSalesEvent to fall through to the broken RPC resolver.
-    const resolvedProductId = productId ?? undefined
+    const eventProductId = productId ?? null
+
+    // Snapshot comercial del SALE_WON (estructura que ya consumen los triggers
+    // delivery.handle_sale_won e inventory.handle_sale_won via metadata->'items').
+    // Se resuelve SOLO para SALE_WON y nunca muta la identidad canónica (C4).
+    let snapshot: {
+      product_id: string
+      name: string
+      price: number | null
+      quantity: number
+    } | null = null
 
     // SALE_WON amount resolution: LLM extraction is unreliable (transcript
     // rarely contains prices). Fall back to products.price via direct DB lookup.
     let amount = event.amount ?? null
-    if (!amount && event.type === 'SALE_WON') {
+    if (event.type === 'SALE_WON') {
       try {
-        if (resolvedProductId) {
+        // Sin identidad canónica/contexto, resolver el producto por el nombre
+        // (texto LLM) con el matcher determinístico del runtime (literal/SKU/
+        // alias/compacto/fuzzy). Solo un hit único es aceptable; ambigüedad o
+        // sin-match => sin snapshot (no fabricar).
+        let productIdForSnapshot = eventProductId
+        if (!productIdForSnapshot && event.productName) {
+          const hits = await detectExplicitScopes(supabaseAdmin, businessId, event.productName)
+          if (hits.length === 1) productIdForSnapshot = hits[0].productId
+        }
+
+        if (productIdForSnapshot) {
           const { data: prod } = await supabaseAdmin
             .from('products')
-            .select('price')
+            .select('id, name, price')
             .eq('business_id', businessId)
-            .eq('id', resolvedProductId)
+            .eq('id', productIdForSnapshot)
             .single()
-          amount = prod?.price ?? null
+          if (prod) {
+            snapshot = { product_id: prod.id, name: prod.name, price: prod.price, quantity: 1 }
+            if (!amount) amount = prod.price ?? null
+          }
         }
-        if (!amount && event.productName) {
+
+        // Fallback conservador: match EXACTO por nombre (precio + snapshot sin
+        // identidad permisiva).
+        if (!amount && !snapshot && event.productName) {
           const name = event.productName.trim()
           const { data: prod } = await supabaseAdmin
             .from('products')
-            .select('price')
+            .select('id, name, price')
             .eq('business_id', businessId)
             .eq('is_active', true)
             .ilike('name', name)
             .limit(1)
             .maybeSingle()
-          amount = prod?.price ?? null
+          if (prod) {
+            snapshot = { product_id: prod.id, name: prod.name, price: prod.price, quantity: 1 }
+            amount = prod.price ?? null
+          }
         }
       } catch (err) {
-        console.error('Price lookup failed (amount stays null):', err)
+        console.error('Product snapshot/price lookup failed:', err)
       }
     }
+
+    // El amount resuelto alimenta tanto el evento como el deal del STEP 3
+    // (confirmación con "Total: $X" y conversations.deal_value).
+    event.amount = amount
+
+    const saleMetadata =
+      event.type === 'SALE_WON' && closingCustomer
+        ? { customer: closingCustomer }
+        : undefined
 
     await emitSalesEvent({
       businessId,
@@ -575,12 +614,14 @@ export async function processSaleClosing(params: {
       customerId,
       eventType: event.type,
       productName: event.productName,
-      productId: resolvedProductId,
+      // Identidad canónica estricta (C4): solo eventProductId. El snapshot
+      // permisivo viaja en metadata->items, nunca en sales_events.product_id.
+      productId: eventProductId ?? undefined,
       amount,
       metadata:
-        event.type === 'SALE_WON' && closingCustomer
-          ? { customer: closingCustomer }
-          : undefined,
+        event.type === 'SALE_WON' && snapshot
+          ? { ...saleMetadata, items: [snapshot] }
+          : saleMetadata,
     })
   }
 
