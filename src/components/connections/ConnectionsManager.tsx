@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -104,6 +105,13 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   const waTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const waStatusRef = useRef<WaStatus>('idle')
 
+  // Messenger (Meta) flow
+  const [msAssistantId, setMsAssistantId] = useState('')
+  const [msPageId, setMsPageId] = useState('')
+  const [msAccessToken, setMsAccessToken] = useState('')
+  const [msSaving, setMsSaving] = useState(false)
+  const [msError, setMsError] = useState<string | null>(null)
+
   useEffect(() => {
     waStatusRef.current = waStatus
   }, [waStatus])
@@ -121,6 +129,12 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
   ]
 
   const channelMap = Object.fromEntries(channels.map((ch) => [ch.id, ch]))
+
+  const channelDisplay: Record<string, { label: string; emoji: string }> = {
+    web: { label: 'Chat Web', emoji: '\u{1F310}' },
+    whatsapp: { label: 'WhatsApp', emoji: '\u{1F4F1}' },
+    messenger: { label: 'Messenger', emoji: '\u{1F4AC}' },
+  }
 
   useEffect(() => {
     async function load() {
@@ -270,6 +284,58 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
       setConnections((prev) =>
         prev.map((c) => (c.id === connectionId ? { ...c, mode } : c)),
       )
+    }
+  }
+
+  const messengerConnection = connections.find((c) => c.channel === 'messenger')
+
+  async function handleMessengerSave() {
+    if (!businessId || !msAssistantId || !msPageId.trim() || !msAccessToken.trim()) {
+      setMsError('Completa el asistente, el Page ID y el Access Token')
+      return
+    }
+    setMsSaving(true)
+    setMsError(null)
+    try {
+      const credentials = {
+        page_id: msPageId.trim(),
+        access_token: msAccessToken.trim(),
+      }
+
+      const existing = connections.find(
+        (c) => c.channel === 'messenger' && c.assistant_id === msAssistantId
+      )
+
+      const res = existing
+        ? await fetchWithTimeout('/api/channels/connections', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ connectionId: existing.id, credentials }),
+          })
+        : await fetchWithTimeout('/api/channels/connections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              businessId,
+              assistantId: msAssistantId,
+              channel: 'messenger',
+              credentials,
+            }),
+          })
+
+      if (!res.ok) {
+        const err = (await res.json().catch(() => null)) as { error?: string } | null
+        throw new Error(err?.error ?? 'No se pudo conectar Messenger')
+      }
+
+      setMsPageId('')
+      setMsAccessToken('')
+      setMsAssistantId('')
+      await refreshConnections()
+    } catch (error) {
+      setMsError(error instanceof Error ? error.message : 'Error desconocido')
+    } finally {
+      setMsSaving(false)
     }
   }
 
@@ -749,6 +815,104 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
         </Card>
       )}
 
+      <Card style={channelCardStyle}>
+        <CardHeader>
+          <CardTitle style={{ color: 'var(--atmosphere-text)' }}>Messenger</CardTitle>
+          <CardDescription style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            Conecta la pagina de Facebook pegando el Page ID y el Access Token de la pagina.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-2">
+            <span
+              className="h-2.5 w-2.5 rounded-full"
+              style={{
+                backgroundColor:
+                  messengerConnection?.status === 'connected'
+                    ? 'var(--mia-green)'
+                    : 'var(--atmosphere-text-secondary)',
+                boxShadow:
+                  messengerConnection?.status === 'connected'
+                    ? '0 0 8px var(--module-glow)'
+                    : 'none',
+              }}
+            />
+            <span className="text-sm font-medium" style={{ color: 'var(--atmosphere-text)' }}>
+              {messengerConnection
+                ? connectionStatusLabel(messengerConnection.status)
+                : 'No conectado'}
+            </span>
+          </div>
+
+          <div className="flex gap-3 items-end">
+            <div className="flex-1">
+              <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>
+                Asistente
+              </label>
+              <Select value={msAssistantId} onValueChange={(v) => setMsAssistantId(v ?? '')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar asistente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {assistants.map((a, i) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {friendlyAssistantName(a.name, i)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>
+                Page ID
+              </label>
+              <Input
+                value={msPageId}
+                onChange={(e) => setMsPageId(e.target.value)}
+                placeholder="ej. 104121794148298"
+                autoComplete="off"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--atmosphere-text)' }}>
+                Access Token
+              </label>
+              <Input
+                type="password"
+                value={msAccessToken}
+                onChange={(e) => setMsAccessToken(e.target.value)}
+                placeholder="EAA..."
+                autoComplete="off"
+              />
+            </div>
+            <Button
+              onClick={handleMessengerSave}
+              disabled={msSaving}
+            >
+              {msSaving ? 'Conectando...' : messengerConnection ? 'Actualizar Messenger' : 'Conectar Messenger'}
+            </Button>
+          </div>
+
+          {msError && (
+            <div
+              className="rounded-lg border px-4 py-3 text-sm"
+              style={{
+                borderColor: 'var(--atmosphere-border)',
+                backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+                color: 'var(--mia-red)',
+              }}
+            >
+              {msError}
+            </div>
+          )}
+
+          <p className="text-xs" style={{ color: 'var(--atmosphere-text-secondary)' }}>
+            Para obtenerlos: Meta for Developers → tu app → Messenger → Configuración → Access
+            Tokens (genera un token para tu pagina). El Page ID se muestra junto al token.
+          </p>
+        </CardContent>
+      </Card>
+
       {connections.length === 0 ? (
         <Card style={channelCardStyle}>
           <CardContent className="py-8 text-center text-sm" style={{ color: 'var(--atmosphere-text-secondary)' }}>
@@ -763,11 +927,15 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">
-                      {channelMap[conn.channel as ChannelType]?.emoji ?? '\u{1F4E8}'}
+                      {channelMap[conn.channel as ChannelType]?.emoji ??
+                        channelDisplay[conn.channel]?.emoji ??
+                        '\u{1F4E8}'}
                     </span>
                     <div>
                       <div className="font-medium" style={{ color: 'var(--atmosphere-text)' }}>
-                        {channelMap[conn.channel as ChannelType]?.label ?? conn.channel}
+                        {channelMap[conn.channel as ChannelType]?.label ??
+                          channelDisplay[conn.channel]?.label ??
+                          conn.channel}
                       </div>
                       <div
                         className="text-sm font-medium"

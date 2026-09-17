@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { businessId, assistantId, channel } = await request.json()
+    const { businessId, assistantId, channel, credentials } = await request.json()
 
     if (!businessId || !assistantId || !channel) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -82,14 +82,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Channel already connected' }, { status: 409 })
     }
 
+    const insertData: Record<string, unknown> = {
+      business_id: businessId,
+      assistant_id: assistantId,
+      channel,
+      status: channel === 'web' ? 'connected' : 'disconnected',
+    }
+
+    if (channel === 'messenger' && credentials) {
+      const { page_id, access_token } = credentials as {
+        page_id?: string
+        access_token?: string
+      }
+      if (page_id && access_token) {
+        insertData.credentials = { page_id, access_token }
+        insertData.status = 'connected'
+      }
+    }
+
     const { data: connection, error } = await admin
       .from('channel_connections')
-      .insert({
-        business_id: businessId,
-        assistant_id: assistantId,
-        channel,
-        status: channel === 'web' ? 'connected' : 'disconnected',
-      })
+      .insert(insertData)
       .select()
       .single()
 
@@ -113,7 +126,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { connectionId, mode, configuration } = await request.json()
+    const { connectionId, mode, configuration, credentials } = await request.json()
 
     if (!connectionId) {
       return NextResponse.json({ error: 'Missing connectionId' }, { status: 400 })
@@ -141,6 +154,21 @@ export async function PATCH(request: Request) {
       updates.configuration = configuration
     }
 
+    if (credentials !== undefined) {
+      const { page_id, access_token } = credentials as {
+        page_id?: string
+        access_token?: string
+      }
+      if (!page_id || !access_token) {
+        return NextResponse.json(
+          { error: 'Credentials require page_id and access_token' },
+          { status: 400 }
+        )
+      }
+      updates.credentials = { page_id, access_token }
+      updates.status = 'connected'
+    }
+
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
     }
@@ -149,12 +177,19 @@ export async function PATCH(request: Request) {
 
     const { data: connection } = await admin
       .from('channel_connections')
-      .select('id, business_id')
+      .select('id, business_id, channel')
       .eq('id', connectionId)
       .single()
 
     if (!connection) {
       return NextResponse.json({ error: 'Connection not found' }, { status: 404 })
+    }
+
+    if (credentials !== undefined && connection.channel !== 'messenger') {
+      return NextResponse.json(
+        { error: 'Credentials are only supported for the messenger channel' },
+        { status: 400 }
+      )
     }
 
     const { data: business } = await supabase
