@@ -29,6 +29,20 @@ const PRODUCT_ALIASES: Record<string, string[]> = {
   // degradado numérico "back 2 fit" y "back fit" (contracción), y "faja"
   // (término genérico con el que el cliente pide el producto).
   back2fit: ['back to fit', 'back 2 fit', 'back fit', 'faja'],
+  // Clean Nails (Vitanova): el cliente lo pide por el problema ("hongos"), no
+  // por el nombre. Se registran FRASES, nunca "uña"/"uñas": normalizeText
+  // elimina la tilde (uñas→unas) y una palabra suelta colisionaría con el
+  // artículo "una/unas" ("quiero una faja") → scope cruzado (incidente
+  // 2026-09-11) que despacharía la imagen equivocada.
+  'clean nails': ['hongos de las unas', 'hongos en las unas'],
+  // Neurotin: el cliente lo pide como "calcetín" (término no ambiguo frente al
+  // resto del catálogo). Su nombre literal ya cubre "neurotin".
+  neurotin: ['calcetin'],
+  // Neurofeet: variantes de compresión. No se registra "calcetin" para no
+  // colisionar con Neurotin (dos productos en scope → ambigüedad sin dispatch).
+  neurofeet: ['calceta de compresion', 'calcetines de compresion'],
+  // Bye Canas: "canas" (término no ambiguo en el catálogo).
+  'bye canas': ['canas'],
 }
 
 /** Frases alias registradas para un nombre de producto ya normalizado. */

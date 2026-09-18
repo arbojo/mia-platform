@@ -20,6 +20,9 @@ import type { Database } from '@/lib/types'
  *   - idempotencia: conversation × asset (D6), claim atómico UNIQUE
  *     (knowledge_item_id, conversation_id) con estado claimed/dispatched/failed.
  *   - CLAIMED ≠ DISPATCHED ≠ DELIVERED (doc 26 §1). delivered = Fase 2.
+ *   - ADR-031: scope único determinístico (literal/sku/landing) → la
+ *     representativa propia del producto es elegible sin trigger ni intención
+ *     de media, una sola vez por conversación (cadencia por producto).
  */
 
 type SupabaseLike = ReturnType<typeof import('@/lib/supabase/admin').createAdminClient>
@@ -235,6 +238,13 @@ export async function resolveContextMedia(
 
   const explicitScope = explicitScopeLabel(scopeSource, explicitSource)
 
+  // ADR-031: "producto identificado" = scope único resuelto por señal
+  // determinística (literal/SKU/landing). El scope heredado (context) NO
+  // habilita la política (riesgo de producto obsoleto).
+  const productIdentified =
+    scope.length === 1 &&
+    (explicitScope === 'literal' || explicitScope === 'sku' || explicitScope === 'landing')
+
   if (!conversationId) {
     return {
       attachment: null,
@@ -289,6 +299,7 @@ export async function resolveContextMedia(
     userMessage,
     intentTag,
     isResend,
+    productIdentified,
   })
   const { eligible, pending, matches, blockedClaims, failedIds, pool } = idempotency
 
@@ -563,8 +574,19 @@ async function resolveScopedIdempotency(params: {
   userMessage: string
   intentTag?: string | null
   isResend?: boolean
+  /** ADR-031: scope único determinístico → representativo elegible sin trigger. */
+  productIdentified?: boolean
 }): Promise<ScopedIdempotency> {
-  const { supabase, businessId, conversationId, scope, userMessage, intentTag, isResend } = params
+  const {
+    supabase,
+    businessId,
+    conversationId,
+    scope,
+    userMessage,
+    intentTag,
+    isResend,
+    productIdentified = false,
+  } = params
 
   const { data: candidates } = await supabase
     .from('knowledge_items')
@@ -621,22 +643,39 @@ async function resolveScopedIdempotency(params: {
   )
 
   // R3-P2: principal. Incondicionales (NULL/vacío, R1.3) del scope; si el
-  // producto no declara ninguna, su grupo de media propio (>=2 assets) provee
-  // la "representativa" de menor orden (DEC-20260825: position ASC NULLS LAST
-  // → created_at ASC). Un único asset condicionado NO es grupo (caso
-  // Neurofeet): sin principal no se inventa una representativa (R4 / DP-1).
+  // producto no declara ninguna, su grupo de media propio provee la
+  // "representativa" de menor orden (DEC-20260825: position ASC NULLS LAST
+  // → created_at ASC). ADR-031: con producto identificado determinísticamente
+  // (scope único literal/SKU/landing) CUALQUIER producto con al menos un asset
+  // propio tiene representativa — se elimina la excepción `>= 2` de R4/DP-1
+  // (caso Neurofeet: un único asset condicionado ya es representativo).
   const mediaIntent = detectMediaIntent(userMessage)
   const ownerAssets = pool.filter((item) => item.product_id === uniqueScope)
+  const representative = ownerAssets.find((item) => !hasCondition(item)) ?? ownerAssets[0] ?? null
+
+  // R3-P2 legacy (intención de media explícita): incondicionales del scope
+  // (incluye genéricos de marca) o la representativa del grupo propio.
   const principalCandidates = pool.filter((item) => !hasCondition(item))
-  if (principalCandidates.length === 0 && ownerAssets.length >= 2) {
+  if (principalCandidates.length === 0 && ownerAssets.length >= 1) {
     principalCandidates.push(ownerAssets[0])
   }
   const principals = mediaIntent ? principalCandidates : []
 
+  // ADR-031: producto identificado → representativa PROPIA del producto
+  // (nunca un genérico de marca, que podría no representarlo). Elegible sin
+  // exigir intención de media ni match de trigger; el match de condición
+  // (R3-P1) sigue teniendo prioridad y refina DENTRO del producto.
+  const identifiedPrincipals = productIdentified && representative ? [representative] : []
+
   // R3 orden normativo: especializada por condición PRIMERO; solo sin match de
-  // condición se acude al principal por intención de media. Sin match y sin
-  // intención → ninguna (R3-P3).
-  const matches = conditionMatches.length > 0 ? conditionMatches : principals
+  // condición se acude al principal por intención de media; y en su defecto, a
+  // la representativa del producto identificado (ADR-031).
+  const matches =
+    conditionMatches.length > 0
+      ? conditionMatches
+      : principals.length > 0
+        ? principals
+        : identifiedPrincipals
 
   // R8: un resend explícito necesita conocer los claims de la conversación
   // aunque el mensaje NO matchee ningún trigger (no se re-satisface la
@@ -658,7 +697,22 @@ async function resolveScopedIdempotency(params: {
     }
   }
 
-  const pending = matches.filter((item) => {
+  // ADR-031 — cadencia por producto: una vez despachada CUALQUIER media del
+  // producto identificado, no se despacha otra en la misma conversación. Los
+  // assets ya reclamados del producto se conservan en `matches` para el
+  // acknowledge/redispatch explícito (R8); los no reclamados se descartan para
+  // que `pending` quede vacío y el turno degrade a existing_hit (solo texto).
+  // Excepción: una petición EXPLÍCITA de media ("¿tienes otra foto?") conserva
+  // la idempotencia por asset (R8) y puede presentar un asset nuevo. Re-pedir
+  // el precio NO es petición de media → cae en la cadencia (solo texto).
+  const ownerIds = new Set(ownerAssets.map((item) => item.id))
+  const productAlreadyClaimed =
+    productIdentified && !mediaIntent && [...claimsByItem.keys()].some((id) => ownerIds.has(id))
+  const effectiveMatches = productAlreadyClaimed
+    ? matches.filter((item) => claimsByItem.has(item.id))
+    : matches
+
+  const pending = effectiveMatches.filter((item) => {
     const claim = claimsByItem.get(item.id)
     if (!claim) return true
     if (claim.state === 'failed') return false // pasa al recover path
@@ -669,7 +723,7 @@ async function resolveScopedIdempotency(params: {
   const failedIds = new Set<string>()
 
   // Datos de idempotencia de los assets MATCHED (semántica histórica).
-  for (const item of matches) {
+  for (const item of effectiveMatches) {
     const claim = claimsByItem.get(item.id)
     if (!claim) continue
     if (claim.state === 'failed') {
@@ -681,7 +735,7 @@ async function resolveScopedIdempotency(params: {
 
   // R8: sin match de trigger/intención, el destino del resend es el asset del
   // scope con claim previo (más reciente). Sigue validado por scope.
-  if (matches.length === 0 && isResend) {
+  if (effectiveMatches.length === 0 && isResend) {
     for (const item of pool) {
       const claim = claimsByItem.get(item.id)
       if (!claim || claim.state === 'failed') continue
@@ -697,9 +751,9 @@ async function resolveScopedIdempotency(params: {
   })
 
   // Sin match: solo procede (resend) si hay al menos un claim previo en scope.
-  const eligible = matches.length > 0 || (Boolean(isResend) && blocked.length > 0)
+  const eligible = effectiveMatches.length > 0 || (Boolean(isResend) && blocked.length > 0)
 
-  return { eligible, pending, matches, blockedClaims: blocked, failedIds, pool }
+  return { eligible, pending, matches: effectiveMatches, blockedClaims: blocked, failedIds, pool }
 }
 
 function toAttachment(item: KnowledgeItem): MediaAttachment {
