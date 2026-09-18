@@ -8,6 +8,7 @@ import {
   hasShortAffirmative,
   isExplicitNewPurchaseIntent,
 } from './detect'
+import type { SaleDetectionResult } from './detect'
 import { processCancellation } from './cancel'
 import {
   applyConversationOutcome,
@@ -22,6 +23,7 @@ import {
   isRetentionConflictError,
   notifySaleToOwner,
 } from './events'
+import type { DetectedSaleEvent } from './events'
 import { getSalesConfig } from '@/lib/ai/knowledge'
 import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
 import { resolveCustomer } from '@/lib/channels/identity'
@@ -56,6 +58,45 @@ export function isDiscountOfferSentinel(value: string | null | undefined): boole
   if (!value) return false
   const parsed = Date.parse(value)
   return Number.isFinite(parsed) && parsed === DISCOUNT_OFFERED_SENTINEL_EPOCH
+}
+
+/**
+ * FASE 1 — Contrato Comercial Real (decisión C): resuelve la cantidad vendida de
+ * un SALE_WON.
+ *
+ * El LLM puede extraer una cantidad explícita (products[].quantity o
+ * events[].quantity, ya sanitizada en detect.ts a entero >= 1). Cuando no hay
+ * cantidad explícita, el default contractual es 1 (una unidad) — este 1 es un
+ * valor determinístico de la plataforma, NUNCA una "cantidad detectada" por el LLM.
+ */
+const DEFAULT_QUANTITY = 1
+
+export function resolveSaleQuantity(
+  event: DetectedSaleEvent,
+  products?: SaleDetectionResult['products']
+): number {
+  if (
+    typeof event.quantity === 'number' &&
+    Number.isInteger(event.quantity) &&
+    event.quantity >= 1
+  ) {
+    return event.quantity
+  }
+  // Fuente alternativa del LLM: products[].quantity. Igualamos por nombre
+  // normalizado contra el productName del evento (ambos texto LLM).
+  if (event.productName && products?.length) {
+    const target = event.productName.trim().toLowerCase()
+    const match = products.find((p) => p.name.trim().toLowerCase() === target)
+    if (
+      match &&
+      typeof match.quantity === 'number' &&
+      Number.isInteger(match.quantity) &&
+      match.quantity >= 1
+    ) {
+      return match.quantity
+    }
+  }
+  return DEFAULT_QUANTITY
 }
 
 /**
@@ -541,16 +582,27 @@ export async function processSaleClosing(params: {
     // Snapshot comercial del SALE_WON (estructura que ya consumen los triggers
     // delivery.handle_sale_won e inventory.handle_sale_won via metadata->'items').
     // Se resuelve SOLO para SALE_WON y nunca muta la identidad canónica (C4).
+    //
+    // FASE 1 — Contrato Comercial Real (decisiones A/C/D):
+    //   - items[].unit_price = precio de catálogo congelado al cierre (precio
+    //     vendido histórico), unidad de referencia para el total determinista.
+    //   - items[].quantity = cantidad explícita (LLM, sanitizada int >= 1) o el
+    //     default contractual 1. Nunca un total "comercial" inventado.
+    //   - totals = { subtotal, discount, total } calculado DETERMINISTICAMENTE en
+    //     código: subtotal = unit_price × quantity; discount = 0 (F3 más adelante);
+    //     total = subtotal. sales_events.amount := totals.total.
+    //   - El amount del LLM (event.amount) NUNCA determina el total final: es solo
+    //     dato de interpretación; el precio ganador es el de catálogo (A).
+    //   - Sin producto resoluble o sin precio verificable => NO hay total
+    //     determinista => amount null (nunca sustituir con amount LLM, no inventar precio).
     let snapshot: {
       product_id: string
       name: string
-      price: number | null
+      unit_price: number | null
       quantity: number
     } | null = null
+    let totals: { subtotal: number | null; discount: number; total: number | null } | null = null
 
-    // SALE_WON amount resolution: LLM extraction is unreliable (transcript
-    // rarely contains prices). Fall back to products.price via direct DB lookup.
-    let amount = event.amount ?? null
     if (event.type === 'SALE_WON') {
       try {
         // Sin identidad canónica/contexto, resolver el producto por el nombre
@@ -571,14 +623,18 @@ export async function processSaleClosing(params: {
             .eq('id', productIdForSnapshot)
             .single()
           if (prod) {
-            snapshot = { product_id: prod.id, name: prod.name, price: prod.price, quantity: 1 }
-            if (!amount) amount = prod.price ?? null
+            snapshot = {
+              product_id: prod.id,
+              name: prod.name,
+              unit_price: prod.price,
+              quantity: resolveSaleQuantity(event, result.products),
+            }
           }
         }
 
         // Fallback conservador: match EXACTO por nombre (precio + snapshot sin
         // identidad permisiva).
-        if (!amount && !snapshot && event.productName) {
+        if (!snapshot && event.productName) {
           const name = event.productName.trim()
           const { data: prod } = await supabaseAdmin
             .from('products')
@@ -589,13 +645,34 @@ export async function processSaleClosing(params: {
             .limit(1)
             .maybeSingle()
           if (prod) {
-            snapshot = { product_id: prod.id, name: prod.name, price: prod.price, quantity: 1 }
-            amount = prod.price ?? null
+            snapshot = {
+              product_id: prod.id,
+              name: prod.name,
+              unit_price: prod.price,
+              quantity: resolveSaleQuantity(event, result.products),
+            }
           }
+        }
+
+        // Total determinista: solo cuando hay snapshot Y unit_price verificable.
+        // Sin precio verificable => sin totals => amount null (no inventar).
+        if (snapshot && snapshot.unit_price !== null) {
+          const subtotal = snapshot.unit_price * snapshot.quantity
+          totals = { subtotal, discount: 0, total: subtotal }
         }
       } catch (err) {
         console.error('Product snapshot/price lookup failed:', err)
       }
+    }
+
+    // Monto comercial final: SIEMPRE el total determinista para SALE_WON
+    // (decisión A). El amount LLM se conserva solo como dato de interpretación;
+    // para otros eventos (no-close) el amount sigue siendo la detección del LLM.
+    let amount: number | null
+    if (event.type === 'SALE_WON') {
+      amount = totals?.total ?? null
+    } else {
+      amount = event.amount ?? null
     }
 
     // El amount resuelto alimenta tanto el evento como el deal del STEP 3
@@ -620,7 +697,7 @@ export async function processSaleClosing(params: {
       amount,
       metadata:
         event.type === 'SALE_WON' && snapshot
-          ? { ...saleMetadata, items: [snapshot] }
+          ? { ...saleMetadata, items: [snapshot], totals }
           : saleMetadata,
     })
   }
@@ -630,10 +707,19 @@ export async function processSaleClosing(params: {
   // Cancellation state lives exclusively in sales_cancelled_at + SALE_CANCELLED
   // event and is handled by the interception paths above.
   if (result.outcome && result.outcome !== 'cancelled' && allowClosing) {
+    // FASE 1 (decisión A): en ventas ganadas el deal SIEMPRE es el total
+    // determinista del SALE_WON (puede ser null: sin producto/precio resoluble).
+    // Nunca caer al amount LLM de otro evento como sustituto del total comercial.
+    const saleWonEvent = result.outcome === 'sold'
+      ? result.events.find((e) => e.type === 'SALE_WON')
+      : undefined
+    const deal = saleWonEvent ?? result.events.find((e) => e.amount != null)
+    const dealValue = saleWonEvent ? (saleWonEvent.amount ?? null) : (deal?.amount ?? null)
+
     await applyConversationOutcome({
       conversationId,
       outcome: result.outcome,
-      dealValue: result.events.find((e) => e.amount != null)?.amount ?? null,
+      dealValue,
       customerId,
       eventType: result.events.find((e) => e.type === 'SALE_WON' || e.type === 'SALE_LOST')?.type,
     })
@@ -643,7 +729,6 @@ export async function processSaleClosing(params: {
       const customerName =
         result.customerName ??
         (customerData?.name ?? (await getCustomerName(customerId)))
-      const deal = result.events.find((e) => e.amount != null)
       const product = result.events.find((e) => e.productName)?.productName ?? null
 
       const resolved = {
@@ -655,7 +740,7 @@ export async function processSaleClosing(params: {
       await notifySaleToOwner({
         businessId,
         customerName,
-        amount: deal?.amount ?? null,
+        amount: dealValue,
         productName: product,
         products: result.products,
         phone: resolved.phone,
@@ -719,7 +804,7 @@ export async function processSaleClosing(params: {
               ?.map((p) => `${p.name}${p.amount ? ` x${p.amount}` : ''}`)
               .join(', ') ?? product ?? 'N/A'
 
-            const totalAmount = deal?.amount ?? 0
+            const totalAmount = dealValue ?? 0
             const formattedTotal = totalAmount > 0 ? `$${totalAmount.toLocaleString('es-AR')}` : 'N/A'
 
             const confirmationMessage = config.confirmation_message

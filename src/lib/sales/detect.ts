@@ -8,7 +8,7 @@ export interface SaleDetectionResult {
   phone?: string | null
   city?: string | null
   address?: string | null
-  products?: Array<{ name: string; amount?: number | null }> | null
+  products?: Array<{ name: string; amount?: number | null; quantity?: number | null }> | null
   cancellationReason?: string | null
 }
 
@@ -21,7 +21,8 @@ Devuelve SOLO un JSON con esta forma:
     {
       "type": "SALE_STARTED" | "PRODUCT_SELECTED" | "OBJECTION_DETECTED" | "OBJECTION_RESOLVED" | "UPSELL_ACCEPTED" | "CROSSSELL_ACCEPTED" | "FOLLOWUP_REQUIRED" | "SALE_WON" | "SALE_LOST" | "CUSTOMER_HESITATION" | "PRICE_ACCEPTED" | "PRICE_REJECTED",
       "productName": "nombre del producto o null",
-      "amount": 123.45 o null
+      "amount": 123.45 o null,
+      "quantity": 1 o null
     }
   ],
   "customerName": "nombre del cliente si lo proporcionó o null",
@@ -29,7 +30,7 @@ Devuelve SOLO un JSON con esta forma:
   "city": "ciudad de entrega si la proporcionó o null",
   "address": "dirección de envío si la proporcionó o null",
   "products": [
-    {"name": "nombre del producto", "amount": 123.45 o null}
+    {"name": "nombre del producto", "amount": 123.45 o null, "quantity": 1 o null}
   ],
   "cancellationReason": "motivo de cancelación si aplica o null"
 }
@@ -42,6 +43,7 @@ Reglas:
 - Emite SALE_WON si hay confirmación de compra; SALE_LOST si hay rechazo.
 - RC5 (separación inequívoca de contextos): (a) VENTA NUEVA PENDIENTE DE CIERRE: si el vendedor acaba de solicitar confirmación explícita del pedido y el cliente responde con una afirmativa corta ("sí", "si", "claro", "dale", "va", "ok", "correcto", "exacto") o cualquier otra confirmación, SÍ emite SALE_WON. (b) PEDIDO CANCELADO: si el vendedor menciona o pregunta por un pedido que el cliente ya CANCELÓ (ej. "¿te confirmo tu pedido de X?" sobre un pedido cancelado) y el cliente responde con una afirmativa SIN mencionar un producto nuevo él mismo, NO emitas SALE_WON: esa confirmación es ambigua y el pedido cancelado ya no existe. (c) POST-VENTA CERRADA: si ya existe un SALE_WON previo en la conversación, NO reconstruyas ni reconfirmes el pedido anterior ante saludos o agradecimientos. (d) COMPRA NUEVA EXPLÍCITA: si el CLIENTE menciona explícitamente el producto que quiere comprar en su propia frase, procede con normalidad y emite los eventos correspondientes.
 - amount solo cuando haya un precio acordado o mencionado.
+- quantity: SOLO si el cliente indica una cantidad explícita (ej. "quiero 3", "dos unidades"). Entero >= 1. null si no hay cantidad explícita. Nunca inventes cantidades.
 - No inventes eventos. Solo emite los que tengan evidencia directa en el diálogo.
 - Si no hay suficiente información para clasificar, devuelve outcome "pending" y events [].`
 
@@ -184,13 +186,28 @@ export async function detectSaleOutcome(params: {
       'PRICE_REJECTED',
     ])
 
-    const events = (Array.isArray(parsed.events) ? parsed.events : []).filter(
-      (e): e is DetectedSaleEvent =>
-        typeof e === 'object' &&
-        e !== null &&
-        typeof (e as DetectedSaleEvent).type === 'string' &&
-        validTypes.has((e as DetectedSaleEvent).type)
-    )
+    // FASE 1 — Contrato Comercial: la cantidad solo es válida si es un entero >= 1.
+    // Ausencia (undefined/null o no presente) => sin cantidad explícita => default
+    // contractual 1 en el cierre. Cantidad explícita pero inválida (0, negativos,
+    // decimales, strings, valores arbitrarios) => NO degrada a 1: aborta la
+    // detección (mismo criterio para events[].quantity y products[].quantity).
+    let hasInvalidQuantity = false
+    const sanitizeQuantity = (value: unknown): number | undefined => {
+      if (value === undefined || value === null) return undefined
+      if (typeof value === 'number' && Number.isInteger(value) && value >= 1) return value
+      hasInvalidQuantity = true
+      return undefined
+    }
+
+    const events = (Array.isArray(parsed.events) ? parsed.events : [])
+      .filter(
+        (e): e is DetectedSaleEvent =>
+          typeof e === 'object' &&
+          e !== null &&
+          typeof (e as DetectedSaleEvent).type === 'string' &&
+          validTypes.has((e as DetectedSaleEvent).type)
+      )
+      .map((e) => ({ ...e, quantity: sanitizeQuantity(e.quantity) }))
 
     const sanitizePhone = (value: unknown): string | undefined => {
       if (typeof value !== 'string') return undefined
@@ -206,7 +223,7 @@ export async function detectSaleOutcome(params: {
 
     const rawProducts = Array.isArray(parsed.products) ? parsed.products : []
     const products = rawProducts
-      .filter((p): p is { name: string; amount?: number | null } => {
+      .filter((p): p is { name: string; amount?: number | null; quantity?: number | null } => {
         if (typeof p !== 'object' || p === null) return false
         const name = (p as { name?: unknown }).name
         return typeof name === 'string' && name.trim().length > 0
@@ -217,8 +234,14 @@ export async function detectSaleOutcome(params: {
           typeof p.amount === 'number' && Number.isFinite(p.amount) && p.amount >= 0
             ? p.amount
             : undefined,
+        quantity: sanitizeQuantity(p.quantity),
       }))
       .slice(0, 20)
+
+    if (hasInvalidQuantity) {
+      console.error('Detection aborted: explicit quantity could not be sanitized (FASE 1)')
+      return { outcome: null, events: [] }
+    }
 
     return {
       outcome,

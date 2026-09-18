@@ -149,7 +149,7 @@ describe('processSaleClosing', () => {
       customerId: 'cust-1',
       eventType: 'SALE_WON',
       productName: 'Combo 1',
-      amount: 120,
+      amount: null,
       metadata: {
         customer: {
           name: 'Juan',
@@ -162,14 +162,14 @@ describe('processSaleClosing', () => {
     expect(applyConversationOutcome).toHaveBeenCalledWith({
       conversationId: 'conv-1',
       outcome: 'sold',
-      dealValue: 120,
+      dealValue: null,
       customerId: 'cust-1',
       eventType: 'SALE_WON',
     })
     expect(notifySaleToOwner).toHaveBeenCalledWith({
       businessId: 'biz-1',
       customerName: 'Juan',
-      amount: 120,
+      amount: null,
       productName: 'Combo 1',
       products: undefined,
       phone: null,
@@ -236,7 +236,7 @@ describe('processSaleClosing', () => {
     expect(hasSalesTrigger).toHaveBeenCalled()
     expect(detectSaleOutcome).toHaveBeenCalled()
     expect(emitSalesEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ eventType: 'SALE_WON', productName: 'Clean Nails', amount: 599 })
+      expect.objectContaining({ eventType: 'SALE_WON', productName: 'Clean Nails', amount: null })
     )
     expect(applyConversationOutcome).toHaveBeenCalledWith(
       expect.objectContaining({ outcome: 'sold' })
@@ -317,7 +317,7 @@ describe('processSaleClosing', () => {
     expect(notifySaleToOwner).toHaveBeenCalledWith({
       businessId: 'biz-1',
       customerName: 'Ana',
-      amount: 120,
+      amount: null,
       productName: 'Combo 1',
       products: undefined,
       phone: '5491100000000',
@@ -656,7 +656,8 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
       amount: 499,
       metadata: {
         customer: { name: null, phone: null, city: null, address: null },
-        items: [{ product_id: 'prod-9901', name: 'Bella Patch', price: 499, quantity: 1 }],
+        items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+        totals: { subtotal: 499, discount: 0, total: 499 },
       },
     })
     expect(applyConversationOutcome).toHaveBeenCalledWith({
@@ -716,7 +717,8 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         productId: 'prod-canon',
         amount: 499,
         metadata: expect.objectContaining({
-          items: [{ product_id: 'prod-canon', name: 'Bella Patch', price: 499, quantity: 1 }],
+          items: [{ product_id: 'prod-canon', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+          totals: { subtotal: 499, discount: 0, total: 499 },
         }),
       })
     )
@@ -725,7 +727,7 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
     )
   })
 
-  it('LLM amount presente → no se sobreescribe', async () => {
+  it('catálogo gana sobre amount LLM (decisión A: total determinista)', async () => {
     vi.mocked(hasSalesTrigger).mockReturnValue(true)
     vi.mocked(hasCancellationLock).mockResolvedValue(false)
     vi.mocked(detectSaleOutcome).mockResolvedValue({
@@ -742,14 +744,15 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
     expect(emitSalesEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         eventType: 'SALE_WON',
-        amount: 550,
+        amount: 499,
         metadata: expect.objectContaining({
-          items: [{ product_id: 'prod-9901', name: 'Bella Patch', price: 499, quantity: 1 }],
+          items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+          totals: { subtotal: 499, discount: 0, total: 499 },
         }),
       })
     )
     expect(applyConversationOutcome).toHaveBeenCalledWith(
-      expect.objectContaining({ dealValue: 550 })
+      expect.objectContaining({ dealValue: 499 })
     )
   })
 
@@ -776,6 +779,111 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
     expect(emitSalesEvent).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ eventType: 'SALE_WON' })
+    )
+  })
+
+  it('FASE1: cantidad explícita del LLM → subtotal = unit_price × quantity', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [
+        {
+          type: 'SALE_WON',
+          productName: 'Tiras Bella Patch',
+          amount: 550,
+          quantity: 3,
+        },
+        {
+          type: 'SALE_WON',
+          productName: 'Bella Patch',
+        },
+      ],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing(params)
+
+    const won = vi.mocked(emitSalesEvent).mock.calls.find(
+      ([args]) => args.eventType === 'SALE_WON' && args.productName === 'Tiras Bella Patch'
+    )?.[0]
+    expect((won?.metadata as { totals?: { subtotal?: number; discount?: number; total?: number } }).totals).toEqual(
+      { subtotal: 1497, discount: 0, total: 1497 }
+    )
+    expect(won?.amount).toBe(1497)
+    expect((won?.metadata as { items?: Array<{ quantity?: number }> }).items?.[0]?.quantity).toBe(3)
+  })
+
+  it('FASE1: sin cantidad explícita → default contractual 1', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch', amount: 550 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing(params)
+
+    const won = vi.mocked(emitSalesEvent).mock.calls.find(
+      ([args]) => args.eventType === 'SALE_WON'
+    )?.[0]
+    expect((won?.metadata as { items?: Array<{ quantity?: number }> }).items?.[0]?.quantity).toBe(1)
+    expect((won?.metadata as { totals?: { subtotal?: number; total?: number } }).totals).toEqual(
+      { subtotal: 499, discount: 0, total: 499 }
+    )
+  })
+
+  it('FASE1: producto sin precio verificable → amount null, sin inventar precio', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch', amount: 550 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: null } })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: null,
+      })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ dealValue: null })
+    )
+  })
+
+  it('FASE1: segundo SALE_WON (dedupe) no contamina el deal del primero', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [
+        { type: 'SALE_WON', productName: 'Tiras Bella Patch', amount: 550 },
+        { type: 'SALE_WON', productName: 'N/A' },
+      ],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing(params)
+
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ outcome: 'sold', dealValue: 499 })
     )
   })
 })

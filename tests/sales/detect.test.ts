@@ -162,6 +162,67 @@ describe('detectSaleOutcome', () => {
     const result = await detectSaleOutcome(params)
     expect(result.outcome).toBeNull()
   })
+
+  it('FASE1: sanitiza quantity a entero válido (>= 1)', async () => {
+    mockDetection({
+      outcome: 'sold',
+      events: [
+        { type: 'SALE_WON', productName: 'Combo 1', amount: 120, quantity: 3 },
+        { type: 'PRODUCT_SELECTED', productName: 'Combo 1', quantity: null },
+      ],
+      products: [
+        { name: 'Combo 1', amount: 120, quantity: 3 },
+        { name: 'Shampoo', amount: null, quantity: 4 },
+        { name: 'Sin cantidad', quantity: null },
+      ],
+    })
+
+    const result = await detectSaleOutcome(params)
+    expect(result.events).toEqual([
+      { type: 'SALE_WON', productName: 'Combo 1', amount: 120, quantity: 3 },
+      { type: 'PRODUCT_SELECTED', productName: 'Combo 1', quantity: undefined },
+    ])
+    expect(result.products).toEqual([
+      { name: 'Combo 1', amount: 120, quantity: 3 },
+      { name: 'Shampoo', amount: undefined, quantity: 4 },
+      { name: 'Sin cantidad', amount: undefined, quantity: undefined },
+    ])
+  })
+
+  it('FASE1: quantity ausente (undefined/null) no es invalid — default lo decide el cierre', async () => {
+    mockDetection({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120 }],
+      products: [{ name: 'Combo 1', amount: 120, quantity: undefined }],
+    })
+
+    const result = await detectSaleOutcome(params)
+    expect(result.outcome).toBe('sold')
+    expect(result.events).toEqual([{ type: 'SALE_WON', productName: 'Combo 1', amount: 120, quantity: undefined }])
+  })
+
+  it('FASE1: quantity explícita inválida (0/negativa/decimal/texto) aborta la detección entera', async () => {
+    mockDetection({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120, quantity: 0 }],
+      products: [],
+    })
+
+    const result = await detectSaleOutcome(params)
+    expect(result.outcome).toBeNull()
+    expect(result.events).toEqual([])
+  })
+
+  it('FASE1: quantity inválida en events también aborta (mismo criterio)', async () => {
+    mockDetection({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Combo 1', amount: 120, quantity: 2.5 }],
+    })
+
+    const result = await detectSaleOutcome(params)
+    expect(result.outcome).toBeNull()
+    expect(result.events).toEqual([])
+  })
 })
 
 describe('hasShortAffirmative (gate contextual — TASK-20260830-005512058)', () => {

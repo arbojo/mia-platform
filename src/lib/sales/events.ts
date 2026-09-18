@@ -9,6 +9,8 @@ export interface DetectedSaleEvent {
   type: SalesEventType
   productName?: string | null
   amount?: number | null
+  /** Cantidad explícita detectada por el LLM (entero >= 1). Ausencia => default contractual 1. */
+  quantity?: number | null
 }
 
 /**
