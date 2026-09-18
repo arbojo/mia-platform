@@ -35,6 +35,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 dev.log
+dev-server*.log
 
 # whatsapp bridge local logs (never committed)
 services/whatsapp-bridge/*.log
@@ -64,6 +65,9 @@ docs/prd/
 # IDE
 .vscode/
 .idea/
+
+# local backup files (never committed)
+*.local-backup
 
 # Supabase
 supabase/.temp/
