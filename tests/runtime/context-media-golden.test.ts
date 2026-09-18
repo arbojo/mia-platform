@@ -1045,6 +1045,41 @@ describe('Scope helper invariants', () => {
     const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes fajas?')
     expect(hits).toHaveLength(0)
   })
+
+  it('detectExplicitScopes: alias multi-palabra con plural ("calcetas de compresion" → Neurofeet)', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-nf', name: 'Neurofeet', sku: null },
+        { id: 'p-nt', name: 'Neurotin', sku: null },
+      ],
+    })
+    const hits = await detectExplicitScopes(
+      h.supabase as never,
+      'biz-1',
+      'oye y las calcetas de compresion? que precio tienen?'
+    )
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.productId).toBe('p-nf')
+  })
+
+  it('detectExplicitScopes: alias "medias largas" resuelve Neurofeet', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-nf', name: 'Neurofeet', sku: null },
+        { id: 'p-nt', name: 'Neurotin', sku: null },
+      ],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'es que son las medias largas')
+    expect(hits.some((hit) => hit.productId === 'p-nf')).toBe(true)
+  })
+
+  it('detectExplicitScopes: "largos" suelto NO dispara Neurofeet (FP "largos tiempos de entrega")', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-nf', name: 'Neurofeet', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'y cuanto tardan los largos tiempos de entrega?')
+    expect(hits).toHaveLength(0)
+  })
 })
 
 // ────────────────────────────────────────────────────────────────

@@ -40,7 +40,15 @@ const PRODUCT_ALIASES: Record<string, string[]> = {
   neurotin: ['calcetin'],
   // Neurofeet: variantes de compresión. No se registra "calcetin" para no
   // colisionar con Neurotin (dos productos en scope → ambigüedad sin dispatch).
-  neurofeet: ['calceta de compresion', 'calcetines de compresion'],
+  neurofeet: [
+    'calceta de compresion',
+    'calcetines de compresion',
+    // El cliente pide el largo por su forma ("medias largas"), no por marca.
+    // Se registran FRASES: una palabra suelta ("largos"), además de no ser
+    // inequívoca, choca con "largos tiempos de entrega" → falso positivo.
+    'media larga',
+    'medias largas',
+  ],
   // Bye Canas: "canas" (término no ambiguo en el catálogo).
   'bye canas': ['canas'],
 }
@@ -59,7 +67,24 @@ export function productAliasPhrases(normalizedProductName: string): string[] {
 export function matchesProductAlias(normalizedMessage: string, alias: string): boolean {
   const normalized = normalizeText(alias)
   if (!normalized) return false
-  return normalized.includes(' ')
-    ? normalizedMessage.includes(normalized)
-    : new RegExp(wordBoundaryPattern(normalized)).test(normalizedMessage)
+
+  if (!normalized.includes(' ')) {
+    return new RegExp(wordBoundaryPattern(normalized)).test(normalizedMessage)
+  }
+
+  // Multi-palabra: tokens contiguos, cada uno con límite de palabra y
+  // tolerancia de plural (R1.2). Sin esto, "calcetas de compresion" (plural)
+  // no alcanzaba el alias "calceta de compresion" por substring exacto →
+  // scope quedaba anclado al producto anterior e iba la imagen equivocada
+  // (incidente 2026-09-18 Neurofeet/Neurotin). El fallback substring conserva
+  // contracciones históricas tipo "back fit" dentro del comportamiento previo.
+  const contiguous = normalized
+    .split(' ')
+    .map((token) => {
+      const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return `${escaped}(?:s|es)?`
+    })
+    .join('\\s+')
+  if (new RegExp(`(?:^|\\s)${contiguous}(?=\\s|$)`).test(normalizedMessage)) return true
+  return normalizedMessage.includes(normalized)
 }
