@@ -43,6 +43,7 @@ export async function emitSalesEvent(params: {
   productId?: string | null
   orderId?: string | null
   amount?: number | null
+  channel?: string | null
   metadata?: Record<string, unknown>
 }): Promise<string> {
   const supabase = createAdminClient()
@@ -81,6 +82,7 @@ export async function emitSalesEvent(params: {
       amount: params.amount ?? null,
       metadata: {
         ...(params.productName ? { product_name: params.productName } : {}),
+        ...(params.channel ? { channel: params.channel } : {}),
         ...params.metadata,
       },
     })

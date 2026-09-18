@@ -112,6 +112,21 @@ describe('emitSalesEvent', () => {
     expect((payload.metadata as { product_name: string }).product_name).toBe('Bota de Cuero')
   })
 
+  it('persiste channel en metadata cuando se indica (atribución de canal)', async () => {
+    const table = stubTable('sales_events', { data: null, error: null })
+    await emitSalesEvent({
+      businessId: BUSINESS_ID,
+      eventType: 'SALE_WON',
+      productName: 'Bota de Cuero',
+      channel: 'whatsapp',
+    })
+    const [payload] = table.insert.mock.calls[0]
+    expect(payload.metadata).toEqual({
+      product_name: 'Bota de Cuero',
+      channel: 'whatsapp',
+    })
+  })
+
   it('persiste product_id null cuando el resolver canónico no encuentra match', async () => {
     vi.mocked(resolveCanonicalProductId).mockResolvedValue(null)
     const table = stubTable('sales_events', { data: null, error: null })
