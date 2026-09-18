@@ -489,3 +489,28 @@ describe('withMediaResolutionFeedback — truthful media status (R6/R7)', () => 
     expect(out).not.toContain('Estás REENVIANDO')
   })
 })
+
+describe('buildMasterPrompt con delivery_schedules', () => {
+  it('inyecta la sección de días de entrega cuando hay schedules', () => {
+    const prompt = build({
+      deliverySchedules: [
+        {
+          city: 'León',
+          delivery_days: [0, 1, 2, 3, 4, 5, 6],
+          delivery_window_start: '09:00',
+          delivery_window_end: '19:00',
+        },
+      ],
+      customerCity: 'León',
+      now: new Date(2026, 1, 5),
+    })
+    expect(prompt).toContain('## Días de entrega')
+    expect(prompt).toContain('El cliente actual está en León')
+    expect(prompt).toContain('viernes 6 de febrero')
+  })
+
+  it('no altera el prompt cuando no hay schedules', () => {
+    const prompt = build()
+    expect(prompt).not.toContain('## Días de entrega')
+  })
+})

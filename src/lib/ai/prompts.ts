@@ -6,6 +6,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import type { ChannelType } from '@/lib/channels/types'
 import type { ResolvedCapabilities } from '@/lib/system/capabilities'
 import type { MediaStatus } from '@/lib/runtime/context-media'
+import { buildDeliveryPromptSection, type DeliverySchedule } from '@/lib/delivery/dates'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -212,6 +213,9 @@ export function buildMasterPrompt(params: {
     guidance: string
   }
   capabilities?: ResolvedCapabilities
+  deliverySchedules?: DeliverySchedule[]
+  customerCity?: string | null
+  now?: Date
 }): string {
   const {
     business,
@@ -236,9 +240,21 @@ export function buildMasterPrompt(params: {
     landingContext,
     stateGuidance,
     capabilities,
+    deliverySchedules,
+    customerCity,
+    now,
   } = params
 
   const ai = getDictionary(locale ?? DEFAULT_LOCALE).ai
+
+  const deliverySection =
+    deliverySchedules && deliverySchedules.length > 0
+      ? buildDeliveryPromptSection({
+          schedules: deliverySchedules,
+          customerCity: customerCity ?? null,
+          now: now ?? new Date(),
+        })
+      : ''
 
   const personality = assistant.personality as unknown as Personality
   const personalityLabel = getPersonalityLabel(personality, ai)
@@ -453,6 +469,7 @@ Tienes acceso al sistema de inventario. Cuando el cliente pregunte por disponibi
 ${capabilities?.active.has('MOD_DELIVERY') ? `\n## Logística
 Tienes acceso al sistema de entregas. Cuando el cliente pregunte por envíos o tiempos de entrega, puedes utilizar la información de rutas y repartidores para dar una respuesta más precisa sobre disponibilidad y tiempos estimados.` : ''}
 
+${deliverySection ? `${deliverySection}\n\n` : ''}
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`
 }

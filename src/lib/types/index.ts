@@ -1003,6 +1003,47 @@ export interface Database {
           }
         ]
       }
+      delivery_schedules: {
+        Row: {
+          id: string
+          business_id: string
+          city: string
+          delivery_days: number[]
+          delivery_window_start: string
+          delivery_window_end: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          city: string
+          delivery_days?: number[]
+          delivery_window_start?: string
+          delivery_window_end?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          city?: string
+          delivery_days?: number[]
+          delivery_window_start?: string
+          delivery_window_end?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'delivery_schedules_business_id_fkey'
+            columns: ['business_id']
+            isOneToOne: false
+            referencedRelation: 'businesses'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       channel_messages: {
         Row: {
           id: string

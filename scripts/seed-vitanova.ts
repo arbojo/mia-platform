@@ -376,6 +376,27 @@ async function seedInstructions(supabase: ReturnType<typeof createClient>, busin
   if (error) throw new Error(`ai_instructions insert failed: ${error.message}`)
 }
 
+async function seedDeliverySchedules(supabase: ReturnType<typeof createClient>, businessId: string) {
+  const { data: existing } = await supabase
+    .from('delivery_schedules')
+    .select('id')
+    .eq('business_id', businessId)
+    .limit(1)
+    .maybeSingle()
+  if (existing) return
+
+  // Días en formato JS (0=domingo ... 6=sábado). Fuente: docs extraídos
+  // de Vitanova. Regla de negocio: siempre el siguiente día programado.
+  const { error } = await supabase.from('delivery_schedules').insert([
+    { business_id: businessId, city: 'León', delivery_days: [0, 1, 2, 3, 4, 5, 6] },
+    { business_id: businessId, city: 'Lagos de Moreno', delivery_days: [2, 4, 6] },
+    { business_id: businessId, city: 'Irapuato', delivery_days: [1, 3, 5] },
+    { business_id: businessId, city: 'Silao', delivery_days: [1, 3, 5] },
+    { business_id: businessId, city: 'Guanajuato Capital', delivery_days: [1, 3, 5] },
+  ])
+  if (error) throw new Error(`delivery_schedules insert failed: ${error.message}`)
+}
+
 async function main() {
   const env = loadEnv()
   const url = env.NEXT_PUBLIC_SUPABASE_URL
@@ -402,6 +423,7 @@ async function main() {
   await seedRules(supabase, business.id)
   await seedKnowledge(supabase, business.id)
   await seedInstructions(supabase, business.id)
+  await seedDeliverySchedules(supabase, business.id)
 
   console.log(
     `Vitanova ready: business=${business.id} assistant=${assistant.id} owner=${owner.id}`

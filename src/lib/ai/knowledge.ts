@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { Database } from '@/lib/types'
 
 export const AUTHORITY_TIER = {
   IMMUTABLE: 1,
@@ -29,7 +30,7 @@ export function authorityTag(entity: {
 export async function getBusinessContext(businessId: string) {
   const supabase = createAdminClient()
 
-  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult, salesConfigResult] =
+  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult, salesConfigResult, deliveryScheduleResult] =
     await Promise.all([
       supabase
         .from('brand_identities')
@@ -69,6 +70,11 @@ export async function getBusinessContext(businessId: string) {
         .select('*')
         .eq('business_id', businessId)
         .maybeSingle(),
+      supabase
+        .from('delivery_schedules')
+        .select('*')
+        .eq('business_id', businessId)
+        .order('city', { ascending: true }),
     ])
 
   const knowledgeSourceOrder: Record<string, number> = {
@@ -105,6 +111,7 @@ export async function getBusinessContext(businessId: string) {
     knowledge,
     memory,
     salesConfig: salesConfigResult.data,
+    deliverySchedules: deliveryScheduleResult.data ?? [],
   }
 }
 
@@ -316,6 +323,19 @@ export type RetentionDiscountPolicy = Pick<
   SalesConfig,
   'retention_discount_percent' | 'retention_discount_message'
 >
+
+export type DeliveryScheduleRow =
+  Database['public']['Tables']['delivery_schedules']['Row']
+
+export async function getDeliverySchedules(businessId: string): Promise<DeliveryScheduleRow[]> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('delivery_schedules')
+    .select('*')
+    .eq('business_id', businessId)
+    .order('city', { ascending: true })
+  return data ?? []
+}
 
 export const SALES_CONFIG_DEFAULTS: Omit<SalesConfig, 'business_id' | 'created_at' | 'updated_at'> = {
   confirmation_message:
