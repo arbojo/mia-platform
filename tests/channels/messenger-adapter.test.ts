@@ -222,7 +222,7 @@ describe('MessengerAdapter', () => {
       expect(body.message.text).toBe('Respuesta')
     })
 
-    it('sends an image attachment when imageUrl is provided', async () => {
+    it('sends the image attachment and the reply text as separate bubbles', async () => {
       const fetchMock = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({ message_id: 'mid-out-2' }),
@@ -236,9 +236,52 @@ describe('MessengerAdapter', () => {
       })
 
       expect(result.success).toBe(true)
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+
+      const imageBody = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)
+      expect(imageBody.message.attachment.type).toBe('image')
+      expect(imageBody.message.attachment.payload.url).toBe('https://cdn.example.com/media/1.png')
+
+      const textBody = JSON.parse((fetchMock.mock.calls[1][1] as { body: string }).body)
+      expect(textBody.message.text).toBe('Respuesta con imagen')
+    })
+
+    it('sends only the image when the reply text is empty', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ message_id: 'mid-out-3' }),
+      })
+      vi.stubGlobal('fetch', fetchMock)
+
+      const result = await adapter.sendMessage(connection, {
+        content: '   ',
+        contentType: 'text',
+        metadata: { psid: 'psid-1', imageUrl: 'https://cdn.example.com/media/2.png' },
+      })
+
+      expect(result.success).toBe(true)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
       const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)
       expect(body.message.attachment.type).toBe('image')
-      expect(body.message.attachment.payload.url).toBe('https://cdn.example.com/media/1.png')
+    })
+
+    it('stops before the text when the image bubble fails', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: async () => ({ error: { message: 'Image rejected' } }),
+      })
+      vi.stubGlobal('fetch', fetchMock)
+
+      const result = await adapter.sendMessage(connection, {
+        content: 'Respuesta con imagen',
+        contentType: 'text',
+        metadata: { psid: 'psid-1', imageUrl: 'https://cdn.example.com/media/3.png' },
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Image rejected')
+      expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
     it('returns failure when the access token is missing', async () => {

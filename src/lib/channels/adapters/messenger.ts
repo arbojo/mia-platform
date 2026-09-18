@@ -148,41 +148,48 @@ export class MessengerAdapter implements ChannelAdapter {
     }
 
     try {
-      const outgoing: Record<string, unknown> = {
-        recipient: { id: psid },
-        messaging_type: 'RESPONSE',
+      const post = async (outgoing: Record<string, unknown>): Promise<SendResult> => {
+        const res = await fetch(
+          `${MESSENGER_API_BASE}/me/messages?access_token=${encodeURIComponent(accessToken)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(outgoing),
+          }
+        )
+
+        if (!res.ok) {
+          const errorData = (await res.json().catch(() => null)) as {
+            error?: { message?: string }
+          } | null
+          return {
+            success: false,
+            error: errorData?.error?.message ?? `HTTP ${res.status}`,
+          }
+        }
+
+        const result = (await res.json()) as { message_id?: string }
+        return { success: true, externalId: result.message_id }
       }
 
+      const recipient = { recipient: { id: psid }, messaging_type: 'RESPONSE' }
       const imageUrl = message.metadata?.imageUrl as string | undefined
+
       if (imageUrl) {
-        outgoing.message = {
-          attachment: { type: 'image', payload: { url: imageUrl } },
+        // Messenger's Send API has no image caption, so the image is sent as its
+        // own bubble first, followed by the reply text.
+        const imageResult = await post({
+          ...recipient,
+          message: { attachment: { type: 'image', payload: { url: imageUrl } } },
+        })
+        if (!imageResult.success) return imageResult
+        if (message.content?.trim()) {
+          return post({ ...recipient, message: { text: message.content } })
         }
-      } else {
-        outgoing.message = { text: message.content }
+        return imageResult
       }
 
-      const res = await fetch(
-        `${MESSENGER_API_BASE}/me/messages?access_token=${encodeURIComponent(accessToken)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(outgoing),
-        }
-      )
-
-      if (!res.ok) {
-        const errorData = (await res.json().catch(() => null)) as {
-          error?: { message?: string }
-        } | null
-        return {
-          success: false,
-          error: errorData?.error?.message ?? `HTTP ${res.status}`,
-        }
-      }
-
-      const result = (await res.json()) as { message_id?: string }
-      return { success: true, externalId: result.message_id }
+      return post({ ...recipient, message: { text: message.content } })
     } catch (error) {
       return {
         success: false,
