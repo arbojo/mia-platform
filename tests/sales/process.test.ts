@@ -886,4 +886,121 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
       expect.objectContaining({ outcome: 'sold', dealValue: 499 })
     )
   })
+
+  it('FASE2: pedido multi-producto → un item por cada products[] resuelto + totals sumados', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+      products: [
+        { name: 'Tiras Bella Patch', quantity: 1 },
+        { name: 'Crema Reafirmante', quantity: 2 },
+      ],
+    })
+    vi.mocked(detectExplicitScopes).mockImplementation((_supabase, _businessId, name) => {
+      if (name === 'Tiras Bella Patch') {
+        return Promise.resolve([{ productId: 'prod-9901', source: 'literal', tier: 'literal' }])
+      }
+      if (name === 'Crema Reafirmante') {
+        return Promise.resolve([{ productId: 'prod-9902', source: 'literal', tier: 'literal' }])
+      }
+      return Promise.resolve([])
+    })
+    mockSingle
+      .mockResolvedValueOnce({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+      .mockResolvedValueOnce({ data: { id: 'prod-9902', name: 'Crema Reafirmante', price: 299 } })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 1097,
+        metadata: expect.objectContaining({
+          items: [
+            { product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 },
+            { product_id: 'prod-9902', name: 'Crema Reafirmante', unit_price: 299, quantity: 2 },
+          ],
+          totals: { subtotal: 1097, discount: 0, total: 1097 },
+        }),
+      })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ dealValue: 1097 })
+    )
+  })
+
+  it('FASE2: item multi-producto sin resolver → se omite, totals sobre los resueltos', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+      products: [
+        { name: 'Tiras Bella Patch', quantity: 1 },
+        { name: 'Producto Inventado', quantity: 1 },
+      ],
+    })
+    vi.mocked(detectExplicitScopes).mockImplementation((_supabase, _businessId, name) =>
+      name === 'Tiras Bella Patch'
+        ? Promise.resolve([{ productId: 'prod-9901', source: 'literal', tier: 'literal' }])
+        : Promise.resolve([])
+    )
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 499,
+        metadata: expect.objectContaining({
+          items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+          totals: { subtotal: 499, discount: 0, total: 499 },
+        }),
+      })
+    )
+  })
+
+  it('FASE2: item sin precio → se incluye en items, no contribuye al total si hay otro con precio', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+      products: [
+        { name: 'Tiras Bella Patch', quantity: 1 },
+        { name: 'Servicio Sin Precio', quantity: 1 },
+      ],
+    })
+    vi.mocked(detectExplicitScopes).mockImplementation((_supabase, _businessId, name) => {
+      if (name === 'Tiras Bella Patch') {
+        return Promise.resolve([{ productId: 'prod-9901', source: 'literal', tier: 'literal' }])
+      }
+      if (name === 'Servicio Sin Precio') {
+        return Promise.resolve([{ productId: 'prod-svc', source: 'literal', tier: 'literal' }])
+      }
+      return Promise.resolve([])
+    })
+    mockSingle
+      .mockResolvedValueOnce({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+      .mockResolvedValueOnce({ data: { id: 'prod-svc', name: 'Servicio Sin Precio', price: null } })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 499,
+        metadata: expect.objectContaining({
+          items: [
+            { product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 },
+            { product_id: 'prod-svc', name: 'Servicio Sin Precio', unit_price: null, quantity: 1 },
+          ],
+          totals: { subtotal: 499, discount: 0, total: 499 },
+        }),
+      })
+    )
+  })
 })

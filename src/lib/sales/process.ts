@@ -595,46 +595,66 @@ export async function processSaleClosing(params: {
     //     dato de interpretación; el precio ganador es el de catálogo (A).
     //   - Sin producto resoluble o sin precio verificable => NO hay total
     //     determinista => amount null (nunca sustituir con amount LLM, no inventar precio).
-    let snapshot: {
+    //
+    // FASE 2 — Multi-producto: un pedido puede llevar N items. Se materializa UN
+    // item por cada products[] del LLM que resuelve a catálogo (canonical o match
+    // determinístico de hit único). Si no hay products[] se conserva el flujo
+    // single-product de FASE 1 (event.productName). Items sin precio se incluyen
+    // en el snapshot (con unit_price null) pero no contribuyen al total.
+    const items: Array<{
       product_id: string
       name: string
       unit_price: number | null
       quantity: number
-    } | null = null
+    }> = []
     let totals: { subtotal: number | null; discount: number; total: number | null } | null = null
 
     if (event.type === 'SALE_WON') {
       try {
-        // Sin identidad canónica/contexto, resolver el producto por el nombre
-        // (texto LLM) con el matcher determinístico del runtime (literal/SKU/
-        // alias/compacto/fuzzy). Solo un hit único es aceptable; ambigüedad o
-        // sin-match => sin snapshot (no fabricar).
-        let productIdForSnapshot = eventProductId
-        if (!productIdForSnapshot && event.productName) {
-          const hits = await detectExplicitScopes(supabaseAdmin, businessId, event.productName)
-          if (hits.length === 1) productIdForSnapshot = hits[0].productId
-        }
+        // Catálogo de candidatos: products[] del LLM, o si la lista está vacía,
+        // el propio event.productName como candidato único (compat FASE 1).
+        const candidates = result.products?.length
+          ? result.products
+          : event.productName
+            ? [{ name: event.productName, quantity: event.quantity }]
+            : []
 
-        if (productIdForSnapshot) {
+        for (const candidate of candidates) {
+          // Identidad canónica estricta (C4): si el candidato coincide con el
+          // producto del evento y hay canonicalProductId, se usa directamente.
+          let productIdForItem: string | null = null
+          if (candidate.name === event.productName && eventProductId) {
+            productIdForItem = eventProductId
+          } else {
+            // Matcher determinístico del runtime (literal/SKU/alias/compacto/
+            // fuzzy). Solo un hit único es aceptable; ambigüedad o sin-match =>
+            // se omite ese item (no fabricar).
+            const hits = await detectExplicitScopes(supabaseAdmin, businessId, candidate.name)
+            if (hits.length === 1) productIdForItem = hits[0].productId
+          }
+
+          if (!productIdForItem) continue
+
           const { data: prod } = await supabaseAdmin
             .from('products')
             .select('id, name, price')
             .eq('business_id', businessId)
-            .eq('id', productIdForSnapshot)
+            .eq('id', productIdForItem)
             .single()
           if (prod) {
-            snapshot = {
+            items.push({
               product_id: prod.id,
               name: prod.name,
               unit_price: prod.price,
-              quantity: resolveSaleQuantity(event, result.products),
-            }
+              quantity: candidate.quantity ?? DEFAULT_QUANTITY,
+            })
           }
         }
 
-        // Fallback conservador: match EXACTO por nombre (precio + snapshot sin
-        // identidad permisiva).
-        if (!snapshot && event.productName) {
+        // Fallback conservador: si no se materializó ningún item (p.ej. products[]
+        // con textos que el matcher no resolvió), match EXACTO por nombre del evento
+        // (precio + snapshot sin identidad permisiva) — compat FASE 1.
+        if (items.length === 0 && event.productName) {
           const name = event.productName.trim()
           const { data: prod } = await supabaseAdmin
             .from('products')
@@ -645,19 +665,24 @@ export async function processSaleClosing(params: {
             .limit(1)
             .maybeSingle()
           if (prod) {
-            snapshot = {
+            items.push({
               product_id: prod.id,
               name: prod.name,
               unit_price: prod.price,
               quantity: resolveSaleQuantity(event, result.products),
-            }
+            })
           }
         }
 
-        // Total determinista: solo cuando hay snapshot Y unit_price verificable.
-        // Sin precio verificable => sin totals => amount null (no inventar).
-        if (snapshot && snapshot.unit_price !== null) {
-          const subtotal = snapshot.unit_price * snapshot.quantity
+        // Total determinista: Σ(unit_price × quantity) sobre los items CON precio.
+        // Items sin precio verificable no contribuyen; si NINGUNO tiene precio =>
+        // sin totals => amount null (no inventar).
+        const pricedItems = items.filter((i) => i.unit_price !== null)
+        if (pricedItems.length > 0) {
+          const subtotal = pricedItems.reduce(
+            (acc, i) => acc + (i.unit_price as number) * i.quantity,
+            0
+          )
           totals = { subtotal, discount: 0, total: subtotal }
         }
       } catch (err) {
@@ -696,8 +721,8 @@ export async function processSaleClosing(params: {
       productId: eventProductId ?? undefined,
       amount,
       metadata:
-        event.type === 'SALE_WON' && snapshot
-          ? { ...saleMetadata, items: [snapshot], totals }
+        event.type === 'SALE_WON' && items.length > 0
+          ? { ...saleMetadata, items, totals }
           : saleMetadata,
     })
   }
