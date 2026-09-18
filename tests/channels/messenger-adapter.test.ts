@@ -280,6 +280,61 @@ describe('MessengerAdapter', () => {
     })
   })
 
+  describe('setTyping', () => {
+    const connection: ChannelConnection = {
+      id: 'conn-1',
+      businessId: 'b1',
+      assistantId: 'a1',
+      channel: 'messenger',
+      status: 'connected',
+      credentials: { page_id: 'page-1', access_token: 'page-token' },
+      configuration: {},
+      lastSync: null,
+      errorMessage: null,
+    }
+
+    it('posts typing_on to the Send API', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) })
+      vi.stubGlobal('fetch', fetchMock)
+
+      await adapter.setTyping(connection, 'psid-1', true)
+
+      const [url, init] = fetchMock.mock.calls[0]
+      expect(String(url)).toContain('/me/messages')
+      expect(String(url)).toContain('access_token=page-token')
+      const body = JSON.parse(init.body as string)
+      expect(body.sender_action).toBe('typing_on')
+      expect(body.recipient.id).toBe('psid-1')
+    })
+
+    it('posts typing_off to clear the indicator', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) })
+      vi.stubGlobal('fetch', fetchMock)
+
+      await adapter.setTyping(connection, 'psid-1', false)
+
+      const body = JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)
+      expect(body.sender_action).toBe('typing_off')
+    })
+
+    it('does nothing without an access token or recipient', async () => {
+      const fetchMock = vi.fn()
+      vi.stubGlobal('fetch', fetchMock)
+
+      await adapter.setTyping({ ...connection, credentials: {} }, 'psid-1', true)
+      await adapter.setTyping(connection, '', true)
+
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+
+    it('swallows transport failures (best-effort presence)', async () => {
+      const fetchMock = vi.fn().mockRejectedValue(new Error('network down'))
+      vi.stubGlobal('fetch', fetchMock)
+
+      await expect(adapter.setTyping(connection, 'psid-1', true)).resolves.toBeUndefined()
+    })
+  })
+
   describe('getStatus', () => {
     it('returns disconnected without an access token', async () => {
       const result = await adapter.getStatus({

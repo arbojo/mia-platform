@@ -191,6 +191,36 @@ export class MessengerAdapter implements ChannelAdapter {
     }
   }
 
+  /**
+   * Shows/clears the native "escribiendo…" bubble through the Graph Send API.
+   * Best-effort: a failure here must never interfere with the actual reply.
+   */
+  async setTyping(
+    connection: ChannelConnection,
+    externalId: string,
+    isTyping: boolean
+  ): Promise<void> {
+    const credentials = connection.credentials as { access_token?: string }
+    const accessToken = credentials.access_token
+    if (!accessToken || !externalId) return
+
+    try {
+      await fetch(
+        `${MESSENGER_API_BASE}/me/messages?access_token=${encodeURIComponent(accessToken)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient: { id: externalId },
+            sender_action: isTyping ? 'typing_on' : 'typing_off',
+          }),
+        }
+      )
+    } catch {
+      // Presence is best-effort; ignore transport errors.
+    }
+  }
+
   validateWebhook(signature: string, body: string): boolean {
     const appSecret = getAppSecret()
     if (!appSecret) {

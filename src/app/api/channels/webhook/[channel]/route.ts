@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getAdapter } from '@/lib/channels/gateway'
 import { processIncomingMessage, RuntimeError } from '@/lib/runtime/runtime'
 import { resolveMessengerConnection } from '@/lib/conversation/resolver'
+import { withTypingIndicator } from '@/lib/channels/presence'
 import type { ChannelType } from '@/lib/channels/types'
 
 const validChannels: ChannelType[] = ['web', 'whatsapp', 'messenger', 'instagram']
@@ -38,19 +39,18 @@ export async function POST(
 
     const wireMessage = await adapter.receiveMessage(body)
 
-    const result = await processIncomingMessage(channelType, wireMessage, adapter)
+    // Messenger replies are pushed through the Graph Send API, so the connection
+    // is resolved up-front: it is needed both for the "escribiendo…" presence
+    // kept alive while the runtime generates and for delivering the reply.
+    const connection =
+      channelType === 'messenger' && wireMessage.customerExternalId
+        ? await resolveMessengerConnection(wireMessage)
+        : null
 
-    // Messenger replies must be pushed through the Graph Send API; there is no
-    // bridge/caller that can deliver them from the returned JSON.
-    if (
-      channelType === 'messenger' &&
-      result.deliver &&
-      result.response &&
-      wireMessage.customerExternalId
-    ) {
-      const connection = await resolveMessengerConnection(wireMessage)
+    const processAndDeliver = async () => {
+      const result = await processIncomingMessage(channelType, wireMessage, adapter)
 
-      if (connection) {
+      if (connection && result.deliver && result.response && wireMessage.customerExternalId) {
         const sendResult = await adapter
           .sendMessage(connection, {
             content: result.response,
@@ -71,7 +71,19 @@ export async function POST(
           )
         }
       }
+
+      return result
     }
+
+    const result =
+      connection && wireMessage.customerExternalId
+        ? await withTypingIndicator(
+            adapter,
+            connection,
+            wireMessage.customerExternalId,
+            processAndDeliver
+          )
+        : await processAndDeliver()
 
     return NextResponse.json({
       success: true,

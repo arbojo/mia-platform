@@ -89,6 +89,13 @@ export interface ChannelAdapter {
 
   sendMessage(connection: ChannelConnection, message: OutgoingMessage): Promise<SendResult>
 
+  /**
+   * Best-effort "escribiendo…" presence for channels that support it (e.g.
+   * Messenger `typing_on`/`typing_off`). Adapters without a native indicator
+   * simply omit this method.
+   */
+  setTyping?(connection: ChannelConnection, externalId: string, isTyping: boolean): Promise<void>
+
   validateWebhook(signature: string, body: string): boolean
 
   getStatus(connection: ChannelConnection): Promise<ChannelStatus>
