@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { ChannelConnection } from '@/lib/channels/types'
 import type { WireMessage } from '@/lib/runtime/types'
 import { canServeTraffic } from '@/lib/runtime/assistant-gate'
 
@@ -55,11 +56,54 @@ export async function resolveConnection(
     }
   }
 
+  if (channel === 'messenger' && metadata.pageId) {
+    const supabase = createAdminClient()
+    const { data: connection } = await supabase
+      .from('channel_connections')
+      .select('business_id, assistant_id, mode')
+      .eq('channel', 'messenger')
+      .eq('status', 'connected')
+      .contains('credentials', { page_id: metadata.pageId as string })
+      .limit(1)
+      .single()
+
+    if (connection) {
+      return {
+        business_id: connection.business_id,
+        assistant_id: connection.assistant_id,
+        mode: connection.mode ?? 'active',
+      }
+    }
+  }
+
   throw new RuntimeError(
     `Cannot resolve connection for ${channel} channel. Ensure channel_connections is configured.`,
     'CONNECTION_NOT_FOUND',
     400
   )
+}
+
+/**
+ * Resolves the full Messenger connection row (including credentials) for a page
+ * webhook event. Used by the webhook route to deliver replies via the Send API.
+ */
+export async function resolveMessengerConnection(
+  wireMessage: WireMessage
+): Promise<ChannelConnection | null> {
+  const pageId = wireMessage.metadata?.pageId as string | undefined
+  if (!pageId) return null
+
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('channel_connections')
+    .select('*')
+    .eq('channel', 'messenger')
+    .eq('status', 'connected')
+    .contains('credentials', { page_id: pageId })
+    .limit(1)
+    .maybeSingle()
+
+  return (data as unknown as ChannelConnection) ?? null
 }
 
 async function resolveConnectionMode(

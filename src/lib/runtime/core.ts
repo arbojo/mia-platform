@@ -362,6 +362,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           customerId,
           canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
           productContextId: activeProductIdentity?.productId ?? null,
+          channel: input.channel,
           messages: [...chatMessages, { role: 'assistant', content: finalResponse }],
         })
       } catch (err) {
@@ -440,6 +441,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
               customerId,
               canonicalProductId: product?.productId ?? input.preResolvedProductId ?? null,
               productContextId: activeProductIdentity?.productId ?? null,
+              channel: input.channel,
               messages: [...chatMessages, { role: 'assistant', content: finalText }],
             })
           } catch (err) {

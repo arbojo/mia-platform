@@ -123,6 +123,7 @@ export async function loadConversationContext(
   }
 
   let customerMemory: string | undefined
+  let customerCity: string | null = null
   let stateGuidance: {
     state_section: string
     permitted_actions: string[]
@@ -149,6 +150,13 @@ export async function loadConversationContext(
         guidance: 'ESTADO NO DISPONIBLE: No se pudo cargar el estado del cliente. Por seguridad, NO cierres, NO ofrezcas, NO avances. Explora y clarifica.',
       }
     }
+
+    const { data: customerRow } = await supabase
+      .from('customers')
+      .select('city')
+      .eq('id', customerId)
+      .maybeSingle()
+    customerCity = customerRow?.city ?? null
   }
 
   const systemPrompt = buildMasterPrompt({
@@ -174,6 +182,8 @@ export async function loadConversationContext(
     experienceContext,
     stateGuidance,
     capabilities: resolvedCapabilities,
+    deliverySchedules: 'deliverySchedules' in context ? context.deliverySchedules : [],
+    customerCity,
   })
 
   const usedContext: Array<{ type: string; id: string }> = []

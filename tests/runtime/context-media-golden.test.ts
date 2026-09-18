@@ -491,7 +491,7 @@ describe('GT-07..GT-13 — Media & asset selection', () => {
     expect(res.attachment).toBeNull()
   })
 
-  it('GT-10 different asset mismo producto → send (claim nuevo)', async () => {
+  it('GT-10 ADR-031: segundo asset del mismo producto sin petición de media → NO re-envío (cadencia)', async () => {
     const h = makeHarness({
       claims: [{ knowledge_item_id: 'k-1', conversation_id: conversationId, state: 'dispatched' }],
       knowledge: [
@@ -503,10 +503,11 @@ describe('GT-07..GT-13 — Media & asset selection', () => {
       businessId: 'biz-1', conversationId, userMessage: 'precio',
       scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
     })
-    // k-1 ya claimado → pending[0]=k-2 → claim nuevo para k-2
-    expect(res.attachment?.knowledgeItemId).toBe('k-2')
-    expect(res.decision.claim).toBe('created')
-    expect(h.claims.get(`k-2::${conversationId}`)?.state).toBe('claimed')
+    // ADR-031: una vez despachada una media del producto, no se despacha otra
+    // en la misma conversación (re-pedir precio = solo texto).
+    expect(res.attachment).toBeNull()
+    expect(res.decision.claim).toBe('existing_hit')
+    expect(h.claims.has(`k-2::${conversationId}`)).toBe(false)
   })
 
   it('GT-11 inactive asset → no elegible (il SQL filtra is_active)', async () => {
@@ -577,15 +578,17 @@ describe('GT-07..GT-13 — Media & asset selection', () => {
     expect(h.claims.get(`k-generico::${conversationId}`)).toBeUndefined()
   })
 
-  it('GT-13 malformed trigger (frase completa no keyword) → sin media, sin crash', async () => {
+  it('GT-13 ADR-031: trigger sin keyword pero producto identificado → representativa (sin crash)', async () => {
     const h = makeHarness({ knowledge: [kitem({ id: 'k-1', trigger_condition: 'precio' })] })
     const res = await resolveContextMedia({
       businessId: 'biz-1', conversationId,
       userMessage: 'quisiera saber el costo exacto del producto que venden',
       scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
     })
-    expect(res.attachment).toBeNull()
-    expect(res.decision.reason).toBeTruthy()
+    // ADR-031: el producto está identificado (scope único) → se despacha su
+    // representativa aunque el trigger no matchee.
+    expect(res.attachment?.knowledgeItemId).toBe('k-1')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
   })
 })
 
@@ -756,7 +759,7 @@ describe('GT-22..GT-24 — Race / atomic claims', () => {
     expect(thrown).toHaveLength(0)
   })
 
-  it('GT-23 claims independientes por asset: turnos sucesivos seleccionan assets distintos', async () => {
+  it('GT-23 ADR-031: cadencia por producto — solo el primer asset se despacha', async () => {
     const h = makeHarness({
       knowledge: [
         kitem({ id: 'k-1', trigger_condition: 'precio', position: 0 }),
@@ -764,8 +767,8 @@ describe('GT-22..GT-24 — Race / atomic claims', () => {
         kitem({ id: 'k-3', trigger_condition: 'precio', position: 2 }),
       ],
     })
-    // Cada turno selecciona pending[0] (position ASC). Tras claimar k-1, el
-    // siguiente turno elige k-2, luego k-3. Claims independientes por asset.
+    // ADR-031: el primer turno despacha la representativa; los siguientes caen
+    // en existing_hit (re-pedir precio = solo texto). Solo un claim.
     const r1 = await resolveContextMedia({
       businessId: 'biz-1', conversationId, userMessage: 'precio',
       scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
@@ -780,9 +783,10 @@ describe('GT-22..GT-24 — Race / atomic claims', () => {
     })
 
     expect(r1.attachment?.knowledgeItemId).toBe('k-1')
-    expect(r2.attachment?.knowledgeItemId).toBe('k-2')
-    expect(r3.attachment?.knowledgeItemId).toBe('k-3')
-    expect(h.claims.size).toBe(3)
+    expect(r2.attachment).toBeNull()
+    expect(r3.attachment).toBeNull()
+    expect(r2.decision.claim).toBe('existing_hit')
+    expect(h.claims.size).toBe(1)
   })
 
   it('GT-24 concurrent channels misma persona → como GT-19 (conversation-scoped)', () => {
@@ -1041,6 +1045,41 @@ describe('Scope helper invariants', () => {
     const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tienes fajas?')
     expect(hits).toHaveLength(0)
   })
+
+  it('detectExplicitScopes: alias multi-palabra con plural ("calcetas de compresion" → Neurofeet)', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-nf', name: 'Neurofeet', sku: null },
+        { id: 'p-nt', name: 'Neurotin', sku: null },
+      ],
+    })
+    const hits = await detectExplicitScopes(
+      h.supabase as never,
+      'biz-1',
+      'oye y las calcetas de compresion? que precio tienen?'
+    )
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.productId).toBe('p-nf')
+  })
+
+  it('detectExplicitScopes: alias "medias largas" resuelve Neurofeet', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-nf', name: 'Neurofeet', sku: null },
+        { id: 'p-nt', name: 'Neurotin', sku: null },
+      ],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'es que son las medias largas')
+    expect(hits.some((hit) => hit.productId === 'p-nf')).toBe(true)
+  })
+
+  it('detectExplicitScopes: "largos" suelto NO dispara Neurofeet (FP "largos tiempos de entrega")', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-nf', name: 'Neurofeet', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'y cuanto tardan los largos tiempos de entrega?')
+    expect(hits).toHaveLength(0)
+  })
 })
 
 // ────────────────────────────────────────────────────────────────
@@ -1123,6 +1162,41 @@ describe('ALIAS — explicit scope determinístico (regresión Back2Fit)', () =>
     })
     expect(scope.source).toBe('explicit')
     expect(scope.messageScope).toEqual(['p-back'])
+  })
+
+  it('ADR-031 alias "hongos de las uñas" explicita Clean Nails (frase, no palabra suelta)', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-clean', name: 'Clean Nails', sku: null }],
+    })
+    const scope = await resolveScopeContext({
+      supabase: h.supabase as never,
+      businessId: 'biz-1',
+      conversationId,
+      userMessage: 'tengo hongos en las uñas, me interesa',
+    })
+    expect(scope.source).toBe('explicit')
+    expect(scope.messageScope).toEqual(['p-clean'])
+  })
+
+  it('ADR-031 anti-FP: el artículo "una" NUNCA explicita Clean Nails', async () => {
+    const h = makeHarness({
+      products: [{ id: 'p-clean', name: 'Clean Nails', sku: null }],
+    })
+    const hits = await detectExplicitScopes(h.supabase as never, 'biz-1', 'tengo una duda')
+    expect(hits).toHaveLength(0)
+  })
+
+  it('ADR-031 alias: "calcetin" → Neurotin; "canas" → Bye Canas', async () => {
+    const h = makeHarness({
+      products: [
+        { id: 'p-nt', name: 'Neurotin', sku: null },
+        { id: 'p-bc', name: 'Bye Canas', sku: null },
+      ],
+    })
+    const nt = await detectExplicitScopes(h.supabase as never, 'biz-1', 'venden el calcetin?')
+    const bc = await detectExplicitScopes(h.supabase as never, 'biz-1', 'sirve para las canas?')
+    expect(nt.some((hit) => hit.productId === 'p-nt')).toBe(true)
+    expect(bc.some((hit) => hit.productId === 'p-bc')).toBe(true)
   })
 })
 
@@ -1229,7 +1303,7 @@ describe('DEC-20260904-MEDIA-CONTRACT — R1..R8 / INV-MEDIA (TDD RED)', () => {
   })
 
   // ——— R4/R6: honestidad (sin dispatch no se afirma disponibilidad) ———
-  it('NEUROFEET-sin-principal: sin match → MEDIA_UNAVAILABLE_FOR_PRODUCT (RED mediaStatus)', async () => {
+  it('NEUROFEET ADR-031: un único asset condicionado es representativo → dispatch', async () => {
     const h = makeHarness({
       knowledge: [
         kitem({
@@ -1240,11 +1314,11 @@ describe('DEC-20260904-MEDIA-CONTRACT — R1..R8 / INV-MEDIA (TDD RED)', () => {
       ],
     })
     const res = await run(h, '¿me mandas una foto de Neurofeet?', ['p-nf'])
-    expect(res.attachment).toBeNull()
-    expect(mediaStatusOf(res.decision)).toBe('MEDIA_UNAVAILABLE_FOR_PRODUCT')
-    // Coherencia: sin dispatch real → sin claim, sin estado de dispatch.
-    expect(h.claims.size).toBe(0)
-    expect(res.decision.dispatched).toBe(false)
+    // ADR-031: se elimina la excepción R4/DP-1 (>=2 assets). Con producto
+    // identificado, un único asset condicionado ya es representativo.
+    expect(res.attachment?.knowledgeItemId).toBe('nf-1')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+    expect(h.claims.size).toBe(1)
   })
 
   it('BYE-CANAS: producto sin media → MEDIA_UNAVAILABLE_FOR_PRODUCT (RED mediaStatus)', async () => {
@@ -1697,5 +1771,85 @@ describe('MEDIA-SCOPE-UNCERTAIN — contexto heredado con referente rival débil
     })
     expect(res.decision.mediaStatus).not.toBe('MEDIA_SCOPE_UNCERTAIN')
     expect(res.attachment?.knowledgeItemId).toBe('k-clean')
+  })
+})
+
+// ────────────────────────────────────────────────────────────────
+// ADR-031 — Política de media por producto identificado
+// ────────────────────────────────────────────────────────────────
+// Producto identificado (scope único literal/SKU/landing) → su representativa
+// es elegible sin match de trigger ni intención de media, una vez por
+// conversación. Re-pedir precio = solo texto; una petición explícita de media
+// conserva la idempotencia por asset (R8).
+
+describe('ADR-031 — representativa por producto identificado', () => {
+  it('producto identificado sin match de trigger ni intención → representativa (position ASC)', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'fat-1', product_id: 'p-1', trigger_condition: 'talla', position: 1 }),
+        kitem({ id: 'fat-2', product_id: 'p-1', trigger_condition: 'talla', position: 2 }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: 'el de las uñas?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('fat-1')
+    expect(mediaStatusOf(res.decision)).toBe('DISPATCHED')
+    expect(h.claims.size).toBe(1)
+  })
+
+  it('match de trigger especializado gana a la representativa', async () => {
+    const h = makeHarness({
+      knowledge: [
+        kitem({ id: 'fat-1', product_id: 'p-1', trigger_condition: 'talla', position: 0 }),
+        kitem({ id: 'fat-2', product_id: 'p-1', trigger_condition: 'cuesta', position: 1 }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: '¿cuánto cuesta?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('fat-2')
+  })
+
+  it('re-pedir precio (sin intención de media) → existing_hit, solo texto', async () => {
+    const h = makeHarness({
+      claims: [{ knowledge_item_id: 'fat-1', conversation_id: conversationId, state: 'dispatched' }],
+      knowledge: [kitem({ id: 'fat-1', product_id: 'p-1', trigger_condition: 'talla' })],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: '¿y el precio?',
+      scope: ['p-1'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment).toBeNull()
+    expect(res.decision.claim).toBe('existing_hit')
+    expect(res.decision.mediaStatus).toBe('NONE')
+  })
+
+  it('scope heredado (context) NO habilita la política (sin trigger match → sin media)', async () => {
+    const h = makeHarness({
+      knowledge: [kitem({ id: 'fat-1', product_id: 'p-1', trigger_condition: 'talla' })],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: '¿y eso cómo va?',
+      scope: ['p-1'], scopeSource: 'context', supabase: h.supabase as never,
+    })
+    expect(res.attachment).toBeNull()
+  })
+
+  it('petición explícita de media tras despacho → puede presentar otro asset (R8 preservado)', async () => {
+    const h = makeHarness({
+      claims: [{ knowledge_item_id: 'nt-1', conversation_id: conversationId, state: 'dispatched' }],
+      knowledge: [
+        kitem({ id: 'nt-1', product_id: 'p-nt', trigger_condition: 'imagen', position: 0 }),
+        kitem({ id: 'nt-2', product_id: 'p-nt', trigger_condition: null, position: 1 }),
+      ],
+    })
+    const res = await resolveContextMedia({
+      businessId: 'biz-1', conversationId, userMessage: '¿tienes otra foto?',
+      scope: ['p-nt'], scopeSource: 'explicit', supabase: h.supabase as never,
+    })
+    expect(res.attachment?.knowledgeItemId).toBe('nt-2')
   })
 })

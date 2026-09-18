@@ -106,7 +106,7 @@ describe('ConnectionsManager WhatsApp flow', () => {
 
     renderManager()
 
-    expect(await screen.findByText('No conectado')).toBeInTheDocument()
+    expect((await screen.findAllByText('No conectado')).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: 'Conectar WhatsApp' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Reconectar' })).not.toBeInTheDocument()
   })
@@ -199,7 +199,7 @@ describe('ConnectionsManager WhatsApp flow', () => {
     )
 
     renderManager()
-    await screen.findByText('No conectado')
+    await screen.findAllByText('No conectado')
 
     vi.stubGlobal(
       'fetch',
@@ -225,7 +225,7 @@ describe('ConnectionsManager WhatsApp flow', () => {
 
     renderManager()
 
-    await screen.findByText('No conectado')
+    await screen.findAllByText('No conectado')
     const assistantSelects = screen.getAllByRole('combobox')
     fireEvent.click(assistantSelects[1])
 
@@ -257,5 +257,121 @@ describe('ConnectionsManager WhatsApp flow', () => {
 
     expect((await screen.findAllByText('Conectando...')).length).toBeGreaterThan(0)
     expect(screen.queryByText('connecting')).not.toBeInTheDocument()
+  })
+})
+
+describe('ConnectionsManager Messenger flow', () => {
+  beforeEach(() => {
+    h.connections.length = 0
+    h.assistants = [{ id: 'a1', name: 'Vendedor' }]
+    MockWebSocket.instances.length = 0
+    vi.stubGlobal('WebSocket', MockWebSocket)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  async function selectMessengerAssistant() {
+    const comboboxes = screen.getAllByRole('combobox')
+    fireEvent.click(comboboxes[3])
+    fireEvent.click(await screen.findByText('Vendedor'))
+  }
+
+  function fillMessengerFields(pageId: string, token: string) {
+    fireEvent.change(screen.getByPlaceholderText('ej. 104121794148298'), { target: { value: pageId } })
+    fireEvent.change(screen.getByPlaceholderText('EAA...'), { target: { value: token } })
+  }
+
+  it('muestra No conectado cuando no hay conexion Messenger', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.includes('/session')
+          ? ok({ success: true, status: 'disconnected', phone: null, bridgeEnabled: true })
+          : ok({})
+      )
+    )
+
+    renderManager()
+
+    expect((await screen.findAllByText('Messenger')).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('No conectado').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: 'Conectar Messenger' })).toBeInTheDocument()
+  })
+
+  it('crea la conexion Messenger con credenciales via POST cuando no existe', async () => {
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
+      if (url.includes('/session'))
+        return ok({ success: true, status: 'disconnected', phone: null, bridgeEnabled: true })
+      if (url.includes('/api/channels/connections'))
+        return ok({ connection: { id: 'ms-1', assistant_id: 'a1', channel: 'messenger', status: 'connected' } })
+      return ok({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderManager()
+    await screen.findAllByText('Messenger')
+
+    await selectMessengerAssistant()
+    fillMessengerFields('page-1', 'token-1')
+    fireEvent.click(screen.getByRole('button', { name: 'Conectar Messenger' }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/channels/connections',
+        expect.objectContaining({ method: 'POST' })
+      )
+    })
+
+    const call = fetchMock.mock.calls.find((c) => String(c[0]).includes('/api/channels/connections'))
+    const body = JSON.parse(String((call?.[1] as RequestInit | undefined)?.body))
+    expect(body.channel).toBe('messenger')
+    expect(body.assistantId).toBe('a1')
+    expect(body.credentials).toEqual({ page_id: 'page-1', access_token: 'token-1' })
+  })
+
+  it('actualiza credenciales via PATCH cuando la conexion Messenger ya existe', async () => {
+    h.connections.push({
+      id: 'ms-1',
+      business_id: 'b1',
+      assistant_id: 'a1',
+      channel: 'messenger',
+      status: 'connected',
+      mode: 'active',
+      configuration: {},
+      last_sync: null,
+      created_at: '2026-08-10T00:00:00.000Z',
+    })
+
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
+      if (url.includes('/session'))
+        return ok({ success: true, status: 'disconnected', phone: null, bridgeEnabled: true })
+      if (url.includes('/api/channels/connections'))
+        return ok({ connection: { id: 'ms-1' } })
+      return ok({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderManager()
+    await screen.findAllByText('Messenger')
+
+    expect(screen.getByRole('button', { name: 'Actualizar Messenger' })).toBeInTheDocument()
+
+    await selectMessengerAssistant()
+    fillMessengerFields('page-1', 'token-new')
+    fireEvent.click(screen.getByRole('button', { name: 'Actualizar Messenger' }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/channels/connections',
+        expect.objectContaining({ method: 'PATCH' })
+      )
+    })
+
+    const call = fetchMock.mock.calls.find((c) => String(c[0]).includes('/api/channels/connections'))
+    const body = JSON.parse(String((call?.[1] as RequestInit | undefined)?.body))
+    expect(body.connectionId).toBe('ms-1')
+    expect(body.credentials).toEqual({ page_id: 'page-1', access_token: 'token-new' })
   })
 })

@@ -197,6 +197,8 @@ export const pt: Dict = {
     personalityBalanced: 'equilibrada',
     noProducts: 'Ainda não há produtos cadastrados.',
     noPrice: 'sem preço definido',
+    priceMentionRule:
+      'Ao identificar ou apresentar um produto, mencione sempre o seu preço na mesma resposta (se não houver preço definido, indique-o). Depois de partilhar a imagem de um produto na conversa, se o cliente voltar a pedir o preço responda apenas com texto: não prometa nem reenvie a imagem.',
     benefits: 'Benefícios',
     notSpecified: 'não especificados',
     faq: 'Perguntas frequentes',

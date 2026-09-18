@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getAdapter } from '@/lib/channels/gateway'
 import { processIncomingMessage, RuntimeError } from '@/lib/runtime/runtime'
+import { resolveMessengerConnection } from '@/lib/conversation/resolver'
+import { withTypingIndicator } from '@/lib/channels/presence'
 import type { ChannelType } from '@/lib/channels/types'
 
 const validChannels: ChannelType[] = ['web', 'whatsapp', 'messenger', 'instagram']
@@ -19,18 +21,69 @@ export async function POST(
     const channelType = channel as ChannelType
     const adapter = getAdapter(channelType)
 
-    const body = await request.json()
+    // Validate the HMAC over the RAW body (JSON re-serialization would break it).
+    const rawBody = await request.text()
+    let body: unknown
+    try {
+      body = JSON.parse(rawBody)
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
 
     if (channelType !== 'web') {
       const signature = request.headers.get('x-hub-signature-256') ?? ''
-      if (!adapter.validateWebhook(signature, JSON.stringify(body))) {
+      if (!adapter.validateWebhook(signature, rawBody)) {
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
       }
     }
 
     const wireMessage = await adapter.receiveMessage(body)
 
-    const result = await processIncomingMessage(channelType, wireMessage, adapter)
+    // Messenger replies are pushed through the Graph Send API, so the connection
+    // is resolved up-front: it is needed both for the "escribiendo…" presence
+    // kept alive while the runtime generates and for delivering the reply.
+    const connection =
+      channelType === 'messenger' && wireMessage.customerExternalId
+        ? await resolveMessengerConnection(wireMessage)
+        : null
+
+    const processAndDeliver = async () => {
+      const result = await processIncomingMessage(channelType, wireMessage, adapter)
+
+      if (connection && result.deliver && result.response && wireMessage.customerExternalId) {
+        const sendResult = await adapter
+          .sendMessage(connection, {
+            content: result.response,
+            contentType: 'text',
+            metadata: {
+              psid: wireMessage.customerExternalId,
+              ...(result.imageUrl ? { imageUrl: result.imageUrl } : {}),
+            },
+          })
+          .catch((error: unknown) => ({
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          }))
+
+        if (!sendResult.success) {
+          console.error(
+            `Messenger send failed for ${wireMessage.customerExternalId}: ${sendResult.error ?? 'unknown'}`
+          )
+        }
+      }
+
+      return result
+    }
+
+    const result =
+      connection && wireMessage.customerExternalId
+        ? await withTypingIndicator(
+            adapter,
+            connection,
+            wireMessage.customerExternalId,
+            processAndDeliver
+          )
+        : await processAndDeliver()
 
     return NextResponse.json({
       success: true,
@@ -48,10 +101,7 @@ export async function POST(
       )
     }
 
-    return NextResponse.json(
-      { error: 'Internal error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
 
@@ -62,13 +112,18 @@ export async function GET(
   try {
     const { channel } = await params
 
-    if (channel === 'whatsapp') {
+    if (channel === 'whatsapp' || channel === 'messenger') {
       const url = new URL(request.url)
       const mode = url.searchParams.get('hub.mode')
       const token = url.searchParams.get('hub.verify_token')
       const challenge = url.searchParams.get('hub.challenge')
 
-      if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN) {
+      const expectedToken =
+        channel === 'messenger'
+          ? (process.env.MESSENGER_VERIFY_TOKEN ?? process.env.WHATSAPP_VERIFY_TOKEN)
+          : process.env.WHATSAPP_VERIFY_TOKEN
+
+      if (mode === 'subscribe' && token === expectedToken) {
         return new Response(challenge, { status: 200 })
       }
 

@@ -6,6 +6,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import type { ChannelType } from '@/lib/channels/types'
 import type { ResolvedCapabilities } from '@/lib/system/capabilities'
 import type { MediaStatus } from '@/lib/runtime/context-media'
+import { buildDeliveryPromptSection, type DeliverySchedule } from '@/lib/delivery/dates'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -212,6 +213,9 @@ export function buildMasterPrompt(params: {
     guidance: string
   }
   capabilities?: ResolvedCapabilities
+  deliverySchedules?: DeliverySchedule[]
+  customerCity?: string | null
+  now?: Date
 }): string {
   const {
     business,
@@ -236,9 +240,21 @@ export function buildMasterPrompt(params: {
     landingContext,
     stateGuidance,
     capabilities,
+    deliverySchedules,
+    customerCity,
+    now,
   } = params
 
   const ai = getDictionary(locale ?? DEFAULT_LOCALE).ai
+
+  const deliverySection =
+    deliverySchedules && deliverySchedules.length > 0
+      ? buildDeliveryPromptSection({
+          schedules: deliverySchedules,
+          customerCity: customerCity ?? null,
+          now: now ?? new Date(),
+        })
+      : ''
 
   const personality = assistant.personality as unknown as Personality
   const personalityLabel = getPersonalityLabel(personality, ai)
@@ -360,6 +376,7 @@ Responde SOLO con ayuda general, de forma amable y servicial.
 Si el cliente pregunta por su pedido cancelado, confirma que fue cancelado y ofrece ayuda con otra cosa.`
   : `## ${ai.products}
 ${formatProducts(products, ai)}
+${ai.priceMentionRule}
 
 ## ${ai.salesRules}
 ${formatRules(rules, ai)}`
@@ -452,6 +469,7 @@ Tienes acceso al sistema de inventario. Cuando el cliente pregunte por disponibi
 ${capabilities?.active.has('MOD_DELIVERY') ? `\n## Logística
 Tienes acceso al sistema de entregas. Cuando el cliente pregunte por envíos o tiempos de entrega, puedes utilizar la información de rutas y repartidores para dar una respuesta más precisa sobre disponibilidad y tiempos estimados.` : ''}
 
+${deliverySection ? `${deliverySection}\n\n` : ''}
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`
 }
@@ -496,13 +514,13 @@ const MEDIA_STATUS_DIRECTIVE: Record<MediaStatus, string> = {
   MEDIA_UNAVAILABLE_FOR_PRODUCT:
     'El producto en discusión no tiene imágenes disponibles: comunícalo de forma honesta (p. ej. "todavía no tengo fotos de ese producto") y ofrece información textual. No afirmes ni inventes ninguna imagen.',
   MEDIA_REQUEST_NOT_RECOGNIZED:
-    'No se detectó una solicitud de media clara: responde con naturalidad en texto, sin afirmar ni negar una capacidad genérica de envío de imágenes.',
+    'No se detectó una solicitud de media clara: responde con naturalidad en texto, sin afirmar ni negar una capacidad genérica de envío de imágenes. PROHIBIDO decir "aquí tienes la imagen", "te comparto la foto" o cualquier variante que afirme o anuncie una imagen.',
   MEDIA_SCOPE_AMBIGUOUS:
     'La conversación involucra más de un producto: NO se envió imagen. Pide aclaración de cuál quiere ver el cliente y enumera los productos disponibles para la foto. No elijas ni inventes un producto. NUNCA afirmes que no puedes enviar imágenes o que no tienes fotos en general: el sistema sí dispone de imágenes de los productos.',
   MEDIA_SCOPE_UNCERTAIN:
     'El mensaje parece referirse a un producto distinto del conversado pero la referencia es ambigua: NO se envió imagen para evitar mandar la foto equivocada. Responde con naturalidad en texto y aclara de qué producto está hablando el cliente (o identifica cuál quiere ver) antes de ofrecer una foto. NUNCA afirmes que no tienes fotos ni que el sistema no puede enviar imágenes: solo evita adjuntar la imagen del producto equivocado.',
   NONE:
-    'Este turno no involucró resolución de media: responde textualmente. No alegues incapacidad de enviar imágenes ni menciones imágenes por tu cuenta.',
+    'Este turno no involucró resolución de media: responde textualmente. No alegues incapacidad de enviar imágenes ni menciones imágenes por tu cuenta. PROHIBIDO afirmar o anunciar una imagen ("aquí tienes la foto", "te la comparto").',
 }
 
 export function withMediaResolutionFeedback(
@@ -544,6 +562,7 @@ export function withMediaResolutionFeedback(
     'Reglas no negociables:',
     '- El envío o no envío de imágenes es decisión exclusiva del runtime; media_status refleja el resultado real de este turno.',
     '- Nunca afirmes que enviaste una imagen si el runtime no la adjuntó (attachment ausente).',
+    '- PROHIBIDO afirmar o anunciar una imagen ("aquí tienes la foto", "te la comparto", "te la envío") cuando media_status NO es DISPATCHED.',
     '- No prometas envíos futuros de imágenes ("ya te la mando", "te envío la foto").',
     '- No presentes "no puedo enviar imágenes" como una incapacidad genérica del sistema; limítate al estado de media de este turno.',
     '- Si media_status es DISPATCHED, está PROHIBIDO decir "no tengo imágenes", "no tengo fotos", "no puedo enviarte imágenes" ni cualquier variante: la imagen va adjunta en este mismo turno y debes reconocerla.',

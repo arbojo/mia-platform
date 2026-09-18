@@ -469,6 +469,7 @@ export async function processSaleClosing(params: {
   customerId: string
   canonicalProductId?: string | null
   productContextId?: string | null
+  channel?: string | null
   messages: Array<{ role: string; content: string }>
 }): Promise<void> {
   const {
@@ -478,6 +479,7 @@ export async function processSaleClosing(params: {
     customerId,
     canonicalProductId,
     productContextId,
+    channel,
     messages,
   } = params
   const supabaseAdmin = createAdminClient()
@@ -775,8 +777,11 @@ export async function processSaleClosing(params: {
     event.amount = amount
 
     const saleMetadata =
-      event.type === 'SALE_WON' && closingCustomer
-        ? { customer: closingCustomer }
+      event.type === 'SALE_WON'
+        ? {
+            ...(closingCustomer ? { customer: closingCustomer } : {}),
+            ...(channel ? { channel } : {}),
+          }
         : undefined
 
     await emitSalesEvent({

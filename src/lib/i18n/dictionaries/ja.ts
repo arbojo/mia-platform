@@ -195,6 +195,8 @@ export const ja: Dict = {
     personalityBalanced: 'バランスが取れた',
     noProducts: '登録された商品はまだありません。',
     noPrice: '価格未設定',
+    priceMentionRule:
+      '商品を特定または紹介するときは、同じ返信で必ず価格に触れてください（価格が未設定の場合はその旨を伝えてください）。会話で商品画像を一度共有した後、お客様が再び価格を尋ねてもテキストのみで回答し、画像を約束したり再送したりしないでください。',
     benefits: 'メリット',
     notSpecified: '未指定',
     faq: 'よくある質問',

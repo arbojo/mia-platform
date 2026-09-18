@@ -197,6 +197,8 @@ export const es = {
     personalityBalanced: 'equilibrada',
     noProducts: 'Aún no hay productos registrados.',
     noPrice: 'sin precio definido',
+    priceMentionRule:
+      'Cuando identifiques o presentes un producto, menciona siempre su precio en la misma respuesta (si no hay precio definido, indícalo). Una vez compartida la imagen de un producto en la conversación, si el cliente vuelve a pedir el precio responde solo con texto: no prometas ni reenvíes la imagen.',
     benefits: 'Beneficios',
     notSpecified: 'no especificados',
     faq: 'Preguntas frecuentes',
