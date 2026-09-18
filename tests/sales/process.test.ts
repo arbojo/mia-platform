@@ -1003,4 +1003,151 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
       })
     )
   })
+
+  it('FASE3: SALE_WON tras descuento aceptado → discount real y total descontado', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+    // First maybeSingle call = resolveAcceptedDiscount (conversations.outcome_history)
+    // Subsequent maybeSingle calls (STEP 4 sales_events) fall back to beforeEach default {data:null}
+    maybeSingle.mockResolvedValueOnce({
+      data: {
+        outcome_history: [
+          { outcome: 'discount_accepted', event_type: 'DISCOUNT_ACCEPTED', discount_percent: 10 },
+        ],
+      },
+    })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 449.1,
+        metadata: expect.objectContaining({
+          totals: { subtotal: 499, discount: 49.9, total: 449.1 },
+          discount: { percent: 10 },
+        }),
+      })
+    )
+    expect(applyConversationOutcome).toHaveBeenCalledWith(
+      expect.objectContaining({ dealValue: 449.1 })
+    )
+  })
+
+  it('FASE3: sin marca DISCOUNT_ACCEPTED → discount 0 (regresión FASE 1/2)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+    maybeSingle.mockResolvedValueOnce({
+      data: { outcome_history: [{ outcome: 'sold', event_type: 'SALE_WON' }] },
+    })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 499,
+        metadata: expect.objectContaining({
+          totals: { subtotal: 499, discount: 0, total: 499 },
+        }),
+      })
+    )
+    expect(
+      (vi.mocked(emitSalesEvent).mock.calls.find(([a]) => a.eventType === 'SALE_WON')?.[0].metadata as Record<string, unknown>).discount
+    ).toBeUndefined()
+  })
+
+  it('FASE3: recompra posterior (marca ya no es la última) → sin descuento', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-9901', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+    maybeSingle.mockResolvedValueOnce({
+      data: {
+        outcome_history: [
+          { outcome: 'discount_accepted', event_type: 'DISCOUNT_ACCEPTED', discount_percent: 10 },
+          { outcome: 'sold', event_type: 'SALE_WON' },
+        ],
+      },
+    })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 499,
+        metadata: expect.objectContaining({
+          totals: { subtotal: 499, discount: 0, total: 499 },
+        }),
+      })
+    )
+  })
+
+  it('FASE3: multi-item con descuento → % sobre el subtotal sumado', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Tiras Bella Patch' }],
+      products: [
+        { name: 'Tiras Bella Patch', quantity: 1 },
+        { name: 'Crema Reafirmante', quantity: 2 },
+      ],
+    })
+    vi.mocked(detectExplicitScopes).mockImplementation((_supabase, _businessId, name) => {
+      if (name === 'Tiras Bella Patch') {
+        return Promise.resolve([{ productId: 'prod-9901', source: 'literal', tier: 'literal' }])
+      }
+      if (name === 'Crema Reafirmante') {
+        return Promise.resolve([{ productId: 'prod-9902', source: 'literal', tier: 'literal' }])
+      }
+      return Promise.resolve([])
+    })
+    mockSingle
+      .mockResolvedValueOnce({ data: { id: 'prod-9901', name: 'Bella Patch', price: 499 } })
+      .mockResolvedValueOnce({ data: { id: 'prod-9902', name: 'Crema Reafirmante', price: 299 } })
+    maybeSingle.mockResolvedValueOnce({
+      data: {
+        outcome_history: [
+          { outcome: 'discount_accepted', event_type: 'DISCOUNT_ACCEPTED', discount_percent: 10 },
+        ],
+      },
+    })
+
+    await processSaleClosing(params)
+
+    expect(emitSalesEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'SALE_WON',
+        amount: 987.3,
+        metadata: expect.objectContaining({
+          totals: { subtotal: 1097, discount: 109.7, total: 987.3 },
+          discount: { percent: 10 },
+        }),
+      })
+    )
+  })
 })

@@ -100,6 +100,38 @@ export function resolveSaleQuantity(
 }
 
 /**
+ * FASE 3 — Resolución del descuento rescate aceptado (decisión B).
+ *
+ * Lee conversationId.outcome_history y devuelve el percent a aplicar SOLO si la
+ * ÚLTIMA entrada es DISCOUNT_ACCEPTED (aceptación → confirmación del mismo
+ * pedido). Si la entrada precisara el percent, se congela el configurado en el
+ * momento de la aceptación; ante ausencia se cae al config actual como fallback
+ * determinista (decisión E). Un cierre posterior (recompra) desplaza la marca
+ * y la vuelve irrelevante => sin descuento.
+ */
+export async function resolveAcceptedDiscount(
+  supabase: ReturnType<typeof createAdminClient>,
+  conversationId: string,
+  fallbackPercent: number | (() => Promise<number>)
+): Promise<number | null> {
+  const { data } = await supabase
+    .from('conversations')
+    .select('outcome_history')
+    .eq('id', conversationId)
+    .maybeSingle()
+
+  const history = Array.isArray(data?.outcome_history) ? data.outcome_history : []
+  const last = history[history.length - 1] as
+    | { event_type?: unknown; discount_percent?: unknown }
+    | undefined
+
+  if (!last || last.event_type !== 'DISCOUNT_ACCEPTED') return null
+  const stored = last.discount_percent
+  if (typeof stored === 'number' && Number.isFinite(stored)) return stored
+  return typeof fallbackPercent === 'function' ? fallbackPercent() : fallbackPercent
+}
+
+/**
  * Early cancellation interception for the WhatsApp webhook.
  *
  * Two-step flow:
@@ -130,16 +162,34 @@ export async function handleCancellationWebhook(
 
     const { data: conv } = await supabase
       .from('conversations')
-      .select('sales_cancelled_at, outcome')
+      .select('sales_cancelled_at, outcome, outcome_history')
       .eq('id', conversationId)
       .maybeSingle()
 
     if (isDiscountOfferSentinel(conv?.sales_cancelled_at)) {
+      // FASE 3 — Descuento rescate (decisión A): el percent ofrecido se congela
+      // en una marca determinista DISCOUNT_ACCEPTED dentro de outcome_history
+      // (JSONB ya existente, sin columnas nuevas). El SALE_WON posterior la
+      // consume como fuente de verdad para aplicar el descuento real al contrato.
+      const config = await getSalesConfig(businessId)
+      const history = Array.isArray(conv?.outcome_history) ? conv.outcome_history : []
+      const now = new Date().toISOString()
+
       // Re-activate conversation
       await supabase.from('conversations').update({
         outcome: 'interested',
         sales_cancelled_at: null,
-        outcome_updated_at: new Date().toISOString(),
+        outcome_updated_at: now,
+        outcome_history: [
+          ...history,
+          {
+            outcome: 'discount_accepted',
+            previous: conv?.outcome ?? null,
+            event_type: 'DISCOUNT_ACCEPTED',
+            discount_percent: config.retention_discount_percent,
+            at: now,
+          },
+        ],
       }).eq('id', conversationId)
 
       // Remove SALE_CANCELLED event so sales pipeline can resume
@@ -608,6 +658,7 @@ export async function processSaleClosing(params: {
       quantity: number
     }> = []
     let totals: { subtotal: number | null; discount: number; total: number | null } | null = null
+    let discountPercent: number | null = null
 
     if (event.type === 'SALE_WON') {
       try {
@@ -683,7 +734,26 @@ export async function processSaleClosing(params: {
             (acc, i) => acc + (i.unit_price as number) * i.quantity,
             0
           )
-          totals = { subtotal, discount: 0, total: subtotal }
+          // FASE 3 — Descuento rescate (decisiones B/C/D): si la ÚLTIMA entrada
+          // de outcome_history es DISCOUNT_ACCEPTED, el % congelado se aplica al
+          // subtotal del pedido (determinista): discount = round(subtotal×%/100,2),
+          // total = subtotal - discount. Sin marca → discount 0 (compat FASE 1/2).
+          // El fallback lazy solo lee la config si la marca no trajera percent.
+          const computedDiscountPercent = await resolveAcceptedDiscount(
+            supabaseAdmin,
+            conversationId,
+            () =>
+              getSalesConfig(businessId).then(
+                (config) => config.retention_discount_percent
+              )
+          )
+          if (computedDiscountPercent !== null) {
+            discountPercent = computedDiscountPercent
+          }
+          const discount = discountPercent
+            ? Math.round((subtotal * discountPercent) / 100 * 100) / 100
+            : 0
+          totals = { subtotal, discount, total: subtotal - discount }
         }
       } catch (err) {
         console.error('Product snapshot/price lookup failed:', err)
@@ -722,7 +792,14 @@ export async function processSaleClosing(params: {
       amount,
       metadata:
         event.type === 'SALE_WON' && items.length > 0
-          ? { ...saleMetadata, items, totals }
+          ? {
+              ...saleMetadata,
+              items,
+              totals,
+              // FASE 3 (decisión D): percent congelado para auditoría; el monto
+              // descontado ya vive en totals.discount. Solo si hubo descuento.
+              ...(discountPercent ? { discount: { percent: discountPercent } } : {}),
+            }
           : saleMetadata,
     })
   }

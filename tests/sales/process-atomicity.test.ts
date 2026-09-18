@@ -41,6 +41,7 @@ import {
 } from '@/lib/conversation/resolver'
 import { resolveCustomer } from '@/lib/channels/identity'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getSalesConfig } from '@/lib/ai/knowledge'
 import type { WireMessage } from '@/lib/runtime/types'
 
 type StubResult = { data?: unknown; error?: unknown }
@@ -100,7 +101,12 @@ function createDb(config: DbConfig): DbHarness {
             eq: (col: string, val: unknown) => {
               deleteFilters.push([[col, val]])
               if (col === 'id') deleteIds.push(val)
-              return Promise.resolve({ error: null })
+              return {
+                eq: (col2: string, val2: unknown) => {
+                  deleteFilters.push([[col2, val2]])
+                  return Promise.resolve({ error: null })
+                },
+              }
             },
           }),
         }
@@ -203,5 +209,49 @@ describe('handleCancellationWebhook — atomicidad del primer intento', () => {
     expect(db.deleteIds).toHaveLength(0)
     expect(result).toMatchObject({ deliver: true, conversationId: 'conv-1', customerId: 'cust-1' })
     expect(result?.response).toContain('10% de descuento')
+  })
+})
+
+describe('handleCancellationWebhook — FASE 3 aceptación del descuento rescate', () => {
+  it('al aceptar congela el percent en una marca DISCOUNT_ACCEPTED dentro de outcome_history', async () => {
+    const db = createDb(
+      defaultConfig({
+        convState: () => ({
+          data: {
+            sales_cancelled_at: '0001-01-01T00:00:01Z',
+            outcome: 'cancelled',
+            outcome_history: [
+              { outcome: 'cancelled', event_type: 'SALE_CANCELLED', reason: 'discount_offered' },
+            ],
+          },
+          error: null,
+        }),
+      })
+    )
+    vi.mocked(createAdminClient).mockReturnValue(db.client)
+    vi.mocked(hasDiscountAcceptanceTrigger).mockReturnValue(true)
+    vi.mocked(getSalesConfig).mockResolvedValue({
+      retention_discount_percent: 15,
+      retention_discount_message: '10%',
+    } as Awaited<ReturnType<typeof getSalesConfig>>)
+
+    const result = await handleCancellationWebhook({
+      ...wireMessage,
+      content: 'sí quiero el descuento',
+    } as WireMessage)
+
+    // Aceptación → reactiva la conversación sin efectos comerciales y borra el SALE_CANCELLED
+    expect(result).toBeNull()
+    expect(db.deleteFilters).toContainEqual([['conversation_id', 'conv-1']])
+    expect(db.conversationUpdates).toHaveLength(1)
+    const update = db.conversationUpdates[0]
+    expect(update.outcome).toBe('interested')
+    expect(update.sales_cancelled_at).toBeNull()
+    const history = update.outcome_history as Array<Record<string, unknown>>
+    expect(history[history.length - 1]).toMatchObject({
+      outcome: 'discount_accepted',
+      event_type: 'DISCOUNT_ACCEPTED',
+      discount_percent: 15,
+    })
   })
 })
