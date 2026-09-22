@@ -19,7 +19,8 @@ vi.mock('@/lib/sales/process', () => ({
 vi.mock('@/lib/sales/intent-classifier', () => ({
   classifyUserIntent: vi.fn(() => null),
 }))
-vi.mock('@/lib/runtime/media', () => ({
+vi.mock('@/lib/runtime/media', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/runtime/media')>()),
   isResendRequest: vi.fn(() => false),
 }))
 vi.mock('@/lib/runtime/media-guard', () => ({

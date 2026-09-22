@@ -27,8 +27,21 @@ export function createAdminMock(options: AdminMockOptions = {}) {
       state.pending === 'update'
         ? { data: null, error: state.updateError }
         : state.pending === 'insert'
-          ? { data: null, error: state.insertError }
-          : { data: state.existing, error: null }
+          ? state.insertError
+            ? { data: null, error: state.insertError }
+            : {
+                data: {
+                  id: 'prod-new-1',
+                  name: 'Producto',
+                  sku: 'SKU-1',
+                  price: 0,
+                  business_id: 'business-1',
+                },
+                error: null,
+              }
+          : state.pending === 'upsert'
+            ? { data: null, error: state.insertError }
+            : { data: state.existing, error: null }
     state.pending = 'none'
     return Promise.resolve(result).then(onFulfilled)
   }
@@ -41,6 +54,11 @@ export function createAdminMock(options: AdminMockOptions = {}) {
   wrapper.update = (...args: unknown[]) => {
     state.pending = 'update'
     calls.push({ method: 'update', args })
+    return wrapper
+  }
+  wrapper.upsert = (...args: unknown[]) => {
+    state.pending = 'upsert'
+    calls.push({ method: 'upsert', args })
     return wrapper
   }
   wrapper.insert = (...args: unknown[]) => {

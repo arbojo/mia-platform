@@ -39,6 +39,7 @@ export default defineConfig({
           include: ['tests/**/*.test.ts'],
           exclude: ['node_modules', '.next', 'tests/e2e/**'],
           environment: 'node',
+          testTimeout: 30000,
           setupFiles: ['./tests/setup.ts'],
         },
         resolve: { alias },

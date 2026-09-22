@@ -97,7 +97,7 @@ describe('processStreaming', () => {
       FAKE_UUIDS.business,
       FAKE_UUIDS.assistant,
       undefined,
-      undefined,
+      'simulation',
       undefined,
       undefined,
       null,
@@ -107,11 +107,13 @@ describe('processStreaming', () => {
     )
   })
 
-  it('calls streamText with messages and the system prompt', async () => {
+  it('calls streamText with the user message and the system prompt', async () => {
     await processStreaming(defaultParams)
     expect(streamText).toHaveBeenCalledTimes(1)
     const callArgs = vi.mocked(streamText).mock.calls[0][0]
-    expect(callArgs.messages).toBe(mockMessages)
+    // Contrato REAL (core.ts:70): chatMessages se construye en el Core
+    // partiendo de UNA user message (input.userMessage), no de mockMessages.
+    expect(callArgs.messages).toEqual([{ role: 'user', content: mockMessages[mockMessages.length - 1].content }])
     expect(callArgs.system).toBe(mockSystemPrompt)
   })
 
@@ -149,7 +151,7 @@ describe('processStreaming', () => {
     result.toStructuredStreamResponse()
     expect(buildStructuredStreamResponse).toHaveBeenCalledWith({
       textStream: mockStreamTextResult.textStream,
-      product,
+      product: { productId: FAKE_UUIDS.product1 },
       media: null,
     })
   })

@@ -69,7 +69,15 @@ function mockAdminClient(assistant: unknown) {
   const assistantChain = {
     select: vi.fn(() => assistantChain),
     eq: vi.fn(() => assistantChain),
-    single: vi.fn(() => Promise.resolve({ data: assistant, error: null })),
+    single: vi.fn(() =>
+      Promise.resolve({
+        data:
+          assistant === null
+            ? null
+            : { is_active: true, status: 'ready', ...(assistant as Record<string, unknown>) },
+        error: null,
+      })
+    ),
   }
   const messagesChain = {
     insert: vi.fn(() => Promise.resolve({ error: null })),

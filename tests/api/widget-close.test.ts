@@ -79,14 +79,14 @@ const validBody = {
 beforeEach(() => {
   vi.clearAllMocks()
 
-  mockedAdmin.mockReturnValue({
-    from: vi.fn((name: string) => {
-      if (name === 'assistants') {
-        return makeTable({
-          data: { id: 'assistant-1', business_id: 'biz-1' },
-          error: null,
-        })
-      }
+    mockedAdmin.mockReturnValue({
+      from: vi.fn((name: string) => {
+        if (name === 'assistants') {
+          return makeTable({
+            data: { id: 'assistant-1', business_id: 'biz-1', is_active: true, status: 'ready' },
+            error: null,
+          })
+        }
       if (name === 'conversations') {
         return makeTable({
           data: { id: 'conv-1', customer_id: 'cust-1' },
@@ -169,13 +169,13 @@ describe('POST /api/widget/close', () => {
   it('resuelve monto desde el producto cuando existe productId', async () => {
     mockedAdmin.mockReturnValue({
       from: vi.fn((name: string) => {
-        if (name === 'assistants') {
-          return makeTable({
-            data: { id: 'assistant-1', business_id: 'biz-1' },
-            error: null,
-          })
-        }
-        if (name === 'conversations') {
+      if (name === 'assistants') {
+        return makeTable({
+          data: { id: 'assistant-1', business_id: 'biz-1', is_active: true, status: 'ready' },
+          error: null,
+        })
+      }
+      if (name === 'conversations') {
           return makeTable({
             data: { id: 'conv-1', customer_id: 'cust-1' },
             error: null,
