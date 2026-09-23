@@ -71,9 +71,10 @@ export async function loadConversationContext(
   conversationOutcome?: string | null,
   cancellationContext?: { orderNumber: string; hoursAgo: number } | null,
   lastCancelledOrder?: { productName: string | null; cancelledAt: string; hoursAgo: number; pending?: boolean } | null,
-  userIntent?: 'explicit_purchase' | 'casual' | 'order_reference' | null
+  userIntent?: 'explicit_purchase' | 'casual' | 'order_reference' | null,
+  conversationId?: string
 ): Promise<LoadedContext> {
-  const key = `${cacheKey(businessId, assistantId, customerId, landingContext)}:${channel ?? 'default'}:${intentTag ?? ''}`
+  const key = `${cacheKey(businessId, assistantId, customerId, landingContext)}:${channel ?? 'default'}:${intentTag ?? ''}:${conversationId ?? ''}`
   const cached = contextCache.get(key)
   if (cached && Date.now() < cached.expiresAt) {
     return cached.data
@@ -92,7 +93,7 @@ export async function loadConversationContext(
   }
 
   const [context, recentLessons, experienceContext] = await Promise.all([
-    landingContext ? getLandingContext(businessId, landingContext) : getBusinessContext(businessId),
+    landingContext ? getLandingContext(businessId, landingContext) : getBusinessContext(businessId, conversationId ? { conversationId } : undefined),
     getRecentLessons(assistantId, 10),
     (async () => {
       try {

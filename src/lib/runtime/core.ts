@@ -64,7 +64,8 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     conversationOutcome,
     cancellationContext,
     lastCancelledOrder,
-    userIntent
+    userIntent,
+    input.conversationId
   )
 
   let chatMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [{ role: 'user', content: input.userMessage }]

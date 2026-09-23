@@ -27,7 +27,10 @@ export function authorityTag(entity: {
   return null
 }
 
-export async function getBusinessContext(businessId: string) {
+export async function getBusinessContext(
+  businessId: string,
+  options?: { conversationId?: string }
+) {
   const supabase = createAdminClient()
 
   const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult, salesConfigResult, deliveryScheduleResult] =
@@ -89,6 +92,15 @@ export async function getBusinessContext(businessId: string) {
       return (confOrder[a.confidence as keyof typeof confOrder] ?? 1) - (confOrder[b.confidence as keyof typeof confOrder] ?? 1)
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
+
+  recordConversationKnowledgeUsage({
+    supabase,
+    businessId,
+    conversationId: options?.conversationId,
+    knowledgeItemIds: knowledge.map((item) => item.id),
+  }).catch((err) => {
+    console.error('Failed to record conversation knowledge usage (non-blocking):', err)
   })
 
   const memorySourceOrder: Record<string, number> = {
@@ -424,4 +436,27 @@ export async function recordAiUsage(params: {
     tokens_output: params.tokens_output,
     cost: params.cost,
   })
+}
+
+type SupabaseLike = ReturnType<typeof createAdminClient>
+
+export async function recordConversationKnowledgeUsage(params: {
+  supabase: SupabaseLike
+  businessId: string
+  conversationId?: string
+  knowledgeItemIds: string[]
+}) {
+  const { supabase, businessId, conversationId, knowledgeItemIds } = params
+  if (!conversationId || knowledgeItemIds.length === 0) return
+
+  await supabase
+    .from('conversation_knowledge_usage')
+    .upsert(
+      knowledgeItemIds.map((knowledgeItemId) => ({
+        conversation_id: conversationId,
+        knowledge_item_id: knowledgeItemId,
+        business_id: businessId,
+      })),
+      { onConflict: 'conversation_id,knowledge_item_id', ignoreDuplicates: true }
+    )
 }
