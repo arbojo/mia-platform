@@ -93,7 +93,7 @@ describe('processStreaming', () => {
 
   it('calls loadConversationContext with businessId and assistantId', async () => {
     await processStreaming(defaultParams)
-    expect(loadConversationContext).toHaveBeenCalledWith(
+expect(loadConversationContext).toHaveBeenCalledWith(
       FAKE_UUIDS.business,
       FAKE_UUIDS.assistant,
       undefined,
@@ -103,7 +103,8 @@ describe('processStreaming', () => {
       null,
       null,
       null,
-      null
+      null,
+      undefined
     )
   })
 
@@ -181,7 +182,8 @@ describe('processStreaming', () => {
       null,
       null,
       null,
-      null
+      null,
+      FAKE_UUIDS.conversation
     )
   })
 

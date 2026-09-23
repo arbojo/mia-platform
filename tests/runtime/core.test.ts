@@ -161,7 +161,8 @@ describe('processCore', () => {
       null,
       null,
       null,
-      null
+      null,
+      undefined
     )
   })
 

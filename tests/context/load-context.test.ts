@@ -88,7 +88,7 @@ describe('loadConversationContext', () => {
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
 
-    expect(getBusinessContext).toHaveBeenCalledWith(FAKE_UUIDS.business)
+    expect(getBusinessContext).toHaveBeenCalledWith(FAKE_UUIDS.business, undefined)
   })
 
   it('loads recent lessons via getRecentLessons', async () => {

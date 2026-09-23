@@ -18,7 +18,7 @@ export function createAdminMock(options: AdminMockOptions = {}) {
     existing: options.existing ?? [],
     updateError: options.updateError ?? null,
     insertError: options.insertError ?? null,
-    pending: 'none' as 'none' | 'update' | 'insert',
+    pending: 'none' as 'none' | 'update' | 'insert' | 'upsert',
   }
 
   const wrapper: Record<string, unknown> = { data: null, error: null }
