@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, PauseCircle, GraduationCap } from 'lucide-react'
+import { Activity, PauseCircle, GraduationCap, Loader2 } from 'lucide-react'
 import { useContextMenu, type ContextMenuItems } from '@/components/ui/context-menu'
 import { useHoverIntent } from '@/lib/hooks/use-hover-intent'
-
-type MIAStatus = 'active' | 'learning' | 'paused'
+import type { PresenceState } from '@/lib/assistants/presence'
+import { presenceToAssistantUpdate } from '@/lib/assistants/presence'
 
 const presenceConfig: Record<
-  MIAStatus,
+  PresenceState,
   { says: string; feels: string; color: string; glow: string }
 > = {
   active: {
@@ -32,12 +32,48 @@ const presenceConfig: Record<
   },
 }
 
-export function MIAIndicator({ status = 'active' }: { status?: MIAStatus }) {
+export function MIAIndicator({
+  assistantId = null,
+  initialPresence = 'active',
+}: {
+  assistantId?: string | null
+  initialPresence?: PresenceState
+}) {
   const router = useRouter()
   const { openMenu } = useContextMenu()
   const { intent, hoverProps } = useHoverIntent(200)
-  const [current, setCurrent] = useState<MIAStatus>(status)
+  const [current, setCurrent] = useState<PresenceState>(initialPresence)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const config = presenceConfig[current]
+
+  async function applyPresence(next: PresenceState) {
+    if (!assistantId) {
+      setError('Primero crea tu asistente en el Concilio')
+      return
+    }
+    if (next === current) return
+
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/assistants/${assistantId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(presenceToAssistantUpdate(next)),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error ?? 'Error al cambiar el estado de MIA')
+      }
+      setCurrent(next)
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cambiar el estado de MIA')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const presenceMenu: ContextMenuItems = [
     { label: 'Presencia', heading: true },
@@ -45,19 +81,22 @@ export function MIAIndicator({ status = 'active' }: { status?: MIAStatus }) {
       label: 'Activa',
       icon: Activity,
       checked: current === 'active',
-      onSelect: () => setCurrent('active'),
+      disabled: saving,
+      onSelect: () => applyPresence('active'),
     },
     {
       label: 'Aprendiendo',
       icon: GraduationCap,
       checked: current === 'learning',
-      onSelect: () => setCurrent('learning'),
+      disabled: saving,
+      onSelect: () => applyPresence('learning'),
     },
     {
       label: 'Descansando',
       icon: PauseCircle,
       checked: current === 'paused',
-      onSelect: () => setCurrent('paused'),
+      disabled: saving,
+      onSelect: () => applyPresence('paused'),
     },
     'separator',
     { label: 'Ir a salud', onSelect: () => router.push('/dashboard/health') },
@@ -65,6 +104,21 @@ export function MIAIndicator({ status = 'active' }: { status?: MIAStatus }) {
 
   return (
     <div className="fixed bottom-5 right-5 z-50" style={{ userSelect: 'none' }}>
+      {error && (
+        <button
+          type="button"
+          onClick={() => setError(null)}
+          className="mb-2 block max-w-[220px] rounded-lg border px-3 py-2 text-left text-xs"
+          style={{
+            borderColor: 'var(--atmosphere-border)',
+            backgroundColor: 'color-mix(in srgb, var(--atmosphere-bg) 90%, transparent)',
+            color: 'var(--atmosphere-text)',
+          }}
+          title="Cerrar aviso"
+        >
+          {error}
+        </button>
+      )}
       <button
         {...hoverProps}
         type="button"
@@ -87,7 +141,8 @@ export function MIAIndicator({ status = 'active' }: { status?: MIAStatus }) {
           className="h-2.5 w-2.5 shrink-0 rounded-full"
           style={{ backgroundColor: config.color, boxShadow: `0 0 8px ${config.glow}` }}
         />
-        {intent && (
+        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: 'var(--atmosphere-text-secondary)' }} />}
+        {intent && !saving && (
           <span className="flex flex-col items-start leading-tight">
             <span className="text-xs font-semibold" style={{ color: 'var(--atmosphere-text)' }}>
               {config.says}

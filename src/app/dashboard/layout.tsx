@@ -14,6 +14,7 @@ import { TourProvider } from '@/components/tour/TourProvider'
 import { getUserLocale } from '@/lib/i18n/server'
 import { resolveCapabilities } from '@/lib/system/capabilities'
 import { getEffectiveEdition } from '@/lib/system/edition'
+import { derivePresence, type AssistantPresenceSource } from '@/lib/assistants/presence'
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,19 @@ export default async function DashboardLayout({
     .select('*')
     .eq('owner_id', user.id)
     .maybeSingle()
+
+  let assistantSource: AssistantPresenceSource | null = null
+  if (business) {
+    const { data: assistant } = await supabase
+      .from('assistants')
+      .select('id, is_active, status')
+      .eq('business_id', business.id)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    assistantSource = (assistant as AssistantPresenceSource | null) ?? null
+  }
+  const initialPresence = derivePresence(assistantSource)
 
   const isPlatformOwner =
     !!process.env.PLATFORM_OWNER_ID && user.id === process.env.PLATFORM_OWNER_ID
@@ -65,7 +79,7 @@ export default async function DashboardLayout({
                   </div>
                 </main>
               </div>
-              <MIAIndicator />
+              <MIAIndicator assistantId={assistantSource?.id ?? null} initialPresence={initialPresence} />
               <GlassLoader />
             </AppLayout>
           </TourProvider>
