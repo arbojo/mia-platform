@@ -240,10 +240,19 @@ export async function resolveContextMedia(
 
   // ADR-031: "producto identificado" = scope único resuelto por señal
   // determinística (literal/SKU/landing). El scope heredado (context) NO
-  // habilita la política (riesgo de producto obsoleto).
+  // habilita la política por sí solo (riesgo de producto obsoleto). Excepción
+  // de cotización: intención `price` sobre el contexto único → el producto
+  // activo se cotiza (precio + descripción) y su representativa acompaña la
+  // respuesta LA PRIMERA vez (cadencia ADR-031 ya evita re-envíos). Si la
+  // señal conservadora (b) indica un producto distinto, no se adjunta.
+  const priceQuoteOnContext =
+    explicitScope === 'context' && intentTag === 'price' && !uncertainDifferentProduct
   const productIdentified =
     scope.length === 1 &&
-    (explicitScope === 'literal' || explicitScope === 'sku' || explicitScope === 'landing')
+    (explicitScope === 'literal' ||
+      explicitScope === 'sku' ||
+      explicitScope === 'landing' ||
+      priceQuoteOnContext)
 
   if (!conversationId) {
     return {
@@ -306,18 +315,26 @@ export async function resolveContextMedia(
   if (!eligible) {
     // R6 (DEC-20260904): el estado truthful del no-dispatch depende de si el
     // mensaje contuvo una MEDIA_REQUEST o no, detectada a partir del resultado
-    // real del runtime (intención), jamás del LLM.
+    // real del runtime (intención), jamás del LLM. La señal conservadora (b)
+    // de producto distinto explica el no-dispatch con truthfulidad MEDIA_SCOPE_
+    // UNCERTAIN incluso sin match de trigger/intención (p. ej. cotización de
+    // otro producto activo en contexto heredado).
     const mediaRequested = detectMediaIntent(userMessage) || isShowMediaRequest(userMessage)
+    const uncertain = Boolean(uncertainDifferentProduct) && explicitScope === 'context'
     return {
       attachment: null,
       decision: {
         ...emptyMediaDecision(),
         explicitScope,
         scope,
-        mediaStatus: mediaRequested
-          ? 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
-          : 'MEDIA_REQUEST_NOT_RECOGNIZED',
-        reason: 'no eligible asset in scope',
+        mediaStatus: uncertain
+          ? 'MEDIA_SCOPE_UNCERTAIN'
+          : mediaRequested
+            ? 'MEDIA_UNAVAILABLE_FOR_PRODUCT'
+            : 'MEDIA_REQUEST_NOT_RECOGNIZED',
+        reason: uncertain
+          ? 'context scope but message references different product'
+          : 'no eligible asset in scope',
       },
     }
   }

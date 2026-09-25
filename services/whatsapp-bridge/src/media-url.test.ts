@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { isSafeMediaUrl, sendReply, type ReplySocket } from './media-url.js'
+import {
+  isSafeMediaUrl,
+  sendReply,
+  IMAGE_SEND_RETRY_DELAY_MS,
+  type ReplySocket,
+} from './media-url.js'
 
 describe('isSafeMediaUrl', () => {
   it('accepts a public Supabase Storage URL', () => {
@@ -51,23 +56,64 @@ describe('sendReply', () => {
     })
   })
 
-  it('falls back to text when the image send fails (download error)', async () => {
-    const socket = fakeSocket()
-    socket.sendMessage
-      .mockRejectedValueOnce(new Error('image download failed'))
-      .mockResolvedValueOnce({})
+  it('retries once and sends image when the first attempt fails (transient download error)', async () => {
+    vi.useFakeTimers()
+    try {
+      const socket = fakeSocket()
+      socket.sendMessage
+        .mockRejectedValueOnce(new Error('image download failed'))
+        .mockResolvedValueOnce({})
 
-    const result = await sendReply(
-      socket,
-      'jid@wa',
-      'Aquí tienes el detalle',
-      'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/a.jpg'
-    )
+      const promise = sendReply(
+        socket,
+        'jid@wa',
+        'Aquí tienes el detalle',
+        'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/a.jpg'
+      )
+      await vi.advanceTimersByTimeAsync(IMAGE_SEND_RETRY_DELAY_MS)
+      const result = await promise
 
-    expect(result.sent).toBe(true)
-    expect(result.asImage).toBe(false)
-    expect(socket.sendMessage).toHaveBeenCalledTimes(2)
-    expect(socket.sendMessage).toHaveBeenLastCalledWith('jid@wa', { text: 'Aquí tienes el detalle' })
+      expect(result.sent).toBe(true)
+      expect(result.asImage).toBe(true)
+      expect(socket.sendMessage).toHaveBeenCalledTimes(2)
+      expect(socket.sendMessage).toHaveBeenLastCalledWith('jid@wa', {
+        image: {
+          url: 'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/a.jpg',
+        },
+        caption: 'Aquí tienes el detalle',
+      })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('falls back to text when the image send keeps failing (after retry)', async () => {
+    vi.useFakeTimers()
+    try {
+      const socket = fakeSocket()
+      socket.sendMessage
+        .mockRejectedValueOnce(new Error('image download failed'))
+        .mockRejectedValueOnce(new Error('image download failed'))
+        .mockResolvedValueOnce({})
+
+      const promise = sendReply(
+        socket,
+        'jid@wa',
+        'Aquí tienes el detalle',
+        'https://abc123.supabase.co/storage/v1/object/public/knowledge-media/biz-1/a.jpg'
+      )
+      await vi.advanceTimersByTimeAsync(IMAGE_SEND_RETRY_DELAY_MS * 2)
+      const result = await promise
+
+      expect(result.sent).toBe(true)
+      expect(result.asImage).toBe(false)
+      expect(socket.sendMessage).toHaveBeenCalledTimes(3)
+      expect(socket.sendMessage).toHaveBeenLastCalledWith('jid@wa', {
+        text: 'Aquí tienes el detalle',
+      })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('sends only text when the URL is not safe', async () => {

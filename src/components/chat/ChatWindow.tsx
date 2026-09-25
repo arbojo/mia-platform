@@ -116,7 +116,7 @@ export function ChatWindow({
               id: string
               role: string
               content: string
-              metadata?: { product?: ProductReference | null } | null
+              metadata?: { product?: ProductReference | null; media?: MediaStreamData | null } | null
             }>
           }
         ) => {
@@ -126,6 +126,7 @@ export function ChatWindow({
             role: m.role === 'user' ? 'user' : 'assistant',
             content: m.content,
             product: m.metadata?.product ?? null,
+            media: m.metadata?.media ?? null,
           }))
           if (restored.length === 0) return
           restoredCountRef.current = restored.length

@@ -75,8 +75,36 @@ export function isSafeMediaUrl(url: string): boolean {
   return extra.includes(host)
 }
 
+/** Intentos de envío de imagen antes de degradar a texto (retry de descarga Baileys). */
+export const IMAGE_SEND_ATTEMPTS = 2
+export const IMAGE_SEND_RETRY_DELAY_MS = 800
+
 export interface ReplySocket {
   sendMessage(jid: string, content: unknown): Promise<unknown>
+}
+
+async function sendImageWithRetry(
+  socket: ReplySocket,
+  jid: string,
+  imageUrl: string,
+  caption: string
+): Promise<void> {
+  let lastErr: unknown
+  for (let attempt = 1; attempt <= IMAGE_SEND_ATTEMPTS; attempt++) {
+    try {
+      await socket.sendMessage(jid, { image: { url: imageUrl }, caption })
+      return
+    } catch (err) {
+      lastErr = err
+      if (attempt < IMAGE_SEND_ATTEMPTS) {
+        console.warn(
+          `[media] image send attempt ${attempt}/${IMAGE_SEND_ATTEMPTS} failed for ${jid}, retrying: ${err instanceof Error ? err.message : err}`
+        )
+        await new Promise((resolve) => setTimeout(resolve, IMAGE_SEND_RETRY_DELAY_MS))
+      }
+    }
+  }
+  throw lastErr
 }
 
 export interface SendReplyResult {
@@ -107,8 +135,9 @@ export function sanitizeForWhatsApp(text: string): string {
 /**
  * Envía la respuesta del bot intentando adjuntar la imagen cuando la URL es
  * segura. Si el envío de la imagen falla (por ejemplo, Baileys no logra
- * descargar la URL temporal), hace fallback a texto puro para que la
- * respuesta nunca se pierda. Si la URL no es segura, envía solo texto.
+ * descargar la URL), reintenta una vez y solo después hace fallback a texto
+ * puro para que la respuesta nunca se pierda. Si la URL no es segura, envía
+ * solo texto.
  */
 export async function sendReply(
   socket: ReplySocket,
@@ -120,11 +149,11 @@ export async function sendReply(
 
   if (imageUrl && isSafeMediaUrl(imageUrl)) {
     try {
-      await socket.sendMessage(jid, { image: { url: imageUrl }, caption: safe })
+      await sendImageWithRetry(socket, jid, imageUrl, safe)
       return { sent: true, asImage: true }
     } catch (err) {
       console.error(
-        `[media] image send failed for ${jid}, falling back to text: ${err instanceof Error ? err.message : err}`
+        `[media] image send failed for ${jid} after ${IMAGE_SEND_ATTEMPTS} attempts, falling back to text: ${err instanceof Error ? err.message : err}`
       )
     }
   } else if (imageUrl) {
