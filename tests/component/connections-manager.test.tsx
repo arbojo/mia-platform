@@ -92,7 +92,7 @@ describe('ConnectionsManager WhatsApp flow', () => {
     expect((await screen.findAllByText('Desconectado')).length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: 'Estado' })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Reconectar' }).length).toBeGreaterThan(0)
-    expect(screen.getByRole('button', { name: 'Limpiar sesion' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Limpiar sesión' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Conectar WhatsApp' })).not.toBeInTheDocument()
   })
 

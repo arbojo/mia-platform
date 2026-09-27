@@ -755,7 +755,7 @@ export function ConnectionsManager({ whatsAppEnabled }: { whatsAppEnabled: boole
               )}
               {(waStatus === 'error' || waStatus === 'idle') && waSessionPersisted && (
                 <Button variant="outline" onClick={handleWhatsAppLogout}>
-                  Limpiar sesion
+                  Limpiar sesión
                 </Button>
               )}
             </div>

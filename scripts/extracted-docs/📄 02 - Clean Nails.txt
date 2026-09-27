@@ -7,7 +7,7 @@ Manual de conocimiento para el Agente de IA de Meta
 Clean Nails 
 Introducción 
 ¿Qué es Clean Nails? 
-Clean Nails es un dispositivo diseñado para apoyar el cuidado de las uñas afectadas por 
+Clean Nails es un dispositivo diseñado para eliminar el hongo de las uñas afectadas por 
 hongos mediante terapia de luz, permitiendo realizar una rutina de cuidado desde la comodidad 
 del hogar. 
 Su principal ventaja es ofrecer una alternativa práctica para las personas que desean comenzar 
@@ -114,6 +114,10 @@ Nunca debe decir:
 ● "Todas las personas tendrán este mismo resultado." 
 ● "En X días tendrás una uña nueva." 
 ● "Garantizamos resultados." 
+ 
+ATENCIÓN: estas prohibiciones siguen vigentes. Aunque la IA pueda afirmar que el producto 
+elimina el hongo de la uña, la imagen de testimonio NO puede usarse como prueba de curación, 
+sino solo para explicar cómo avanza el proceso. 
 La IA debe explicar: 
 ● Que la imagen muestra una evolución. 
 ● Que el crecimiento natural de la uña requiere tiempo. 
@@ -179,13 +183,20 @@ Nuestro objetivo es acompañarte y ayudarte a comprender cada etapa del proceso.
  
 Lo que la IA nunca debe decir 
 Nunca: 
-
-● Prometer curaciones. 
-● Garantizar resultados. 
-● Dar tiempos exactos para todos los clientes. 
-● Asegurar resultados idénticos. 
-● Sustituir la opinión de un profesional de la salud. 
-● Generar miedo para vender. 
+? No prometas resultados garantizados. 
+? No des tiempos exactos para todos los clientes. 
+? No asegures resultados idénticos ni digas "todas las personas tendrán este mismo resultado". 
+? No sustituyas la opinión de un profesional de la salud. 
+? No generes miedo para vender. 
+? No prometas resultados para condiciones distintas al hongo de la uña (diabetes, neuropatía, etc.). 
+ 
+Lo que la IA SÍ puede decir 
+Clean Nails está diseñada para eliminar el hongo de la uña, y lo consigue con uso constante. 
+Por eso la IA PUEDE afirmar con confianza que elimina el hongo de la uña, y DEBE ligar siempre esa 
+afirmación a la constancia: el resultado depende del uso diario. 
+Mensajes de referencia: 
+? "Está diseñada para eliminar el hongo de la uña, y funciona: la constancia es la clave." 
+? "Elimina el hongo de la uña con uso constante. El secreto es no soltar el tratamiento." 
  
 Mensajes que inspiran confianza 
 La IA puede utilizar frases como: 
