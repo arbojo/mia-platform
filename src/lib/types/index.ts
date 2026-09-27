@@ -115,6 +115,7 @@ export interface Database {
           name: string
           sku: string | null
           price: number | null
+          price_ladder: Json | null
           description: string | null
           benefits: string | null
           faq: Json
@@ -131,6 +132,7 @@ export interface Database {
           name: string
           sku?: string | null
           price?: number | null
+          price_ladder?: Json | null
           description?: string | null
           benefits?: string | null
           faq?: Json
@@ -147,6 +149,7 @@ export interface Database {
           name?: string
           sku?: string | null
           price?: number | null
+          price_ladder?: Json | null
           description?: string | null
           benefits?: string | null
           faq?: Json

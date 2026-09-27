@@ -98,4 +98,17 @@ describe('buildMasterPrompt i18n', () => {
     expect(prompt).toContain('Bota de Cuero')
     expect(prompt).toContain('Somos una tienda de prueba.')
   })
+
+  it('renders the quantity ladder with localized labels per locale', () => {
+    expect(basePrompt('es')).toContain('Precio por cantidad')
+    expect(basePrompt('en')).toContain('Volume pricing')
+    expect(basePrompt('pt')).toContain('Preço por quantidade')
+    expect(basePrompt('ja')).toContain('数量別価格')
+  })
+
+  it('never renders a price ladder for a product that has none', () => {
+    const prompt = basePrompt('es')
+    const bootsBlock = prompt.split('Bota de Cuero')[1]?.split('- ')[0] ?? ''
+    expect(bootsBlock).not.toContain('Precio por cantidad')
+  })
 })

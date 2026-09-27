@@ -16,6 +16,7 @@ const product: Product = {
   name: 'Bota de Cuero',
   sku: null,
   price: 150,
+  price_ladder: null,
   description: 'Bota de cuero genuino',
   benefits: 'Duradera',
   faq: null,

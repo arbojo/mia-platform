@@ -66,7 +66,7 @@ async function getOrCreateBrand(supabase: ReturnType<typeof createClient>, busin
     target_customers:
       'Personas que buscan bienestar y cuidado en casa (uñas, pies, abdomen, canas, facial) sin recurrir a clínicas ni procedimientos costosos.',
     differentiators:
-      'Productos $449–$599 de efecto real verificable, pago contra entrega, envío gratis y una asesora virtual que nunca promete de más.',
+      'Productos $449–$550 de efecto real verificable, pago contra entrega, envío gratis y una asesora virtual que nunca promete de más.',
   })
   if (error) throw new Error(`brand_identity insert failed: ${error.message}`)
   return { business_id: businessId }
@@ -117,13 +117,21 @@ async function seedProducts(supabase: ReturnType<typeof createClient>, businessI
     {
       business_id: businessId,
       name: 'Clean Nails',
-      price: 599,
+      price: 550,
+      price_ladder: {
+        tiers: [
+          { qty: 1, price: 550 },
+          { qty: 2, price: 880 },
+          { qty: 3, price: 1188 },
+        ],
+        open_tier: { min_qty: 4, discount_pct: 35 },
+      },
       description:
-        'Luz UV para uñas con hongos (onicomicosis). Apoya el cuidado de la uña; los cambios son graduales conforme la uña crece y requieren constancia.',
+        'Luz UV e infrarroja para uñas con hongos (onicomicosis). Está diseñada para eliminar el hongo de la uña, y lo consigue con uso constante.',
       benefits:
-        'Discreto, de uso en casa, con constancia apoya el aspecto de la uña afectada. Incluye envío gratis.',
+        'Discreta, de uso en casa. Elimina el hongo de la uña con uso constante. Incluye envío gratis.',
       faq: [
-        { q: '¿Funciona de verdad?', a: 'Con honestidad: no promete una curación. Es luz UV que apoya el cuidado; los cambios son graduales y dependen del ritmo de crecimiento de tu uña y de la constancia en cada sesión.' },
+        { q: '¿Funciona de verdad?', a: 'Sí, está diseñada para eliminar el hongo de la uña, y lo consigue con uso constante. Se usa dos veces al día en sesiones de 7 minutos y notarás la mejoría conforme crece la uña nueva. La constancia es la clave.' },
         { q: '¿Cuánto tarda?', a: 'Depende del ritmo de crecimiento de tu uña. Lo que sí controlas es la constancia: cada sesión cuenta.' },
         { q: '¿Cómo se paga?', a: 'Pago contra entrega, envío gratis. Necesitamos tu confirmación explícita y tu ciudad.' },
       ],
@@ -133,13 +141,28 @@ async function seedProducts(supabase: ReturnType<typeof createClient>, businessI
       business_id: businessId,
       name: 'Back2Fit',
       price: 499,
+      price_ladder: {
+        tiers: [
+          { qty: 2, price: 499 },
+          { qty: 3, price: 898 },
+          { qty: 4, price: 998 },
+          { qty: 5, price: 1397 },
+          { qty: 6, price: 1497 },
+          { qty: 7, price: 1896 },
+          { qty: 8, price: 1996 },
+          { qty: 9, price: 2395 },
+          { qty: 10, price: 2495 },
+        ],
+        note: 'No se vende por pieza: el mínimo es 2 y cada par es 2x1 (se paga una y la segunda va de regalo). Si la cantidad es impar, la pieza que sobra se agrega a $399.',
+      },
       description:
         'Chaleco moldeador masculino discreto, bajo la ropa, con soporte lumbar y efecto inmediato.',
       benefits:
-        'Disimula y acomoda el torso de forma natural; delgado y transpirable. Llévate 2 piezas y ahorra 20%; con 3 hasta 30%.',
+        'Disimula y acomoda el torso de forma natural; delgado y transpirable.',
       faq: [
+        { q: '¿Se vende por pieza?', a: 'No, el mínimo es 2 y cada par es 2x1: pagas una y la segunda va de regalo. Si te llevas una cantidad impar, esa pieza se agrega con 20% de descuento.' },
         { q: '¿Se nota que lo traigo?', a: 'Es delgado y transpirable. No te prometo otro cuerpo: disimula y acomoda el torso de forma natural.' },
-        { q: '¿Se usa diario?', a: 'Sí, y si te llevas 2 piezas ahorras 20%; con 3 hasta 30%.' },
+        { q: '¿Se usa diario?', a: 'Sí, está pensado para usarlo bajo la ropa en el día a día.' },
       ],
       is_active: true,
     },
@@ -147,6 +170,13 @@ async function seedProducts(supabase: ReturnType<typeof createClient>, businessI
       business_id: businessId,
       name: 'Neurofeet',
       price: 449,
+      price_ladder: {
+        tiers: [
+          { qty: 3, price: 449 },
+          { qty: 5, price: 599 },
+        ],
+        note: 'No aplicar descuentos adicionales. Se pueden mezclar tallas y colores: blanco y negro, tallas S a XL.',
+      },
       description:
         'Calcetines de compresión graduada 20-30 mmHg que dan soporte y ayudan con la pesadez de piernas al trabajar de pie.',
       benefits:
@@ -154,7 +184,7 @@ async function seedProducts(supabase: ReturnType<typeof createClient>, businessI
       faq: [
         { q: '¿De verdad ayudan o es puro cuento?', a: 'Honestamente, son un apoyo de comodidad, no un tratamiento médico. Muchos clientes notan más ligereza. Si hay dolor intenso, lo correcto es consultar a un profesional.' },
         { q: '¿Qué talla soy?', a: 'Mide la parte más ancha de tu pantorrilla y compárala con la tabla. Deben sentirse firmes pero cómodos.' },
-        { q: '¿Cuál es la promoción?', a: 'Paquete de 3 pares en $449 (al precio de 1).' },
+        { q: '¿Cuál es la promoción?', a: 'Paquetes de 3 pares en $449 o 5 pares en $599. Puedes mezclar tallas y colores: hay en blanco y negro, y las tallas van de la S a la XL. No se aplican descuentos adicionales.' },
       ],
       is_active: true,
     },
@@ -162,6 +192,13 @@ async function seedProducts(supabase: ReturnType<typeof createClient>, businessI
       business_id: businessId,
       name: 'Neurotin',
       price: 449,
+      price_ladder: {
+        tiers: [
+          { qty: 3, price: 449 },
+          { qty: 5, price: 599 },
+        ],
+        note: 'No aplicar descuentos adicionales. Se pueden mezclar tallas y colores: blanco y negro, tallas S a XL.',
+      },
       description:
         'Calcetín corto de soporte para pie y tobillo: soporte en arco, talón y tobillo, de punta abierta para ser discreto.',
       benefits:
@@ -230,14 +267,14 @@ async function seedRules(supabase: ReturnType<typeof createClient>, businessId: 
     {
       business_id: businessId,
       category: 'promotions',
-      content: 'Back2Fit: 2 piezas ahorran 20%; 3 piezas hasta 30%.',
+      content: 'Back2Fit: no se vende por pieza, el mínimo es 2 y cada par es 2x1. Al ofrecerlo, MIA siempre anuncia que la segunda pieza va de regalo y toma el importe exclusivamente de la escalera por cantidad. Si la cantidad es impar, la pieza que sobra se cobra con 20% de descuento. Nunca cotizar una sola pieza ni un precio que no esté en la escalera; si el cliente pide más de 10 piezas, escalar al equipo.',
       priority: 3,
       is_active: true,
     },
     {
       business_id: businessId,
       category: 'promotions',
-      content: 'Neurofeet: paquete de 3 pares al precio de 1 ($449).',
+      content: 'Neurofeet: paquete de 3 pares en $449 o 5 pares en $599. Se pueden mezclar tallas y colores (blanco y negro, tallas S a XL). No se aplican descuentos adicionales.',
       priority: 4,
       is_active: true,
     },
@@ -251,7 +288,7 @@ async function seedRules(supabase: ReturnType<typeof createClient>, businessId: 
     {
       business_id: businessId,
       category: 'escalation',
-      content: 'Dolor intenso, sospecha de condición médica o pedidos de diagnóstico: derivar a un profesional de la salud. No dar diagnósticos ni prometer tratamientos.',
+      content: 'Dolor intenso, sospecha de condición médica o pedidos de diagnóstico: derivar a un profesional de la salud. No dar diagnósticos. No prometer tratamientos ni resultados para condiciones que el producto NO está diseñado para tratar: Clean Nails está diseñado para el hongo de la uña, no para diabetes, neuropatía ni ninguna otra condición.',
       priority: 6,
       is_active: true,
     },
@@ -273,7 +310,7 @@ async function seedKnowledge(supabase: ReturnType<typeof createClient>, business
       business_id: businessId,
       category: 'business_info',
       question: '¿Qué es Vitanova?',
-      answer: 'Vitanova es una marca de bienestar y cuidado en casa: productos de $449 a $599 con efecto real verificable, envío gratis y pago contra entrega.',
+      answer: 'Vitanova es una marca de bienestar y cuidado en casa: productos de $449 a $550 con efecto real verificable, envío gratis y pago contra entrega.',
       source: 'document',
       confidence: 'high',
       is_active: true,
@@ -300,7 +337,7 @@ async function seedKnowledge(supabase: ReturnType<typeof createClient>, business
       business_id: businessId,
       category: 'objection',
       question: 'Es muy caro',
-      answer: 'Recalibrar el ancla por uso (P-020): Clean Nails $599 ≈ costo de una sesión de clínica; Bye Canas $499 ≈ meses de uso; Bella Patch ≈$16.6 por puesta frente a un procedimiento estético.',
+      answer: 'Recalibrar el ancla por uso (P-020): Clean Nails $550 cuesta menos que una sola sesión de clínica y da todas las sesiones en casa; Bye Canas $499 ≈ meses de uso; Bella Patch ≈$16.6 por puesta frente a un procedimiento estético.',
       source: 'document',
       confidence: 'high',
       is_active: true,
@@ -347,7 +384,7 @@ async function seedInstructions(supabase: ReturnType<typeof createClient>, busin
     {
       business_id: businessId,
       instruction:
-        'Nunca prometas curación, tratamientos, resultados garantizados ni otro cuerpo. Sé honesta sobre los límites de cada producto (efecto gradual, temporal o de comodidad).',
+        'Nunca prometas resultados garantizados, tiempos exactos ni resultados idénticos para todos, y nunca generes miedo para vender. Aplica la promesa honesta correspondiente a ESE producto: Clean Nails está diseñado para eliminar el hongo de la uña y lo consigue con uso constante, así que MIA PUEDE afirmarlo siempre ligado a la constancia; Bye Canas es gradual y exige constancia; Back2Fit tiene efecto inmediato; Bella Patch tiene efecto temporal; Neurofeet y Neurotin son apoyos de comodidad, nunca tratamientos médicos. Sé honesta sobre los límites de cada producto.',
       priority: 2,
       is_active: true,
     },
@@ -368,7 +405,7 @@ async function seedInstructions(supabase: ReturnType<typeof createClient>, busin
     {
       business_id: businessId,
       instruction:
-        'Si el cliente reporta dolor intenso o una posible condición médica, derívalo a un profesional de la salud. No des diagnósticos.',
+        'Si el cliente reporta dolor intenso o una posible condición médica, derívalo a un profesional de la salud. No des diagnósticos. No prometer tratamientos ni resultados para condiciones que el producto NO está diseñado para tratar: Clean Nails está diseñado para el hongo de la uña, no para diabetes, neuropatía ni ninguna otra condición.',
       priority: 5,
       is_active: true,
     },

@@ -7,6 +7,7 @@ import type { ChannelType } from '@/lib/channels/types'
 import type { ResolvedCapabilities } from '@/lib/system/capabilities'
 import type { MediaStatus } from '@/lib/runtime/context-media'
 import { buildDeliveryPromptSection, type DeliverySchedule } from '@/lib/delivery/dates'
+import { parsePriceLadder, formatPriceLadder } from '@/lib/sales/price-ladder'
 
 type Business = Database['public']['Tables']['businesses']['Row']
 type BrandIdentity = Database['public']['Tables']['brand_identities']['Row']
@@ -91,11 +92,36 @@ function formatProducts(products: Product[], ai: PromptDict): string {
 
   return products
     .map((p) => {
+      const ladder = parsePriceLadder(p.price_ladder)
+
+      // When the cheapest tier is not a single unit, `products.price` is the
+      // price of a PACK, not of one piece — Neurotin's 449 buys three pairs,
+      // Back2Fit's 499 buys one of a 2x1. Rendering it bare next to the product
+      // name is the shortest path to MIA quoting an amount for a quantity the
+      // business never sells: the number sits there with no unit attached. The
+      // ladder already states it properly ("3 pzas: $449"), so the bare figure
+      // adds a way to be wrong without adding a way to be right.
+      //
+      // The rule is derived from the ladder rather than configured, because
+      // `resolveLineTotal` derives the same fact the same way: a base price is
+      // only a unit price when qty 1 is on the ladder.
+      const priceIsSellable = ladder === null || ladder.tiers[0]?.qty === 1
+
       const lines = [
-        `- ${p.name}: $${p.price ?? ai.noPrice}`,
+        `- ${p.name}${priceIsSellable ? `: $${p.price ?? ai.noPrice}` : ''}`,
         `  ${p.description ?? ''}`,
         `  ${ai.benefits}: ${p.benefits ?? ai.notSpecified}`,
       ]
+      if (ladder) {
+        lines.push(
+          formatPriceLadder(ladder, {
+            header: ai.priceLadder,
+            perPieces: ai.priceLadderPieces,
+            fromPieces: ai.priceLadderFrom,
+            note: ai.priceLadderNote,
+          })
+        )
+      }
       const faq = p.faq as Array<{ q: string; a: string }> | null
       if (faq && faq.length > 0) {
         lines.push(`  ${ai.faq}:`)

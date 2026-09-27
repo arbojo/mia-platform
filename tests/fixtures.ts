@@ -87,6 +87,7 @@ export const mockProducts = [
     name: 'Bota de Cuero',
     sku: 'BOTA-001',
     price: 150,
+    price_ladder: null,
     description: 'Bota de cuero genuino',
     benefits: 'Duradera, impermeable',
     faq: {},
@@ -103,6 +104,13 @@ export const mockProducts = [
     name: 'Zapato Formal',
     sku: 'ZAPA-001',
     price: 120,
+    price_ladder: {
+      tiers: [
+        { qty: 1, price: 120 },
+        { qty: 3, price: 300 },
+      ],
+      open_tier: { min_qty: 4, discount_pct: 35 },
+    },
     description: 'Zapato de vestir',
     benefits: 'Cómodo, elegante',
     faq: {},

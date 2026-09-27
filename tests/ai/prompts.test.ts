@@ -84,6 +84,52 @@ describe('buildMasterPrompt', () => {
     expect(prompt).toContain('Saluda siempre por nombre.')
   })
 
+  it('omite el precio base cuando la escalera no ofrece unidad suelta', () => {
+    const prompt = build({
+      products: [
+        {
+          name: 'Back2Fit',
+          price: 499,
+          description: 'Faja moldeadora',
+          benefits: 'Efecto inmediato',
+          price_ladder: {
+            tiers: [
+              { qty: 2, price: 499 },
+              { qty: 3, price: 898 },
+              { qty: 4, price: 998 },
+            ],
+            note: 'No se vende por pieza: el mínimo es 2 y cada par es 2x1.',
+          },
+        } as never,
+      ],
+    })
+
+    // The ladder already says "2 pzas: $499". Printing a bare "$499" beside the
+    // product name is what leads MIA to quote a single piece the business never
+    // sells — the number sits there with no unit attached to it.
+    expect(prompt).not.toContain('- Back2Fit: $499')
+    expect(prompt).toContain('- Back2Fit')
+    expect(prompt).toContain('2 pzas: $499')
+    expect(prompt).toContain('4 pzas: $998')
+    expect(prompt).toContain('No se vende por pieza')
+  })
+
+  it('mantiene el precio base cuando la escalera sí ofrece unidad suelta', () => {
+    const prompt = build({
+      products: [
+        {
+          name: 'Zapato Formal',
+          price: 120,
+          description: 'De vestir',
+          benefits: 'Cómodo',
+          price_ladder: { tiers: [{ qty: 1, price: 120 }, { qty: 3, price: 300 }] },
+        } as never,
+      ],
+    })
+
+    expect(prompt).toContain('- Zapato Formal: $120')
+  })
+
   it('incluye conocimiento', () => {
     const prompt = build()
     expect(prompt).toContain('¿Envían a todo el país?')
