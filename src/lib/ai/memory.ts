@@ -263,8 +263,26 @@ export async function upsertBusinessMemory(
   return inserted
 }
 
+/**
+ * `conversations` is scoped to a tenant through `assistant_id`, which points
+ * at `assistants.id`; the table has no `business_id` column of its own. So the
+ * conversation count for a business has to go through that table, the same way
+ * the rest of the codebase resolves it. Filtering conversations by business_id
+ * is Postgres error 42703 (undefined_column), and because the per-business
+ * catch reports the error name only, that took the whole learning pipeline down
+ * as "Unknown error" on every tenant, every night.
+ */
+async function getBusinessAssistantIds(
+  supabase: ReturnType<typeof createAdminClient>,
+  businessId: string
+): Promise<string[]> {
+  const { data } = await supabase.from('assistants').select('id').eq('business_id', businessId)
+  return data?.map((a) => a.id) ?? []
+}
+
 export async function calculateSkillLevels(businessId: string): Promise<SkillLevel[]> {
   const supabase = createAdminClient()
+  const assistantIds = await getBusinessAssistantIds(supabase, businessId)
 
   const [productsResult, knowledgeResult, rulesResult, correctionsResult, conversationsResult, memoriesResult] =
     await Promise.all([
@@ -291,7 +309,7 @@ export async function calculateSkillLevels(businessId: string): Promise<SkillLev
       supabase
         .from('conversations')
         .select('id')
-        .eq('business_id', businessId)
+        .in('assistant_id', assistantIds)
         .eq('type', 'live'),
       supabase
         .from('business_memory')
@@ -413,6 +431,8 @@ export async function calculateLearningVelocity(
   const monthStart = new Date()
   monthStart.setMonth(monthStart.getMonth() - 1)
 
+  const assistantIds = await getBusinessAssistantIds(supabase, businessId)
+
   const [factsResult, productsResult, rulesResult, knowledgeResult, conversationsResult] =
     await Promise.all([
       supabase
@@ -443,7 +463,7 @@ export async function calculateLearningVelocity(
       supabase
         .from('conversations')
         .select('id', { count: 'exact', head: true })
-        .eq('business_id', businessId)
+        .in('assistant_id', assistantIds)
         .eq('type', 'live')
         .gte('created_at', weekStart.toISOString()),
     ])

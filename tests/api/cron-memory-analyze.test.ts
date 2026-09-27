@@ -331,4 +331,46 @@ describe('GET /api/cron/memory-analyze', () => {
     const res = await GET(request)
     expect(res.status).toBe(401)
   })
+
+  // PostgREST rejects with a plain object, not an Error. An `instanceof Error`
+  // check reported "Unknown error" for every tenant while the real cause only
+  // existed in the server logs, which is how a missing conversations column
+  // failed silently on all five businesses every night.
+  it('surfaces the real message when a PostgREST-shaped error is thrown', async () => {
+    mockedCreateAdminClient.mockReturnValue(mockSingleBusinessAdmin() as never)
+    mockedAnalyze.mockResolvedValue([])
+    mockedUpsertMemory.mockResolvedValue([])
+    mockedVelocity.mockResolvedValue({
+      period: 'weekly',
+      period_start: '2026-08-24',
+      period_end: '2026-08-30',
+      new_facts: 0,
+      new_products: 0,
+      new_rules: 0,
+      new_faqs: 0,
+      preparation_delta: 0,
+      confidence_delta: 0,
+      conversations_analyzed: 0,
+      opportunities_found: 0,
+    } as never)
+    mockedSkills.mockRejectedValue({
+      code: '42703',
+      details: null,
+      hint: null,
+      message: 'column conversations_1.business_id does not exist',
+    })
+
+    const request = new Request(
+      `http://localhost/api/cron/memory-analyze?business_id=${FAKE_UUIDS.business}`,
+      { method: 'GET', headers: { 'x-mia-cron-secret': 'test-cron-secret-12345' } }
+    )
+
+    const res = await GET(request)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.businesses_failed).toBe(1)
+    const failure = body.businesses[0]
+    expect(failure.status).toBe('failed')
+    expect(failure.error).toBe('42703: column conversations_1.business_id does not exist')
+  })
 })

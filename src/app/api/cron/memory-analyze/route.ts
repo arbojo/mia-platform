@@ -18,6 +18,26 @@ import {
  * isn't learning" until someone reads the logs.
  */
 
+/**
+ * Supabase/PostgREST failures arrive as plain objects
+ * (`{ code, message, details, hint }`), not as Error instances, so an
+ * `instanceof Error` check reports "Unknown error" for every database problem
+ * and leaves the only useful clue in the server logs. That is how a missing
+ * `conversations.business_id` column stayed invisible while all five tenants
+ * failed on every scheduled run.
+ */
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string' && error) return error
+  if (typeof error === 'object' && error !== null) {
+    const { message, code } = error as { message?: unknown; code?: unknown }
+    if (typeof message === 'string' && message) {
+      return typeof code === 'string' && code ? `${code}: ${message}` : message
+    }
+  }
+  return 'Unknown error'
+}
+
 async function runLearningForBusiness(businessId: string) {
   const [patterns, skills, velocity] = await Promise.all([
     analyzeConversationPatterns(businessId),
@@ -81,7 +101,7 @@ async function handleCron(request: Request, businessId: string | null) {
       results.push({
         business_id: id,
         status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: describeError(error),
       })
     }
   }
