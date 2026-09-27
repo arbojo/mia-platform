@@ -1,4 +1,5 @@
 import { MODEL, TOKEN_COSTS } from '@/lib/ai/client'
+import { parseAiJson } from '@/lib/ai/parse-json'
 import OpenAI from 'openai'
 import { renderPrd, type PrdDocument, type BusinessDomain } from './template'
 
@@ -147,17 +148,7 @@ ${params.context ? `Additional context: ${params.context}` : ''}`
 }
 
 function parseJsonResponse(content: string): Record<string, unknown> {
-  let cleaned = content.trim()
-
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
-  }
-
-  try {
-    return JSON.parse(cleaned) as Record<string, unknown>
-  } catch {
-    throw new Error(`Failed to parse PRD JSON: ${cleaned.slice(0, 200)}`)
-  }
+  return parseAiJson<Record<string, unknown>>(content, 'PRD')
 }
 
 function coercePrd(raw: Record<string, unknown>): PrdDocument {

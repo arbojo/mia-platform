@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { executeAI } from '@/lib/runtime/execute-ai'
+import { parseAiJson } from '@/lib/ai/parse-json'
 
 export interface BusinessMemoryItem {
   id: string
@@ -191,7 +192,7 @@ ${messages.slice(0, 100).map((m, i) => `[${i + 1}] ${m.content}`).join('\n')}`,
   })
 
   const content = result.content || '{"patterns":[]}'
-  const parsed = JSON.parse(content) as {
+  const parsed = parseAiJson<{
     patterns: Array<{
       memory_type: string
       category: string
@@ -199,7 +200,7 @@ ${messages.slice(0, 100).map((m, i) => `[${i + 1}] ${m.content}`).join('\n')}`,
       evidence: Record<string, unknown>
       confidence: number
     }>
-  }
+  }>(content, 'conversation patterns')
 
   return parsed.patterns
 }

@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { executeAI } from '@/lib/runtime/execute-ai'
 import { getSkillsSnapshot } from '@/lib/ai/skills'
 import { getProductIntelligence } from '@/lib/ai/product-intelligence'
+import { parseAiJson } from '@/lib/ai/parse-json'
 
 export interface WeeklyReportData {
   id: string
@@ -176,7 +177,10 @@ PREPARACIÓN: ${preparationBefore}% → ${preparationAfter}%`,
   })
 
   const content = result.content || '{"narrative":"Reporte no disponible.","recommendations":[]}'
-  const parsed = JSON.parse(content) as { narrative: string; recommendations: WeeklyReportData['recommendations'] }
+  const parsed = parseAiJson<{
+    narrative: string
+    recommendations: WeeklyReportData['recommendations']
+  }>(content, 'weekly report')
 
   const { data: report, error } = await supabase
     .from('weekly_reports')
