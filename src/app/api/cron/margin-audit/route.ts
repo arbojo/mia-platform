@@ -1,23 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { runMarginAudit } from '@/lib/analytics/margin-audit'
-
-/**
- * Verifies the request came from an authorized scheduler.
- * Headless scheduler authentication via shared secret (service credential).
- * Does NOT require an interactive user session.
- */
-function verifyCronAuth(request: Request): boolean {
-  const secret = request.headers.get('x-mia-cron-secret')
-  if (!secret) {
-    return false
-  }
-  const expectedSecret = process.env.MIA_CRON_SECRET
-  if (!expectedSecret) {
-    return false
-  }
-  return secret === expectedSecret
-}
+import { verifyCronAuth } from '@/lib/cron/auth'
 
 export async function POST(request: Request) {
   // Authenticate as scheduler, not as user
@@ -62,6 +46,14 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  // This handler reads through the service-role client, so without this check
+  // the URL was a public, unauthenticated read of any tenant's ai_insights —
+  // RLS is bypassed, so the business_id in the query string was the only
+  // thing standing between a stranger and another business's data.
+  if (!verifyCronAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const businessId = searchParams.get('business_id')
 

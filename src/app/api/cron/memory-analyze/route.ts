@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyCronAuth } from '@/lib/cron/auth'
 import {
   analyzeConversationPatterns,
   upsertBusinessMemory,
@@ -11,27 +12,11 @@ import {
  * Runs the business-level learning pipeline (patterns, skills, velocity) on a
  * schedule so MIA learns from recent conversations without a manual button.
  *
- * Auth: Vercel Cron auto-sends `Authorization: Bearer <CRON_SECRET>` when the
- * CRON_SECRET env var is configured; manual/headless runs use the shared
- * secret (x-mia-cron-secret) matching MIA_CRON_SECRET. This mirrors the repo's
- * existing cron convention while following Vercel's documented mechanism.
- *
  * Both verbs are exported because Vercel Cron only ever issues a GET. A
  * POST-only route still shows as an active schedule in the dashboard while
  * every single run fails with 405, which is indistinguishable from "MIA just
  * isn't learning" until someone reads the logs.
  */
-function verifyCronAuth(request: Request): boolean {
-  const schedulerSecret = process.env.CRON_SECRET
-  const authorization = request.headers.get('authorization')
-  if (schedulerSecret && authorization === `Bearer ${schedulerSecret}`) {
-    return true
-  }
-
-  const secret = request.headers.get('x-mia-cron-secret')
-  const expectedSecret = process.env.MIA_CRON_SECRET
-  return Boolean(secret && expectedSecret && secret === expectedSecret)
-}
 
 async function runLearningForBusiness(businessId: string) {
   const [patterns, skills, velocity] = await Promise.all([

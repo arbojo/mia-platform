@@ -3,12 +3,15 @@ import { FAKE_UUIDS } from '../fixtures'
 
 // Mock environment variables
 const originalEnv = process.env.MIA_CRON_SECRET
+const originalCronSecret = process.env.CRON_SECRET
 beforeEach(() => {
   process.env.MIA_CRON_SECRET = 'test-cron-secret-12345'
+  process.env.CRON_SECRET = 'test-scheduler-secret-67890'
 })
 
 afterEach(() => {
   process.env.MIA_CRON_SECRET = originalEnv
+  process.env.CRON_SECRET = originalCronSecret
 })
 
 vi.mock('next/server', () => ({
@@ -289,7 +292,7 @@ describe('GET /api/cron/margin-audit', () => {
 
     const request = new Request(
       `http://localhost/api/cron/margin-audit?business_id=${FAKE_UUIDS.business}`,
-      { method: 'GET' }
+      { method: 'GET', headers: { 'x-mia-cron-secret': 'test-cron-secret-12345' } }
     )
 
     const res = await GET(request)
@@ -301,11 +304,67 @@ describe('GET /api/cron/margin-audit', () => {
   it('returns 400 when business_id is missing from query', async () => {
     const request = new Request('http://localhost/api/cron/margin-audit', {
       method: 'GET',
+      headers: { 'x-mia-cron-secret': 'test-cron-secret-12345' },
     })
 
     const res = await GET(request)
     expect(res.status).toBe(400)
     const body = await res.json()
     expect(body.error).toBe('business_id required')
+  })
+
+  // This handler reads through the service-role client, which bypasses RLS.
+  // Without the auth check the URL handed any tenant's ai_insights to anyone
+  // who knew the business_id, and the test below is what keeps it that way.
+  it('refuses an unauthenticated GET instead of leaking insights', async () => {
+    const request = new Request(
+      `http://localhost/api/cron/margin-audit?business_id=${FAKE_UUIDS.business}`,
+      { method: 'GET' }
+    )
+
+    const res = await GET(request)
+    expect(res.status).toBe(401)
+    const body = await res.json()
+    expect(body.error).toBe('Unauthorized')
+    // The database must not be touched at all for an anonymous caller.
+    expect(mockedCreateAdminClient).not.toHaveBeenCalled()
+  })
+
+  it('refuses a GET carrying an invalid secret', async () => {
+    const request = new Request(
+      `http://localhost/api/cron/margin-audit?business_id=${FAKE_UUIDS.business}`,
+      { method: 'GET', headers: { 'x-mia-cron-secret': 'wrong-secret' } }
+    )
+
+    const res = await GET(request)
+    expect(res.status).toBe(401)
+    expect(mockedCreateAdminClient).not.toHaveBeenCalled()
+  })
+
+  it('accepts the Vercel scheduler Authorization Bearer header', async () => {
+    const mockAdmin = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn((_key: string) => ({
+            eq: vi.fn((_key2: string) => ({
+              is: vi.fn(() => ({
+                order: vi.fn(() => ({
+                  limit: vi.fn(() => Promise.resolve({ data: [], error: null })),
+                })),
+              })),
+            })),
+          })),
+        })),
+      })),
+    }
+    mockedCreateAdminClient.mockReturnValue(mockAdmin as never)
+
+    const request = new Request(
+      `http://localhost/api/cron/margin-audit?business_id=${FAKE_UUIDS.business}`,
+      { method: 'GET', headers: { Authorization: 'Bearer test-scheduler-secret-67890' } }
+    )
+
+    const res = await GET(request)
+    expect(res.status).toBe(200)
   })
 })
