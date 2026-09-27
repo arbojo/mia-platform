@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { toKnowledgeContent } from '@/lib/ai/knowledge'
 
 export interface ProductIntelligence {
   product_id: string
@@ -104,7 +105,7 @@ export async function getProductIntelligence(businessId: string): Promise<Produc
       .limit(200),
     supabase
       .from('knowledge_items')
-      .select('id, category, content')
+      .select('id, category, question, answer')
       .eq('business_id', businessId)
       .eq('is_active', true),
   ])
@@ -113,7 +114,9 @@ export async function getProductIntelligence(businessId: string): Promise<Produc
   const messages = messagesResult.data ?? []
   const knowledge = knowledgeResult.data ?? []
 
-  const faqKnowledge = knowledge.filter((k) => k.category === 'faq')
+  const faqKnowledge = knowledge
+    .filter((k) => k.category === 'faq')
+    .map((k) => ({ category: k.category, content: toKnowledgeContent(k) }))
 
   const intelligence: ProductIntelligence[] = products.map((product) => {
     const level = getKnowledgeLevel(product)

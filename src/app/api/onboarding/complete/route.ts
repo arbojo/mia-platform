@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     if (businessError) throw businessError
 
     if (operationalConfig.inventory) {
-      const { error } = await supabase.from('inventory.business_settings').upsert({
+      const { error } = await supabase.schema('inventory').from('business_settings').upsert({
         business_id: businessId,
         enabled: true,
         vertical: profile.industry ?? 'general',
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     }
 
     if (operationalConfig.delivery) {
-      const { error } = await supabase.from('delivery.business_settings').upsert({
+      const { error } = await supabase.schema('delivery').from('business_settings').upsert({
         business_id: businessId,
         enabled: true,
         default_zone: 'local',

@@ -274,7 +274,7 @@ export async function POST(request: Request) {
         .eq('id', currentBusinessId)
 
       if (operationalConfig.inventory) {
-        await supabase.from('inventory.business_settings').upsert({
+        await supabase.schema('inventory').from('business_settings').upsert({
           business_id: currentBusinessId,
           enabled: true,
           vertical: fullProfile.industry ?? 'general',
@@ -288,7 +288,7 @@ export async function POST(request: Request) {
       }
 
       if (operationalConfig.delivery) {
-        await supabase.from('delivery.business_settings').upsert({
+        await supabase.schema('delivery').from('business_settings').upsert({
           business_id: currentBusinessId,
           enabled: true,
           default_zone: 'local',

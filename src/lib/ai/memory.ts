@@ -294,7 +294,7 @@ export async function calculateSkillLevels(businessId: string): Promise<SkillLev
         .eq('is_active', true),
       supabase
         .from('knowledge_items')
-        .select('id, category, content')
+        .select('id, category')
         .eq('business_id', businessId)
         .eq('is_active', true),
       supabase

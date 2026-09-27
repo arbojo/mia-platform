@@ -205,7 +205,8 @@ export async function persistOnboardingCompletion(
 
   if (operationalConfig.inventory) {
     const { error } = await supabase
-      .from('inventory.business_settings')
+      .schema('inventory')
+      .from('business_settings')
       .upsert({
         business_id: businessId,
         enabled: true,
@@ -222,7 +223,8 @@ export async function persistOnboardingCompletion(
 
   if (operationalConfig.delivery) {
     const { error } = await supabase
-      .from('delivery.business_settings')
+      .schema('delivery')
+      .from('business_settings')
       .upsert({
         business_id: businessId,
         enabled: true,

@@ -259,7 +259,7 @@ export async function getBusinessExtractionContext(businessId: string) {
       .eq('is_active', true),
     supabase
       .from('knowledge_items')
-      .select('category, content')
+      .select('category, question, answer')
       .eq('business_id', businessId)
       .eq('is_active', true),
     supabase
@@ -273,13 +273,22 @@ export async function getBusinessExtractionContext(businessId: string) {
     existingProducts: (productsResult.data ?? []).map((p) => p.name),
     existingKnowledge: (knowledgeResult.data ?? []).map((k) => ({
       category: k.category,
-      content: k.content,
+      content: toKnowledgeContent(k),
     })),
     existingRules: (rulesResult.data ?? []).map((r) => ({
       category: r.category,
       content: r.content,
     })),
   }
+}
+
+/**
+ * knowledge_items separa question/answer; no tiene columna `content`. Los
+ * consumidores (dedupe de duplicados, matching de FAQ por producto) tratan la
+ * knowledge como texto libre, así que se combinan ambos campos.
+ */
+export function toKnowledgeContent(row: { question: string; answer: string }): string {
+  return `${row.question} ${row.answer}`.trim()
 }
 
 export async function getRecentLessons(assistantId: string, limit: number = 10) {

@@ -112,7 +112,8 @@ export async function generatePurchaseRecommendations(
   const admin = createAdminClient()
 
   const { data: settings } = await admin
-    .from('inventory.business_settings')
+    .schema('inventory')
+    .from('business_settings')
     .select('*')
     .eq('business_id', businessId)
     .single()
@@ -122,7 +123,8 @@ export async function generatePurchaseRecommendations(
   const monthlyBudget = settings?.monthly_purchase_budget ?? null
 
   const { data: assets } = await admin
-    .from('inventory.assets')
+    .schema('inventory')
+    .from('assets')
     .select('id, name, code, current_qty, min_qty, max_qty, unit_cost, is_active')
     .eq('business_id', businessId)
     .eq('is_active', true)
@@ -140,7 +142,8 @@ export async function generatePurchaseRecommendations(
   }
 
   const { data: assetProducts } = await admin
-    .from('inventory.asset_products')
+    .schema('inventory')
+    .from('asset_products')
     .select('asset_id, product_id')
     .eq('business_id', businessId)
 
@@ -197,7 +200,8 @@ export async function generatePurchaseRecommendations(
 
   const currentMonth = new Date().toISOString().slice(0, 7)
   const { data: currentSpend } = await admin
-    .from('inventory.purchase_orders')
+    .schema('inventory')
+    .from('purchase_orders')
     .select('estimated_cost')
     .eq('business_id', businessId)
     .in('status', ['ordered', 'in_transit', 'received'])

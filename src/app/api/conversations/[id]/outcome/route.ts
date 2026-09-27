@@ -20,9 +20,10 @@ export async function PATCH(
     }
 
     const admin = createAdminClient()
+    // conversations no tiene business_id: el tenant se alcanza por assistants.
     const { data: conv } = await admin
       .from('conversations')
-      .select('business_id')
+      .select('id, assistants!inner(business_id)')
       .eq('id', id)
       .maybeSingle()
 
@@ -30,7 +31,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 })
     }
 
-    if (!businessIds.includes(conv.business_id)) {
+    // Sin el tipo generado, supabase-js infiere el embed como arreglo. La forma
+    // real se verificó contra PostgREST: { id, assistants: { business_id } }.
+    // Un alias (`business_id:assistants!inner(...)`) NO aplana: anida el objeto
+    // y rompería la comparación de tenant en silencio.
+    const { assistants } = conv as unknown as { assistants: { business_id: string } }
+
+    if (!businessIds.includes(assistants.business_id)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
