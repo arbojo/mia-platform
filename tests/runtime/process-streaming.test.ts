@@ -150,9 +150,12 @@ expect(loadConversationContext).toHaveBeenCalledWith(
       scope: null,
     })
     result.toStructuredStreamResponse()
+    // El ProductReference COMPLETO debe llegar al canal: el type guard del
+    // cliente (lib/chat/sse.ts isProductData) exige `name`, asi que recortar a
+    // { productId } hacia que la ProductMessageCard nunca se renderice.
     expect(buildStructuredStreamResponse).toHaveBeenCalledWith({
       textStream: mockStreamTextResult.textStream,
-      product: { productId: FAKE_UUIDS.product1 },
+      product,
       media: null,
     })
   })

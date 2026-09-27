@@ -6,7 +6,6 @@ export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
 import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
-import { resolveRecommendedProduct } from './product-recommendation'
 import { buildStructuredStreamResponse } from './stream-response'
 import { detectIntent, buildInteractiveForIntent } from './intents'
 import { isDiscountOfferSentinel } from '@/lib/sales/process'
@@ -194,9 +193,6 @@ export async function processStreaming(params: {
     requestType: params.requestType,
   })
 
-  const product = coreOutput.product
-    ? { productId: coreOutput.product.productId } as Awaited<ReturnType<typeof resolveRecommendedProduct>>
-    : null
   const safeMedia = coreOutput.media
 
   // T1-3 / ADR-029: la rama de retención devuelve una respuesta COMPLETA, no un
@@ -220,7 +216,15 @@ export async function processStreaming(params: {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     }),
     toStructuredStreamResponse: () =>
-      buildStructuredStreamResponse({ textStream: coreOutput.textStream, product, media: safeMedia }),
+      // El ProductReference COMPLETO viaja al canal: el type guard del cliente
+      // (lib/chat/sse.ts isProductData) exige `name` y ProductMessageCard
+      // necesita name/price/imageUrl, asi que recortar a { productId } hacia
+      // que la card nunca se renderice.
+      buildStructuredStreamResponse({
+        textStream: coreOutput.textStream,
+        product: coreOutput.product,
+        media: safeMedia,
+      }),
   }
 }
 

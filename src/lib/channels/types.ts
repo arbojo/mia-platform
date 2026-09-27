@@ -125,7 +125,10 @@ export interface CoreOutput {
   response: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   textStream?: any
-  product: { productId: string } | null
+  // ProductReference completo (no solo el id): el type guard del cliente
+  // (lib/chat/sse.ts isProductData) exige `name` para aceptar el evento,
+  // y ProductMessageCard necesita name/price/imageUrl para renderizar.
+  product: ProductReference | null
   media: { imageUrl: string; mediaType: 'image' | 'testimonial' } | null
   interactive?: InteractiveComponent
   metadata: {

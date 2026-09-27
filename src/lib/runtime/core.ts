@@ -373,7 +373,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
 
     return {
       response: finalResponse,
-      product: product ? { productId: product.productId } : null,
+      product,
       media: safeMedia,
       metadata: {
         usedContext,
@@ -456,7 +456,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
   return {
     response: '',
     textStream: result.textStream,
-    product: product ? { productId: product.productId } : null,
+    product,
     media: safeMedia,
     metadata: {
       usedContext,
