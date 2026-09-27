@@ -451,7 +451,7 @@ export async function getConversationTimeline(
     const { data: conversations } = await supabase
       .from('conversations')
       .select(
-        'id, created_at, status, channel, customers(name), assistants!inner(business_id), messages(role, content, created_at)'
+        'id, created_at, status, customers(name), assistants!inner(business_id), messages(role, content, created_at)'
       )
       .eq('assistants.business_id', businessId)
       .eq('type', 'live')
@@ -480,7 +480,9 @@ export async function getConversationTimeline(
             ? (conv.customers[0] as { name: string } | undefined)?.name ?? 'Cliente'
             : (conv.customers as { name: string } | null)?.name ?? 'Cliente',
           lastMessage: lastUserMsg.content?.slice(0, 80) ?? '',
-          channel: conv.channel ?? 'web',
+          // `conversations` no tiene columna `channel` (el canal vive en el
+          // assistant, via `channel_connections`). El timeline no lo resuelve aun.
+          channel: 'web',
           outcome: lastAssistantMsg ? 'answered' : 'pending',
         })
       }
