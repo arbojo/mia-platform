@@ -33,11 +33,19 @@ function chain(table: string) {
   self.in = record('in')
   self.gte = record('gte')
   self.lte = record('gte')
+  self.order = () => self
+  self.limit = () => self
   self.single = async () => snapshotLookup
   self.maybeSingle = async () => ({ data: null })
   self.then = (resolve: (v: unknown) => unknown) =>
     Promise.resolve(
-      table === 'conversations' ? convoResponse : table === 'assistants' ? { data: [] } : { data: [] }
+      table === 'conversations'
+        ? convoResponse
+        : table === 'assistants'
+          ? { data: [] }
+          : table === 'messages'
+            ? { data: null, error: { code: '42703', message: 'column conversations_1.business_id does not exist' } }
+            : { data: [] }
     ).then(resolve)
   return self
 }
@@ -61,7 +69,12 @@ vi.mock('@/lib/runtime/execute-ai', () => ({
   executeAI: vi.fn(),
 }))
 
-import { calculateSkillLevels, calculateLearningVelocity } from '@/lib/ai/memory'
+import {
+  analyzeConversationPatterns,
+  calculateSkillLevels,
+  calculateLearningVelocity,
+} from '@/lib/ai/memory'
+import { getProductIntelligence } from '@/lib/ai/product-intelligence'
 
 const BIZ = 'b1111111-1111-1111-1111-111111111111'
 
@@ -136,5 +149,49 @@ describe('conversation tenant scoping in the learning pipeline', () => {
       .filter((col): col is string => typeof col === 'string' && !real.has(col))
 
     expect(bogus).toEqual([])
+  })
+
+  // The two queries that reach conversations through a join were the ones that
+  // actually broke, because a filter on `conversations.business_id` is rejected
+  // by Postgres before the join even runs. The mock rejects the messages query
+  // the way PostgREST does, so this also pins that the failure is surfaced
+  // instead of being flattened into "this business had no patterns".
+  it('embeds conversations through assistants and surfaces a PostgREST failure', async () => {
+    await expect(analyzeConversationPatterns(BIZ)).rejects.toMatchObject({
+      code: '42703',
+    })
+
+    const eqs = calls.filter((c) => c.op === 'eq').map((c) => c.arg)
+    expect(eqs).not.toContain('conversations.business_id')
+
+    const select = calls.find((c) => c.op === 'select' && c.table === 'messages')
+    expect(select?.arg).toContain('assistants!inner(business_id)')
+
+    expect(calls.some((c) => c.op === 'eq' && c.arg === 'conversations.assistants.business_id')).toBe(true)
+  })
+})
+
+describe('conversation tenant scoping in product intelligence', () => {
+  beforeEach(() => {
+    calls = []
+    convoResponse = { data: [], count: 0 }
+    snapshotLookup = { data: null }
+    insertedSnapshots = []
+  })
+
+  // The weekly report renders from getProductIntelligence, so this query was
+  // broken in exactly the same way: filtering on conversations.business_id
+  // without ever embedding conversations, which PostgREST cannot resolve.
+  it('embeds conversations through assistants to scope messages to the business', async () => {
+    await getProductIntelligence(BIZ)
+
+    const eqs = calls.filter((c) => c.op === 'eq').map((c) => c.arg)
+    expect(eqs).not.toContain('conversations.business_id')
+
+    const select = calls.find((c) => c.op === 'select' && c.table === 'messages')
+    expect(select?.arg).toContain('conversations!inner')
+    expect(select?.arg).toContain('assistants!inner(business_id)')
+
+    expect(calls.some((c) => c.op === 'eq' && c.arg === 'conversations.assistants.business_id')).toBe(true)
   })
 })

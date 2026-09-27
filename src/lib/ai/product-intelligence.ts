@@ -98,8 +98,8 @@ export async function getProductIntelligence(businessId: string): Promise<Produc
       .eq('is_active', true),
     supabase
       .from('messages')
-      .select('id, content, role, metadata')
-      .eq('conversations.business_id', businessId)
+      .select('id, content, role, metadata, conversations!inner(type, assistants!inner(business_id))')
+      .eq('conversations.assistants.business_id', businessId)
       .eq('role', 'user')
       .limit(200),
     supabase

@@ -128,8 +128,8 @@ export async function analyzeConversationPatterns(businessId: string) {
 
   const { data: messages, error } = await supabase
     .from('messages')
-    .select('id, content, role, metadata, conversations!inner(id, business_id, type)')
-    .eq('conversations.business_id', businessId)
+    .select('id, content, role, metadata, conversations!inner(id, type, assistants!inner(business_id))')
+    .eq('conversations.assistants.business_id', businessId)
     .eq('conversations.type', 'live')
     .eq('role', 'user')
     .gte('created_at', oneWeekAgo.toISOString())
