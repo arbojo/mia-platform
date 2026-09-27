@@ -1,5 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { resolveCanonicalProductId } from '@/lib/sales/canonical-product'
+import { BaileysAdapter } from '@/lib/channels/adapters/baileys'
+import type { ChannelConnection } from '@/lib/channels/types'
 import type { Database } from '@/lib/types'
 
 type SalesEventType = Database['public']['Tables']['sales_events']['Row']['event_type']
@@ -367,6 +369,61 @@ export async function notifySaleToOwner(params: {
       amount: params.amount ?? null,
     },
   })
+
+  if (params.outcome === 'won') {
+    await notifyOwnerWhatsApp({
+      supabase,
+      businessId: params.businessId,
+      text: message,
+    })
+  }
+}
+
+/**
+ * Sends the SALE_WON notification to the owner's WhatsApp number configured in
+ * the whatsapp channel_connection as `configuration.notification_phone`.
+ * Best-effort: never throws so a notification failure can't break the sale
+ * registration (the mia_signals inbox remains the source of truth).
+ */
+async function notifyOwnerWhatsApp(params: {
+  supabase: ReturnType<typeof createAdminClient>
+  businessId: string
+  text: string
+}): Promise<void> {
+  const { supabase, businessId, text } = params
+
+  const { data: connection } = await supabase
+    .from('channel_connections')
+    .select('id, business_id, assistant_id, configuration')
+    .eq('business_id', businessId)
+    .eq('channel', 'whatsapp')
+    .eq('status', 'connected')
+    .maybeSingle()
+
+  const configuration = connection?.configuration as Record<string, unknown> | null
+  const notificationPhone = configuration?.notification_phone
+
+  if (!connection || typeof notificationPhone !== 'string' || !notificationPhone.trim()) {
+    return
+  }
+
+  try {
+    const adapter = new BaileysAdapter()
+    const result = await adapter.sendMessage(connection as unknown as ChannelConnection, {
+      content: text,
+      contentType: 'text',
+      metadata: {
+        to: notificationPhone.trim(),
+        businessId,
+      },
+    })
+
+    if (!result.success) {
+      console.error(`[sales] Owner WhatsApp notification failed: ${result.error ?? 'unknown'}`)
+    }
+  } catch (error) {
+    console.error('[sales] Owner WhatsApp notification error:', error)
+  }
 }
 
 export async function getCustomerName(customerId: string): Promise<string | null> {

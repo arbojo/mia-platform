@@ -29,6 +29,7 @@ import { resolveConnection, resolveConversation } from '@/lib/conversation/resol
 import { resolveCustomer } from '@/lib/channels/identity'
 import type { WireMessage } from '@/lib/runtime/types'
 import { detectExplicitScopes } from '@/lib/runtime/context-scope'
+import { parsePriceLadder, resolveLineTotal } from './price-ladder'
 
 /**
  * Sentinel value for sales_cancelled_at indicating a discount offer was
@@ -636,27 +637,33 @@ export async function processSaleClosing(params: {
     // Se resuelve SOLO para SALE_WON y nunca muta la identidad canónica (C4).
     //
     // FASE 1 — Contrato Comercial Real (decisiones A/C/D):
-    //   - items[].unit_price = precio de catálogo congelado al cierre (precio
-    //     vendido histórico), unidad de referencia para el total determinista.
+    //   - items[].line_total = importe ABSOLUTO de la línea según price_ladder.
+    //   - items[].unit_price = precio unitario efectivo (line_total / quantity),
+    //     de modo que Σ(unit_price × quantity) === subtotal sigue siendo cierto
+    //     para cualquier consumidor que lea el snapshot.
     //   - items[].quantity = cantidad explícita (LLM, sanitizada int >= 1) o el
     //     default contractual 1. Nunca un total "comercial" inventado.
     //   - totals = { subtotal, discount, total } calculado DETERMINISTICAMENTE en
-    //     código: subtotal = unit_price × quantity; discount = 0 (F3 más adelante);
+    //     código: subtotal = Σ(line_total); discount = 0 (F3 más adelante);
     //     total = subtotal. sales_events.amount := totals.total.
     //   - El amount del LLM (event.amount) NUNCA determina el total final: es solo
     //     dato de interpretación; el precio ganador es el de catálogo (A).
     //   - Sin producto resoluble o sin precio verificable => NO hay total
     //     determinista => amount null (nunca sustituir con amount LLM, no inventar precio).
+    //   - El precio lo resuelve resolveLineTotal() desde price_ladder. products.price
+    //     NO es precio unitario en general: en productos por paquete es el precio
+    //     del paquete, y multiplicarlo por la cantidad inventa el importe.
     //
     // FASE 2 — Multi-producto: un pedido puede llevar N items. Se materializa UN
     // item por cada products[] del LLM que resuelve a catálogo (canonical o match
     // determinístico de hit único). Si no hay products[] se conserva el flujo
     // single-product de FASE 1 (event.productName). Items sin precio se incluyen
-    // en el snapshot (con unit_price null) pero no contribuyen al total.
+    // en el snapshot (con unit_price y line_total null) pero no contribuyen al total.
     const items: Array<{
       product_id: string
       name: string
       unit_price: number | null
+      line_total: number | null
       quantity: number
     }> = []
     let totals: { subtotal: number | null; discount: number; total: number | null } | null = null
@@ -690,16 +697,23 @@ export async function processSaleClosing(params: {
 
           const { data: prod } = await supabaseAdmin
             .from('products')
-            .select('id, name, price')
+            .select('id, name, price, price_ladder')
             .eq('business_id', businessId)
             .eq('id', productIdForItem)
             .single()
           if (prod) {
+            const quantity = candidate.quantity ?? DEFAULT_QUANTITY
+            const resolved = resolveLineTotal(
+              parsePriceLadder(prod.price_ladder),
+              prod.price,
+              quantity
+            )
             items.push({
               product_id: prod.id,
               name: prod.name,
-              unit_price: prod.price,
-              quantity: candidate.quantity ?? DEFAULT_QUANTITY,
+              unit_price: resolved?.effectiveUnitPrice ?? null,
+              line_total: resolved?.lineTotal ?? null,
+              quantity,
             })
           }
         }
@@ -711,31 +725,37 @@ export async function processSaleClosing(params: {
           const name = event.productName.trim()
           const { data: prod } = await supabaseAdmin
             .from('products')
-            .select('id, name, price')
+            .select('id, name, price, price_ladder')
             .eq('business_id', businessId)
             .eq('is_active', true)
             .ilike('name', name)
             .limit(1)
             .maybeSingle()
           if (prod) {
+            const quantity = resolveSaleQuantity(event, result.products)
+            const resolved = resolveLineTotal(
+              parsePriceLadder(prod.price_ladder),
+              prod.price,
+              quantity
+            )
             items.push({
               product_id: prod.id,
               name: prod.name,
-              unit_price: prod.price,
-              quantity: resolveSaleQuantity(event, result.products),
+              unit_price: resolved?.effectiveUnitPrice ?? null,
+              line_total: resolved?.lineTotal ?? null,
+              quantity,
             })
           }
         }
 
-        // Total determinista: Σ(unit_price × quantity) sobre los items CON precio.
-        // Items sin precio verificable no contribuyen; si NINGUNO tiene precio =>
-        // sin totals => amount null (no inventar).
-        const pricedItems = items.filter((i) => i.unit_price !== null)
+        // Total determinista: Σ(line_total) sobre los items CON precio resuelto.
+        // Se suma line_total y no unit_price × quantity porque el precio unitario
+        // efectivo está redondeado a centavos: 1048 / 3 = 349.33, y 349.33 × 3
+        // reconstruye 1047.99. Items sin precio verificable no contribuyen; si
+        // NINGUNO tiene precio => sin totals => amount null (no inventar).
+        const pricedItems = items.filter((i) => i.line_total !== null)
         if (pricedItems.length > 0) {
-          const subtotal = pricedItems.reduce(
-            (acc, i) => acc + (i.unit_price as number) * i.quantity,
-            0
-          )
+          const subtotal = pricedItems.reduce((acc, i) => acc + (i.line_total as number), 0)
           // FASE 3 — Descuento rescate (decisiones B/C/D): si la ÚLTIMA entrada
           // de outcome_history es DISCOUNT_ACCEPTED, el % congelado se aplica al
           // subtotal del pedido (determinista): discount = round(subtotal×%/100,2),

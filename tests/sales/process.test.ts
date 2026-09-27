@@ -656,7 +656,7 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
       amount: 499,
       metadata: {
         customer: { name: null, phone: null, city: null, address: null },
-        items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+        items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, line_total: 499, quantity: 1 }],
         totals: { subtotal: 499, discount: 0, total: 499 },
       },
     })
@@ -717,7 +717,7 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         productId: 'prod-canon',
         amount: 499,
         metadata: expect.objectContaining({
-          items: [{ product_id: 'prod-canon', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+          items: [{ product_id: 'prod-canon', name: 'Bella Patch', unit_price: 499, line_total: 499, quantity: 1 }],
           totals: { subtotal: 499, discount: 0, total: 499 },
         }),
       })
@@ -746,7 +746,7 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         eventType: 'SALE_WON',
         amount: 499,
         metadata: expect.objectContaining({
-          items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+          items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, line_total: 499, quantity: 1 }],
           totals: { subtotal: 499, discount: 0, total: 499 },
         }),
       })
@@ -919,8 +919,8 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         amount: 1097,
         metadata: expect.objectContaining({
           items: [
-            { product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 },
-            { product_id: 'prod-9902', name: 'Crema Reafirmante', unit_price: 299, quantity: 2 },
+            { product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, line_total: 499, quantity: 1 },
+            { product_id: 'prod-9902', name: 'Crema Reafirmante', unit_price: 299, line_total: 598, quantity: 2 },
           ],
           totals: { subtotal: 1097, discount: 0, total: 1097 },
         }),
@@ -956,7 +956,7 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         eventType: 'SALE_WON',
         amount: 499,
         metadata: expect.objectContaining({
-          items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 }],
+          items: [{ product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, line_total: 499, quantity: 1 }],
           totals: { subtotal: 499, discount: 0, total: 499 },
         }),
       })
@@ -995,8 +995,8 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         amount: 499,
         metadata: expect.objectContaining({
           items: [
-            { product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, quantity: 1 },
-            { product_id: 'prod-svc', name: 'Servicio Sin Precio', unit_price: null, quantity: 1 },
+            { product_id: 'prod-9901', name: 'Bella Patch', unit_price: 499, line_total: 499, quantity: 1 },
+            { product_id: 'prod-svc', name: 'Servicio Sin Precio', unit_price: null, line_total: null, quantity: 1 },
           ],
           totals: { subtotal: 499, discount: 0, total: 499 },
         }),
@@ -1149,5 +1149,204 @@ describe('SALE_WON snapshot comercial (ORD-000013 product_id/amount perdidos)', 
         }),
       })
     )
+  })
+})
+
+describe('SALE_WON total desde price_ladder (no desde products.price)', () => {
+  const neurotinLadder = {
+    tiers: [
+      { qty: 3, price: 449 },
+      { qty: 5, price: 599 },
+    ],
+    note: 'No aplicar descuentos adicionales.',
+  }
+
+  const back2fitLadder = {
+    tiers: [
+      { qty: 2, price: 499 },
+      { qty: 3, price: 898 },
+      { qty: 4, price: 998 },
+      { qty: 5, price: 1397 },
+      { qty: 6, price: 1497 },
+      { qty: 7, price: 1896 },
+      { qty: 8, price: 1996 },
+      { qty: 9, price: 2395 },
+      { qty: 10, price: 2495 },
+    ],
+    note: 'No se vende por pieza: el mínimo es 2 y cada par es 2x1 (se paga una y la segunda va de regalo). Si la cantidad es impar, la pieza que sobra se agrega a $399.',
+  }
+
+  function wonCall() {
+    return vi.mocked(emitSalesEvent).mock.calls.find(([args]) => args.eventType === 'SALE_WON')?.[0]
+  }
+
+  function totalsOf(call: ReturnType<typeof wonCall>) {
+    return (call?.metadata as { totals?: { subtotal?: number; total?: number } } | undefined)?.totals
+  }
+
+  it('Neurotin 5 pares → $599, no 449 x 5 = $2,245', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Neurotin', quantity: 5 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-neurotin', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-neurotin', name: 'Neurotin', price: 449, price_ladder: neurotinLadder },
+    })
+
+    await processSaleClosing(params)
+
+    const call = wonCall()
+    expect(call?.amount).toBe(599)
+    expect(totalsOf(call)).toEqual({ subtotal: 599, discount: 0, total: 599 })
+    const items = (call?.metadata as { items?: Array<Record<string, unknown>> }).items
+    expect(items?.[0]).toMatchObject({
+      unit_price: 119.8,
+      line_total: 599,
+      quantity: 5,
+    })
+  })
+
+  it('Neurotin 3 pares → $449 y el invariante unit_price x qty se sostiene', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Neurotin', quantity: 3 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-neurotin', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-neurotin', name: 'Neurotin', price: 449, price_ladder: neurotinLadder },
+    })
+
+    await processSaleClosing(params)
+
+    expect(wonCall()?.amount).toBe(449)
+  })
+
+  it('cantidad sin precio en la escalera → amount null en vez de inventar', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Neurotin', quantity: 4 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-neurotin', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-neurotin', name: 'Neurotin', price: 449, price_ladder: neurotinLadder },
+    })
+
+    await processSaleClosing(params)
+
+    const call = wonCall()
+    expect(call?.amount).toBeNull()
+    const items = (call?.metadata as { items?: Array<Record<string, unknown>> }).items
+    expect(items?.[0]).toMatchObject({ unit_price: null, line_total: null, quantity: 4 })
+  })
+
+  it('Back2Fit 2 unidades → $499 (2x1), no 499 x 2 = $998', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Back2Fit', quantity: 2 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-back2fit', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-back2fit', name: 'Back2Fit', price: 499, price_ladder: back2fitLadder },
+    })
+
+    await processSaleClosing(params)
+
+    expect(wonCall()?.amount).toBe(499)
+  })
+
+  it('Back2Fit 4 unidades → $998 (dos pares 2x1), no el 35% sobre el precio base', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Back2Fit', quantity: 4 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-back2fit', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-back2fit', name: 'Back2Fit', price: 499, price_ladder: back2fitLadder },
+    })
+
+    await processSaleClosing(params)
+
+    expect(wonCall()?.amount).toBe(998)
+  })
+
+  it('Back2Fit 1 unidad → null, porque no se vende por pieza', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Back2Fit', quantity: 1 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-back2fit', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-back2fit', name: 'Back2Fit', price: 499, price_ladder: back2fitLadder },
+    })
+
+    await processSaleClosing(params)
+
+    const call = wonCall()
+    expect(call?.amount).toBeNull()
+    const items = (call?.metadata as { items?: Array<Record<string, unknown>> }).items
+    expect(items?.[0]).toMatchObject({ unit_price: null, line_total: null, quantity: 1 })
+  })
+
+  it('Back2Fit 3 unidades → $898 (2x1 + impar a $399)', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Back2Fit', quantity: 3 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-back2fit', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-back2fit', name: 'Back2Fit', price: 499, price_ladder: back2fitLadder },
+    })
+
+    await processSaleClosing(params)
+
+    expect(wonCall()?.amount).toBe(898)
+  })
+
+  it('el precio del LLM nunca gana sobre la escalera', async () => {
+    vi.mocked(hasSalesTrigger).mockReturnValue(true)
+    vi.mocked(hasCancellationLock).mockResolvedValue(false)
+    vi.mocked(detectSaleOutcome).mockResolvedValue({
+      outcome: 'sold',
+      events: [{ type: 'SALE_WON', productName: 'Neurotin', amount: 449, quantity: 5 }],
+    })
+    vi.mocked(detectExplicitScopes).mockResolvedValue([
+      { productId: 'prod-neurotin', source: 'literal', tier: 'literal' },
+    ])
+    mockSingle.mockResolvedValue({
+      data: { id: 'prod-neurotin', name: 'Neurotin', price: 449, price_ladder: neurotinLadder },
+    })
+
+    await processSaleClosing(params)
+
+    expect(wonCall()?.amount).toBe(599)
   })
 })

@@ -7,6 +7,7 @@ import { ModuleZone } from '@/components/dashboard/ModuleZone'
 import { ConversationTimeline } from '@/components/dashboard/ConversationTimeline'
 import { SalesMetricsCard } from '@/components/dashboard/SalesMetricsCard'
 import { WeeklyReportCard } from '@/components/dashboard/WeeklyReportCard'
+import { LearningSymptomsCard } from '@/components/dashboard/LearningSymptomsCard'
 import { GettingStarted } from '@/components/dashboard/GettingStarted'
 import Link from 'next/link'
 import {
@@ -198,6 +199,8 @@ export default async function DashboardPage() {
       )}
 
       <SalesMetricsCard metrics={data.salesMetrics} />
+
+      <LearningSymptomsCard memory={data.businessMemory} />
 
       <WeeklyReportCard report={data.weeklyReport} />
 
