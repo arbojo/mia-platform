@@ -18,6 +18,12 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
+# Fixture de tenant E2E: se regenera con
+# node tests/fixtures/seed-e2e-tenant.mjs. No se versiona porque trae la
+# contrasena del usuario de prueba y porque un tenant quemado en el repo
+# rota en silencio cuando ese tenant se borra.
+tests/fixtures/.e2e-tenant.json
+
 # next.js
 /.next/
 /out/

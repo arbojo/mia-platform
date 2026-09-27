@@ -8,28 +8,40 @@
  * Run: node tests/fixtures/seed-e2e-tenant.mjs
  */
 import { createClient } from '@supabase/supabase-js'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..', '..')
+const FIXTURE_PATH = join(__dirname, '.e2e-tenant.json')
 
-const env = Object.fromEntries(
-  readFileSync(join(ROOT, '.env.local'), 'utf8')
-    .split(/\r?\n/)
-    .filter((line) => line.trim() && !line.trim().startsWith('#'))
-    .map((line) => {
-      const idx = line.indexOf('=')
-      return [line.slice(0, idx).trim(), line.slice(idx + 1).trim()]
-    })
-)
+// Las credenciales salen de .env.local en local, pero en CI solo existen como
+// variables de entorno. Se leen ambas fuentes y process.env gana, asi el mismo
+// script sirve para sembrar el tenant en los dos lados sin editar nada.
+const envFilePath = join(ROOT, '.env.local')
+const fileEnv = existsSync(envFilePath)
+  ? Object.fromEntries(
+      readFileSync(envFilePath, 'utf8')
+        .split(/\r?\n/)
+        .filter((line) => line.trim() && !line.trim().startsWith('#'))
+        .map((line) => {
+          const idx = line.indexOf('=')
+          return [line.slice(0, idx).trim(), line.slice(idx + 1).trim()]
+        })
+    )
+  : {}
+
+const env = { ...fileEnv, ...process.env }
 
 const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('FATAL: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing in .env.local')
+  console.error(
+    'FATAL: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes ' +
+      '(.env.local o process.env)'
+  )
   process.exit(1)
 }
 
@@ -107,11 +119,14 @@ async function main() {
   console.log('[seed] brand identity ok')
 
   // ------------------------------------------------------------------
-  // 4. Assistant (communication_style NOT NULL + CHECK warm|casual|formal|direct)
+  // 4. Assistant
+  //    `status` DEBE ser 'ready': canServeTraffic() (assistant-gate.ts) solo
+  //    permite 'ready' | 'active', y el default de la columna es 'draft'.
+  //    Un assistant sembrado sin status queda bloqueado para siempre.
   // ------------------------------------------------------------------
   const foundAsst = await admin
     .from('assistants')
-    .select('id')
+    .select('id, status, is_active')
     .eq('business_id', businessId)
     .eq('name', 'E2E Test Assistant')
     .maybeSingle()
@@ -119,7 +134,18 @@ async function main() {
   let assistantId
   if (foundAsst.data) {
     assistantId = foundAsst.data.id
-    console.log(`[seed] assistant found: ${assistantId}`)
+    console.log(`[seed] assistant found: ${assistantId} (status=${foundAsst.data.status})`)
+
+    if (foundAsst.data.status !== 'ready' || foundAsst.data.is_active !== true) {
+      const fixed = await admin
+        .from('assistants')
+        .update({ status: 'ready', is_active: true })
+        .eq('id', assistantId)
+        .select('status, is_active')
+        .single()
+      if (fixed.error) throw fixed.error
+      console.log(`[seed] assistant REPAIRED -> status=${fixed.data.status} is_active=${fixed.data.is_active}`)
+    }
   } else {
     const insAsst = await admin
       .from('assistants')
@@ -129,6 +155,7 @@ async function main() {
         personality: { warmth: 50, formality: 50, humor: 20, sales_aggressiveness: 40 },
         communication_style: 'warm',
         is_active: true,
+        status: 'ready',
       })
       .select('id')
       .single()
@@ -203,6 +230,23 @@ async function main() {
     if (insKi.error) throw insKi.error
     console.log('[seed] knowledge item CREATED')
   }
+
+  // ------------------------------------------------------------------
+  // 7. Fixture file: los IDs se publican en disco para que los specs no los
+  //    hardcodeen. Un ID quemado en el spec se pudre en cuanto el tenant se
+  //    borra, y el E2E falla sin explicar por que.
+  // ------------------------------------------------------------------
+  const fixture = {
+    email: EMAIL,
+    password: PASSWORD,
+    businessId,
+    assistantId,
+    productId,
+    productName: 'E2E Test Neurofeet',
+    productPrice: 499,
+  }
+  writeFileSync(FIXTURE_PATH, JSON.stringify(fixture, null, 2) + '\n')
+  console.log(`[seed] fixture written: ${FIXTURE_PATH}`)
 
   console.log('\n=== SEED COMPLETE ===')
   console.log(`login: ${EMAIL} / ${PASSWORD}`)
