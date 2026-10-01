@@ -17,12 +17,14 @@ import type {
 import { Boom } from '@hapi/boom'
 import QRCode from 'qrcode'
 import P from 'pino'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia } from './mia-client.js'
 import { sendReply, sanitizeForWhatsApp, extractSentMessageId } from './media-url.js'
 import { withTypingPresence } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import { SentMessageRegistry } from './sent-registry.js'
+import { ChannelModeCache, allowsOutbound, type ChannelMode } from './channel-mode.js'
 import type { BridgeConfig } from './config.js'
 
 export type SessionStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
@@ -118,10 +120,15 @@ export class SessionManager {
   private readonly processedMessageTimestamps = new Map<string, Map<string, number>>()
   private readonly MESSAGE_DEDUP_TTL_MS = 60 * 60 * 1000
   private readonly sentRegistry = new SentMessageRegistry()
+  private readonly modeCache = new ChannelModeCache()
+  private readonly modeDb: SupabaseClient
 
   constructor(config: BridgeConfig) {
     this.config = config
     this.store = new SupabaseAuthStore(config)
+    this.modeDb = createClient(config.supabaseUrl, config.supabaseServiceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
   }
 
   getStore(): SupabaseAuthStore {
@@ -408,6 +415,36 @@ export class SessionManager {
     }
   }
 
+  /**
+   * Resolves the channel's operation mode, caching briefly.
+   *
+   * Needed because the bridge's defensive paths (call-rejection text, audio
+   * fallback) can reach a customer *without* asking MIA, so they cannot rely on
+   * `deliver:false`. A read failure returns null, which `allowsOutbound` treats
+   * as "do not send": failing closed is the whole point of a shadow rehearsal.
+   */
+  private async getChannelMode(businessId: string): Promise<ChannelMode | null> {
+    const cached = this.modeCache.get(businessId)
+    if (cached !== undefined) return cached
+
+    try {
+      const { data } = await this.modeDb
+        .from('channel_connections')
+        .select('mode')
+        .eq('business_id', businessId)
+        .eq('channel', 'whatsapp')
+        .maybeSingle()
+
+      const mode = ((data as { mode?: ChannelMode } | null)?.mode ?? null) as ChannelMode | null
+      this.modeCache.set(businessId, mode)
+      return mode
+    } catch (error) {
+      logger.warn({ err: error, businessId }, 'could not read channel mode')
+      this.modeCache.set(businessId, null)
+      return null
+    }
+  }
+
   private getCallCooldown(businessId: string): CooldownStore {
     let store = this.cooldownCalls.get(businessId)
     if (!store) {
@@ -453,6 +490,12 @@ export class SessionManager {
     this.clearReplyTimers(businessId)
     this.cooldownCalls.delete(businessId)
     this.cooldownAudio.delete(businessId)
+    // A mode change must be picked up on the next reconnect, and a stale
+    // sent-ID set would let an old reply be misread as a human message.
+    this.modeCache.invalidate(businessId)
+    this.sentRegistry.clear(businessId)
+    this.processedMessageIds.delete(businessId)
+    this.processedMessageTimestamps.delete(businessId)
   }
 
   private scheduleReconnect(businessId: string, attempt: number): void {
@@ -585,6 +628,10 @@ export class SessionManager {
         continue
       }
 
+      // rejectCall above still runs: hanging up is not a customer-visible
+      // message and leaving calls unanswered would block the real phone. Only
+      // the follow-up TEXT is gated, because that is what a customer reads.
+      if (!(await allowsOutbound(await this.getChannelMode(businessId)))) return
       if (this.getCallCooldown(businessId).check(caller)) {
         this.scheduleCallReply(businessId, caller)
       }
@@ -780,6 +827,7 @@ export class SessionManager {
         // NO estamos en shadow — en shadow el silencio es el comportamiento
         // correcto y este texto sería la única señal visible.
         if (!miaReply?.response && isAudio && session.socket.user?.id) {
+          if (!(await allowsOutbound(await this.getChannelMode(session.businessId)))) continue
           if (this.getAudioCooldown(session.businessId).check(waId)) {
             const fallbackResult = await session.socket.sendMessage(remoteJid, {
               text: this.config.defensive.audioFallbackText,
@@ -807,13 +855,26 @@ export class SessionManager {
     if (!session || session.status !== 'connected') {
       return { success: false, error: 'WhatsApp session is not connected' }
     }
+    // This is an operator-initiated send (follow-ups, manual messages). It must
+    // respect the channel mode too, otherwise a queued job can break a shadow
+    // rehearsal that the realtime path honours.
+    if (!(await allowsOutbound(await this.getChannelMode(businessId)))) {
+      return { success: false, error: 'Channel mode does not allow outbound messages' }
+    }
     try {
       const jid = jidNormalizedUser(to)
       await withTypingPresence(session.socket, jid, async () => {
         if (interactive) {
-          await sendInteractive(session.socket, jid, content, interactive)
+          const interactiveIds = await sendInteractive(
+            session.socket,
+            jid,
+            content,
+            interactive
+          )
+          this.sentRegistry.add(businessId, interactiveIds)
         } else {
-          await sendReply(session.socket, jid, content, imageUrl)
+          const sent = await sendReply(session.socket, jid, content, imageUrl)
+          this.sentRegistry.add(businessId, sent.messageIds)
         }
       })
       return { success: true }
