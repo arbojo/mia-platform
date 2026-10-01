@@ -12,6 +12,12 @@ export interface WireMessage {
   payload?: MessagePayload
   metadata: Record<string, unknown>
   receivedAt: Date
+  /**
+   * Set when the channel positively identified the author as a business-side
+   * human (today: the Baileys bridge, which matches its own sent-message ids to
+   * disambiguate `fromMe`). Persisted for learning, never auto-answered.
+   */
+  fromHuman?: boolean
 }
 
 export interface BrainMessage {

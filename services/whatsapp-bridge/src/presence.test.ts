@@ -67,4 +67,44 @@ describe('withTypingPresence', () => {
     expect(result).toBe(42)
     expect(socket.sendPresenceUpdate).toHaveBeenCalledTimes(2)
   })
+
+  // Shadow: el cliente NUNCA debe ver "escribiendo…". MIA no va a contestar,
+  // así que mostrar presencia y luego nada es peor que un silencio limpio.
+  it('emits no presence at all when shouldShowTyping returns false', async () => {
+    const socket = fakeSocket()
+    const result = await withTypingPresence(socket, 'jid@wa', async () => 'ok', () => false)
+
+    expect(result).toBe('ok')
+    expect(socket.sendPresenceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('still runs the task (and delivers) when presence is suppressed', async () => {
+    const socket = fakeSocket()
+    const sendMessage = vi.fn().mockResolvedValue({ key: { id: 'MSG1' } })
+
+    await withTypingPresence(
+      { sendPresenceUpdate: socket.sendPresenceUpdate, sendMessage } as never,
+      'jid@wa',
+      async () => {
+        await sendMessage('jid@wa', { text: 'hola' })
+      },
+      () => false
+    )
+
+    expect(sendMessage).toHaveBeenCalledTimes(1)
+    expect(socket.sendPresenceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('does not leave a composing heartbeat running when presence is suppressed', async () => {
+    vi.useFakeTimers()
+    try {
+      const socket = fakeSocket()
+      await withTypingPresence(socket, 'jid@wa', async () => 'ok', () => false)
+      await vi.advanceTimersByTimeAsync(PRESENCE_REFRESH_MS * 3)
+
+      expect(socket.sendPresenceUpdate).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })

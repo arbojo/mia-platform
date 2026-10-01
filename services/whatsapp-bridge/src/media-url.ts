@@ -79,8 +79,30 @@ export function isSafeMediaUrl(url: string): boolean {
 export const IMAGE_SEND_ATTEMPTS = 2
 export const IMAGE_SEND_RETRY_DELAY_MS = 800
 
+import { extractSentMessageId } from './sent-registry.js'
+
+export { extractSentMessageId }
+
 export interface ReplySocket {
   sendMessage(jid: string, content: unknown): Promise<unknown>
+}
+
+/**
+ * Ids de los mensajes que este bridge acaba de enviar.
+ *
+ * Baileys devuelve el WAMessage enviado, cuyo `key.id` es el mismo que llega
+ * después en `messages.upsert` con `fromMe === true`. El bridge lo necesita
+ * para distinguir sus propios envíos de los mensajes de la vendedora (que
+ * salen del mismo número). Antes el retorno se descartaba y por eso nunca se
+ * pudo aprender de ella.
+ *
+ * En un envío con retry la clave puede cambiar entre intentos, así que se
+ * acumulan todos los ids intentados y no solo el último.
+ */
+export interface SendReplyResult {
+  sent: boolean
+  asImage: boolean
+  messageIds: string[]
 }
 
 async function sendImageWithRetry(
@@ -88,12 +110,15 @@ async function sendImageWithRetry(
   jid: string,
   imageUrl: string,
   caption: string
-): Promise<void> {
+): Promise<string[]> {
+  const sentIds: string[] = []
   let lastErr: unknown
   for (let attempt = 1; attempt <= IMAGE_SEND_ATTEMPTS; attempt++) {
     try {
-      await socket.sendMessage(jid, { image: { url: imageUrl }, caption })
-      return
+      const result = await socket.sendMessage(jid, { image: { url: imageUrl }, caption })
+      const id = extractSentMessageId(result)
+      if (id !== null) sentIds.push(id)
+      return sentIds
     } catch (err) {
       lastErr = err
       if (attempt < IMAGE_SEND_ATTEMPTS) {
@@ -105,11 +130,6 @@ async function sendImageWithRetry(
     }
   }
   throw lastErr
-}
-
-export interface SendReplyResult {
-  sent: boolean
-  asImage: boolean
 }
 
 /**
@@ -149,8 +169,8 @@ export async function sendReply(
 
   if (imageUrl && isSafeMediaUrl(imageUrl)) {
     try {
-      await sendImageWithRetry(socket, jid, imageUrl, safe)
-      return { sent: true, asImage: true }
+      const ids = await sendImageWithRetry(socket, jid, imageUrl, safe)
+      return { sent: true, asImage: true, messageIds: ids }
     } catch (err) {
       console.error(
         `[media] image send failed for ${jid} after ${IMAGE_SEND_ATTEMPTS} attempts, falling back to text: ${err instanceof Error ? err.message : err}`
@@ -160,6 +180,8 @@ export async function sendReply(
     console.warn(`[media] unsafe media URL omitted for ${jid}: ${imageUrl}`)
   }
 
-  await socket.sendMessage(jid, { text: safe })
-  return { sent: true, asImage: false }
+  const textResult = await socket.sendMessage(jid, { text: safe })
+  const textId = extractSentMessageId(textResult)
+  const ids = textId === null ? [] : [textId]
+  return { sent: true, asImage: false, messageIds: ids }
 }

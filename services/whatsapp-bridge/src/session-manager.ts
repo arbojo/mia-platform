@@ -19,9 +19,10 @@ import QRCode from 'qrcode'
 import P from 'pino'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia } from './mia-client.js'
-import { sendReply, sanitizeForWhatsApp } from './media-url.js'
+import { sendReply, sanitizeForWhatsApp, extractSentMessageId } from './media-url.js'
 import { withTypingPresence } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
+import { SentMessageRegistry } from './sent-registry.js'
 import type { BridgeConfig } from './config.js'
 
 export type SessionStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
@@ -116,6 +117,7 @@ export class SessionManager {
   private readonly processedMessageIds = new Map<string, Set<string>>()
   private readonly processedMessageTimestamps = new Map<string, Map<string, number>>()
   private readonly MESSAGE_DEDUP_TTL_MS = 60 * 60 * 1000
+  private readonly sentRegistry = new SentMessageRegistry()
 
   constructor(config: BridgeConfig) {
     this.config = config
@@ -601,6 +603,9 @@ export class SessionManager {
       if (!session || session.status !== 'connected' || !session.socket.user?.id) return
       session.socket
         .sendMessage(caller, { text: this.config.defensive.callRejectText })
+        .then((result) => {
+          this.sentRegistry.add(businessId, [extractSentMessageId(result)])
+        })
         .catch((err) => {
           logger.warn({ err, businessId, caller }, 'call reject text send failed')
         })
@@ -644,9 +649,19 @@ export class SessionManager {
         console.log(`[session-manager] Duplicate message ignored (in-memory): ${externalId}`)
         continue
       }
-      if (!msg.key || msg.key.fromMe) continue
-      if (msg.key.remoteJid && isJidStatusBroadcast(msg.key.remoteJid)) continue
-      if (msg.key.remoteJid && isJidGroup(msg.key.remoteJid)) continue
+      const fromMe = msg.key?.fromMe === true
+
+      // La vendedora responde desde el MISMO número que el bridge, así que
+      // `fromMe` es ambiguo: puede ser ella o puede ser MIA. El registro de
+      // envíos desambigua de forma exacta (el key.id que devuelve sendMessage
+      // es el mismo que vuelve en el upsert). Lo que nosea nuestros es un
+      // mensaje humano, y debe reenviarse para que MIA aprenda de cómo vende.
+      if (fromMe && this.sentRegistry.has(session.businessId, externalId)) {
+        continue
+      }
+
+      if (msg.key?.remoteJid && isJidStatusBroadcast(msg.key.remoteJid)) continue
+      if (msg.key?.remoteJid && isJidGroup(msg.key.remoteJid)) continue
       if (!msg.message) continue
 
       const remoteJid = msg.key.remoteJid
@@ -665,12 +680,20 @@ export class SessionManager {
         // must never crash the bridge or drop the connection. Audio uses a
         // shorter timeout so the defensive fallback stays near-instant.
         const isAudio = payload?.type === 'audio'
-        // 'escribiendo…' durante toda la generación: la presencia se re-afirma
-        // en el heartbeat mientras dura la llamada y se apaga al terminar.
-        const miaReply = await withTypingPresence(session.socket, remoteJid, () =>
-          sendToMia(
-            this.config,
-            {
+        const isHumanOutbound = fromMe
+
+        // SIN presencia durante la generación. Antes se emitía 'composing'
+        // envolviendo la llamada al webhook, pero en ese punto el bridge aún no
+        // sabe si la respuesta se entregará: `deliver:false` (shadow) solo llega
+        // en la respuesta. El cliente veía "escribiendo…" y luego nada, que es
+        // peor que un silencio limpio. Ahora la presencia se emite únicamente
+        // cuando ya sabemos que sí vamos a enviar.
+        //
+        // Un mensaje humano (vendedora) nunca genera respuesta automática, así
+        // que jamás debe producir presencia: se persiste para aprendizaje y se
+        // sigue al canal normal.
+        const miaReply = isHumanOutbound
+          ? await sendToMia(this.config, {
               businessId: session.businessId,
               externalId,
               customerExternalId: waId,
@@ -679,10 +702,22 @@ export class SessionManager {
               content,
               payload,
               receivedAt: timestamp,
-            },
-            isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
-          )
-        )
+              fromHuman: true,
+            })
+          : await sendToMia(
+              this.config,
+              {
+                businessId: session.businessId,
+                externalId,
+                customerExternalId: waId,
+                customerName: msg.pushName ?? null,
+                customerPhone: waId,
+                content,
+                payload,
+                receivedAt: timestamp,
+              },
+              isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
+            )
 
         // Track as processed after successful forward to MIA (even if shadow/deliver=false).
         // If sendToMia threw, we don't track — allowing a potential retry on next reconnect.
@@ -691,14 +726,39 @@ export class SessionManager {
           seenTimestamps.set(externalId, Date.now())
         }
 
+        // Mensaje humano: queda persistido como material de aprendizaje. No hay
+        // respuesta que enviar ni efectos que ejecutar.
+        if (isHumanOutbound) continue
+
         // Shadow mode (deliver: false): MIA processed and stored the reply
         // for learning but must NOT send it to the customer.
         if (miaReply?.deliver === false) continue
 
         if (miaReply?.response && session.socket.user?.id) {
-          try {
-            await sendReply(session.socket, remoteJid, miaReply.response, miaReply.imageUrl)
+          // Ahora sí sabemos que se entrega: la presencia es segura.
+          const deliverReply = async () => {
+            const sent = await sendReply(
+              session.socket,
+              remoteJid,
+              miaReply.response as string,
+              miaReply.imageUrl
+            )
+            this.sentRegistry.add(session.businessId, sent.messageIds)
             session.consecutiveSendFailures = 0
+
+            if (miaReply.interactive) {
+              const interactiveIds = await sendInteractive(
+                session.socket,
+                remoteJid,
+                miaReply.response as string,
+                miaReply.interactive
+              )
+              this.sentRegistry.add(session.businessId, interactiveIds)
+            }
+          }
+
+          try {
+            await withTypingPresence(session.socket, remoteJid, deliverReply)
           } catch (sendErr) {
             session.consecutiveSendFailures += 1
             logger.error(
@@ -713,31 +773,18 @@ export class SessionManager {
               return
             }
           }
-
-          if (miaReply.interactive) {
-            try {
-              await sendInteractive(
-                session.socket,
-                remoteJid,
-                miaReply.response,
-                miaReply.interactive
-              )
-            } catch (interactiveErr) {
-              console.warn(
-                `[session-manager] interactive send failed for ${remoteJid}, text was already delivered: ${interactiveErr instanceof Error ? interactiveErr.message : interactiveErr}`
-              )
-            }
-          }
         }
 
-        // Defensive fallback: when MIA is unreachable for an audio message the
-        // bridge answers locally so the customer is never left hanging. At most
-        // once per jid per window to avoid a flood of identical texts.
+        // Fallback defensivo: cuando MIA es inalcanzable en un audio, el bridge
+        // responde localmente para que el cliente no quede colgado. Solo cuando
+        // NO estamos en shadow — en shadow el silencio es el comportamiento
+        // correcto y este texto sería la única señal visible.
         if (!miaReply?.response && isAudio && session.socket.user?.id) {
           if (this.getAudioCooldown(session.businessId).check(waId)) {
-            await session.socket.sendMessage(remoteJid, {
+            const fallbackResult = await session.socket.sendMessage(remoteJid, {
               text: this.config.defensive.audioFallbackText,
             })
+            this.sentRegistry.add(session.businessId, [extractSentMessageId(fallbackResult)])
           }
         }
       } catch (error) {
@@ -848,12 +895,20 @@ function extractMessage(message: Record<string, unknown>): ExtractedMessage {
   return { content: null }
 }
 
-function sendInteractive(
+/**
+ * Envía un mensaje interactivo y devuelve los ids de lo enviado.
+ *
+ * El id se conoce antes de enviar (`generateWAMessageFromContent` lo produce y
+ * además se necesita para `relayMessage`), así que se devuelve aunque el relay
+ * devuelva una forma inesperada. Sin esto, un envío con botones sería
+ * indistinguible de un mensaje humano en el `upsert` posterior.
+ */
+async function sendInteractive(
   socket: WASocket,
   jid: string,
   text: string,
   interactive: InteractiveComponent
-): Promise<unknown> {
+): Promise<string[]> {
   const safe = sanitizeForWhatsApp(text)
   const userJid = socket.user?.id
   if (!userJid) throw new Error('Cannot send interactive message: socket user not ready')
@@ -896,9 +951,11 @@ function sendInteractive(
   })
   const messageId = waMessage.key?.id
   if (!waMessage.message || !messageId) throw new Error('Cannot send interactive message: no message content')
-  return socket.relayMessage(jid, waMessage.message, {
+  const relayResult = await socket.relayMessage(jid, waMessage.message, {
     messageId,
   })
+  const relayId = extractSentMessageId(relayResult)
+  return relayId === null ? [messageId] : [messageId, relayId]
 }
 
 function toTimestamp(value: number | Long | Date | undefined): string {

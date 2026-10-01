@@ -2,6 +2,8 @@ export type ChannelType = 'web' | 'whatsapp' | 'messenger' | 'instagram' | 'widg
 
 export type ChannelStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
 
+export type ChannelMode = 'active' | 'shadow' | 'paused'
+
 export type MessageDirection = 'incoming' | 'outgoing'
 
 export type MessageContentType = 'text' | 'image' | 'audio' | 'document'
@@ -55,6 +57,12 @@ export interface NormalizedMessage {
   payload?: MessagePayload
   metadata: Record<string, unknown>
   receivedAt: Date
+  /**
+   * Optional so adapters that never produce human-authored messages stay
+   * unchanged. Set it only when the channel can positively distinguish a
+   * business-side human from the bot's own sends.
+   */
+  fromHuman?: boolean
 }
 
 export interface OutgoingMessage {
@@ -62,6 +70,19 @@ export interface OutgoingMessage {
   contentType: MessageContentType
   interactive?: InteractiveComponent
   metadata?: Record<string, unknown>
+}
+
+/**
+ * A message authored by a human on the business side (e.g. the salesperson
+ * replying from the same WhatsApp number the bridge is paired with).
+ *
+ * It is persisted as conversation history so MIA can learn the business's real
+ * voice, but it never triggers an automatic reply or any commercial side
+ * effect. See `docs/adr/029` — role stays 'assistant' because the speaker sits
+ * on the business side; `metadata.author` carries the authorship.
+ */
+export interface HumanOutboundMessage extends NormalizedMessage {
+  fromHuman: true
 }
 
 export interface SendResult {
@@ -119,6 +140,20 @@ export interface CoreInput {
   mode: 'stream' | 'complete'
   requestType: string
   preResolvedProductId?: string | null
+  /**
+   * Operation mode of the ORIGINATING channel (channel_connections.mode).
+   *
+   * Distinct from `mode`, which only means 'stream' | 'complete'.
+   *
+   * The Core is the sole owner of `processSaleClosing`, and that call writes
+   * sales_events which downstream triggers turn into real delivery orders and
+   * inventory movements. So a shadow turn must reach the Core (we want the AI to
+   * think, produce a candidate and extract evidence) but must NOT reach
+   * `processSaleClosing`. Callers that have no channel behind them (Web Chat,
+   * training, laboratorio) omit this field, which preserves their existing
+   * deliver-everything behaviour.
+   */
+  deliveryMode?: ChannelMode
 }
 
 export interface CoreOutput {
