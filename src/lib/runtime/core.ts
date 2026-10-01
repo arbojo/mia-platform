@@ -19,10 +19,17 @@ import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import { processSaleClosing } from '@/lib/sales/process'
 import { resolveRetentionDecision } from '@/lib/sales/retention'
+import { allowsSideEffects } from '@/lib/channels/mode'
 import type { CoreInput, CoreOutput } from '@/lib/channels/types'
 
 export async function processCore(input: CoreInput): Promise<CoreOutput> {
   const supabase = createAdminClient()
+
+  // Shadow turns still reach the Core on purpose: the AI must think, produce a
+  // candidate reply and extract evidence. What they must never do is emit a real
+  // commercial event, because the delivery/inventory triggers turn a
+  // hypothetical SALE_WON into a real order.
+  const mayEmitSalesEvents = allowsSideEffects(input.deliveryMode)
 
   let customerId = input.customerId
   if (!customerId && input.conversationId) {
@@ -352,6 +359,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
     if (
       customerId &&
       input.conversationId &&
+      mayEmitSalesEvents &&
       input.requestType !== 'simulation' &&
       input.requestType !== 'training'
     ) {
@@ -431,6 +439,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
         if (
           customerId &&
           finalText &&
+          mayEmitSalesEvents &&
           input.requestType !== 'simulation' &&
           input.requestType !== 'training'
         ) {

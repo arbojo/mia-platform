@@ -11,6 +11,12 @@ export interface MiaIncomingMessage {
   content: string
   payload?: MessagePayload
   receivedAt: string
+  /**
+   * El mensaje lo escribió una persona del negocio desde el mismo número del
+   * bridge, no un cliente. Se persiste como material de aprendizaje y NO
+   * dispara respuesta automática ni efectos comerciales.
+   */
+  fromHuman?: boolean
 }
 
 export interface MiaReply {

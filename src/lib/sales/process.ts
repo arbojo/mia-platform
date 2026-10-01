@@ -27,6 +27,7 @@ import type { DetectedSaleEvent } from './events'
 import { getSalesConfig } from '@/lib/ai/knowledge'
 import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
 import { resolveCustomer } from '@/lib/channels/identity'
+import { allowsSideEffects } from '@/lib/channels/mode'
 import type { WireMessage } from '@/lib/runtime/types'
 import { detectExplicitScopes } from '@/lib/runtime/context-scope'
 import { parsePriceLadder, resolveLineTotal } from './price-ladder'
@@ -153,7 +154,7 @@ export async function handleCancellationWebhook(
   if (hasDiscountAcceptanceTrigger(wireMessage.content)) {
     const supabase = createAdminClient()
     const connection = await resolveConnection('whatsapp', wireMessage)
-    if (connection.mode === 'paused') return null
+    if (!allowsSideEffects(connection.mode)) return null
 
     const businessId = connection.business_id
     const assistantId = connection.assistant_id
@@ -211,7 +212,11 @@ export async function handleCancellationWebhook(
 
   const supabase = createAdminClient()
   const connection = await resolveConnection('whatsapp', wireMessage)
-  if (connection.mode === 'paused') return null
+  // Shadow must reach zero writes here: this path emits SALE_CANCELLED, writes
+  // the retention sentinel into conversations and re-opens cancelled sales.
+  // Returning null lets the turn fall through to the normal Core flow, which in
+  // shadow drafts a reply and emits nothing.
+  if (!allowsSideEffects(connection.mode)) return null
 
   const businessId = connection.business_id
   const assistantId = connection.assistant_id
@@ -459,7 +464,10 @@ export async function handleCancellationWebhook(
     response,
     customerId: customer.id,
     conversationId,
-    deliver: true,
+    // Derived, never hardcoded: shadow must not reach the sender. The early
+    // return above already keeps shadow out of this branch, so in practice this
+    // is always true — it stays derived so a future mode cannot leak.
+    deliver: allowsSideEffects(connection.mode),
   }
 }
 

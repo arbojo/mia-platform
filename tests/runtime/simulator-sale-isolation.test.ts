@@ -80,7 +80,12 @@ async function mockStream(text: string) {
   }) as never)
 }
 
-const baseInput = (requestType: string, mode: 'complete' | 'stream', channel: 'simulation' | 'whatsapp' | 'widget') => ({
+const baseInput = (
+  requestType: string,
+  mode: 'complete' | 'stream',
+  channel: 'simulation' | 'whatsapp' | 'widget',
+  deliveryMode?: 'active' | 'shadow' | 'paused'
+) => ({
   businessId: FAKE_UUIDS.business,
   assistantId: FAKE_UUIDS.assistant,
   customerId: FAKE_UUIDS.customer,
@@ -89,6 +94,7 @@ const baseInput = (requestType: string, mode: 'complete' | 'stream', channel: 's
   channel,
   mode,
   requestType,
+  ...(deliveryMode ? { deliveryMode } : {}),
 })
 
 describe('SIMULATOR SALE_* ISOLATION (LOOP 2.1, ratificado)', () => {
@@ -145,5 +151,68 @@ describe('SIMULATOR SALE_* ISOLATION (LOOP 2.1, ratificado)', () => {
     await mockGenerate('Sale response')
     await processCore(baseInput('live_customer', 'complete', 'web'))
     expect(processSaleClosing).toHaveBeenCalledTimes(1)
+  })
+
+  // ── SHADOW MODE ISOLATION ─────────────────────────────────────────────────
+  // Shadow is NOT a simulation: the customer is real, the model is real, and
+  // the reply is a real sale close. The ONLY thing that differs is that the
+  // world must not move. Since delivery.hubs are enabled, a SALE_WON reaching
+  // processSaleClosing would create a REAL delivery order and move real stock
+  // for a sale that never happened.
+  describe('shadow mode', () => {
+    it('shadow + complete + live_customer → NO processSaleClosing', async () => {
+      await mockGenerate('Perfecto, te lo mando')
+      const output = await processCore(
+        baseInput('live_customer', 'complete', 'whatsapp', 'shadow')
+      )
+      // The AI still answers (that is the point of shadow)…
+      expect(output.response).toBe('Perfecto, te lo mando')
+      // …but the world does not move.
+      expect(processSaleClosing).not.toHaveBeenCalled()
+    })
+
+    it('shadow + stream + live_customer → NO processSaleClosing vía onFinish', async () => {
+      await mockStream('Listo, quedan apartados')
+      await processCore(baseInput('live_customer', 'stream', 'whatsapp', 'shadow'))
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(processSaleClosing).not.toHaveBeenCalled()
+    })
+
+    it('paused + complete + live_customer → NO processSaleClosing', async () => {
+      await mockGenerate('Respuesta')
+      await processCore(baseInput('live_customer', 'complete', 'whatsapp', 'paused'))
+      expect(processSaleClosing).not.toHaveBeenCalled()
+    })
+
+    it('active + complete + live_customer → closing real preservado', async () => {
+      await mockGenerate('Sale response')
+      await processCore(baseInput('live_customer', 'complete', 'whatsapp', 'active'))
+      expect(processSaleClosing).toHaveBeenCalledTimes(1)
+    })
+
+    it('shadow still extracts evidence (learning must keep working)', async () => {
+      const { extractEvidenceFromCustomerMessage } = await import(
+        '@/lib/runtime/evidence-extraction'
+      )
+      await mockGenerate('Perfecto')
+      await processCore(baseInput('live_customer', 'complete', 'whatsapp', 'shadow'))
+
+      // Silence for the customer must not mean silence for learning.
+      expect(extractEvidenceFromCustomerMessage).toHaveBeenCalled()
+    })
+
+    // Anti-regresión: si alguien quita el gate, el shadow volvería a crear
+    // pedidos reales. Este test falla si deliveryMode deja de llegar al Core.
+    it('the gate depends on deliveryMode, not on requestType', async () => {
+      await mockGenerate('Listo')
+      await processCore(baseInput('live_customer', 'complete', 'whatsapp', 'shadow'))
+      expect(processSaleClosing).not.toHaveBeenCalled()
+
+      // Mismo requestType y mismo canal, pero active → sí cierra.
+      vi.mocked(processSaleClosing).mockClear()
+      await mockGenerate('Listo')
+      await processCore(baseInput('live_customer', 'complete', 'whatsapp', 'active'))
+      expect(processSaleClosing).toHaveBeenCalledTimes(1)
+    })
   })
 })

@@ -254,6 +254,70 @@ export async function processIncomingMessage(
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
 
+  // Un mensaje humano del negocio (ej. la vendedora desde el mismo número)
+  // debe guardarse para aprendizaje, pero NUNCA dispara respuesta automática ni
+  // efectos comerciales. Se persiste como role='assistant' con metadata.author
+  // para que el timeline pueda distinguirlo, tal y como ya hace el runtime para
+  // las respuestas de MIA en shadow. Esto evita el bucle infinito (ahora el
+  // bridge ya desambigua usando los ids enviados), y a la vez habilita el
+  // análisis de tono de ventas ganadas que tú pediste.
+  if (wireMessage.fromHuman === true) {
+    const authorMeta: Record<string, unknown> = {
+      ...(wireMessage.metadata ?? {}),
+      author: 'human',
+    }
+
+    if (conversationId) {
+      try {
+        await supabase.from('messages').insert({
+          conversation_id: conversationId,
+          role: 'assistant',
+          content: wireMessage.content,
+          metadata: authorMeta,
+        })
+      } catch (err) {
+        console.error('Failed to persist human outbound message (messages):', err)
+      }
+    }
+
+    try {
+      await supabase.from('channel_messages').insert({
+        business_id: businessId,
+        customer_id: customer.id,
+        channel,
+        direction: 'incoming',
+        content: wireMessage.content,
+        external_id: wireMessage.externalId,
+        external_customer_id: wireMessage.customerExternalId,
+        status: 'received',
+        metadata: authorMeta,
+      })
+    } catch (err) {
+      const pgError = err as { code?: string; message?: string }
+      if (pgError?.code === '23505') {
+        return {
+          response: '',
+          customerId: customer.id,
+          conversationId: conversationId ?? '',
+          deliver: false,
+        }
+      }
+      console.error('Failed to persist human outbound message (channel_messages):', err)
+    }
+
+    await supabase
+      .from('customers')
+      .update({ last_interaction: new Date().toISOString() })
+      .eq('id', customer.id)
+
+    return {
+      response: '',
+      customerId: customer.id,
+      conversationId: conversationId ?? '',
+      deliver: false,
+    }
+  }
+
   // CAPA 2: Application-level idempotency check (before any processing).
   // If message with same external_id already exists for this business+channel,
   // treat as duplicate and return early without calling Core.
@@ -332,6 +396,7 @@ export async function processIncomingMessage(
     intentTag,
     mode: 'complete',
     requestType: 'live_customer',
+    deliveryMode: mode,
   })
 
   const response = coreOutput.response

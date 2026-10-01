@@ -37,6 +37,24 @@ export async function POST(request: Request) {
     const adapter = new BaileysAdapter()
     const wireMessage = (await adapter.receiveMessage(body)) as WireMessage
 
+    // Un mensaje escrito por una persona del negocio no es entrada de cliente:
+    // no debe pasar por la intercepción de cancelación (que muta ventas reales)
+    // ni generar respuesta automática. processIncomingMessage lo persiste para
+    // aprendizaje y corta ahí.
+    if (wireMessage.fromHuman === true) {
+      const humanResult = await processIncomingMessage('whatsapp', wireMessage, adapter)
+      return NextResponse.json({
+        success: true,
+        response: '',
+        customerId: humanResult.customerId,
+        conversationId: humanResult.conversationId,
+        imageUrl: null,
+        mediaType: null,
+        interactive: null,
+        deliver: false,
+      })
+    }
+
     const cancellationResult = await handleCancellationWebhook(wireMessage)
     if (cancellationResult) {
       return NextResponse.json({

@@ -34,6 +34,12 @@ export class BaileysAdapter implements ChannelAdapter {
         contentType?: 'text' | 'image' | 'audio' | 'document'
         payload?: { type: 'quick_reply' | 'list'; id: string; title: string } | { type: 'audio' }
         receivedAt?: string
+        /**
+         * Escrito por una persona del negocio desde el mismo número del bridge.
+         * El bridge lo distingue de sus propios envíos comparando el key.id
+         * contra su registro de enviados, así que este flag es fiable.
+         */
+        fromHuman?: boolean
       }
     }
 
@@ -45,6 +51,7 @@ export class BaileysAdapter implements ChannelAdapter {
     // Audio voice notes are normalized into a natural description so the AI
     // replies in its own voice instead of echoing the raw placeholder.
     const isAudio = message.payload?.type === 'audio'
+    const fromHuman = message.fromHuman === true
 
     return {
       channel: 'whatsapp',
@@ -57,9 +64,11 @@ export class BaileysAdapter implements ChannelAdapter {
       payload: message.payload,
       metadata: {
         businessId: message.businessId,
+        ...(fromHuman ? { author: 'human' } : {}),
       },
       receivedAt: message.receivedAt ? new Date(message.receivedAt) : new Date(),
-    }
+      fromHuman,
+    } as NormalizedMessage
   }
 
   async sendMessage(

@@ -15,11 +15,28 @@ export interface PresenceSocket {
   sendPresenceUpdate(type: 'composing' | 'paused', toJid?: string): Promise<unknown>
 }
 
+/**
+ * `withTypingPresence` envuelve una tarea y muestra "escribiendo…" mientras dura.
+ *
+ * En shadow NUNCA debe usarse: MIA no va a contestar, así que el cliente vería
+ * "escribiendo…" y luego nada, que es peor que un silencio limpio. El bridge
+ * por eso solo lo usa cuando sabe que la respuesta sí se entrega, y en shadow
+ * llama a `sendToMia` directamente (sin presencia).
+ *
+ * @param shouldShowTyping Se evalúa justo ANTES de emitir presencia. Permite
+ *   decidir con la información disponible sin abrir un ciclo de presence que
+ *   haya que cerrar después.
+ */
 export async function withTypingPresence<T>(
   socket: PresenceSocket,
   jid: string,
-  task: () => Promise<T>
+  task: () => Promise<T>,
+  shouldShowTyping: () => boolean = () => true
 ): Promise<T> {
+  if (!shouldShowTyping()) {
+    return task()
+  }
+
   await socket.sendPresenceUpdate('composing', jid).catch(() => undefined)
 
   const heartbeat = setInterval(() => {
