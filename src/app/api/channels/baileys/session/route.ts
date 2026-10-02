@@ -10,6 +10,7 @@ import {
   BridgeClientError,
 } from '@/lib/baileys/bridge'
 import { getBridgeUrl } from '@/lib/baileys/config'
+import type { ChannelMode } from '@/lib/channels/types'
 
 async function assertOwnership(userId: string, businessId: string) {
   const supabase = createAdminClient()
@@ -26,9 +27,22 @@ async function assertOwnership(userId: string, businessId: string) {
   return true
 }
 
+/**
+ * WhatsApp connections are created in `shadow` by default.
+ *
+ * A freshly linked number must never start replying to real customers without
+ * an explicit human decision. Promoting to `active` is a deliberate action.
+ */
+const DEFAULT_WHATSAPP_MODE: ChannelMode = 'shadow'
+
+function asChannelMode(value: unknown): ChannelMode {
+  return value === 'active' || value === 'paused' || value === 'shadow' ? value : DEFAULT_WHATSAPP_MODE
+}
+
 async function findOrCreateConnection(
   businessId: string,
-  assistantId: string
+  assistantId: string,
+  mode: ChannelMode
 ): Promise<{ id: string; status: string } | null> {
   const supabase = createAdminClient()
 
@@ -50,6 +64,7 @@ async function findOrCreateConnection(
       assistant_id: assistantId,
       channel: 'whatsapp',
       status: 'disconnected',
+      mode,
       credentials: { transport: 'baileys' },
       configuration: {},
     })
@@ -101,10 +116,16 @@ export async function POST(request: Request) {
 
     const { data: existingConnection } = await admin
       .from('channel_connections')
-      .select('id')
+      .select('id, mode')
       .eq('business_id', body.businessId)
       .eq('channel', 'whatsapp')
       .maybeSingle()
+
+    // Reconnecting deletes the session and the connection row, then recreates
+    // them below. The mode must survive that round trip: a `shadow` channel
+    // that silently came back as `active` would start answering real customers
+    // the moment the socket stabilised.
+    const previousMode = asChannelMode(existingConnection?.mode)
 
     if (existingConnection) {
       await logoutBridgeSession(body.businessId).catch(() => {})
@@ -112,7 +133,7 @@ export async function POST(request: Request) {
       await admin.from('channel_connections').delete().eq('id', existingConnection.id)
     }
 
-    const connection = await findOrCreateConnection(body.businessId, body.assistantId)
+    const connection = await findOrCreateConnection(body.businessId, body.assistantId, previousMode)
     if (!connection) {
       return NextResponse.json({ error: 'Failed to create connection' }, { status: 500 })
     }
@@ -202,6 +223,7 @@ export async function GET(request: Request) {
           assistant_id: assistant.id,
           channel: 'whatsapp',
           status: status.status,
+          mode: DEFAULT_WHATSAPP_MODE,
           credentials: { transport: 'baileys' },
           configuration: {},
         })
