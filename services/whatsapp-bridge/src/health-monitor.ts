@@ -11,6 +11,10 @@ export interface HealthConfig {
   baseReconnectDelayMs: number
   /** Upper bound for exponential reconnect backoff. */
   maxReconnectDelayMs: number
+  /** How long a socket must hold before it counts as a recovered connection. */
+  stableConnectionMs: number
+  /** Consecutive failed reconnects before the session gives up and reports error. */
+  maxReconnectAttempts: number
 }
 
 const DEFAULT_HEALTH_CONFIG: HealthConfig = {
@@ -19,6 +23,8 @@ const DEFAULT_HEALTH_CONFIG: HealthConfig = {
   zombieSignalThreshold: 3,
   baseReconnectDelayMs: 5_000,
   maxReconnectDelayMs: 300_000,
+  stableConnectionMs: 120_000,
+  maxReconnectAttempts: 8,
 }
 
 export function loadHealthConfig(env: NodeJS.ProcessEnv = process.env): HealthConfig {
@@ -34,6 +40,8 @@ export function loadHealthConfig(env: NodeJS.ProcessEnv = process.env): HealthCo
     zombieSignalThreshold: num('HEALTH_ZOMBIE_THRESHOLD', DEFAULT_HEALTH_CONFIG.zombieSignalThreshold),
     baseReconnectDelayMs: num('HEALTH_BASE_RECONNECT_MS', DEFAULT_HEALTH_CONFIG.baseReconnectDelayMs),
     maxReconnectDelayMs: num('HEALTH_MAX_RECONNECT_MS', DEFAULT_HEALTH_CONFIG.maxReconnectDelayMs),
+    stableConnectionMs: num('HEALTH_STABLE_CONNECTION_MS', DEFAULT_HEALTH_CONFIG.stableConnectionMs),
+    maxReconnectAttempts: num('HEALTH_MAX_RECONNECT_ATTEMPTS', DEFAULT_HEALTH_CONFIG.maxReconnectAttempts),
   }
 }
 

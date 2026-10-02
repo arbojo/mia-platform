@@ -25,6 +25,7 @@ import { withTypingPresence } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import { SentMessageRegistry } from './sent-registry.js'
 import { ChannelModeCache, allowsOutbound, type ChannelMode } from './channel-mode.js'
+import { ReconnectBackoff } from './reconnect-backoff.js'
 import type { BridgeConfig } from './config.js'
 
 export type SessionStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
@@ -85,7 +86,6 @@ interface ActiveSession {
   lastActivityAt: number | null
   zombieSignalCount: number
   hasIdentity: boolean
-  reconnectAttempt: number
   reconnectTimer: ReturnType<typeof setTimeout> | null
   consecutiveSendFailures: number
 }
@@ -105,6 +105,26 @@ export class SessionManager {
   private readonly store: SupabaseAuthStore
   private readonly config: BridgeConfig
   private readonly connecting = new Map<string, Promise<void>>()
+
+/**
+ * Consecutive-failure tracking for reconnects.
+   *
+   * It cannot live on `ActiveSession`: the connection-update handler removes the
+   * session from `sessions` before recording the failure, and `doConnect` then
+   * builds a fresh session with `reconnectAttempt: 0`. Counting on that
+   * orphaned object meant the counter restarted at 1 on every cycle, so the
+   * backoff never escalated past `baseReconnectDelayMs` and the bridge
+   * hot-looped every few seconds against a stream WhatsApp kept closing.
+   */
+  private readonly backoff: ReconnectBackoff
+
+  /** True when a socket stayed up long enough to count as recovered. */
+  private heldLongEnough(session: ActiveSession): boolean {
+    return (
+      session.connectedAt !== null &&
+      Date.now() - session.connectedAt >= this.config.health.stableConnectionMs
+    )
+  }
 
   // Manager-level defensive state. Lives across socket reconnects (a transient
   // 'close' deletes the ActiveSession object, see handleConnectionUpdate) so
@@ -129,6 +149,11 @@ export class SessionManager {
     this.modeDb = createClient(config.supabaseUrl, config.supabaseServiceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
+    this.backoff = new ReconnectBackoff(
+      config.health.baseReconnectDelayMs,
+      config.health.maxReconnectDelayMs,
+      config.health.maxReconnectAttempts
+    )
   }
 
   getStore(): SupabaseAuthStore {
@@ -268,6 +293,13 @@ export class SessionManager {
       logger: sessionLogger,
       printQRInTerminal: false,
       syncFullHistory: false,
+      // MIA does not read chat history from the bridge: historical
+      // conversations are imported from an explicit WhatsApp export, not from
+      // the live socket. App-state sync therefore contributes nothing while
+      // being a real failure source — WhatsApp pushes patches referencing
+      // prekeys the client never received (`failed to find key ... to decode
+      // mutation`), which parks the sync collection and floods the logs.
+      shouldSyncHistoryMessage: () => false,
       markOnlineOnConnect: false,
       qrTimeout: 60_000,
     })
@@ -283,7 +315,6 @@ export class SessionManager {
       lastActivityAt: null,
       zombieSignalCount: 0,
       hasIdentity: false,
-      reconnectAttempt: 0,
       reconnectTimer: null,
       consecutiveSendFailures: 0,
     }
@@ -373,7 +404,7 @@ export class SessionManager {
       lastActivityAt: session.lastActivityAt,
       zombieSignalCount: session.zombieSignalCount,
       hasIdentity: session.hasIdentity,
-      reconnectAttempt: session.reconnectAttempt,
+      reconnectAttempt: this.backoff.current(session.businessId),
       consecutiveSendFailures: session.consecutiveSendFailures,
     }
   }
@@ -404,8 +435,11 @@ export class SessionManager {
       error_message: 'Session restarted by HealthMonitor',
     })
 
-    const attempt = session.reconnectAttempt + 1
-    this.scheduleReconnect(businessId, attempt)
+    // A HealthMonitor restart is deliberate, not a failure: the monitor only
+    // fires once the socket has been up past its grace period, so the backoff
+    // history from earlier failures no longer applies.
+    this.backoff.recover(businessId)
+    this.scheduleReconnect(businessId, this.backoff.fail(businessId))
   }
 
   private clearReconnectTimer(session: ActiveSession): void {
@@ -499,11 +533,23 @@ export class SessionManager {
   }
 
   private scheduleReconnect(businessId: string, attempt: number): void {
-    const { health } = this.config
-    const delay = Math.min(
-      health.baseReconnectDelayMs * 2 ** (attempt - 1),
-      health.maxReconnectDelayMs
-    )
+    const giveUpReason = this.backoff.giveUpReason(attempt)
+
+    if (giveUpReason) {
+      // Stop retrying. Without a ceiling the backoff saturates at
+      // maxReconnectDelayMs and the bridge retries forever, burning reconnects
+      // and hiding the failure. Reporting `error` makes the outage visible.
+      console.error(`[session-manager] ${businessId} ${giveUpReason}`)
+      this.backoff.recover(businessId)
+      void this.store
+        .updateStatus(businessId, { status: 'error', error_message: giveUpReason })
+        .catch((err) => {
+          logger.error(err, 'failed to persist give-up status')
+        })
+      return
+    }
+
+    const delay = this.backoff.delayFor(attempt)
     console.warn(
       `[session-manager] reconnecting ${businessId} (attempt ${attempt}) in ${delay}ms`
     )
@@ -552,7 +598,9 @@ export class SessionManager {
       session.lastActivityAt = Date.now()
       session.hasIdentity = Boolean(session.socket.user?.id)
       session.zombieSignalCount = 0
-      session.reconnectAttempt = 0
+      // The failure counter is not cleared here: a socket that reaches `open`
+      // and dies seconds later is not a recovery. It is reset on close, and
+      // only when the connection actually held (see `heldLongEnough`).
       this.emit(session, {
         type: 'status',
         status: 'connected',
@@ -600,9 +648,13 @@ export class SessionManager {
         error_message: lastDisconnect?.error?.message ?? 'Connection closed unexpectedly',
       })
 
-      // Exponential backoff on unexpected disconnects. Never retry on logout.
-      session.reconnectAttempt += 1
-      this.scheduleReconnect(session.businessId, session.reconnectAttempt)
+      // A socket that held long enough counts as recovered, so the backoff starts
+      // over. One that dies immediately does not, and that is what keeps a
+      // flapping connection escalating instead of resetting to the base delay.
+      if (this.heldLongEnough(session)) {
+        this.backoff.recover(session.businessId)
+      }
+      this.scheduleReconnect(session.businessId, this.backoff.fail(session.businessId))
     }
   }
 
