@@ -80,6 +80,9 @@ export async function POST(request: Request) {
       mediaType: result.mediaType,
       interactive: result.interactive ?? null,
       deliver: result.deliver,
+      // Row id the bridge must report the send outcome against. Absent in shadow,
+      // where the row is already terminal.
+      outgoingMessageId: result.outgoingMessageId ?? null,
     })
   } catch (error) {
     console.error('Baileys webhook error:', error)

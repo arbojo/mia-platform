@@ -240,6 +240,7 @@ export async function processIncomingMessage(
   mediaType?: 'image' | 'testimonial'
   interactive?: InteractiveComponent
   deliver: boolean
+  outgoingMessageId?: string
 }> {
   const supabase = createAdminClient()
 
@@ -253,6 +254,35 @@ export async function processIncomingMessage(
   const conversationId = await resolveConversation(assistantId, customer.id)
 
   const intentTag = detectIntent(wireMessage.content, wireMessage.payload)
+
+  // CAPA 2: Application-level idempotency check.
+  // This runs BEFORE any branch that persists: the fromHuman branch below and
+  // the Core call further down both write to `messages`, so a duplicate that
+  // reached either of them left an orphan row there. The 23505 catch on
+  // channel_messages below only protects the second insert, not the first.
+  // If a message with the same external_id already exists for this
+  // business+channel, it is a duplicate: return without persisting or calling
+  // Core.
+  if (wireMessage.externalId) {
+    const { data: existing } = await supabase
+      .from('channel_messages')
+      .select('id')
+      .eq('business_id', businessId)
+      .eq('channel', channel)
+      .eq('external_id', wireMessage.externalId)
+      .eq('direction', 'incoming')
+      .maybeSingle()
+
+    if (existing) {
+      console.log(`[runtime] Duplicate message ignored (DB check): ${wireMessage.externalId}`)
+      return {
+        response: '',
+        customerId: customer.id,
+        conversationId: conversationId ?? '',
+        deliver: false,
+      }
+    }
+  }
 
   // Un mensaje humano del negocio (ej. la vendedora desde el mismo número)
   // debe guardarse para aprendizaje, pero NUNCA dispara respuesta automática ni
@@ -318,30 +348,6 @@ export async function processIncomingMessage(
     }
   }
 
-  // CAPA 2: Application-level idempotency check (before any processing).
-  // If message with same external_id already exists for this business+channel,
-  // treat as duplicate and return early without calling Core.
-  if (wireMessage.externalId) {
-    const { data: existing } = await supabase
-      .from('channel_messages')
-      .select('id')
-      .eq('business_id', businessId)
-      .eq('channel', channel)
-      .eq('external_id', wireMessage.externalId)
-      .eq('direction', 'incoming')
-      .maybeSingle()
-
-    if (existing) {
-      console.log(`[runtime] Duplicate message ignored (DB check): ${wireMessage.externalId}`)
-      return {
-        response: '',
-        customerId: customer.id,
-        conversationId: conversationId ?? '',
-        deliver: false,
-      }
-    }
-  }
-
   // CAPA 3: DB constraint safety net.
   // If two requests race past Capa 2, the UNIQUE index will reject the second.
   // Catch the unique_violation (23505) and treat as duplicate.
@@ -404,16 +410,32 @@ export async function processIncomingMessage(
   // T1-3 / ADR-029: el turno de retención ya fue resuelto por el Core; el
   // adapter/contenedor NO vuelve a ejecutar processSaleClosing ni interactive.
   const isRetention = coreOutput.metadata.retention === true
-  await supabase.from('channel_messages').insert({
-    business_id: businessId,
-    customer_id: customer.id,
-    channel,
-    direction: 'outgoing',
-    content: response,
-    status: mode === 'shadow' ? 'processing' : 'sent',
-    sent_at: mode === 'shadow' ? null : new Date().toISOString(),
-    metadata: mode === 'shadow' ? { shadow: true, delivered: false } : {},
-  })
+  // Two regimes, one shape:
+  //
+  //  - shadow: nothing will ever be sent, so the row is written already terminal.
+  //    `sent_at` is stamped because the value answers "MIA produced this answer",
+  //    and metadata.delivered=false is the only thing that says delivery was
+  //    deliberately suppressed. Writing `processing` here (as this once did) made
+  //    suppressed answers indistinguishable from a hung delivery.
+  //
+  //  - active: a real send is about to be attempted, so the row starts
+  //    `processing` with no sent_at and the bridge reports the real outcome to
+  //    /api/channels/baileys/delivery. `sent` is only written once WhatsApp
+  //    confirmed it, so the status stops being an optimistic guess.
+  const { data: outgoingRow } = await supabase
+    .from('channel_messages')
+    .insert({
+      business_id: businessId,
+      customer_id: customer.id,
+      channel,
+      direction: 'outgoing',
+      content: response,
+      status: mode === 'shadow' ? 'sent' : 'processing',
+      sent_at: mode === 'shadow' ? new Date().toISOString() : null,
+      metadata: mode === 'shadow' ? { shadow: true, delivered: false } : {},
+    })
+    .select('id')
+    .maybeSingle()
 
   await supabase
     .from('customers')
@@ -447,5 +469,9 @@ export async function processIncomingMessage(
     mediaType: coreOutput.media?.mediaType,
     interactive,
     deliver,
+    // Only meaningful when deliver=true: the bridge reports the send outcome for
+    // this row. In shadow the row is already terminal, so there is nothing to
+    // confirm and nothing is returned to report against.
+    ...(deliver && outgoingRow ? { outgoingMessageId: outgoingRow.id } : {}),
   }
 }

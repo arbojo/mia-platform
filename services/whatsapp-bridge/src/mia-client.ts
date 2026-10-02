@@ -27,6 +27,14 @@ export interface MiaReply {
   mediaType?: 'image' | 'testimonial'
   interactive?: InteractiveComponent
   deliver?: boolean
+  /** Business the reply belongs to; echoed so receipts are reported per tenant. */
+  businessId: string
+  /**
+   * Row id MIA created for this reply. Only present when `deliver` is true: the
+   * bridge must report the real send outcome for it, otherwise the row stays
+   * `processing` and MIA never learns whether WhatsApp accepted the message.
+   */
+  outgoingMessageId?: string
 }
 
 /**
@@ -83,6 +91,7 @@ export async function sendToMia(
         mediaType?: 'image' | 'testimonial'
         interactive?: InteractiveComponent
         deliver?: boolean
+        outgoingMessageId?: string | null
       }
     | null
   if (!data || !data.success) return null
@@ -95,5 +104,67 @@ export async function sendToMia(
     mediaType: data.mediaType ?? undefined,
     interactive: data.interactive ?? undefined,
     deliver: data.deliver ?? true,
+    businessId: message.businessId,
+    outgoingMessageId: data.outgoingMessageId ?? undefined,
+  }
+}
+
+/**
+ * Reports the real outcome of a send attempt to MIA.
+ *
+ * MIA writes the outgoing row before the bridge sends, so it has to guess
+ * `processing`. This is the only place that knows whether WhatsApp actually
+ * accepted the message — without it a failed send keeps claiming success
+ * forever. Never throws: a receipt that cannot be delivered must not break the
+ * send path that already succeeded.
+ */
+export async function reportDelivery(
+  config: BridgeConfig,
+  receipt: {
+    businessId: string
+    outgoingMessageId: string
+    status: 'sent' | 'failed'
+    externalId?: string | null
+    error?: string
+  },
+  timeoutMs?: number
+): Promise<boolean> {
+  const url = new URL('/api/channels/baileys/delivery', config.miaAppUrl).toString()
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-mia-business-id': receipt.businessId,
+  }
+
+  if (isBridgeJwtConfigured()) {
+    headers['X-MIA-Token'] = await signBridgeToken(receipt.businessId, 'bridge-webhook')
+  } else {
+    headers['x-mia-webhook-secret'] = config.bridgeSecret
+  }
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        outgoingMessageId: receipt.outgoingMessageId,
+        status: receipt.status,
+        externalId: receipt.externalId ?? null,
+        error: receipt.error,
+      }),
+      signal: AbortSignal.timeout(timeoutMs ?? 10_000),
+    })
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      console.error(`Delivery receipt rejected ${res.status}: ${text}`)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error(
+      `Delivery receipt unreachable: ${error instanceof Error ? error.message : error}`
+    )
+    return false
   }
 }
