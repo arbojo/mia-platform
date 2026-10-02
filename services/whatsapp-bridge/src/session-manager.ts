@@ -19,7 +19,7 @@ import QRCode from 'qrcode'
 import P from 'pino'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { SupabaseAuthStore } from './supabase-store.js'
-import { sendToMia } from './mia-client.js'
+import { sendToMia, reportDelivery, type MiaReply } from './mia-client.js'
 import { sendReply, sanitizeForWhatsApp, extractSentMessageId } from './media-url.js'
 import { withTypingPresence } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
@@ -503,6 +503,28 @@ export class SessionManager {
     return store
   }
 
+  /**
+   * Reports the outcome of one send attempt back to MIA so the outgoing row
+   * stops being an optimistic guess. A no-op when MIA returned no row id (shadow,
+   * or a reply the runtime could not attribute), and it never throws: the send
+   * already happened and a failed receipt must not be retried into a resend.
+   */
+  private async reportOutcome(
+    reply: MiaReply,
+    status: 'sent' | 'failed',
+    externalId: string | null,
+    error?: string
+  ): Promise<void> {
+    if (!reply.outgoingMessageId) return
+    await reportDelivery(this.config, {
+      businessId: reply.businessId,
+      outgoingMessageId: reply.outgoingMessageId,
+      status,
+      externalId,
+      error,
+    })
+  }
+
   private trackReplyTimer(businessId: string, timer: NodeJS.Timeout): void {
     let timers = this.pendingReplyTimers.get(businessId)
     if (!timers) {
@@ -854,12 +876,23 @@ export class SessionManager {
               )
               this.sentRegistry.add(session.businessId, interactiveIds)
             }
+
+            // WhatsApp confirmó el envío: recién ahora la fila deja `processing`.
+            await this.reportOutcome(miaReply, 'sent', sent.messageIds[0] ?? null)
           }
 
           try {
             await withTypingPresence(session.socket, remoteJid, deliverReply)
           } catch (sendErr) {
             session.consecutiveSendFailures += 1
+            // El envío falló. La fila que MIA escribió como `processing` se
+            // reportaría `sent` para siempre si nadie la actualizara.
+            await this.reportOutcome(
+              miaReply,
+              'failed',
+              null,
+              sendErr instanceof Error ? sendErr.message : String(sendErr)
+            )
             logger.error(
               { err: sendErr, businessId: session.businessId, jid: remoteJid },
               `send failed (${session.consecutiveSendFailures} consecutive)`
