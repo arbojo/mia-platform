@@ -30,6 +30,8 @@ function getTypeIcon(type: string): string {
   switch (type) {
     case 'rule': return '📏'
     case 'instruction': return '⚙️'
+    case 'product': return '🏷️'
+    case 'mistake_prevention': return '🛡️'
     default: return '🧠'
   }
 }
@@ -38,6 +40,8 @@ function getTypeLabel(type: string): string {
   switch (type) {
     case 'rule': return 'regla'
     case 'instruction': return 'instrucción'
+    case 'product': return 'producto'
+    case 'mistake_prevention': return 'prevención'
     default: return 'conocimiento'
   }
 }

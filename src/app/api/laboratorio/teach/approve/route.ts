@@ -2,15 +2,19 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { invalidateSystemContext } from '@/lib/cache/invalidator'
+import {
+  isLearningCorrectionType,
+  resolveRuleCategory,
+  resolveTeachingContent,
+  TEACHING_TARGET,
+  type LearningCorrectionType,
+  type TeachingEvent,
+} from '@/lib/knowledge/teaching'
 
-type TeachEvent = {
+type TeachEvent = TeachingEvent & {
   id: string
   business_id: string
   assistant_id: string
-  correction_type: 'knowledge' | 'rule' | 'instruction'
-  category: string | null
-  original_response: string
-  corrected_response: string | null
   status: string
 }
 
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
 
   const { data: event, error: fetchError } = await admin
     .from('learning_events')
-    .select('id, business_id, assistant_id, correction_type, category, original_response, corrected_response, status')
+    .select('id, business_id, assistant_id, correction_type, category, original_response, corrected_response, knowledge_change, status')
     .eq('id', id)
     .single()
 
@@ -41,7 +45,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const typedEvent = event as unknown as TeachEvent
+  if (!isLearningCorrectionType(event.correction_type)) {
+    return NextResponse.json({ error: 'Unsupported correction type' }, { status: 400 })
+  }
+
+  const typedEvent: TeachEvent = {
+    ...event,
+    correction_type: event.correction_type as LearningCorrectionType,
+    knowledge_change: (event.knowledge_change ?? null) as Record<string, unknown> | null,
+  }
 
   if (typedEvent.status !== 'pending') {
     return NextResponse.json({ error: 'Event is not pending' }, { status: 400 })
@@ -61,13 +73,15 @@ export async function POST(request: Request) {
   let knowledge_item_id: string | null = null
 
   if (action === 'approve') {
-    const content = typedEvent.corrected_response?.trim()
+    const content = resolveTeachingContent(typedEvent)
     if (!content) {
       return NextResponse.json({ error: 'No content to approve' }, { status: 400 })
     }
 
-    if (typedEvent.correction_type === 'knowledge') {
-      const question = typedEvent.original_response.trim()
+    const target = TEACHING_TARGET[typedEvent.correction_type]
+
+    if (target === 'knowledge_item') {
+      const question = typedEvent.original_response?.trim()
       if (!question) {
         return NextResponse.json({ error: 'Missing question for knowledge item' }, { status: 400 })
       }
@@ -98,12 +112,12 @@ export async function POST(request: Request) {
         change_source: 'correction',
         changed_by: user.id,
       })
-    } else if (typedEvent.correction_type === 'rule') {
+    } else if (target === 'sales_rule') {
       const { data: ruleItem, error: insertError } = await admin
         .from('sales_rules')
         .insert({
           business_id: typedEvent.business_id,
-          category: typedEvent.category ?? 'restrictions',
+          category: resolveRuleCategory(typedEvent.correction_type, typedEvent.category),
           content,
         })
         .select('id')
@@ -122,7 +136,7 @@ export async function POST(request: Request) {
         change_source: 'correction',
         changed_by: user.id,
       })
-    } else if (typedEvent.correction_type === 'instruction') {
+    } else if (target === 'ai_instruction') {
       const { data: instructionItem, error: insertError } = await admin
         .from('ai_instructions')
         .insert({
@@ -146,8 +160,6 @@ export async function POST(request: Request) {
         change_source: 'correction',
         changed_by: user.id,
       })
-    } else {
-      return NextResponse.json({ error: 'Unsupported correction type' }, { status: 400 })
     }
   }
 
