@@ -47,9 +47,14 @@ export function triggerMatches(message: string, triggerCondition: string): boole
   })
 }
 
-export function intentMatchesTrigger(intentTag: string, triggerCondition: string): boolean {
+/**
+ * `triggerCondition` acepta null porque la columna es nullable y una firma que
+ * promete `string` obliga a cada caller a repetir el guard. Hoy ningun caller
+ * lo omite, pero un caller nuevo no deberia poder romper la conversion.
+ */
+export function intentMatchesTrigger(intentTag: string, triggerCondition: string | null): boolean {
   const normalizedTag = normalizeText(intentTag)
-  const parts = triggerCondition
+  const parts = (triggerCondition ?? '')
     .split(',')
     .map((part) => normalizeText(part))
     .filter((part) => part.length > 0)
