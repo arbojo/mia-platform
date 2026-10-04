@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test'
 
+// El login delega en Supabase para decidir si muestra error. Con la URL
+// placeholder de CI no hay backend al que preguntar, asi que la pagina no
+// renderiza nada y el test mide el ambiente, no el producto.
+const SUPABASE_IS_PLACEHOLDER = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').includes('placeholder')
+
 test.describe('Autenticación', () => {
   test('login page muestra formulario completo', async ({ page }) => {
     await page.goto('/login')
@@ -11,6 +16,7 @@ test.describe('Autenticación', () => {
   })
 
   test('login muestra error con credenciales invalidas', async ({ page }) => {
+    test.skip(SUPABASE_IS_PLACEHOLDER, 'requiere Supabase real para que el login renderice el error')
     await page.goto('/login')
     await page.getByLabel('Email').fill('qa-invalid@example.com')
     await page.getByLabel('Contraseña', { exact: true }).fill('invalid-password-123')

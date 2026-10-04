@@ -84,6 +84,10 @@ describe('intentMatchesTrigger', () => {
   it('ignores non-intent triggers', () => {
     expect(intentMatchesTrigger('catalog', 'producto')).toBe(false)
   })
+
+  it('tolerates a null trigger condition', () => {
+    expect(intentMatchesTrigger('catalog', null)).toBe(false)
+  })
 })
 
 describe('isResendRequest', () => {

@@ -65,7 +65,7 @@ export function isSafeMediaUrl(url: string): boolean {
     return false
   }
 
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
+  if (parsed.protocol !== 'https:') return false
   if (parsed.username || parsed.password) return false
   if (isBlockedHost(parsed.hostname)) return false
   return isAllowedHost(parsed.hostname)
