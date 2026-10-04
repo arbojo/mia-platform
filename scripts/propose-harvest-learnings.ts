@@ -26,6 +26,13 @@ interface LearningEvent {
  *
  * Se insertan como `pending`: el modelo no cambia de comportamiento hasta que
  * alguien los aprueba uno por uno.
+ *
+ * `correctedResponse` es SIEMPRE null en este archivo, a propósito.
+ * `resolveTeachingContent()` da prioridad a ese campo sobre
+ * `knowledge_change.learning`, así que poner aquí una frase real de la vendedora
+ * la convertía en instrucción permanente: "le llegaria hoy a partir de las 2 pm"
+ * terminó leyéndose como política en cada prompt. Si quieres conservar una frase
+ * textual como evidencia, va en `evidence.quotes`, que no se materializa.
  */
 const EVENTS: LearningEvent[] = [
   // ---------------------------------------------------------------- Grupo A
@@ -160,12 +167,14 @@ const EVENTS: LearningEvent[] = [
       'Decir el límite real del producto y reencuadrar en la misma frase. No prometer resultados que la vendedora no prometería.',
     originalResponse:
       '*CLEAN NAILS* 🦶 🔥 PROMOCION 🔥 1 Pieza x $550 ✨Elimina hongos desde la primer semana ✅ Sin dolor 🏆 Resultados garantizados',
-    correctedResponse:
-      'la uña afectada ya no se recupera , pero como puede ver en la foto, ayuda a que la nueña uña crezca limpia',
+    correctedResponse: null,
     evidence: {
       messages: 1,
       conversations: 1,
-      quotes: ['"Resultados garantizados" contradice directamente esta frase de la vendedora.'],
+      quotes: [
+        '"Resultados garantizados" contradice directamente esta frase de la vendedora.',
+        'la uña afectada ya no se recupera , pero como puede ver en la foto, ayuda a que la nueña uña crezca limpia',
+      ],
     },
   },
   {
@@ -176,9 +185,14 @@ const EVENTS: LearningEvent[] = [
       'Preferir "depende de cada persona" antes que inventar un plazo. La incertidumbre admitida genera más confianza que una certeza falsa.',
     originalResponse:
       '¡Claro que lo entiendo! 😊 Déjame contarte por qué +500 clientes ya las recomiendan: ✅ Compresión 20-30 mmHg — alivia piernas cansadas al instante',
-    correctedResponse:
-      'no se exactamente cuanto tarde en crecer la uña de nuevo con usted, los tiempos son diferentes para cada persona, por que dependen de su genetica',
-    evidence: { messages: 2, conversations: 1, quotes: [] },
+    correctedResponse: null,
+    evidence: {
+      messages: 2,
+      conversations: 1,
+      quotes: [
+        'no se exactamente cuanto tarde en crecer la uña de nuevo con usted, los tiempos son diferentes para cada persona, por que dependen de su genetica',
+      ],
+    },
   },
   {
     category: 'leer_la_foto_del_cliente',
@@ -188,9 +202,14 @@ const EVENTS: LearningEvent[] = [
       'Cuando el cliente manda una foto, diagnosticar a partir de ella antes de responder con el catálogo.',
     originalResponse:
       'Hola 😊 ¿Sobre qué producto te gustaría información? 1️⃣ Clean Nails - elimina el hongo de las uñas 2️⃣ Neurofeet - calcetas de compresión para mala circulación y neuropatía *DEBES ELEGIR UN NÚMERO*',
-    correctedResponse:
-      'de hecho veo que solo es la coloracion, esta a tiempo, es mas complicado cuando ya hay una acumulacion de hongo y esta comienza a engrosar',
-    evidence: { messages: 2, conversations: 1, quotes: [] },
+    correctedResponse: null,
+    evidence: {
+      messages: 2,
+      conversations: 1,
+      quotes: [
+        'de hecho veo que solo es la coloracion, esta a tiempo, es mas complicado cuando ya hay una acumulacion de hongo y esta comienza a engrosar',
+      ],
+    },
   },
   {
     category: 'una_frase_por_duda',
@@ -200,11 +219,14 @@ const EVENTS: LearningEvent[] = [
       'Responder la pregunta que se hizo, en una frase. No volver a vender si el cliente solo pregunta un dato.',
     originalResponse:
       'El precio de *Clean Nails* es de *$550 MXN*. Lo mejor de todo es que el envío es *totalmente gratis* hasta su domicilio en Matehuala y el pago es *contra entrega*. Esto significa que usted paga en efectivo, tarjeta o transferencia al recibirlo en tu domicilio. ¿Te gustaría pedir el tuyo?',
-    correctedResponse: 'no hay costo en el envio',
+    correctedResponse: null,
     evidence: {
       messages: 3,
       conversations: 2,
-      quotes: ['"es recargable" · "se usa dos veces al día durante 7 minutos"'],
+      quotes: [
+        '"es recargable" · "se usa dos veces al día durante 7 minutos"',
+        'no hay costo en el envio',
+      ],
     },
   },
   {
@@ -214,8 +236,15 @@ const EVENTS: LearningEvent[] = [
     learning:
       'Cuando el cliente duda, ofrecer la alternativa que le conviene (agendar, dejar la cita) en vez de insistir en la compra.',
     originalResponse: 'Hola 😊 Solo quería saber si te quedó alguna duda sobre Clean Nails. Con gusto puedo ayudarte.',
-    correctedResponse: 'claro!! igual puede agendarlo de una vez para ese dia y asegura su producto',
-    evidence: { messages: 2, conversations: 2, quotes: ['muy bien, quedo a espera para programar su envio!!'] },
+    correctedResponse: null,
+    evidence: {
+      messages: 2,
+      conversations: 2,
+      quotes: [
+        'muy bien, quedo a espera para programar su envio!!',
+        'claro!! igual puede agendarlo de una vez para ese dia y asegura su producto',
+      ],
+    },
   },
   {
     category: 'reirse_del_propio_bot',
@@ -225,8 +254,12 @@ const EVENTS: LearningEvent[] = [
       'Reconocer un fallo propio con humor breve en vez de ocultarlo o negar que pasó.',
     originalResponse:
       '"Lo siento, pero no tengo información sobre Neurofeet en mi base de datos. ¿Te gustaría seguir hablando sobre este producto para ver si puedo ayudarte a encontrar la respuesta?"',
-    correctedResponse: 'una disculpa nuestro bot anda emocionado hoy',
-    evidence: { messages: 3, conversations: 2, quotes: ['jajajaj', 'una disculpa nuestro bot anda medio loquito'] },
+    correctedResponse: null,
+    evidence: {
+      messages: 3,
+      conversations: 2,
+      quotes: ['jajajaj', 'una disculpa nuestro bot anda medio loquito', 'una disculpa nuestro bot anda emocionado hoy'],
+    },
   },
   {
     category: 'cierre_con_disponibilidad_concreta',
@@ -235,7 +268,7 @@ const EVENTS: LearningEvent[] = [
     learning:
       'Cerrar con una hora o fecha concreta de entrega, no con una promesa vaga de contacto posterior.',
     originalResponse: 'Entiendo. Estaremos aquí para cuando gustes realizar tu compra. \n\n¿Hay alguna otra duda que pueda resolverte por ahora?',
-    correctedResponse: 'le llegaria hoy a partir de las 2 pm',
+    correctedResponse: null,
     evidence: {
       messages: 4,
       conversations: 3,
