@@ -33,6 +33,11 @@ describe('isSafeMediaUrl', () => {
     expect(isSafeMediaUrl('file:///etc/passwd')).toBe(false)
   })
 
+  it('rejects plain http even on an allowlisted host', () => {
+    expect(isSafeMediaUrl('http://abc123.supabase.co/img.jpg')).toBe(false)
+    expect(isSafeMediaUrl('http://cdn.jsdelivr.net/gh/user/repo/a.jpg')).toBe(false)
+  })
+
   it('rejects localhost and .local hosts', () => {
     expect(isSafeMediaUrl('http://localhost:3000/img.jpg')).toBe(false)
     expect(isSafeMediaUrl('https://bridge.local/img.jpg')).toBe(false)
