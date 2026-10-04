@@ -102,3 +102,7 @@ scripts/verify-fixture.mjs
 tests/integration/
 workshop/audit/
 workshop/governance/*.script.ts
+
+# WhatsApp harvest analysis: contains real customer phone numbers and message
+# content. Never commit (ADR-011 evidence-first: evidence stays local).
+docs/analysis/
