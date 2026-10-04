@@ -10,6 +10,8 @@ import {
   type LearningCorrectionType,
   type TeachingEvent,
 } from '@/lib/knowledge/teaching'
+import { findLeakSources, fetchLeakMessages } from '@/lib/knowledge/leakage'
+import { isInstructionLike, toRejectionReason } from '@/lib/knowledge/validation'
 
 type TeachEvent = TeachingEvent & {
   id: string
@@ -79,6 +81,17 @@ export async function POST(request: Request) {
     }
 
     const target = TEACHING_TARGET[typedEvent.correction_type]
+
+    if (target === 'ai_instruction') {
+      const structural = isInstructionLike(content)
+      const messages = structural.ok ? await fetchLeakMessages(admin, typedEvent.business_id) : []
+      const transcriptMatch = structural.ok && findLeakSources(content, messages).length > 0
+      const rejection = toRejectionReason(structural, transcriptMatch)
+
+      if (rejection) {
+        return NextResponse.json({ error: rejection }, { status: 422 })
+      }
+    }
 
     if (target === 'knowledge_item') {
       const question = typedEvent.original_response?.trim()
