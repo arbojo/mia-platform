@@ -2,13 +2,21 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
+import {
+  SEVERITY_LABELS,
+  TEACHING_TYPE_LABELS,
+  type LearningCorrectionType,
+} from '@/lib/knowledge/teaching'
 
 interface PendingEvent {
   id: string
-  correction_type: 'knowledge' | 'rule' | 'instruction'
+  correction_type: LearningCorrectionType
+  severity: string | null
   category: string | null
-  original_response: string
+  original_response: string | null
   corrected_response: string | null
+  /** Texto que se materializará al aprobar, ya resuelto por el servidor. */
+  content: string | null
   created_at: string
 }
 
@@ -16,10 +24,11 @@ interface PendingTeachListProps {
   assistantId: string
 }
 
-const TYPE_LABELS: Record<PendingEvent['correction_type'], string> = {
-  knowledge: '🧠 Conocimiento',
-  rule: '📏 Regla',
-  instruction: '⚙️ Instrucción',
+const SEVERITY_STYLES: Record<string, string> = {
+  critical: 'bg-red-50 text-red-700 border-red-200',
+  high: 'bg-orange-50 text-orange-700 border-orange-200',
+  medium: 'bg-gray-50 text-gray-600 border-gray-200',
+  low: 'bg-gray-50 text-gray-500 border-gray-200',
 }
 
 export function PendingTeachList({ assistantId }: PendingTeachListProps) {
@@ -84,7 +93,7 @@ export function PendingTeachList({ assistantId }: PendingTeachListProps) {
           <li key={event.id} className="rounded-lg border border-gray-200 p-2 space-y-1">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-medium text-brand-700">
-                {TYPE_LABELS[event.correction_type]}
+                {TEACHING_TYPE_LABELS[event.correction_type]}
               </span>
               <span className="text-[10px] text-gray-400">
                 {new Date(event.created_at).toLocaleDateString('es-ES', {
@@ -96,17 +105,30 @@ export function PendingTeachList({ assistantId }: PendingTeachListProps) {
               </span>
             </div>
 
+            {event.severity && event.correction_type === 'mistake_prevention' && (
+              <span
+                className={`inline-block rounded border px-1.5 py-0.5 text-[10px] font-medium ${
+                  SEVERITY_STYLES[event.severity] ?? SEVERITY_STYLES.medium
+                }`}
+              >
+                Severidad {SEVERITY_LABELS[event.severity] ?? event.severity}
+              </span>
+            )}
+
             {event.correction_type === 'knowledge' && (
               <p className="text-xs text-gray-700 line-clamp-2">
                 <span className="font-medium">Q:</span> {event.original_response}
               </p>
             )}
-            <p className="text-xs text-gray-500 line-clamp-2">{event.corrected_response}</p>
+            <p className="text-xs text-gray-500 line-clamp-3">
+              {event.content ?? 'Sin contenido: no se puede aprobar'}
+            </p>
 
             <div className="flex gap-2">
               <Button
                 size="sm"
-                disabled={busyId === event.id}
+                disabled={busyId === event.id || !event.content}
+                title={event.content ? undefined : 'Este evento no tiene contenido aprobable'}
                 onClick={() => resolve(event.id, 'approve')}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700"
               >
