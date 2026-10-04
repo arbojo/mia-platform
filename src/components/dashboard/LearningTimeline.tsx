@@ -1,4 +1,4 @@
-import { TrendingUp, BookOpen, Scale, Brain } from 'lucide-react'
+import { TrendingUp, BookOpen, Scale, Brain, Package, ShieldAlert } from 'lucide-react'
 
 interface LearningEvent {
   id: string
@@ -42,6 +42,8 @@ function getTypeIcon(type: string) {
     case 'knowledge': return <BookOpen className="h-4 w-4" />
     case 'rule': return <Scale className="h-4 w-4" />
     case 'instruction': return <Brain className="h-4 w-4" />
+    case 'product': return <Package className="h-4 w-4" />
+    case 'mistake_prevention': return <ShieldAlert className="h-4 w-4" />
     default: return <BookOpen className="h-4 w-4" />
   }
 }
@@ -51,6 +53,8 @@ function getTypeLabel(type: string) {
     case 'knowledge': return 'Conocimiento'
     case 'rule': return 'Regla'
     case 'instruction': return 'Instrucción'
+    case 'product': return 'Producto'
+    case 'mistake_prevention': return 'Prevención'
     default: return 'Aprendizaje'
   }
 }
