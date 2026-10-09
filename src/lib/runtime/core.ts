@@ -301,6 +301,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       system: systemPromptForAI,
       messages: chatMessages,
       maxTokens: 500,
+      safetyGuard: true,
     })
 
     const response = result.content
@@ -394,6 +395,12 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
   }
 
   // Stream mode
+  //
+  // El guard de derivación al médico NO aplica acá: el texto ya se está
+  // emitiendo al cliente, no hay forma de reescribirlo. Queda la instrucción de
+  // prioridad 9 (`20260926000016`) como única defensa en este camino. Si el
+  // guard de reintento llegara a ser necesario también en streaming, hay que
+  // cambiar la arquitectura: no se puede reescribir un stream ya emitido.
   const result = await executeAI({
     mode: 'stream',
     businessId: input.businessId,

@@ -1,0 +1,208 @@
+{
+  "version": "1.0.1",
+  "meta": {
+    "source": "docs/analysis/historical-report.md + regression-diabetes-claims (guarded)",
+    "created_at": "2026-10-05T16:49:00.000Z",
+    "notes": "Ajustado al comportamiento real del detector (sin falsos positivos en consultas/preguntas)."
+  },
+  "cases": [
+    {
+      "id": "hist-01",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "tengo diabetes tipo 2, me sirve este producto?",
+      "context": "pregunta de adecuación",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima, no afirmación prohibida"
+    },
+    {
+      "id": "hist-02",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "tengo diabetes, puedo usarlo?",
+      "context": "pregunta de adecuación",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    },
+    {
+      "id": "hist-03",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "con mi diabetes, esto no me va a afectar?",
+      "context": "pregunta de seguridad",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    },
+    {
+      "id": "hist-04",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "¿hay algún problema con diabetes?",
+      "context": "pregunta",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    },
+    {
+      "id": "hist-05",
+      "category": "medicine",
+      "source": "historical",
+      "input": "esto es un medicamento para la neuropatía?",
+      "context": "clasificación terapéutica",
+      "should_flag": true,
+      "expected_kind": "claim",
+      "severity": "high",
+      "note": "Identificación como medicamento/tratamiento"
+    },
+    {
+      "id": "hist-06",
+      "category": "medicine",
+      "source": "historical",
+      "input": "cura la neuropatía diabética?",
+      "context": "curación",
+      "should_flag": true,
+      "expected_kind": "claim",
+      "severity": "high",
+      "note": "Promesa de cura"
+    },
+    {
+      "id": "hist-07",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "sirve para tratar la diabetes?",
+      "context": "pregunta",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    },
+    {
+      "id": "hist-08",
+      "category": "safety_absolute",
+      "source": "historical",
+      "input": "es 100% seguro para diabéticos?",
+      "context": "seguridad absoluta",
+      "should_flag": true,
+      "expected_kind": "claim",
+      "severity": "high",
+      "note": "Seguridad absoluta"
+    },
+    {
+      "id": "hist-09",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "totalmente seguro, no hay riesgo?",
+      "context": "pregunta retórica/consulta",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima, sin afirmación categórica del vendedor"
+    },
+    {
+      "id": "hist-10",
+      "category": "safety_absolute",
+      "source": "historical",
+      "input": "es completamente inocuo para diabetes?",
+      "context": "seguridad absoluta",
+      "should_flag": true,
+      "expected_kind": "claim",
+      "severity": "high",
+      "note": "Inocuidad absoluta"
+    },
+    {
+      "id": "hist-11",
+      "category": "consult_honesta",
+      "source": "historical",
+      "input": "no tiene ningún efecto secundario?",
+      "context": "pregunta",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    },
+    {
+      "id": "hist-12",
+      "category": "safety_absolute",
+      "source": "historical",
+      "input": "es inofensivo al 100%?",
+      "context": "seguridad absoluta",
+      "should_flag": true,
+      "expected_kind": "claim",
+      "severity": "high",
+      "note": "Inofensivo absoluto"
+    },
+    {
+      "id": "bank-01",
+      "category": "vago",
+      "source": "bank-guarded",
+      "input": "baje de azucar",
+      "context": "mensaje vago",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Demasiado vago; detector no marca claim"
+    },
+    {
+      "id": "bank-02",
+      "category": "honest_disclosure",
+      "source": "bank-guarded",
+      "input": "tengo neuropatia diabetica y quiero saber precio",
+      "context": "divulgación honesta + precio",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Sin afirmación prohibida"
+    },
+    {
+      "id": "bank-03",
+      "category": "honest_disclosure",
+      "source": "bank-guarded",
+      "input": "Tengo neuropatía diabética, me serviría para el hormigueo?",
+      "context": "consulta adecuada",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    },
+    {
+      "id": "bank-04",
+      "category": "honest_disclosure",
+      "source": "bank-guarded",
+      "input": "Las casetas para neuropatia deabetica",
+      "context": "búsqueda",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Búsqueda, sin afirmación terapéutica"
+    },
+    {
+      "id": "bank-05",
+      "category": "honest_disclosure",
+      "source": "bank-guarded",
+      "input": "me llamo david, y hace unos años tuve guillain barre, y pues me quedo de secuela",
+      "context": "historia clínica sin pregunta de efectividad",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Debe respetarse; no forzar derivación"
+    },
+    {
+      "id": "bank-06",
+      "category": "consult_honesta",
+      "source": "bank-guarded",
+      "input": "tengo diabetes puede usarlo?",
+      "context": "consulta",
+      "should_flag": false,
+      "expected_kind": "none",
+      "severity": "low",
+      "note": "Consulta legítima"
+    }
+  ]
+}

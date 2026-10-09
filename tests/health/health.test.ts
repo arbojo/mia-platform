@@ -30,6 +30,7 @@ function makeSupabaseMock(overrides: {
   readBack?: string | null
   persistData?: { id: string; created_at: string }
   persistError?: boolean
+  rows?: Record<string, Array<Record<string, unknown>>>
   healthRow?: {
     id: string
     business_id: string
@@ -63,6 +64,11 @@ function makeSupabaseMock(overrides: {
         data: overrides.healthRow ?? null,
         error: null,
       })
+    }
+// Filas específicas por tabla, para los checks que barren configuración
+    // (p. ej. unsupported_health_claims).
+    if (overrides.rows?.[table]) {
+      return Promise.resolve({ data: overrides.rows[table], error: null })
     }
     return Promise.resolve({ data: null, error: null })
   }
@@ -135,6 +141,11 @@ function makeSupabaseMock(overrides: {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // Los stubs de env se limpian AQUÍ, no al final de cada test. Con el cleanup
+  // al final, una aserción fallida lo saltaba y el stub de NODE_ENV/BRIDGE se
+  // filtraba al test siguiente, produciendo un segundo fallo engañoso muy lejos
+  // de su causa real.
+  vi.unstubAllEnvs()
   delete process.env.NEXT_PUBLIC_SUPABASE_URL
   delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   delete process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -169,9 +180,15 @@ describe('runHealthChecks', () => {
     const report = await runHealthChecks({ admin: supabase as never, scope: 'precommit' })
 
     expect(report.status).toBe('passed')
-    expect(report.checks).toHaveLength(5)
+    expect(report.checks).toHaveLength(6)
     expect(report.businessId).toBe(BUSINESS_ID)
-    expect(report.summary).toContain('5/5')
+    expect(report.summary).toContain('6/6')
+
+    // `unsupported_health_claims` corre sobre las mismas tablas que el prompt
+    // lee en cada request; sin filas, pasa.
+    expect(report.checks.find((c) => c.id === 'unsupported_health_claims')?.status).toBe(
+      'passed',
+    )
 
     vi.unstubAllEnvs()
   })
@@ -216,6 +233,45 @@ describe('runHealthChecks', () => {
     const persistence = report.checks.find((c) => c.id === 'chat_persistence')
     expect(persistence?.status).toBe('failed')
     expect(persistence?.message).toContain('round-trip')
+  })
+
+  it('marks unsupported_health_claims failed when a rule re-asserts a banned claim', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon'
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'service'
+    process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH = 'true'
+
+    const supabase = makeSupabaseMock({
+      rows: {
+        // Configuración honesta: cita lo vetado para prohibirlo. No debe marcar.
+        ai_instructions: [
+          {
+            id: '11111111-1111-4111-8111-111111111111',
+            instruction:
+              'MIA NUNCA dice que el producto "no representa problema" para una ' +
+              'condición, ni que "es seguro", "sin riesgo" o "apto para diabéticos".',
+          },
+          // Deriva real:yinforma al modelo que puede afirmarlo. Debe marcar.
+          {
+            id: '22222222-2222-4222-8222-222222222222',
+            instruction:
+              'Para Clean Nails, MIA puede confirmar con confianza que no representa ' +
+              'problema para diabetes o neuropatía.',
+          },
+        ],
+        knowledge_items: [],
+        sales_rules: [],
+      },
+    })
+
+    const report = await runHealthChecks({ admin: supabase as never, scope: 'precommit' })
+
+    const check = report.checks.find((c) => c.id === 'unsupported_health_claims')
+    expect(check?.status).toBe('failed')
+    expect(report.status).toBe('failed')
+    // Debe señalar la fila culpable y no la que solo cita la prohibición.
+    expect(check?.message).toContain('22222222-2222-4222-8222-222222222222')
+    expect(check?.message).not.toContain('11111111-1111-4111-8111-111111111111')
   })
 
   it('still returns a report when persistence insert fails', async () => {

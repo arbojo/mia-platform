@@ -1,6 +1,12 @@
 import { streamText, generateText, type AsyncIterableStream } from 'ai'
 import { getProviderModelWithFallback, type AITaskType } from '@/lib/ai/task-routing'
 import { trackAiUsage } from '@/lib/ai/cost'
+import {
+  buildSafetyCorrectionPrompt,
+  customerTextFrom,
+  decideSafetyGuard,
+  findSafetyViolations,
+} from './safety-guard'
 
 export type AIMode = 'stream' | 'complete'
 
@@ -15,6 +21,12 @@ export interface ExecuteAIParams {
   maxTokens?: number
   temperature?: number
   responseFormat?: 'text' | 'json'
+  /**
+   * Corrige, con un reintento, las violaciones de seguridad de la respuesta:
+   * derivación al médico y claims de salud no sustentados. Opt-in: solo los call
+   * sites de venta al cliente lo activan. Ver `safety-guard.ts`.
+   */
+  safetyGuard?: boolean
   onFinish?: (result: { text: string; usage: { promptTokens: number; completionTokens: number } }) => Promise<void>
 }
 
@@ -102,9 +114,8 @@ async function executeComplete(params: {
   businessId: string
   assistantId: string
   requestType: string
-  onFinish?: ExecuteAIParams['onFinish']
 }): Promise<CompleteResult> {
-  const { model, modelName, system, messages, maxTokens, temperature, responseFormat, businessId, assistantId, requestType, onFinish: externalOnFinish } = params
+  const { model, modelName, system, messages, maxTokens, temperature, responseFormat, businessId, assistantId, requestType } = params
 
   const result = await generateText({
     model,
@@ -127,10 +138,6 @@ async function executeComplete(params: {
     request_type: requestType,
   })
 
-  if (externalOnFinish) {
-    await externalOnFinish({ text: result.text, usage: { promptTokens, completionTokens } })
-  }
-
   return {
     content: result.text,
     usage: { promptTokens, completionTokens },
@@ -151,6 +158,7 @@ export async function executeAI(params: ExecuteAIParams): Promise<ExecuteAIResul
     maxTokens = 500,
     temperature = 0.7,
     responseFormat,
+    safetyGuard = false,
     onFinish: externalOnFinish,
   } = params
 
@@ -163,15 +171,15 @@ export async function executeAI(params: ExecuteAIParams): Promise<ExecuteAIResul
     businessId,
     assistantId,
     requestType,
-    onFinish: externalOnFinish,
   }
 
   if (mode === 'stream') {
+    const streamParams = { ...sharedParams, onFinish: externalOnFinish }
     try {
       return await executeStream({
         model: primary.model,
         modelName: primary.modelName,
-        ...sharedParams,
+        ...streamParams,
       })
     } catch (error) {
       if (isRateLimitError(error) && fallback) {
@@ -179,32 +187,76 @@ export async function executeAI(params: ExecuteAIParams): Promise<ExecuteAIResul
         return await executeStream({
           model: fallback.model,
           modelName: fallback.modelName,
-          ...sharedParams,
+          ...streamParams,
         })
       }
       throw error
     }
   }
 
-  try {
-    return await executeComplete({
-      model: primary.model,
-      modelName: primary.modelName,
-      maxTokens,
-      responseFormat,
-      ...sharedParams,
-    })
-  } catch (error) {
-    if (isRateLimitError(error) && fallback) {
-      console.warn(`[AI Router] ${primary.modelName} rate limited, falling back to ${fallback.modelName}`)
-      return await executeComplete({
-        model: fallback.model,
-        modelName: fallback.modelName,
-        maxTokens,
-        responseFormat,
-        ...sharedParams,
-      })
-    }
-    throw error
+  const completeParams = { ...sharedParams, maxTokens, responseFormat }
+
+  /** Un intento, con el mismo manejo de rate-limit/fallback que el camino normal. */
+  const attempt = (attemptMessages: typeof messages) => {
+    const withMessages = { ...completeParams, messages: attemptMessages }
+    return (async () => {
+      try {
+        return await executeComplete({ model: primary.model, modelName: primary.modelName, ...withMessages })
+      } catch (error) {
+        if (isRateLimitError(error) && fallback) {
+          console.warn(`[AI Router] ${primary.modelName} rate limited, falling back to ${fallback.modelName}`)
+          return await executeComplete({
+            model: fallback.model,
+            modelName: fallback.modelName,
+            ...withMessages,
+          })
+        }
+        throw error
+      }
+    })()
   }
+
+  let result = await attempt(messages)
+
+  // ── Guard de derivación al médico (determinístico en su decisión, una llamada
+  //    extra solo cuando el modelo se equivocó) ───────────────────────────────
+  // No aplica en JSON (una respuesta de evaluación no es un turno de venta) ni
+  // cuando el cliente describió síntomas agudos: ahí derivar es lo correcto.
+  const guard = decideSafetyGuard({
+    enabled: safetyGuard && responseFormat !== 'json',
+    customerText: customerTextFrom(messages),
+  })
+
+  if (guard.apply) {
+    const violations = findSafetyViolations(result.content)
+
+    if (violations.length > 0) {
+      console.warn(
+        `[SafetyGuard] ${violations.length} violación(es): ${violations.map((v) => `${v.kind}:${v.id}`).join(', ')}; reintentando con corrección`,
+      )
+      result = await attempt([
+        ...messages,
+        { role: 'assistant', content: result.content },
+        { role: 'user', content: buildSafetyCorrectionPrompt(violations) },
+      ])
+
+      const restantes = findSafetyViolations(result.content)
+      if (restantes.length > 0) {
+        // Un reintento y nada. No se insiste: el texto devuelto es el mejor que
+        // tenemos y truncar la respuesta delataría el mecanismo al cliente.
+        console.error(
+          `[SafetyGuard] persisten ${restantes.length} violación(es) tras el reintento: ${restantes.map((v) => `${v.kind}:${v.id}`).join(', ')}`,
+        )
+      }
+    }
+  }
+
+  // `onFinish` se dispara UNA vez, con el texto final. Por eso no se pasa a
+  // `executeComplete`: si el guard reintenta, un `onFinish` por intento
+  // persistiría dos veces el mismo turno.
+  if (externalOnFinish) {
+    await externalOnFinish({ text: result.content, usage: result.usage })
+  }
+
+  return result
 }
