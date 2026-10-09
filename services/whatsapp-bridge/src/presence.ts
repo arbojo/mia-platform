@@ -1,3 +1,5 @@
+import { allowsOutbound, type ChannelMode } from './channel-mode.js'
+
 /**
  * Presencia de "escribiendo…" para WhatsApp.
  *
@@ -13,6 +15,19 @@ export const PRESENCE_REFRESH_MS = 15_000
 
 export interface PresenceSocket {
   sendPresenceUpdate(type: 'composing' | 'paused', toJid?: string): Promise<unknown>
+}
+
+/**
+ * Decide si el bridge debe mostrar "escribiendo…" mientras MIA genera la
+ * respuesta. La presencia solo es segura cuando la respuesta se va a entregar:
+ * `mode === 'active'` (lo que ya garantiza `allowsOutbound`) y el mensaje no
+ * viene de la vendedora (un humano nunca provoca respuesta automática).
+ */
+export function shouldShowTypingDuringGeneration(
+  isHumanOutbound: boolean,
+  mode: ChannelMode | null | undefined
+): boolean {
+  return !isHumanOutbound && allowsOutbound(mode)
 }
 
 /**
