@@ -19,6 +19,7 @@ import { resolveRecommendedProduct } from './product-recommendation'
 import { extractEvidenceFromCustomerMessage } from './evidence-extraction'
 import { processSaleClosing } from '@/lib/sales/process'
 import { resolveRetentionDecision } from '@/lib/sales/retention'
+import { humanizeReply } from './humanizer'
 import { allowsSideEffects } from '@/lib/channels/mode'
 import type { CoreInput, CoreOutput } from '@/lib/channels/types'
 
@@ -304,7 +305,14 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       safetyGuard: true,
     })
 
-    const response = result.content
+    const response = await maybeHumanize({
+      reply: result.content,
+      customerText: input.userMessage,
+      businessId: input.businessId,
+      assistantId: input.assistantId,
+      requestType: input.requestType,
+    })
+    const humanizedApplied = response !== result.content
 
     // ── Media negation guard (determinístico, capa adicional al prompt) ──────
     // safeMedia === true ⇔ el runtime YA decidió DESPACHAR la imagen en este
@@ -334,6 +342,7 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
           ...(mediaGuard.corrected
             ? { media_negation_guard: { corrected: true, matched: mediaGuard.matched } }
             : {}),
+          ...(humanizedApplied ? { humanized: true } : {}),
         },
       })
     }
@@ -481,4 +490,27 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       deliver: true,
     },
   }
+}
+
+/**
+ * Decide si humanizar el borrador generado por el LLM.
+ *
+ * Solo responde a clientes REALES (`live_customer`) en modo `complete` (WhatsApp).
+ * El Laboratorio (`simulation`/`training`) jamás se toca: allí medimos el texto
+ * crudo del guard y un rewrite desvirtuaría la evaluación. En tests
+ * (`NODE_ENV === 'test'`) el humanizador queda inactivo para que las suites no
+ * dependan de la red ni de un segundo LLM. Se desactiva también con
+ * `MIA_HUMANIZER_ENABLED=0` como switch de emergencia.
+ */
+async function maybeHumanize(params: {
+  reply: string
+  customerText: string
+  businessId: string
+  assistantId: string
+  requestType: string
+}): Promise<string> {
+  if (params.requestType !== 'live_customer') return params.reply
+  if (process.env.NODE_ENV === 'test') return params.reply
+  if (process.env.MIA_HUMANIZER_ENABLED === '0') return params.reply
+  return await humanizeReply(params)
 }
