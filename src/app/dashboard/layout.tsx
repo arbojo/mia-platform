@@ -1,3 +1,4 @@
+import { createAdminClient } from '@/lib/supabase/admin'
 import { requirePageAuth } from '@/lib/auth'
 import { ActivityRail } from '@/components/dashboard/ActivityRail'
 import { CommandStrip } from '@/components/dashboard/CommandStrip'
@@ -30,12 +31,27 @@ export default async function DashboardLayout({
     .eq('owner_id', user.id)
     .maybeSingle()
 
+  let biz = business
+  if (!biz) {
+    try {
+      const admin = createAdminClient()
+      const { data: b2 } = await admin
+        .from('businesses')
+        .select('*')
+        .eq('owner_id', user.id)
+        .maybeSingle()
+      if (b2) biz = b2
+    } catch (e) {
+      console.warn('[DASH_LAYOUT] admin fallback failed', e)
+    }
+  }
+
   let assistantSource: AssistantPresenceSource | null = null
-  if (business) {
+  if (biz) {
     const { data: assistant } = await supabase
       .from('assistants')
       .select('id, is_active, status')
-      .eq('business_id', business.id)
+      .eq('business_id', biz.id)
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle()
@@ -47,14 +63,14 @@ export default async function DashboardLayout({
     !!process.env.PLATFORM_OWNER_ID && user.id === process.env.PLATFORM_OWNER_ID
 
   let capabilities = undefined
-  if (business) {
+  if (biz) {
     try {
-      const edition = await getEffectiveEdition(business.id)
+      const edition = await getEffectiveEdition(biz.id)
       capabilities = resolveCapabilities(
-        business.id,
+        biz.id,
         edition,
-        (business as Record<string, unknown>).industry as string | null ?? null,
-        (business as Record<string, unknown>).capabilities as string[] | null ?? null,
+        (biz as Record<string, unknown>).industry as string | null ?? null,
+        (biz as Record<string, unknown>).capabilities as string[] | null ?? null,
       )
     } catch {
       // Capability resolution failure must never block dashboard loading
@@ -73,10 +89,10 @@ export default async function DashboardLayout({
               <div className="flex flex-1 flex-col overflow-auto">
                 <CommandStrip />
                 <main className="relative flex-1">
-                  <div className="p-8">
-                    <OnboardingBanner onboardingStatus={business?.onboarding_status} />
-                    {children}
-                  </div>
+                    <div className="p-8">
+                      <OnboardingBanner onboardingStatus={biz?.onboarding_status} />
+                      {children}
+                    </div>
                 </main>
               </div>
               <MIAIndicator assistantId={assistantSource?.id ?? null} initialPresence={initialPresence} />
