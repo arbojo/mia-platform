@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { withTypingPresence, PRESENCE_REFRESH_MS, type PresenceSocket } from './presence.js'
+import {
+  withTypingPresence,
+  PRESENCE_REFRESH_MS,
+  shouldShowTypingDuringGeneration,
+  type PresenceSocket,
+} from './presence.js'
 
 function fakeSocket() {
   const sendPresenceUpdate = vi.fn().mockResolvedValue({})
@@ -106,5 +111,24 @@ describe('withTypingPresence', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+describe('shouldShowTypingDuringGeneration', () => {
+  it('shows typing for a customer message when the channel is active', () => {
+    expect(shouldShowTypingDuringGeneration(false, 'active')).toBe(true)
+  })
+
+  it('never shows typing for a message from the seller (human outbound)', () => {
+    expect(shouldShowTypingDuringGeneration(true, 'active')).toBe(false)
+    expect(shouldShowTypingDuringGeneration(true, 'shadow')).toBe(false)
+    expect(shouldShowTypingDuringGeneration(true, 'paused')).toBe(false)
+  })
+
+  it('stays silent in shadow, paused, or unknown mode', () => {
+    expect(shouldShowTypingDuringGeneration(false, 'shadow')).toBe(false)
+    expect(shouldShowTypingDuringGeneration(false, 'paused')).toBe(false)
+    expect(shouldShowTypingDuringGeneration(false, null)).toBe(false)
+    expect(shouldShowTypingDuringGeneration(false, undefined)).toBe(false)
   })
 })

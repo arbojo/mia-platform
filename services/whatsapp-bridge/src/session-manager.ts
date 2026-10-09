@@ -21,7 +21,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { SupabaseAuthStore } from './supabase-store.js'
 import { sendToMia, reportDelivery, type MiaReply } from './mia-client.js'
 import { sendReply, sanitizeForWhatsApp, extractSentMessageId } from './media-url.js'
-import { withTypingPresence } from './presence.js'
+import { withTypingPresence, shouldShowTypingDuringGeneration } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import { SentMessageRegistry } from './sent-registry.js'
 import { ChannelModeCache, allowsOutbound, type ChannelMode } from './channel-mode.js'
@@ -803,31 +803,21 @@ export class SessionManager {
         const isAudio = payload?.type === 'audio'
         const isHumanOutbound = fromMe
 
-        // SIN presencia durante la generación. Antes se emitía 'composing'
-        // envolviendo la llamada al webhook, pero en ese punto el bridge aún no
-        // sabe si la respuesta se entregará: `deliver:false` (shadow) solo llega
-        // en la respuesta. El cliente veía "escribiendo…" y luego nada, que es
-        // peor que un silencio limpio. Ahora la presencia se emite únicamente
-        // cuando ya sabemos que sí vamos a enviar.
-        //
-        // Un mensaje humano (vendedora) nunca genera respuesta automática, así
-        // que jamás debe producir presencia: se persiste para aprendizaje y se
-        // sigue al canal normal.
-        const miaReply = isHumanOutbound
-          ? await sendToMia(this.config, {
-              businessId: session.businessId,
-              externalId,
-              customerExternalId: waId,
-              customerName: msg.pushName ?? null,
-              customerPhone: waId,
-              content,
-              payload,
-              receivedAt: timestamp,
-              fromHuman: true,
-            })
-          : await sendToMia(
-              this.config,
-              {
+        // "escribiendo…" durante la generación, pero SOLO cuando la respuesta
+        // se va a entregar. `allowsOutbound` (mode === 'active') coincide con
+        // el `deliver:true` que decide el runtime; en shadow o paused el
+        // cliente vería "escribiendo…" y luego nada, que es peor que un
+        // silencio limpio. Un mensaje humano (vendedora) nunca genera respuesta
+        // automática, así que jamás debe producir presencia: se persiste para
+        // aprendizaje y se sigue al canal normal.
+        const showTyping = shouldShowTypingDuringGeneration(
+          isHumanOutbound,
+          await this.getChannelMode(session.businessId)
+        )
+
+        const callMia = () =>
+          isHumanOutbound
+            ? sendToMia(this.config, {
                 businessId: session.businessId,
                 externalId,
                 customerExternalId: waId,
@@ -836,9 +826,29 @@ export class SessionManager {
                 content,
                 payload,
                 receivedAt: timestamp,
-              },
-              isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
-            )
+                fromHuman: true,
+              })
+            : sendToMia(
+                this.config,
+                {
+                  businessId: session.businessId,
+                  externalId,
+                  customerExternalId: waId,
+                  customerName: msg.pushName ?? null,
+                  customerPhone: waId,
+                  content,
+                  payload,
+                  receivedAt: timestamp,
+                },
+                isAudio ? this.config.defensive.audioWebhookTimeoutMs : undefined
+              )
+
+        const miaReply = await withTypingPresence(
+          session.socket,
+          remoteJid,
+          callMia,
+          () => showTyping
+        )
 
         // Track as processed after successful forward to MIA (even if shadow/deliver=false).
         // If sendToMia threw, we don't track — allowing a potential retry on next reconnect.
