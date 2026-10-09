@@ -6,7 +6,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
 import type { ChannelType } from '@/lib/channels/types'
 import type { ResolvedCapabilities } from '@/lib/system/capabilities'
 import type { MediaStatus } from '@/lib/runtime/context-media'
-import { buildDeliveryPromptSection, type DeliverySchedule } from '@/lib/delivery/dates'
+import { buildDeliveryPromptSection, type DeliverySchedule, type DeliveryOverride } from '@/lib/delivery/dates'
 import { parsePriceLadder, formatPriceLadder } from '@/lib/sales/price-ladder'
 
 type Business = Database['public']['Tables']['businesses']['Row']
@@ -240,6 +240,7 @@ export function buildMasterPrompt(params: {
   }
   capabilities?: ResolvedCapabilities
   deliverySchedules?: DeliverySchedule[]
+  deliveryOverrides?: DeliveryOverride[]
   customerCity?: string | null
   now?: Date
 }): string {
@@ -267,6 +268,7 @@ export function buildMasterPrompt(params: {
     stateGuidance,
     capabilities,
     deliverySchedules,
+    deliveryOverrides,
     customerCity,
     now,
   } = params
@@ -277,6 +279,7 @@ export function buildMasterPrompt(params: {
     deliverySchedules && deliverySchedules.length > 0
       ? buildDeliveryPromptSection({
           schedules: deliverySchedules,
+          overrides: deliveryOverrides ?? [],
           customerCity: customerCity ?? null,
           now: now ?? new Date(),
         })

@@ -51,6 +51,21 @@ const PRODUCT_ALIASES: Record<string, string[]> = {
   ],
   // Bye Canas: "canas" (término no ambiguo en el catálogo).
   'bye canas': ['canas'],
+  // Diabetic Patch: el cliente lo pide por la condición, nunca por la marca.
+  // Se registran FRASES con la condiciónpegada, por dos razones:
+  //  1. "parche" a secas es AMBIGUO (este y Bella Patch). Registrarlo aquí
+  //     abriría el mismo scope-cruzado del incidente 2026-09-11: la imagen
+  //     de un parche saliendo en una conversación sobre el otro.
+  //  2. "diabetes" sola tampoco se registra: una consulta de neuropatía con
+  //    mention de diabetes debe seguir resolviendo a Neurotin/Neurofeet, que
+  //     es lo que la regla de interpretación ordena. Anclar el término suelto
+  //     a Diabetic Patch robaría ese scope.
+  'diabetic patch': [
+    'parche para diabetes',
+    'parche para diabeticos',
+    'parche de la diabetes',
+    'parche diabetic',
+  ],
 }
 
 /** Frases alias registradas para un nombre de producto ya normalizado. */

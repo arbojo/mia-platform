@@ -33,7 +33,7 @@ export async function getBusinessContext(
 ) {
   const supabase = createAdminClient()
 
-  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult, salesConfigResult, deliveryScheduleResult] =
+  const [brandResult, productsResult, rulesResult, instructionsResult, knowledgeResult, memoryResult, salesConfigResult, deliveryScheduleResult, deliveryOverrideResult] =
     await Promise.all([
       supabase
         .from('brand_identities')
@@ -78,6 +78,11 @@ export async function getBusinessContext(
         .select('*')
         .eq('business_id', businessId)
         .order('city', { ascending: true }),
+      supabase
+        .from('delivery_schedule_overrides')
+        .select('*')
+        .eq('business_id', businessId)
+        .order('start_date', { ascending: true }),
     ])
 
   const knowledgeSourceOrder: Record<string, number> = {
@@ -124,6 +129,7 @@ export async function getBusinessContext(
     memory,
     salesConfig: salesConfigResult.data,
     deliverySchedules: deliveryScheduleResult.data ?? [],
+    deliveryOverrides: deliveryOverrideResult.data ?? [],
   }
 }
 

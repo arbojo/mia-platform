@@ -108,6 +108,7 @@ export async function POST(request: Request) {
       messages: [{ role: 'user', content: 'Escribe el mensaje de reenganche.' }],
       maxTokens: 150,
       temperature: 0.7,
+      safetyGuard: true,
     })
 
     return NextResponse.json({

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { findForbiddenClaims } from '@/lib/ai/claim-safety'
 
 export type HealthStatus = 'passed' | 'warning' | 'failed'
 
@@ -463,6 +464,76 @@ function aggregate(checks: HealthCheckResult[]): HealthStatus {
   return 'passed'
 }
 
+/**
+ * Barrido de claims de salud insostenibles en la configuración activa.
+ *
+ * `20260926000014` ya añadió un guard que aborta la migración si reintroduce
+ * "no representa problema" o "es seguro". Ese guard solo cubre lo que alguien
+ * escriba en una migración; no cubre una fila cargada por seed, una edición
+ * desde el dashboard ni una writer futura. Este check barre las tres fuentes
+ * que el prompt lee en cada request y por eso detecta la deriva sin importar
+ * por dónde entró.
+ *
+ * El criterio vive en `src/lib/ai/claim-safety.ts` y es el mismo que usa el
+ * banco de regresión: un solo lugar donde definir qué es un claim prohibido.
+ */
+const CLAIM_TABLES = [
+  { table: 'ai_instructions', column: 'instruction' },
+  { table: 'knowledge_items', column: 'answer' },
+  { table: 'sales_rules', column: 'content' },
+] as const
+
+async function checkUnsupportedHealthClaims(admin: SupabaseClient): Promise<HealthCheckResult> {
+  const origin = 'src/lib/ai/claim-safety.ts'
+  const remediation =
+    'Desactiva o reescribe las filas listadas. El claim debe describir el mecanismo ' +
+    'del producto, nunca certificar la salud del cliente. Patrón de una migración nueva, ' +
+    'no de una ya aplicada.'
+
+  const findings: string[] = []
+
+  for (const { table, column } of CLAIM_TABLES) {
+    const { data, error } = await admin.from(table).select(`id, ${column}`).eq('is_active', true)
+
+    if (error) {
+      return fail(
+        'unsupported_health_claims',
+        'Claims de salud insostenibles',
+        `Falló la lectura de ${table}: ${error.message}`,
+        origin,
+        remediation,
+      )
+    }
+
+    for (const row of (data ?? []) as Array<Record<string, string>>) {
+      const text = row[column]
+      if (!text) continue
+      for (const hit of findForbiddenClaims(text)) {
+        findings.push(`${table} ${row.id} [${hit.id}] ${hit.excerpt}`)
+      }
+    }
+  }
+
+  if (findings.length > 0) {
+    return fail(
+      'unsupported_health_claims',
+      'Claims de salud insostenibles',
+      `${findings.length} claim(s) no soportable(s) en configuración activa: ${findings.join(' | ')}`,
+      origin,
+      remediation,
+    )
+  }
+
+  return pass(
+    'unsupported_health_claims',
+    'Claims de salud insostenibles',
+    'Ninguna instrucción, conocimiento o regla activa afirma cura, tratamiento, ' +
+      'seguridad absoluta ni efecto sobre la glucosa.',
+    origin,
+    null,
+  )
+}
+
 export async function runHealthChecks(
   options: HealthRunnerOptions,
 ): Promise<HealthReport> {
@@ -476,6 +547,7 @@ export async function runHealthChecks(
     checkBridgeConfiguration(),
     checkChatPersistence(admin, businessId),
     checkVitanovaIndexing(admin, businessId),
+    checkUnsupportedHealthClaims(admin),
   ])
 
   const status = aggregate(checks)

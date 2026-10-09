@@ -212,6 +212,190 @@ describe('executeAI', () => {
     })
   })
 
+  describe('guard de seguridad de la respuesta', () => {
+    const DERIVA = 'Lo mejor sería consultar a un profesional de la salud antes de decidir.'
+    const CORREGIDA = 'Como tú ya conoces tu situación, te doy el Neurotin. No es un tratamiento médico.'
+    const CLAIM = 'Con estos calcetines curas la neuropatía y es totalmente seguro.'
+    const CORREGIDA_CLAIM = 'Te doy el Neurotin para el apoyo del día a día. No es un tratamiento médico.'
+
+    const CHRONIC = {
+      messages: [{ role: 'user' as const, content: 'Tengo neuropatía diabética, ¿me serviría?' }],
+    }
+
+    beforeEach(() => {
+      vi.mocked(generateText).mockResolvedValue({
+        text: CORREGIDA,
+        usage: { inputTokens: 10, outputTokens: 20 },
+      } as never)
+    })
+
+    it('sin el flag NO reintenta aunque el modelo derive', async () => {
+      vi.mocked(generateText).mockResolvedValueOnce({
+        text: DERIVA,
+        usage: { inputTokens: 10, outputTokens: 20 },
+      } as never)
+
+      const result = await executeAI({ ...BASE_PARAMS, ...CHRONIC, mode: 'complete' })
+
+      expect(generateText).toHaveBeenCalledOnce()
+      expect(result.content).toBe(DERIVA)
+    })
+
+    it('con el flag reintenta UNA vez y devuelve la versión corregida', async () => {
+      vi.mocked(generateText)
+        .mockResolvedValueOnce({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+        .mockResolvedValueOnce({ text: CORREGIDA, usage: { inputTokens: 12, outputTokens: 18 } } as never)
+
+      const result = await executeAI({
+        ...BASE_PARAMS,
+        ...CHRONIC,
+        mode: 'complete',
+        safetyGuard: true,
+      })
+
+      expect(generateText).toHaveBeenCalledTimes(2)
+      expect(result.content).toBe(CORREGIDA)
+    })
+
+    it('el reintento envía la corrección como último turno de usuario', async () => {
+      vi.mocked(generateText)
+        .mockResolvedValueOnce({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+        .mockResolvedValueOnce({ text: CORREGIDA, usage: { inputTokens: 12, outputTokens: 18 } } as never)
+
+      await executeAI({ ...BASE_PARAMS, ...CHRONIC, mode: 'complete', safetyGuard: true })
+
+      const retryMessages = vi.mocked(generateText).mock.calls[1][0].messages ?? []
+      expect(retryMessages).toHaveLength(3)
+      expect(retryMessages[1]).toEqual({ role: 'assistant', content: DERIVA })
+      expect(retryMessages[2].role).toBe('user')
+      expect(retryMessages[2].content).toMatch(/no le digas que consulte/i)
+    })
+
+    it('no reintenta dos veces: un solo reintento aunque la derivación persista', async () => {
+      vi.mocked(generateText).mockResolvedValue({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+
+      const result = await executeAI({
+        ...BASE_PARAMS,
+        ...CHRONIC,
+        mode: 'complete',
+        safetyGuard: true,
+      })
+
+      expect(generateText).toHaveBeenCalledTimes(2)
+      // No se entrega un texto truncado: se devuelve lo que el modelo dio.
+      expect(result.content).toBe(DERIVA)
+    })
+
+    it('onFinish se dispara UNA sola vez, con el texto final', async () => {
+      vi.mocked(generateText)
+        .mockResolvedValueOnce({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+        .mockResolvedValueOnce({ text: CORREGIDA, usage: { inputTokens: 12, outputTokens: 18 } } as never)
+      const onFinish = vi.fn().mockResolvedValue(undefined)
+
+      await executeAI({
+        ...BASE_PARAMS,
+        ...CHRONIC,
+        mode: 'complete',
+        safetyGuard: true,
+        onFinish,
+      })
+
+      expect(onFinish).toHaveBeenCalledOnce()
+      expect(onFinish).toHaveBeenCalledWith({ text: CORREGIDA, usage: { promptTokens: 12, completionTokens: 18 } })
+    })
+
+    it('el reintento también queda registrado en el uso de tokens', async () => {
+      vi.mocked(generateText)
+        .mockResolvedValueOnce({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+        .mockResolvedValueOnce({ text: CORREGIDA, usage: { inputTokens: 12, outputTokens: 18 } } as never)
+
+      await executeAI({ ...BASE_PARAMS, ...CHRONIC, mode: 'complete', safetyGuard: true })
+
+      expect(trackAiUsage).toHaveBeenCalledTimes(2)
+    })
+
+    it('INTERLOCK: con síntomas agudos NO reintenta aunque el modelo derive', async () => {
+      vi.mocked(generateText).mockResolvedValue({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+
+      const result = await executeAI({
+        ...BASE_PARAMS,
+        messages: [{ role: 'user', content: 'Me duele el pecho y no puedo respirar' }],
+        mode: 'complete',
+        safetyGuard: true,
+      })
+
+      expect(generateText).toHaveBeenCalledOnce()
+      expect(result.content).toBe(DERIVA)
+    })
+
+    it('no aplica en responseFormat json', async () => {
+      vi.mocked(generateText).mockResolvedValue({ text: DERIVA, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+
+      await executeAI({
+        ...BASE_PARAMS,
+        ...CHRONIC,
+        mode: 'complete',
+        safetyGuard: true,
+        responseFormat: 'json',
+      })
+
+      expect(generateText).toHaveBeenCalledOnce()
+    })
+
+    it('una respuesta limpia no cuesta una llamada extra', async () => {
+      const result = await executeAI({
+        ...BASE_PARAMS,
+        ...CHRONIC,
+        mode: 'complete',
+        safetyGuard: true,
+      })
+
+      expect(generateText).toHaveBeenCalledOnce()
+      expect(result.content).toBe(CORREGIDA)
+    })
+
+    it('reintenta también cuando la violación es un CLAIM, no una derivación', async () => {
+      // El guard nació para las derivaciones. Si solo cubriera esas, el banco de
+      // regresión seguiría deixando pasar "este parche cura".
+      vi.mocked(generateText)
+        .mockResolvedValueOnce({ text: CLAIM, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+        .mockResolvedValueOnce({ text: CORREGIDA_CLAIM, usage: { inputTokens: 12, outputTokens: 18 } } as never)
+
+      const result = await executeAI({
+        ...BASE_PARAMS,
+        ...CHRONIC,
+        mode: 'complete',
+        safetyGuard: true,
+      })
+
+      expect(generateText).toHaveBeenCalledTimes(2)
+      expect(result.content).toBe(CORREGIDA_CLAIM)
+    })
+
+    it('la corrección de un claim NO propone derivar', async () => {
+      // La trampa de extender el guard: si el reintento solo dice "no afirmes
+      // que cura", el modelo puede "arreglarlo" mandando al cliente al médico,
+      // que es la otra prohibición.
+      vi.mocked(generateText)
+        .mockResolvedValueOnce({ text: CLAIM, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+        .mockResolvedValueOnce({ text: CORREGIDA_CLAIM, usage: { inputTokens: 12, outputTokens: 18 } } as never)
+
+      await executeAI({ ...BASE_PARAMS, ...CHRONIC, mode: 'complete', safetyGuard: true })
+
+      const correction = (vi.mocked(generateText).mock.calls[1][0].messages ?? []).at(-1)?.content
+      expect(correction).toMatch(/no resuelvas esto mandándolo al médico/i)
+    })
+
+    it('un claim no dispara el guard cuando el flag está apagado', async () => {
+      vi.mocked(generateText).mockResolvedValueOnce({ text: CLAIM, usage: { inputTokens: 10, outputTokens: 20 } } as never)
+
+      const result = await executeAI({ ...BASE_PARAMS, ...CHRONIC, mode: 'complete' })
+
+      expect(generateText).toHaveBeenCalledOnce()
+      expect(result.content).toBe(CLAIM)
+    })
+  })
+
   describe('AiExecutionError', () => {
     it('has name, code, and statusCode', () => {
       const err = new AiExecutionError('test error', 'TEST_ERROR', 400)

@@ -184,6 +184,7 @@ export async function loadConversationContext(
     stateGuidance,
     capabilities: resolvedCapabilities,
     deliverySchedules: 'deliverySchedules' in context ? context.deliverySchedules : [],
+    deliveryOverrides: 'deliveryOverrides' in context ? context.deliveryOverrides : [],
     customerCity,
   })
 

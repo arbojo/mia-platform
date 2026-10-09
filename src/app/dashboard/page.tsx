@@ -40,11 +40,27 @@ export default async function DashboardPage() {
   const locale = await getUserLocale(user.id)
   const t = getDictionary(locale)
 
-  const { data: business } = await supabase
-    .from('businesses')
-    .select('id, name, onboarding_status, assistants(id, name, is_active)')
-    .eq('owner_id', user.id)
-    .single()
+    const r1 = await supabase
+      .from('businesses')
+      .select('id, name, onboarding_status, assistants(id, name, is_active)')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+    let business: NonNullable<typeof r1.data> | null = r1.data
+
+    if (!business) {
+      try {
+        const { createAdminClient } = await import('@/lib/supabase/admin')
+        const admin = createAdminClient()
+        const { data: b2 } = await admin
+          .from('businesses')
+          .select('id, name, onboarding_status, assistants(id, name, is_active)')
+          .eq('owner_id', user.id)
+          .maybeSingle()
+        if (b2) business = b2
+      } catch (e) {
+        console.warn('[DASH_PAGE] admin fallback failed', e)
+      }
+    }
 
   const userName = user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'ahí'
 

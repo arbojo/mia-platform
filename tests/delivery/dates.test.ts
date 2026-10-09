@@ -5,7 +5,9 @@ import {
   formatTime,
   formatDeliveryDaysList,
   buildDeliveryPromptSection,
+  getEffectiveNextDeliveryDay,
   type DeliverySchedule,
+  type DeliveryOverride,
 } from '@/lib/delivery/dates'
 
 const D = (year: number, month: number, day: number): Date => new Date(year, month - 1, day)
@@ -55,6 +57,11 @@ describe('formatTime', () => {
     expect(formatTime('09:00')).toBe('9:00')
     expect(formatTime('19:00')).toBe('19:00')
   })
+
+  it('normaliza el formato TIME de Postgres con segundos', () => {
+    expect(formatTime('09:00:00')).toBe('9:00')
+    expect(formatTime('19:00:00')).toBe('19:00')
+  })
 })
 
 describe('formatDeliveryDaysList', () => {
@@ -69,6 +76,58 @@ describe('formatDeliveryDaysList', () => {
     expect(formatDeliveryDaysList([1])).toBe('lunes')
     expect(formatDeliveryDaysList([])).toBe('')
     expect(formatDeliveryDaysList([2, 2, 4])).toBe('martes y jueves')
+  })
+})
+
+describe('getEffectiveNextDeliveryDay', () => {
+  const schedule: DeliverySchedule = {
+    city: 'León',
+    delivery_days: [2, 4, 6],
+    delivery_window_start: '09:00',
+    delivery_window_end: '19:00',
+  }
+
+  it('usa el calendario base sin overrides', () => {
+    expect(
+      getEffectiveNextDeliveryDay({ schedules: [schedule], city: 'León', asOf: D(2026, 2, 4) })
+    ).toEqual(D(2026, 2, 5))
+  })
+
+  it('reemplaza los días cuando un override cubre la fecha', () => {
+    const override: DeliveryOverride = {
+      city: 'León',
+      start_date: '2026-02-05',
+      end_date: '2026-02-12',
+      delivery_days: [0],
+      note: 'solo domingo por feria',
+    }
+    // Base: jueves 5 es entrega, pero override la convierte en NO entrega → siguiente domingo 8
+    expect(
+      getEffectiveNextDeliveryDay({
+        schedules: [schedule],
+        overrides: [override],
+        city: 'leÓn',
+        asOf: D(2026, 2, 4),
+      })
+    ).toEqual(D(2026, 2, 8))
+  })
+
+  it('ignora overrides fuera de rango', () => {
+    const override: DeliveryOverride = {
+      city: 'León',
+      start_date: '2026-03-01',
+      end_date: '2026-03-31',
+      delivery_days: [0],
+    }
+    // Fuera del rango override → se usa base: jueves 5
+    expect(
+      getEffectiveNextDeliveryDay({
+        schedules: [schedule],
+        overrides: [override],
+        city: 'León',
+        asOf: D(2026, 2, 4),
+      })
+    ).toEqual(D(2026, 2, 5))
   })
 })
 
@@ -105,5 +164,41 @@ describe('buildDeliveryPromptSection', () => {
     const out = buildDeliveryPromptSection({ schedules, customerCity: 'Pueblo Fantasma', now: D(2026, 2, 5) })
     expect(out).not.toContain('Pueblo Fantasma')
     expect(out).toContain('Días de entrega')
+  })
+
+  it('aplica overrides en las fechas calculadas y muestra la nota', () => {
+    const overrides: DeliveryOverride[] = [
+      {
+        city: 'León',
+        start_date: '2026-02-05',
+        end_date: '2026-02-12',
+        delivery_days: [0],
+        note: 'ruta solo domingo esta semana',
+      },
+    ]
+    const out = buildDeliveryPromptSection({ schedules, overrides, now: D(2026, 2, 5) })
+    // León base = diario → lunes 9; con override (solo domingo) → domingo 8
+    expect(out).toContain('domingo 8 de febrero')
+    expect(out).toContain('(ruta solo domingo esta semana)')
+  })
+
+  it('resalta la ventana horaria de un override para el cliente', () => {
+    const overrides: DeliveryOverride[] = [
+      {
+        city: 'León',
+        start_date: '2026-02-05',
+        end_date: '2026-02-12',
+        delivery_days: [0],
+        delivery_window_start: '10:00',
+        delivery_window_end: '14:00',
+      },
+    ]
+    const out = buildDeliveryPromptSection({
+      schedules,
+      overrides,
+      customerCity: 'León',
+      now: D(2026, 2, 5),
+    })
+    expect(out).toContain('entre 10:00 y 14:00')
   })
 })

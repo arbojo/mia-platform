@@ -6,10 +6,12 @@ import { DeliveryDriversPanel } from '@/components/delivery/DeliveryDriversPanel
 import { DeliveryOrdersPanel } from '@/components/delivery/DeliveryOrdersPanel'
 import { DeliveryRoutesPanel } from '@/components/delivery/DeliveryRoutesPanel'
 import { DeliveryClosuresPanel } from '@/components/delivery/DeliveryClosuresPanel'
+import { DeliverySchedulesPanel } from '@/components/delivery/DeliverySchedulesPanel'
 import { CommandCenterPanel } from '@/components/delivery/CommandCenterPanel'
 
 const TABS = [
   { id: 'overview', label: 'Centro de mando' },
+  { id: 'schedules', label: 'Días de entrega' },
   { id: 'drivers', label: 'Repartidores' },
   { id: 'orders', label: 'Órdenes' },
   { id: 'routes', label: 'Rutas' },
@@ -52,6 +54,7 @@ export function DeliveryAdmin({ businessId }: { businessId: string }) {
 
       <div className="space-y-4">
         {tab === 'overview' && <CommandCenterPanel businessId={businessId} />}
+        {tab === 'schedules' && <DeliverySchedulesPanel businessId={businessId} />}
         {tab === 'drivers' && <DeliveryDriversPanel businessId={businessId} />}
         {tab === 'orders' && <DeliveryOrdersPanel businessId={businessId} />}
         {tab === 'routes' && <DeliveryRoutesPanel businessId={businessId} />}
