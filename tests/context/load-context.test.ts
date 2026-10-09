@@ -63,6 +63,8 @@ describe('loadConversationContext', () => {
       knowledge: [],
       memory: [],
       salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
     })
 
     const result = await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -84,6 +86,8 @@ describe('loadConversationContext', () => {
       knowledge: mockKnowledgeItems,
       memory: [],
       salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
     })
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -103,6 +107,8 @@ describe('loadConversationContext', () => {
       knowledge: [],
       memory: [],
       salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
     })
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -122,6 +128,8 @@ describe('loadConversationContext', () => {
       knowledge: mockKnowledgeItems,
       memory: [],
       salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
     })
 
     await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -148,6 +156,8 @@ describe('loadConversationContext', () => {
       knowledge: mockKnowledgeItems,
       memory: [],
       salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
     })
 
     const result = await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
@@ -194,6 +204,8 @@ describe('loadConversationContext', () => {
         knowledge: [],
         memory: [],
         salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
       })
     })
 
@@ -231,6 +243,8 @@ describe('loadConversationContext', () => {
         knowledge: [],
         memory: [],
         salesConfig: null,
+      deliverySchedules: [],
+      deliveryOverrides: [],
       })
 
       const result2 = await loadConversationContext(FAKE_UUIDS.business, FAKE_UUIDS.assistant)
