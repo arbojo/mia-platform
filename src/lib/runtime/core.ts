@@ -4,6 +4,7 @@ import { resolveCancellationGuards } from './runtime'
 import { toChronologicalTranscript } from './runtime'
 import { executeAI } from './execute-ai'
 import { resolveActiveProductIdentity, resolveScopeContext, type ScopeResolution } from './context-scope'
+import { detectDeliveryOps, buildDeliveryOpsResponse } from './delivery-ops-guard'
 import {
   resolveContextMedia,
   setMediaClaimState,
@@ -155,6 +156,45 @@ export async function processCore(input: CoreInput): Promise<CoreOutput> {
       // Un fallo de la decisión de retención no debe tumbar el turno:
       // se degrada al pipeline normal (AI/product/media intactos).
       console.error('Retention decision failed (falling back to normal pipeline):', err)
+    }
+  }
+
+  // Delivery-ops guard: mensajes operativos de entrega no deben disparar ventas.
+  // Conservador, gateado por flag; no corta simulación/training intencionalmente.
+  const deliveryOpsEnabled = process.env.DELIVERY_OPS_GUARD_ENABLED !== '0'
+  if (deliveryOpsEnabled && input.userMessage) {
+    try {
+      const ops = detectDeliveryOps(input.userMessage)
+      if (ops.kind !== null) {
+        const deliveryResponse = buildDeliveryOpsResponse(ops.kind)
+        if (input.conversationId) {
+          try {
+            await supabase.from('messages').insert({
+              conversation_id: input.conversationId,
+              role: 'assistant',
+              content: deliveryResponse,
+              metadata: { delivery_ops: ops.kind },
+            })
+          } catch (err) {
+            console.error('Failed to persist delivery-ops response:', err)
+          }
+        }
+        return {
+          response: deliveryResponse,
+          textStream: undefined,
+          product: null,
+          media: null,
+          metadata: {
+            usedContext,
+            conversationId: input.conversationId,
+            customerId,
+            deliver: true,
+            delivery_ops: ops.kind,
+          },
+        }
+      }
+    } catch (err) {
+      console.error('Delivery ops guard failed (falling back to normal pipeline):', err)
     }
   }
 

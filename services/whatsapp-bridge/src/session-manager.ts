@@ -23,6 +23,7 @@ import { sendToMia, reportDelivery, type MiaReply } from './mia-client.js'
 import { sendReply, sanitizeForWhatsApp, extractSentMessageId } from './media-url.js'
 import { withTypingPresence, shouldShowTypingDuringGeneration } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
+import { BurstGuard } from './burst-guard.js'
 import { SentMessageRegistry } from './sent-registry.js'
 import { ChannelModeCache, allowsOutbound, type ChannelMode } from './channel-mode.js'
 import { ReconnectBackoff } from './reconnect-backoff.js'
@@ -131,6 +132,7 @@ export class SessionManager {
   // anti-spam windows survive microcortes. Cleared only on logout/disconnect.
   private readonly cooldownCalls = new Map<string, CooldownStore>()
   private readonly cooldownAudio = new Map<string, CooldownStore>()
+  private readonly burstGuard = new BurstGuard()
   private readonly pendingReplyTimers = new Map<string, Set<NodeJS.Timeout>>()
 
   // In-memory message deduplication (Capa 1: survives process lifetime,
@@ -546,6 +548,11 @@ export class SessionManager {
     this.clearReplyTimers(businessId)
     this.cooldownCalls.delete(businessId)
     this.cooldownAudio.delete(businessId)
+    try {
+      this.burstGuard.clear(businessId)
+    } catch {
+      // ignore
+    }
     // A mode change must be picked up on the next reconnect, and a stale
     // sent-ID set would let an old reply be misread as a human message.
     this.modeCache.invalidate(businessId)
@@ -796,6 +803,15 @@ export class SessionManager {
       const content = extracted.content
       const payload = extracted.payload
 
+      const isCustomerText = !fromMe && payload?.type !== 'audio'
+      if (isCustomerText) {
+        const remoteJidForBurst = remoteJid
+        if (this.burstGuard.isRepeat(session.businessId, remoteJidForBurst, content)) {
+          console.log(`[session-manager] Mensaje repetido en ráfaga ignorado: ${externalId}`)
+          continue
+        }
+      }
+
       try {
         // Forward to the MIA engine. A failed webhook (e.g. MIA app down)
         // must never crash the bridge or drop the connection. Audio uses a
@@ -855,6 +871,14 @@ export class SessionManager {
         if (externalId) {
           seenIds.add(externalId)
           seenTimestamps.set(externalId, Date.now())
+        }
+
+        if (isCustomerText) {
+          try {
+            this.burstGuard.record(session.businessId, remoteJid, content)
+          } catch {
+            // ignore burst record failures
+          }
         }
 
         // Mensaje humano: queda persistido como material de aprendizaje. No hay
