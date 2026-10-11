@@ -45,7 +45,7 @@ describe('buildDeliveryOpsResponse', () => {
     expect(buildDeliveryOpsResponse('reschedule')).toMatch(/reparto/)
     expect(buildDeliveryOpsResponse('driver_on_the_way')).toMatch(/aviso/)
     expect(buildDeliveryOpsResponse('customer_waiting')).toMatch(/aviso/)
-    expect(buildDeliveryOpsResponse(null as any)).toMatch(/reparto/)
+    expect(buildDeliveryOpsResponse(null)).toMatch(/reparto/)
   })
 })
 
