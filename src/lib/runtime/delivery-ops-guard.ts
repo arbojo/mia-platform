@@ -67,7 +67,7 @@ export function buildDeliveryOpsResponse(kind: DeliveryOpsKind): string {
     case 'reschedule':
       return 'Con gusto. Para mover tu entrega, paso tu mensaje al equipo de reparto para que te confirmen el nuevo día/horario por este medio.'
     case 'driver_on_the_way':
-      return '¡Gracias por avisar! ¡Gracias por avisar! Paso este mensaje al equipo de reparto.'
+      return '¡Gracias por avisar! Ya aviso al equipo de reparto.'
     case 'customer_waiting':
       return 'Perfecto. Ya aviso al equipo de reparto que estás esperando. Te confirman por aquí.'
     default:

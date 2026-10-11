@@ -11,6 +11,17 @@ export interface DefensiveConfig {
   audioWebhookTimeoutMs: number
 }
 
+export interface HumanTakeoverConfig {
+  /** When false, the bridge ignores the resume token and every human message is forwarded as before. */
+  enabled: boolean
+  /**
+   * Short token a business-side human sends from the business phone to toggle
+   * MIA on/off for the current conversation. Deliberately terse so it reads as a
+   * typo to the customer; the bridge deletes it before the customer sees it.
+   */
+  resumeToken: string
+}
+
 export interface BridgeConfig {
   supabaseUrl: string
   supabaseServiceRoleKey: string
@@ -20,6 +31,7 @@ export interface BridgeConfig {
   health: HealthConfig
   followUp: FollowUpConfig
   defensive: DefensiveConfig
+  humanTakeover: HumanTakeoverConfig
 }
 
 function requireEnv(name: string): string {
@@ -44,6 +56,13 @@ export function loadDefensiveConfig(): DefensiveConfig {
   }
 }
 
+export function loadHumanTakeoverConfig(): HumanTakeoverConfig {
+  return {
+    enabled: process.env.HUMAN_TAKEOVER_ENABLED !== '0',
+    resumeToken: process.env.HUMAN_RESUME_TOKEN ?? '#e',
+  }
+}
+
 export function loadConfig(): BridgeConfig {
   return {
     supabaseUrl: requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
@@ -54,5 +73,6 @@ export function loadConfig(): BridgeConfig {
     health: loadHealthConfig(),
     followUp: loadFollowUpConfig(),
     defensive: loadDefensiveConfig(),
+    humanTakeover: loadHumanTakeoverConfig(),
   }
 }

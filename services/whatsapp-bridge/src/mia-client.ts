@@ -17,6 +17,11 @@ export interface MiaIncomingMessage {
    * dispara respuesta automática ni efectos comerciales.
    */
   fromHuman?: boolean
+  /**
+   * Comando de control del humano del negocio (token `#e`). `toggle` invierte el
+   * estado de pausa de MIA en la conversación. Solo con `fromHuman: true`.
+   */
+  command?: 'toggle'
 }
 
 export interface MiaReply {

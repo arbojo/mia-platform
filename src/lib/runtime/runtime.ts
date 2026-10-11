@@ -4,6 +4,11 @@ import { resolveCustomer } from '@/lib/channels/identity'
 import { resolveConnection, resolveConversation } from '@/lib/conversation/resolver'
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
+import {
+  isHumanTakeoverEnabled,
+  nextAiPausedAt,
+  shouldStaySilentForHumanTakeover,
+} from './human-takeover'
 import { isResendRequest } from './media'
 import { isSafeMediaUrl } from './media-guard'
 import { buildStructuredStreamResponse } from './stream-response'
@@ -292,21 +297,29 @@ export async function processIncomingMessage(
   // bridge ya desambigua usando los ids enviados), y a la vez habilita el
   // análisis de tono de ventas ganadas que tú pediste.
   if (wireMessage.fromHuman === true) {
-    const authorMeta: Record<string, unknown> = {
-      ...(wireMessage.metadata ?? {}),
-      author: 'human',
-    }
+    const takeoverEnabled = isHumanTakeoverEnabled()
+    const isToggleCommand = takeoverEnabled && wireMessage.command === 'toggle'
 
-    if (conversationId) {
-      try {
-        await supabase.from('messages').insert({
-          conversation_id: conversationId,
-          role: 'assistant',
-          content: wireMessage.content,
-          metadata: authorMeta,
-        })
-      } catch (err) {
-        console.error('Failed to persist human outbound message (messages):', err)
+    // Control commands (`#e`) are operational, not conversation: they must not
+    // enter the transcript. Regular human messages are persisted so MIA learns
+    // the business's real voice.
+    if (!isToggleCommand) {
+      const authorMeta: Record<string, unknown> = {
+        ...(wireMessage.metadata ?? {}),
+        author: 'human',
+      }
+
+      if (conversationId) {
+        try {
+          await supabase.from('messages').insert({
+            conversation_id: conversationId,
+            role: 'assistant',
+            content: wireMessage.content,
+            metadata: authorMeta,
+          })
+        } catch (err) {
+          console.error('Failed to persist human outbound message (messages):', err)
+        }
       }
     }
 
@@ -320,7 +333,11 @@ export async function processIncomingMessage(
         external_id: wireMessage.externalId,
         external_customer_id: wireMessage.customerExternalId,
         status: 'received',
-        metadata: authorMeta,
+        metadata: {
+          ...(wireMessage.metadata ?? {}),
+          author: 'human',
+          ...(isToggleCommand ? { command: 'toggle' } : {}),
+        },
       })
     } catch (err) {
       const pgError = err as { code?: string; message?: string }
@@ -333,6 +350,35 @@ export async function processIncomingMessage(
         }
       }
       console.error('Failed to persist human outbound message (channel_messages):', err)
+    }
+
+    // Human takeover: a business-side human replying pauses MIA for THIS
+    // conversation; the `#e` toggle flips that state (pause <-> resume). MIA
+    // then answers on the customer's next message after resuming.
+    if (takeoverEnabled && conversationId) {
+      try {
+        let currentPausedAt: string | null = null
+        if (isToggleCommand) {
+          const { data: conversation } = await supabase
+            .from('conversations')
+            .select('ai_paused_at')
+            .eq('id', conversationId)
+            .maybeSingle()
+          currentPausedAt = conversation?.ai_paused_at ?? null
+        }
+
+        await supabase
+          .from('conversations')
+          .update({
+            ai_paused_at: nextAiPausedAt(
+              isToggleCommand ? 'toggle' : undefined,
+              currentPausedAt
+            ),
+          })
+          .eq('id', conversationId)
+      } catch (err) {
+        console.error('Failed to update human takeover pause state:', err)
+      }
     }
 
     await supabase
@@ -387,6 +433,43 @@ export async function processIncomingMessage(
       customerId: customer.id,
       conversationId: conversationId ?? '',
       deliver: false,
+    }
+  }
+
+  // Human takeover: while a human is handling this conversation, MIA stays
+  // silent. The customer message is still persisted to `messages` so the
+  // thread keeps full context for when the human resumes MIA with `#e`.
+  const takeoverEnabled = isHumanTakeoverEnabled()
+  if (takeoverEnabled && conversationId) {
+    const { data: pausedConversation } = await supabase
+      .from('conversations')
+      .select('ai_paused_at')
+      .eq('id', conversationId)
+      .maybeSingle()
+
+    if (shouldStaySilentForHumanTakeover(takeoverEnabled, pausedConversation?.ai_paused_at)) {
+      try {
+        await supabase.from('messages').insert({
+          conversation_id: conversationId,
+          role: 'user',
+          content: wireMessage.content,
+          metadata: { author: 'customer', takeover_paused: true },
+        })
+      } catch (err) {
+        console.error('Failed to persist customer message during human takeover:', err)
+      }
+
+      await supabase
+        .from('customers')
+        .update({ last_interaction: new Date().toISOString() })
+        .eq('id', customer.id)
+
+      return {
+        response: '',
+        customerId: customer.id,
+        conversationId,
+        deliver: false,
+      }
     }
   }
 

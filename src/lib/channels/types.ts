@@ -63,6 +63,12 @@ export interface NormalizedMessage {
    * business-side human from the bot's own sends.
    */
   fromHuman?: boolean
+  /**
+   * Control command sent by a business-side human (today: the `#e` token from
+   * the WhatsApp bridge). `toggle` flips the conversation's AI pause state.
+   * Only meaningful together with `fromHuman`.
+   */
+  command?: 'toggle'
 }
 
 export interface OutgoingMessage {
@@ -173,5 +179,6 @@ export interface CoreOutput {
     deliver: boolean
     retention?: boolean
     mediaNegationGuard?: boolean
+    delivery_ops?: 'reschedule' | 'driver_on_the_way' | 'customer_waiting'
   }
 }
