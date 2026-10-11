@@ -743,6 +743,7 @@ export type Database = {
           sales_cancelled_at?: string | null
           media_sent_products: string[]
           active_product_ids: string[]
+          ai_paused_at?: string | null
         }
         Insert: {
           id?: string
@@ -762,6 +763,7 @@ export type Database = {
           sales_cancelled_at?: string | null
           media_sent_products: string[]
           active_product_ids: string[]
+          ai_paused_at?: string | null
         }
         Update: {
           id?: string
@@ -781,6 +783,7 @@ export type Database = {
           sales_cancelled_at?: string | null
           media_sent_products?: string[]
           active_product_ids?: string[]
+          ai_paused_at?: string | null
         }
         Relationships: [
           {

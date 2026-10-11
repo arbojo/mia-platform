@@ -270,7 +270,8 @@ describe('buildMasterPrompt', () => {
 
   it('captura consolidada: lista 1-7 + AFIRMACIÓN CLARA en Control de Cierre (fallback sin sales_config)', () => {
     const prompt = build({ channel: 'whatsapp' })
-    expect(prompt).toContain('7. Ciudad (ya confirmada: [ciudad del contexto])')
+    expect(prompt).toContain('7. Ciudad (la que se confirmó en la conversación; si no está, se pide y se agrega a la lista)')
+    expect(prompt).not.toContain('[ciudad del contexto]')
     expect(prompt).toContain('AFIRMACIÓN CLARA')
     expect(prompt).toContain('NUNCA digas "tu pedido está confirmado"')
     expect(prompt).toContain('Acepta cualquier forma válida en México')

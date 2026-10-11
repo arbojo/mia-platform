@@ -40,6 +40,12 @@ export class BaileysAdapter implements ChannelAdapter {
          * contra su registro de enviados, así que este flag es fiable.
          */
         fromHuman?: boolean
+        /**
+         * Control command authored by the business human (e.g. the `#e`
+         * pause/resume token). The bridge strips the message from the customer
+         * and forwards it here so the runtime can flip the pause state.
+         */
+        command?: 'toggle'
       }
     }
 
@@ -68,6 +74,7 @@ export class BaileysAdapter implements ChannelAdapter {
       },
       receivedAt: message.receivedAt ? new Date(message.receivedAt) : new Date(),
       fromHuman,
+      ...(message.command ? { command: message.command } : {}),
     } as NormalizedMessage
   }
 

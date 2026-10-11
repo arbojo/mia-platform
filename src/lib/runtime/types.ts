@@ -18,6 +18,11 @@ export interface WireMessage {
    * disambiguate `fromMe`). Persisted for learning, never auto-answered.
    */
   fromHuman?: boolean
+  /**
+   * Control command from a business-side human. `toggle` flips the
+   * conversation's AI pause state (see conversations.ai_paused_at).
+   */
+  command?: 'toggle'
 }
 
 export interface BrainMessage {
