@@ -205,14 +205,21 @@ export function buildDeliveryPromptSection(
     )}${overrideSuffix(ov)}`
   })
 
-  return `## Días de entrega
+  const rawCustomerCity = options.customerCity?.trim() ?? ''
+  const uncoveredCustomerLine =
+    rawCustomerCity && customerMatch == null
+      ? `⚠️ El cliente actual está en ${rawCustomerCity}, una ciudad SIN cobertura de entrega: NO confirmes el pedido ni tomes datos de cierre; avísale con amabilidad que por ahora no hay entrega a esa ciudad y ofrécele dejar su contacto para avisarle cuando se habilite.`
+      : ''
+
+  return `## Cobertura y días de entrega
+Las ÚNICAS ciudades con entrega a domicilio son las de esta lista. Para cualquier otra ciudad NO hay cobertura.
 Ningún pedido se entrega el mismo día: siempre se entrega el SIGUIENTE día programado de la ciudad del cliente. Fechas calculadas al ${todayLabel}:
 ${listLines.join('\n')}
-${finalCustomerLine ? `${finalCustomerLine}\n` : ''}REGLAS:
+${finalCustomerLine ? `${finalCustomerLine}\n` : ''}${uncoveredCustomerLine ? `${uncoveredCustomerLine}\n` : ''}REGLAS:
 1. Para "¿cuándo llega mi pedido?" usa SIEMPRE la fecha calculada de la ciudad del cliente.
 2. Al CONFIRMAR un pedido, informa obligatoriamente el día de entrega calculado y el horario de esa ciudad (ej. "Te llegará el <día calculado>, entre <hora inicio> y <hora fin>").
 3. Nunca prometas otra fecha distinta a la calculada ni digas que llega "hoy" o "mañana" sin el día exacto.
-4. Si la ciudad del cliente no tiene días configurados, di que el equipo coordina la entrega; no inventes fechas.`
+4. Si la ciudad del cliente NO aparece en la lista de cobertura de arriba, NO hay entrega: no confirmes el pedido, no captures datos de cierre ni prometas entrega. Informa con amabilidad que por ahora no hay cobertura a esa ciudad y ofrece dejar su contacto para avisarle cuando se habilite.`
 }
 
 function scheduleToOverride(s: DeliverySchedule | null): DeliveryOverride | null {

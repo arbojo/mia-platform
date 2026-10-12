@@ -551,13 +551,13 @@ describe('buildMasterPrompt con delivery_schedules', () => {
       customerCity: 'León',
       now: new Date(2026, 1, 5),
     })
-    expect(prompt).toContain('## Días de entrega')
+    expect(prompt).toContain('## Cobertura y días de entrega')
     expect(prompt).toContain('El cliente actual está en León')
     expect(prompt).toContain('viernes 6 de febrero')
   })
 
   it('no altera el prompt cuando no hay schedules', () => {
     const prompt = build()
-    expect(prompt).not.toContain('## Días de entrega')
+    expect(prompt).not.toContain('## Cobertura y días de entrega')
   })
 })

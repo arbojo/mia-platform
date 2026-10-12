@@ -160,10 +160,11 @@ describe('buildDeliveryPromptSection', () => {
     expect(out).toContain('El cliente actual está en León')
   })
 
-  it('ignora city sin horario configurado', () => {
+  it('advierte cuando la ciudad del cliente no tiene cobertura', () => {
     const out = buildDeliveryPromptSection({ schedules, customerCity: 'Pueblo Fantasma', now: D(2026, 2, 5) })
-    expect(out).not.toContain('Pueblo Fantasma')
-    expect(out).toContain('Días de entrega')
+    expect(out).toContain('Pueblo Fantasma')
+    expect(out).toContain('SIN cobertura')
+    expect(out).toContain('Cobertura y días de entrega')
   })
 
   it('aplica overrides en las fechas calculadas y muestra la nota', () => {
