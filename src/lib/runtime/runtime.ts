@@ -5,8 +5,8 @@ import { resolveConnection, resolveConversation } from '@/lib/conversation/resol
 export { RuntimeError } from '@/lib/conversation/resolver'
 import { executeAI } from './execute-ai'
 import {
+  decideOutboundPauseState,
   isHumanTakeoverEnabled,
-  nextAiPausedAt,
   shouldStaySilentForHumanTakeover,
 } from './human-takeover'
 import { isResendRequest } from './media'
@@ -353,8 +353,9 @@ export async function processIncomingMessage(
     }
 
     // Human takeover: a business-side human replying pauses MIA for THIS
-    // conversation; the `#e` toggle flips that state (pause <-> resume). MIA
-    // then answers on the customer's next message after resuming.
+    // conversation; the `#e` toggle flips that state (pause <-> resume). The
+    // recovery broadcast message, by contrast, RESUMES MIA so it answers the
+    // customer's next message. Any other human message keeps pausing.
     if (takeoverEnabled && conversationId) {
       try {
         let currentPausedAt: string | null = null
@@ -370,10 +371,11 @@ export async function processIncomingMessage(
         await supabase
           .from('conversations')
           .update({
-            ai_paused_at: nextAiPausedAt(
-              isToggleCommand ? 'toggle' : undefined,
-              currentPausedAt
-            ),
+            ai_paused_at: decideOutboundPauseState({
+              command: isToggleCommand ? 'toggle' : undefined,
+              content: wireMessage.content,
+              currentAiPausedAt: currentPausedAt,
+            }),
           })
           .eq('id', conversationId)
       } catch (err) {
