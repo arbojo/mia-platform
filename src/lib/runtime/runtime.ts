@@ -298,12 +298,14 @@ export async function processIncomingMessage(
   // análisis de tono de ventas ganadas que tú pediste.
   if (wireMessage.fromHuman === true) {
     const takeoverEnabled = isHumanTakeoverEnabled()
-    const isToggleCommand = takeoverEnabled && wireMessage.command === 'toggle'
+    const humanCommand = takeoverEnabled ? wireMessage.command : undefined
+    const isControlCommand = humanCommand === 'toggle' || humanCommand === 'resume'
+    const hasContent = wireMessage.content.trim().length > 0
 
-    // Control commands (`#e`) are operational, not conversation: they must not
-    // enter the transcript. Regular human messages are persisted so MIA learns
-    // the business's real voice.
-    if (!isToggleCommand) {
+    // Los comandos de control (`#e`) son operativos, no conversación: no entran
+    // al transcript salvo que traigan texto real de la vendedora (p. ej.
+    // "bla bla #e"), que sí se persiste para que MIA aprenda su voz.
+    if (!isControlCommand || hasContent) {
       const authorMeta: Record<string, unknown> = {
         ...(wireMessage.metadata ?? {}),
         author: 'human',
@@ -336,7 +338,7 @@ export async function processIncomingMessage(
         metadata: {
           ...(wireMessage.metadata ?? {}),
           author: 'human',
-          ...(isToggleCommand ? { command: 'toggle' } : {}),
+          ...(humanCommand ? { command: humanCommand } : {}),
         },
       })
     } catch (err) {
@@ -353,13 +355,14 @@ export async function processIncomingMessage(
     }
 
     // Human takeover: a business-side human replying pauses MIA for THIS
-    // conversation; the `#e` toggle flips that state (pause <-> resume). The
-    // recovery broadcast message, by contrast, RESUMES MIA so it answers the
-    // customer's next message. Any other human message keeps pausing.
+    // conversation; the `#e` resume token takes it back (`resume` clears the
+    // pause, `toggle` flips it — legacy). The recovery broadcast message, by
+    // contrast, RESUMES MIA so it answers the customer's next message. Any
+    // other human message keeps pausing.
     if (takeoverEnabled && conversationId) {
       try {
         let currentPausedAt: string | null = null
-        if (isToggleCommand) {
+        if (humanCommand === 'toggle') {
           const { data: conversation } = await supabase
             .from('conversations')
             .select('ai_paused_at')
@@ -372,7 +375,7 @@ export async function processIncomingMessage(
           .from('conversations')
           .update({
             ai_paused_at: decideOutboundPauseState({
-              command: isToggleCommand ? 'toggle' : undefined,
+              command: humanCommand,
               content: wireMessage.content,
               currentAiPausedAt: currentPausedAt,
             }),

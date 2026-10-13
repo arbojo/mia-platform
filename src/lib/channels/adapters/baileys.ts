@@ -42,10 +42,10 @@ export class BaileysAdapter implements ChannelAdapter {
         fromHuman?: boolean
         /**
          * Control command authored by the business human (e.g. the `#e`
-         * pause/resume token). The bridge strips the message from the customer
-         * and forwards it here so the runtime can flip the pause state.
+         * resume token). The bridge strips the token from the content and
+         * forwards it here so the runtime can clear the pause state.
          */
-        command?: 'toggle'
+        command?: 'toggle' | 'resume'
       }
     }
 

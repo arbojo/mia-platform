@@ -19,10 +19,11 @@ export interface WireMessage {
    */
   fromHuman?: boolean
   /**
-   * Control command from a business-side human. `toggle` flips the
-   * conversation's AI pause state (see conversations.ai_paused_at).
+   * Control command from a business-side human. `resume` makes MIA take the
+   * conversation back (clears the pause); `toggle` flips the AI pause state
+   * (legacy). See conversations.ai_paused_at.
    */
-  command?: 'toggle'
+  command?: 'toggle' | 'resume'
 }
 
 export interface BrainMessage {

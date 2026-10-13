@@ -24,7 +24,10 @@ import { sendReply, sanitizeForWhatsApp, extractSentMessageId } from './media-ur
 import { withTypingPresence, shouldShowTypingDuringGeneration } from './presence.js'
 import { createCooldownStore, type CooldownStore } from './guards.js'
 import { BurstGuard } from './burst-guard.js'
-import { isHumanTakeoverCommand } from './human-takeover.js'
+import {
+  isHumanTakeoverCommand,
+  stripHumanTakeoverToken,
+} from './human-takeover.js'
 import { SentMessageRegistry } from './sent-registry.js'
 import { ChannelModeCache, allowsOutbound, type ChannelMode } from './channel-mode.js'
 import { ReconnectBackoff } from './reconnect-backoff.js'
@@ -825,21 +828,13 @@ export class SessionManager {
           this.config.humanTakeover.enabled &&
           isHumanTakeoverCommand(content, this.config.humanTakeover.resumeToken)
 
-        // El token `#e` es un control, no conversación: se borra para que el
-        // cliente nunca lo vea. El borrado es best-effort (WhatsApp rechaza
-        // mensajes viejos o ya eliminados); el comando se reenvía igual para que
-        // MIA cambie su estado de pausa.
-        if (isTakeoverCommand && msg.key) {
-          try {
-            const deleted = await session.socket.sendMessage(remoteJid, { delete: msg.key })
-            const deletedId = extractSentMessageId(deleted)
-            if (deletedId) this.sentRegistry.add(session.businessId, [deletedId])
-          } catch (err) {
-            console.error(
-              `[session-manager] No se pudo borrar el comando de takeover: ${err instanceof Error ? err.message : err}`
-            )
-          }
-        }
+        // El token `#e` (solo o al final del mensaje) es un control para que MIA
+        // retome la conversación. Ya NO se borra el mensaje: el cliente ve el
+        // texto de la vendedora completo (con el `#e` como posible errata). Se
+        // reenvía el texto SIN el token y con command 'resume'.
+        const forwardedContent = isTakeoverCommand
+          ? stripHumanTakeoverToken(content, this.config.humanTakeover.resumeToken)
+          : content
 
         // "escribiendo…" durante la generación, pero SOLO cuando la respuesta
         // se va a entregar. `allowsOutbound` (mode === 'active') coincide con
@@ -861,11 +856,11 @@ export class SessionManager {
                 customerExternalId: waId,
                 customerName: msg.pushName ?? null,
                 customerPhone: waId,
-                content,
+                content: forwardedContent,
                 payload,
                 receivedAt: timestamp,
                 fromHuman: true,
-                ...(isTakeoverCommand ? { command: 'toggle' as const } : {}),
+                ...(isTakeoverCommand ? { command: 'resume' as const } : {}),
               })
             : sendToMia(
                 this.config,

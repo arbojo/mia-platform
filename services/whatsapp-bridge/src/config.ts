@@ -15,9 +15,11 @@ export interface HumanTakeoverConfig {
   /** When false, the bridge ignores the resume token and every human message is forwarded as before. */
   enabled: boolean
   /**
-   * Short token a business-side human sends from the business phone to toggle
-   * MIA on/off for the current conversation. Deliberately terse so it reads as a
-   * typo to the customer; the bridge deletes it before the customer sees it.
+   * Short token a business-side human sends from the business phone to make MIA
+   * take the conversation back (resume). It counts as the whole message or as
+   * the last token (`bla bla #e`). Deliberately terse so it reads as a typo to
+   * the customer; the bridge strips it before forwarding and never deletes the
+   * message.
    */
   resumeToken: string
 }

@@ -20,7 +20,8 @@ const RECOVERY = [
 
 /**
  * Human takeover: a business-side human replying pauses MIA in that
- * conversation only, and the `#e` token toggles the state.
+ * conversation only, and the `#e` token takes it back (`resume` clears the
+ * pause; `toggle` flips it — legacy).
  *
  * The decisions are pure so they can be pinned without a database. The two
  * silent-failure modes are (a) a normal human message that fails to pause, which
@@ -59,6 +60,11 @@ describe('nextAiPausedAt', () => {
 
   it('pauses when toggled while active', () => {
     expect(nextAiPausedAt('toggle', null, now)).toBe(now)
+  })
+
+  it('always resumes on the #e resume command', () => {
+    expect(nextAiPausedAt('resume', '2026-10-11T11:00:00.000Z', now)).toBeNull()
+    expect(nextAiPausedAt('resume', null, now)).toBeNull()
   })
 })
 
@@ -156,5 +162,19 @@ describe('decideOutboundPauseState', () => {
     expect(
       decideOutboundPauseState({ command: 'toggle', content: '#e', currentAiPausedAt: null, now })
     ).toBe(now)
+  })
+
+  it('resumes on the #e resume command regardless of content and state', () => {
+    expect(
+      decideOutboundPauseState({
+        command: 'resume',
+        content: 'bla bla #e',
+        currentAiPausedAt: '2026-10-11T11:00:00.000Z',
+        now,
+      })
+    ).toBeNull()
+    expect(
+      decideOutboundPauseState({ command: 'resume', content: 'bla bla #e', currentAiPausedAt: null, now })
+    ).toBeNull()
   })
 })
