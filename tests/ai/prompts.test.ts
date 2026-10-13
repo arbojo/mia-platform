@@ -228,6 +228,19 @@ describe('buildMasterPrompt', () => {
     expect(prompt).not.toContain('Multimedia: image')
   })
 
+  it('captura: la instrucción del negocio prevalece sobre "un dato a la vez"', () => {
+    const prompt = build({ channel: 'whatsapp' })
+    expect(prompt).toContain('prevalece sobre la guía general "un dato a la vez"')
+    expect(prompt).toContain('pedir varios datos por bloque en un mismo mensaje')
+  })
+
+  it('incluye la regla anti-repetición (variación de saludos/frases)', () => {
+    const prompt = build()
+    expect(prompt).toContain('## Variación de respuestas')
+    expect(prompt).toContain('No repitas el mismo saludo')
+    expect(prompt).toContain('varía la redacción manteniendo el tono')
+  })
+
   it('incluye la regla anti-bucle de rechazo/desvio en es', () => {
     const prompt = build()
     expect(prompt).toContain('SI EL CLIENTE NIEGA O CAMBIA DE TEMA')

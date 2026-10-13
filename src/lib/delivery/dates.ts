@@ -213,13 +213,15 @@ export function buildDeliveryPromptSection(
 
   return `## Cobertura y días de entrega
 Las ÚNICAS ciudades con entrega a domicilio son las de esta lista. Para cualquier otra ciudad NO hay cobertura.
+Los días de cada ciudad se listan EXACTOS: al mencionarlos, cítalos literalmente como aparecen aquí; nunca los reformules ni los cambies de nombre (p. ej. NUNCA digas "martes y jueves" si la lista dice "lunes y jueves").
 Ningún pedido se entrega el mismo día: siempre se entrega el SIGUIENTE día programado de la ciudad del cliente. Fechas calculadas al ${todayLabel}:
 ${listLines.join('\n')}
 ${finalCustomerLine ? `${finalCustomerLine}\n` : ''}${uncoveredCustomerLine ? `${uncoveredCustomerLine}\n` : ''}REGLAS:
 1. Para "¿cuándo llega mi pedido?" usa SIEMPRE la fecha calculada de la ciudad del cliente.
 2. Al CONFIRMAR un pedido, informa obligatoriamente el día de entrega calculado y el horario de esa ciudad (ej. "Te llegará el <día calculado>, entre <hora inicio> y <hora fin>").
 3. Nunca prometas otra fecha distinta a la calculada ni digas que llega "hoy" o "mañana" sin el día exacto.
-4. Si la ciudad del cliente NO aparece en la lista de cobertura de arriba, NO hay entrega: no confirmes el pedido, no captures datos de cierre ni prometas entrega. Informa con amabilidad que por ahora no hay cobertura a esa ciudad y ofrece dejar su contacto para avisarle cuando se habilite.`
+4. Los días de entrega de una ciudad se citan EXACTAMENTE como aparecen en la lista de arriba. PROHIBIDO inventar, abreviar o cambiar un día (p. ej. "lunes y jueves" nunca se convierte en "martes y jueves"). Si no tienes el dato, no lo inventes: di que confirmas el día al coordinar la entrega.
+5. Si la ciudad del cliente NO aparece en la lista de cobertura de arriba, NO hay entrega: no confirmes el pedido, no captures datos de cierre ni prometas entrega. Informa con amabilidad que por ahora no hay cobertura a esa ciudad y ofrece dejar su contacto para avisarle cuando se habilite.`
 }
 
 function scheduleToOverride(s: DeliverySchedule | null): DeliveryOverride | null {
