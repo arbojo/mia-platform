@@ -53,17 +53,17 @@ export function isRecoveryResumeMessage(content: string): boolean {
 
 /**
  * The value `conversations.ai_paused_at` must be set to for a human outbound.
- * `toggle` flips the current state (pause <-> resume); a plain message always
- * pauses (refreshing the instant while the human keeps writing).
+ * `resume` always clears the pause (MIA takes the conversation back); `toggle`
+ * flips the current state (pause <-> resume); a plain message always pauses
+ * (refreshing the instant while the human keeps writing).
  */
 export function nextAiPausedAt(
-  command: 'toggle' | undefined,
+  command: 'toggle' | 'resume' | undefined,
   currentAiPausedAt: string | null,
   now: string = new Date().toISOString()
 ): string | null {
-  if (command === 'toggle') {
-    return currentAiPausedAt ? null : now
-  }
+  if (command === 'resume') return null
+  if (command === 'toggle') return currentAiPausedAt ? null : now
   return now
 }
 
@@ -81,21 +81,23 @@ export function shouldStaySilentForHumanTakeover(
 /**
  * Decisión de pausa para un mensaje saliente del HUMANO (vendedora).
  *
- *  - `toggle` (#e): invierte el estado actual (pausa <-> retoma).
+ *  - `resume` (#e al final): retoma siempre (null), para que la IA responda al
+ *    siguiente mensaje del cliente.
+ *  - `toggle` (#e suelto, legado): invierte el estado actual (pausa <-> retoma).
  *  - mensaje de recuperación: retoma siempre (null), para que la IA responda
  *    al siguiente mensaje del cliente.
  *  - cualquier otro mensaje humano: pausa (y refresca la pausa mientras
  *    la vendedora sigue escribiendo).
  */
 export function decideOutboundPauseState(params: {
-  command?: 'toggle'
+  command?: 'toggle' | 'resume'
   content: string
   currentAiPausedAt: string | null
   now?: string
 }): string | null {
   const now = params.now ?? new Date().toISOString()
-  if (params.command === 'toggle') {
-    return nextAiPausedAt('toggle', params.currentAiPausedAt, now)
+  if (params.command) {
+    return nextAiPausedAt(params.command, params.currentAiPausedAt, now)
   }
   if (isRecoveryResumeMessage(params.content)) {
     return null

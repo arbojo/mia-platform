@@ -65,10 +65,11 @@ export interface NormalizedMessage {
   fromHuman?: boolean
   /**
    * Control command sent by a business-side human (today: the `#e` token from
-   * the WhatsApp bridge). `toggle` flips the conversation's AI pause state.
-   * Only meaningful together with `fromHuman`.
+   * the WhatsApp bridge). `resume` makes MIA take the conversation back
+   * (clears the pause); `toggle` flips the AI pause state (legacy). Only
+   * meaningful together with `fromHuman`.
    */
-  command?: 'toggle'
+  command?: 'toggle' | 'resume'
 }
 
 export interface OutgoingMessage {
