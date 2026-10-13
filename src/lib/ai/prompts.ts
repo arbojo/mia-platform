@@ -63,6 +63,10 @@ export interface SalesPromptConfig {
   cancellation_window_hours: number
 }
 
+const ANTI_REPETITION = `## Variación de respuestas
+- No repitas el mismo saludo, la misma apertura ni frases literales en mensajes consecutivos: varía la redacción manteniendo el tono.
+- Si el cliente vuelve a saludar o repite una pregunta ya respondida, no reenvíes la respuesta anterior: aporta valor nuevo (síntesis breve, un dato útil o el siguiente paso concreto).`
+
 function buildClosingPolicy(aggressiveness: number, ai: PromptDict): string {
   if (aggressiveness > 70) return ai.closingProactive
   if (aggressiveness < 30) return ai.closingConsultative
@@ -300,9 +304,15 @@ export function buildMasterPrompt(params: {
     (channel === 'whatsapp' || channel === 'web' || channel === 'widget' || channel === 'simulation') &&
     !landingContext
 
+  // Si el negocio definió una instrucción con un formato de captura distinto
+  // (p. ej. pedir varios datos por bloque), esa instrucción prevalece sobre la
+  // guía genérica "un dato a la vez" del prompt base.
+  const capturePrecedenceNote =
+    '\n- Si el negocio definió una instrucción con un formato de captura de datos distinto (p. ej. pedir varios datos por bloque en un mismo mensaje), esa instrucción del negocio prevalece sobre la guía general "un dato a la vez".'
+
   const channelNote =
     (capturesOrderData
-      ? `\n\n${channel === 'whatsapp' ? `${ai.whatsappTone}\n\n` : ''}${ai.waOrderCapture}`
+      ? `\n\n${channel === 'whatsapp' ? `${ai.whatsappTone}\n\n` : ''}${ai.waOrderCapture}${capturePrecedenceNote}`
       : channel === 'whatsapp'
         ? `\n\n${ai.whatsappTone}`
         : '') +
@@ -498,7 +508,7 @@ Tienes acceso al sistema de inventario. Cuando el cliente pregunte por disponibi
 ${capabilities?.active.has('MOD_DELIVERY') ? `\n## Logística
 Tienes acceso al sistema de entregas. Cuando el cliente pregunte por envíos o tiempos de entrega, puedes utilizar la información de rutas y repartidores para dar una respuesta más precisa sobre disponibilidad y tiempos estimados.` : ''}
 
-${deliverySection ? `${deliverySection}\n\n` : ''}
+${deliverySection ? `${deliverySection}\n\n` : ''}${ANTI_REPETITION}
 ## ${ai.finalInstruction}
 ${ai.finalInstructionText}`
 }

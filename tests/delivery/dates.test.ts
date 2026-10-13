@@ -167,6 +167,25 @@ describe('buildDeliveryPromptSection', () => {
     expect(out).toContain('Cobertura y días de entrega')
   })
 
+  it('muestra los días EXACTOS de cada ciudad y prohíbe parafrasearlos', () => {
+    const out = buildDeliveryPromptSection({
+      schedules: [
+        { city: 'Aguascalientes', delivery_days: [1, 4], delivery_window_start: '09:00', delivery_window_end: '19:00' },
+      ],
+      now: D(2026, 2, 5),
+    })
+    expect(out).toContain('Aguascalientes: lunes y jueves')
+    expect(out).not.toContain('Aguascalientes: martes y jueves')
+    expect(out).toContain('nunca los reformules ni los cambies de nombre')
+    expect(out).toContain('PROHIBIDO inventar, abreviar o cambiar un día')
+  })
+
+  it('regla 5: ninguna ciudad fuera de la lista de cobertura tiene entrega', () => {
+    const out = buildDeliveryPromptSection({ schedules, now: D(2026, 2, 5) })
+    expect(out).toContain('Si la ciudad del cliente NO aparece en la lista de cobertura')
+    expect(out).toContain('no captures datos de cierre ni prometas entrega')
+  })
+
   it('aplica overrides en las fechas calculadas y muestra la nota', () => {
     const overrides: DeliveryOverride[] = [
       {
