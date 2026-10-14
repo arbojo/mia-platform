@@ -2,6 +2,8 @@ import type { HealthConfig } from './health-monitor.js'
 import { loadHealthConfig } from './health-monitor.js'
 import type { FollowUpConfig } from './follow-up-monitor.js'
 import { loadFollowUpConfig } from './follow-up-monitor.js'
+import type { RecoveryConfig } from './recovery-monitor.js'
+import { loadRecoveryConfig } from './recovery-monitor.js'
 
 export interface DefensiveConfig {
   callRejectText: string
@@ -32,6 +34,7 @@ export interface BridgeConfig {
   port: number
   health: HealthConfig
   followUp: FollowUpConfig
+  recovery: RecoveryConfig
   defensive: DefensiveConfig
   humanTakeover: HumanTakeoverConfig
 }
@@ -74,6 +77,7 @@ export function loadConfig(): BridgeConfig {
     port: Number(process.env.BRIDGE_PORT ?? 3001),
     health: loadHealthConfig(),
     followUp: loadFollowUpConfig(),
+    recovery: loadRecoveryConfig(),
     defensive: loadDefensiveConfig(),
     humanTakeover: loadHumanTakeoverConfig(),
   }

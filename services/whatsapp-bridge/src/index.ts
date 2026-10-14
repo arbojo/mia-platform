@@ -3,6 +3,7 @@ import { SessionManager } from './session-manager.js'
 import { startBridgeServer } from './server.js'
 import { HealthMonitor } from './health-monitor.js'
 import { FollowUpMonitor } from './follow-up-monitor.js'
+import { RecoveryMonitor } from './recovery-monitor.js'
 
 function main(): void {
   const config = loadConfig()
@@ -11,6 +12,8 @@ function main(): void {
   healthMonitor.start()
   const followUpMonitor = new FollowUpMonitor(manager, config, config.followUp)
   followUpMonitor.start()
+  const recoveryMonitor = new RecoveryMonitor(manager, config, config.recovery)
+  recoveryMonitor.start()
   startBridgeServer(config, manager)
 
   void manager.restoreAllSessions().catch((err) => {
@@ -22,6 +25,7 @@ function main(): void {
       console.log(`[mia-bridge] received ${signal}, shutting down`)
       healthMonitor.stop()
       followUpMonitor.stop()
+      recoveryMonitor.stop()
 
       const active = manager.listHealth().filter((h) => h.status === 'connected')
       if (active.length === 0) {
