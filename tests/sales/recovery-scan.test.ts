@@ -5,10 +5,16 @@ vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: vi.fn(),
 }))
 
+vi.mock('@/lib/ai/knowledge', () => ({
+  getSalesConfig: vi.fn(),
+}))
+
 import { scanRecoveryCandidates } from '@/lib/sales/recovery-scan'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getSalesConfig, type SalesConfig } from '@/lib/ai/knowledge'
 
 const mockedCreateAdminClient = vi.mocked(createAdminClient)
+const mockedGetSalesConfig = vi.mocked(getSalesConfig)
 
 const NOW = new Date('2026-02-01T12:00:00.000Z').getTime()
 const MIN = 60_000
@@ -17,8 +23,17 @@ const HOUR = 60 * MIN
 const CONNECTION = {
   id: 'conn-wa-1',
   assistant_id: FAKE_UUIDS.assistant,
+  business_id: FAKE_UUIDS.business,
   configuration: { recovery_enabled: true },
 }
+
+const SALES_CONFIG = {
+  business_id: FAKE_UUIDS.business,
+  timezone: 'America/Argentina/Buenos_Aires',
+  recovery_sending_start_hour: 9,
+  recovery_sending_end_hour: 20,
+  recovery_max_per_day: 20,
+} as SalesConfig
 
 interface Datasets {
   conversations?: unknown[]
@@ -65,7 +80,12 @@ const conversation = {
   sales_cancelled_at: null,
 }
 
-const customer = { id: FAKE_UUIDS.customer, phone: '5214771234567', status: null }
+const customer = {
+  id: FAKE_UUIDS.customer,
+  phone: '5214771234567',
+  status: null,
+  recovery_opt_out_at: null,
+}
 
 const inbound = (msAgo: number) => ({
   conversation_id: FAKE_UUIDS.conversation,
@@ -78,6 +98,14 @@ const miaOut = (msAgo: number, metadata: Record<string, unknown> | null = null) 
   metadata,
 })
 
+const recoveryMarker = (attempt: number, version: string, msAgo: number) =>
+  miaOut(msAgo, {
+    recovery: true,
+    recovery_attempt: attempt,
+    recovery_inbound_version: version,
+    connection_id: CONNECTION.id,
+  })
+
 const salesEvent = (eventType: string, msAgo: number) => ({
   conversation_id: FAKE_UUIDS.conversation,
   event_type: eventType,
@@ -85,7 +113,10 @@ const salesEvent = (eventType: string, msAgo: number) => ({
 })
 
 describe('scanRecoveryCandidates', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockedGetSalesConfig.mockResolvedValue(SALES_CONFIG)
+  })
 
   it('returns attempt 1 when MIA answered a commercial enquiry 15 minutes ago', async () => {
     installDatasets({
@@ -116,12 +147,7 @@ describe('scanRecoveryCandidates', () => {
       messages: [inbound(3 * HOUR)],
       channel_messages: [
         miaOut(3 * HOUR - 1 * MIN),
-        miaOut(2 * HOUR, {
-          recovery: true,
-          recovery_attempt: 1,
-          recovery_inbound_version: version,
-          connection_id: CONNECTION.id,
-        }),
+        recoveryMarker(1, version, 2 * HOUR),
       ],
       sales_events: [salesEvent('PRODUCT_SELECTED', 4 * HOUR)],
     })
@@ -132,21 +158,54 @@ describe('scanRecoveryCandidates', () => {
     expect(due[0].attempt).toBe(2)
   })
 
+  it('returns attempt 3 at 6 hours when attempts 1 and 2 were sent', async () => {
+    const version = new Date(NOW - 7 * HOUR).toISOString()
+    installDatasets({
+      conversations: [conversation],
+      customers: [customer],
+      messages: [inbound(7 * HOUR)],
+      channel_messages: [
+        miaOut(7 * HOUR - 1 * MIN),
+        recoveryMarker(1, version, 6 * HOUR + 50 * MIN),
+        recoveryMarker(2, version, 5 * HOUR),
+      ],
+      sales_events: [salesEvent('SALE_STARTED', 8 * HOUR)],
+    })
+
+    const due = await scanRecoveryCandidates({ connection: CONNECTION, now: NOW })
+
+    expect(due).toHaveLength(1)
+    expect(due[0].attempt).toBe(3)
+  })
+
+  it('returns attempt 4 at 23 hours when attempts 1, 2 and 3 were sent', async () => {
+    const version = new Date(NOW - (23 * HOUR + 10 * MIN)).toISOString()
+    installDatasets({
+      conversations: [conversation],
+      customers: [customer],
+      messages: [inbound(23 * HOUR + 10 * MIN)],
+      channel_messages: [
+        miaOut(23 * HOUR),
+        recoveryMarker(1, version, 22 * HOUR),
+        recoveryMarker(2, version, 20 * HOUR),
+        recoveryMarker(3, version, 17 * HOUR),
+      ],
+      sales_events: [salesEvent('SALE_STARTED', 24 * HOUR)],
+    })
+
+    const due = await scanRecoveryCandidates({ connection: CONNECTION, now: NOW })
+
+    expect(due).toHaveLength(1)
+    expect(due[0].attempt).toBe(4)
+  })
+
   it('does not duplicate an attempt already marked for the same inbound version', async () => {
     const version = new Date(NOW - 15 * MIN).toISOString()
     installDatasets({
       conversations: [conversation],
       customers: [customer],
       messages: [inbound(15 * MIN)],
-      channel_messages: [
-        miaOut(12 * MIN),
-        miaOut(9 * MIN, {
-          recovery: true,
-          recovery_attempt: 1,
-          recovery_inbound_version: version,
-          connection_id: CONNECTION.id,
-        }),
-      ],
+      channel_messages: [miaOut(12 * MIN), recoveryMarker(1, version, 9 * MIN)],
       sales_events: [salesEvent('SALE_STARTED', 40 * MIN)],
     })
 
@@ -163,12 +222,7 @@ describe('scanRecoveryCandidates', () => {
       messages: [inbound(3 * HOUR), inbound(15 * MIN)],
       channel_messages: [
         miaOut(12 * MIN),
-        miaOut(2 * HOUR, {
-          recovery: true,
-          recovery_attempt: 1,
-          recovery_inbound_version: oldVersion,
-          connection_id: CONNECTION.id,
-        }),
+        recoveryMarker(1, oldVersion, 2 * HOUR),
       ],
       sales_events: [salesEvent('SALE_STARTED', 4 * HOUR)],
     })
@@ -244,6 +298,18 @@ describe('scanRecoveryCandidates', () => {
     expect(await scanRecoveryCandidates({ connection: CONNECTION, now: NOW })).toHaveLength(0)
   })
 
+  it('excludes a customer that opted out', async () => {
+    installDatasets({
+      conversations: [conversation],
+      customers: [{ ...customer, recovery_opt_out_at: new Date(NOW - HOUR).toISOString() }],
+      messages: [inbound(15 * MIN)],
+      channel_messages: [miaOut(12 * MIN)],
+      sales_events: [salesEvent('SALE_STARTED', 40 * MIN)],
+    })
+
+    expect(await scanRecoveryCandidates({ connection: CONNECTION, now: NOW })).toHaveLength(0)
+  })
+
   it('excludes when the customer wrote after MIA and is awaiting a reply', async () => {
     installDatasets({
       conversations: [conversation],
@@ -276,6 +342,40 @@ describe('scanRecoveryCandidates', () => {
       messages: [],
       channel_messages: [miaOut(12 * MIN)],
       sales_events: [salesEvent('SALE_STARTED', 40 * MIN)],
+    })
+
+    expect(await scanRecoveryCandidates({ connection: CONNECTION, now: NOW })).toHaveLength(0)
+  })
+
+  it('emits nothing outside the business local sending hours', async () => {
+    // 06:00Z == 03:00 local (UTC-3) → outside [9, 20).
+    const early = new Date('2026-02-01T06:00:00.000Z').getTime()
+    installDatasets({
+      conversations: [conversation],
+      customers: [customer],
+      messages: [inbound(15 * MIN)],
+      channel_messages: [miaOut(12 * MIN)],
+      sales_events: [salesEvent('SALE_STARTED', 40 * MIN)],
+    })
+
+    expect(await scanRecoveryCandidates({ connection: CONNECTION, now: early })).toHaveLength(0)
+  })
+
+  it('stops emitting once the daily recovery cap is reached', async () => {
+    mockedGetSalesConfig.mockResolvedValue({
+      ...SALES_CONFIG,
+      recovery_max_per_day: 1,
+    })
+    const version = new Date(NOW - 3 * HOUR).toISOString()
+    installDatasets({
+      conversations: [conversation],
+      customers: [customer],
+      messages: [inbound(3 * HOUR)],
+      channel_messages: [
+        miaOut(3 * HOUR - 1 * MIN),
+        recoveryMarker(1, version, 2 * HOUR),
+      ],
+      sales_events: [salesEvent('SALE_STARTED', 4 * HOUR)],
     })
 
     expect(await scanRecoveryCandidates({ connection: CONNECTION, now: NOW })).toHaveLength(0)

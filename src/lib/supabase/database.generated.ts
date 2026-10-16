@@ -401,6 +401,9 @@ export type Database = {
           updated_at: string
           retention_discount_percent: number
           retention_discount_message: string
+          recovery_sending_start_hour: number
+          recovery_sending_end_hour: number
+          recovery_max_per_day: number
         }
         Insert: {
           business_id: string
@@ -416,6 +419,9 @@ export type Database = {
           updated_at?: string
           retention_discount_percent?: number
           retention_discount_message?: string
+          recovery_sending_start_hour?: number
+          recovery_sending_end_hour?: number
+          recovery_max_per_day?: number
         }
         Update: {
           business_id?: string
@@ -431,6 +437,9 @@ export type Database = {
           updated_at?: string
           retention_discount_percent?: number
           retention_discount_message?: string
+          recovery_sending_start_hour?: number
+          recovery_sending_end_hour?: number
+          recovery_max_per_day?: number
         }
         Relationships: [
           {
@@ -820,6 +829,7 @@ export type Database = {
           address?: string | null
           memory?: Json | null
           last_cancelled_order?: Json | null
+          recovery_opt_out_at?: string | null
         }
         Insert: {
           id?: string
@@ -838,6 +848,7 @@ export type Database = {
           address?: string | null
           memory?: Json | null
           last_cancelled_order?: Json | null
+          recovery_opt_out_at?: string | null
         }
         Update: {
           id?: string
@@ -856,6 +867,7 @@ export type Database = {
           address?: string | null
           memory?: Json | null
           last_cancelled_order?: Json | null
+          recovery_opt_out_at?: string | null
         }
         Relationships: [
           {

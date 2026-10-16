@@ -46,11 +46,50 @@ export async function POST(request: Request) {
       'cancellation_window_hours',
       'retention_discount_percent',
       'retention_discount_message',
+      'recovery_sending_start_hour',
+      'recovery_sending_end_hour',
+      'recovery_max_per_day',
     ] as const
 
     const updates: Record<string, unknown> = {}
     for (const field of allowedFields) {
       if (!(field in body)) continue
+
+      if (field === 'recovery_sending_start_hour') {
+        const hour = Number(body[field])
+        if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+          return NextResponse.json(
+            { error: 'recovery_sending_start_hour debe ser un entero entre 0 y 23' },
+            { status: 400 },
+          )
+        }
+        updates[field] = hour
+        continue
+      }
+
+      if (field === 'recovery_sending_end_hour') {
+        const hour = Number(body[field])
+        if (!Number.isInteger(hour) || hour < 1 || hour > 24) {
+          return NextResponse.json(
+            { error: 'recovery_sending_end_hour debe ser un entero entre 1 y 24' },
+            { status: 400 },
+          )
+        }
+        updates[field] = hour
+        continue
+      }
+
+      if (field === 'recovery_max_per_day') {
+        const max = Number(body[field])
+        if (!Number.isInteger(max) || max < 1) {
+          return NextResponse.json(
+            { error: 'recovery_max_per_day debe ser un entero mayor a 0' },
+            { status: 400 },
+          )
+        }
+        updates[field] = max
+        continue
+      }
 
       if (field === 'retention_discount_percent') {
         const percent = Number(body[field])
