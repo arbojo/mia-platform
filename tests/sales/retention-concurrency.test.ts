@@ -51,6 +51,9 @@ const fullConfig: SalesConfig = {
   retention_discount_percent: 10,
   retention_discount_message:
     'Entiendo tu preocupación, {customer_name}. Puedo ofrecerte un *{discount_percent}% de descuento*.',
+  recovery_sending_start_hour: 9,
+  recovery_sending_end_hour: 20,
+  recovery_max_per_day: 20,
   created_at: '2026-01-01T00:00:00.000Z',
   updated_at: '2026-01-01T00:00:00.000Z',
 }

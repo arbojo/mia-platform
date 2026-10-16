@@ -62,6 +62,7 @@ function mockConnection(row: unknown) {
 describe('POST /api/channels/baileys/recovery', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllEnvs()
     mockedVerify.mockResolvedValue({ businessId: BUSINESS_ID, method: 'hmac' })
   })
 
@@ -69,6 +70,20 @@ describe('POST /api/channels/baileys/recovery', () => {
     const res = await POST(request({ businessId: BUSINESS_ID, connectionId: CONNECTION_ID }))
     expect(res.status).toBe(401)
     expect((await res.json()).error).toBe('Missing bridge token')
+  })
+
+  it('returns an empty list globally when the RECOVERY_ENABLED kill switch is off', async () => {
+    vi.stubEnv('RECOVERY_ENABLED', '0')
+    const res = await POST(
+      request(
+        { businessId: BUSINESS_ID, connectionId: CONNECTION_ID },
+        { 'x-mia-webhook-secret': 'tk' }
+      )
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ success: true, due: [] })
+    expect(mockedVerify).not.toHaveBeenCalled()
+    expect(mockedScan).not.toHaveBeenCalled()
   })
 
   it('returns 400 when connectionId is missing', async () => {

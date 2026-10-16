@@ -1,5 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getSalesConfig } from '@/lib/ai/knowledge'
 import {
+  isWithinSendingHours,
   RECOVERY_WINDOW_MS,
   recoveryTextFor,
   resolveRecoveryEligibility,
@@ -15,12 +17,21 @@ import {
  *
  * The scan is stateless — every call recomputes eligibility and the attempt
  * decision from the database, so a candidate that no longer qualifies (customer
- * replied, order confirmed, human takeover, ...) simply drops out.
+ * replied, order confirmed, human takeover, opted out, ...) simply drops out.
+ *
+ * Anti-spam gates applied here (all derived from live state, never stored):
+ * - Opt-out: `customers.recovery_opt_out_at NOT NULL` removes the candidate.
+ * - Quiet hours: attempts are only emitted inside the business's local sending
+ *   window; outside it the next scan (inside the window) picks the attempt up,
+ *   or the 24h ceiling drops it.
+ * - Daily cap: once a connection has sent `recovery_max_per_day` recovery
+ *   messages in the rolling 24h, the scan returns nothing.
  */
 
 export interface RecoveryConnection {
   id: string
   assistant_id: string
+  business_id: string
   configuration: Record<string, unknown> | null
 }
 
@@ -46,6 +57,7 @@ interface CustomerRow {
   id: string
   phone: string | null
   status: string | null
+  recovery_opt_out_at: string | null
 }
 
 interface MessageRow {
@@ -78,6 +90,10 @@ function latestBy<T extends { created_at: string }>(rows: T[]): T | null {
   return latest
 }
 
+function isRecoveryAttempt(value: unknown): value is RecoveryAttempt {
+  return value === 1 || value === 2 || value === 3 || value === 4
+}
+
 export async function scanRecoveryCandidates(params: {
   connection: RecoveryConnection
   now?: number
@@ -95,6 +111,8 @@ export async function scanRecoveryCandidates(params: {
 
   const conversations = (convData ?? []) as ConversationRow[]
   if (conversations.length === 0) return []
+
+  const salesConfig = await getSalesConfig(params.connection.business_id)
 
   const convIds = conversations.map((c) => c.id)
   const customerIds = [
@@ -115,7 +133,10 @@ export async function scanRecoveryCandidates(params: {
       .gte('created_at', windowStart)
       .order('created_at', { ascending: false })
       .limit(MAX_ROWS),
-    supabase.from('customers').select('id, phone, status').in('id', customerIds),
+    supabase
+      .from('customers')
+      .select('id, phone, status, recovery_opt_out_at')
+      .in('id', customerIds),
     supabase
       .from('channel_messages')
       .select('customer_id, created_at, metadata')
@@ -147,6 +168,7 @@ export async function scanRecoveryCandidates(params: {
 
   const lastOutboundByCustomer = new Map<string, string>()
   const recoveryMarkers = new Set<string>()
+  let recoverySendsInWindow = 0
   for (const row of (outgoingRes.data ?? []) as OutgoingRow[]) {
     if (!row.customer_id) continue
     const current = lastOutboundByCustomer.get(row.customer_id)
@@ -157,11 +179,26 @@ export async function scanRecoveryCandidates(params: {
     if (meta && meta.recovery === true) {
       const attempt = meta.recovery_attempt
       const version = meta.recovery_inbound_version
-      if ((attempt === 1 || attempt === 2) && typeof version === 'string') {
+      if (isRecoveryAttempt(attempt) && typeof version === 'string') {
         recoveryMarkers.add(`${row.customer_id}:${attempt}:${version}`)
+      }
+      if (new Date(row.created_at).getTime() >= now - RECOVERY_WINDOW_MS) {
+        recoverySendsInWindow += 1
       }
     }
   }
+
+  // Daily cap: stop emitting once the connection has hit its recovery budget.
+  if (recoverySendsInWindow >= salesConfig.recovery_max_per_day) return []
+
+  // Quiet hours: never emit outside the business's local sending window.
+  const withinSendingHours = isWithinSendingHours({
+    now,
+    timezone: salesConfig.timezone,
+    startHour: salesConfig.recovery_sending_start_hour,
+    endHour: salesConfig.recovery_sending_end_hour,
+  })
+  if (!withinSendingHours) return []
 
   const eventsByConv = new Map<string, SalesEventRow[]>()
   for (const row of (eventsRes.data ?? []) as SalesEventRow[]) {
@@ -220,6 +257,7 @@ export async function scanRecoveryCandidates(params: {
       lastMiaOutboundAt: lastOutboundByCustomer.get(customerId) ?? null,
       customerPhone: customer?.phone ?? null,
       connectionAvailable: true,
+      optedOut: Boolean(customer?.recovery_opt_out_at),
     }
 
     const eligibility = resolveRecoveryEligibility(state)
@@ -230,6 +268,8 @@ export async function scanRecoveryCandidates(params: {
       lastInboundAt: new Date(lastInboundAt).getTime(),
       attempt1SentForVersion: recoveryMarkers.has(`${customerId}:1:${lastInboundAt}`),
       attempt2SentForVersion: recoveryMarkers.has(`${customerId}:2:${lastInboundAt}`),
+      attempt3SentForVersion: recoveryMarkers.has(`${customerId}:3:${lastInboundAt}`),
+      attempt4SentForVersion: recoveryMarkers.has(`${customerId}:4:${lastInboundAt}`),
     })
     if (!attempt) continue
     if (!customer?.phone) continue

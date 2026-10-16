@@ -337,6 +337,9 @@ export type SalesConfig = {
   timezone: string
   retention_discount_percent: number
   retention_discount_message: string
+  recovery_sending_start_hour: number
+  recovery_sending_end_hour: number
+  recovery_max_per_day: number
   created_at: string
   updated_at: string
 }
@@ -378,6 +381,9 @@ export const SALES_CONFIG_DEFAULTS: Omit<SalesConfig, 'business_id' | 'created_a
   retention_discount_percent: 10,
   retention_discount_message:
     'Entiendo tu preocupación, {customer_name}. Para agradecerte tu interés, puedo ofrecerte un *{discount_percent}% de descuento* en tu pedido. ¿Te gustaría que te aplique el descuento y confirmemos tu compra?',
+  recovery_sending_start_hour: 9,
+  recovery_sending_end_hour: 20,
+  recovery_max_per_day: 20,
 }
 
 export async function getExperienceContext(businessId: string, industry: string): Promise<string> {

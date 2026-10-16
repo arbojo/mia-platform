@@ -20,7 +20,7 @@ export function loadRecoveryConfig(env: NodeJS.ProcessEnv = process.env): Recove
   return { checkIntervalMs }
 }
 
-export type RecoveryAttempt = 1 | 2
+export type RecoveryAttempt = 1 | 2 | 3 | 4
 
 export interface RecoveryMarkerMetadata {
   recovery: true

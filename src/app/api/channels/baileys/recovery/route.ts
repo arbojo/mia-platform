@@ -14,9 +14,17 @@ interface RecoveryConnectionConfig {
  * the actual send; this route only decides WHAT (if anything) is due and is
  * safe to call repeatedly — it never mutates state and dedups on the attempt
  * markers persisted by the bridge.
+ *
+ * Anti-spam kill switch: set `RECOVERY_ENABLED=0` to disable recovery for every
+ * connection without a deploy (per-connection opt-in still lives in
+ * `channel_connections.configuration.recovery_enabled`).
  */
 export async function POST(request: Request) {
   try {
+    if (process.env.RECOVERY_ENABLED === '0') {
+      return NextResponse.json({ success: true, due: [] })
+    }
+
     const token = request.headers.get('x-mia-webhook-secret')
     if (!token) {
       return NextResponse.json({ error: 'Missing bridge token' }, { status: 401 })
@@ -46,7 +54,7 @@ export async function POST(request: Request) {
 
     const { data: connection } = await supabase
       .from('channel_connections')
-      .select('id, assistant_id, configuration')
+      .select('id, assistant_id, business_id, configuration')
       .eq('id', connectionId)
       .eq('business_id', businessId)
       .eq('channel', 'whatsapp')

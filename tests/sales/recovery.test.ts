@@ -2,9 +2,14 @@ import { describe, it, expect } from 'vitest'
 import {
   RECOVERY_ATTEMPT_1_DELAY_MS,
   RECOVERY_ATTEMPT_2_DELAY_MS,
+  RECOVERY_ATTEMPT_3_DELAY_MS,
+  RECOVERY_ATTEMPT_4_DELAY_MS,
   RECOVERY_ATTEMPT_1_TEXT,
   RECOVERY_ATTEMPT_2_TEXT,
+  RECOVERY_ATTEMPT_3_TEXT,
+  RECOVERY_ATTEMPT_4_TEXT,
   RECOVERY_WINDOW_MS,
+  isWithinSendingHours,
   recoveryTextFor,
   resolveRecoveryEligibility,
   selectDueAttempt,
@@ -27,6 +32,7 @@ function baseState(overrides: Partial<RecoveryEligibilityState> = {}): RecoveryE
     lastMiaOutboundAt: new Date(NOW - 12 * MIN).toISOString(),
     customerPhone: '5214771234567',
     connectionAvailable: true,
+    optedOut: false,
     ...overrides,
   }
 }
@@ -35,6 +41,17 @@ describe('recovery texts', () => {
   it('maps each attempt to its default message', () => {
     expect(recoveryTextFor(1)).toBe(RECOVERY_ATTEMPT_1_TEXT)
     expect(recoveryTextFor(2)).toBe(RECOVERY_ATTEMPT_2_TEXT)
+    expect(recoveryTextFor(3)).toBe(RECOVERY_ATTEMPT_3_TEXT)
+    expect(recoveryTextFor(4)).toBe(RECOVERY_ATTEMPT_4_TEXT)
+  })
+
+  it('offers an explicit opt-out in the final attempt', () => {
+    expect(RECOVERY_ATTEMPT_4_TEXT).toContain('STOP')
+  })
+
+  it('sends the final attempt one hour inside the 24h window', () => {
+    expect(RECOVERY_ATTEMPT_4_DELAY_MS).toBeLessThan(RECOVERY_WINDOW_MS)
+    expect(RECOVERY_ATTEMPT_4_DELAY_MS).toBe(23 * HOUR)
   })
 })
 
@@ -44,6 +61,10 @@ describe('resolveRecoveryEligibility', () => {
       eligible: true,
       reason: 'eligible',
     })
+  })
+
+  it('rejects when the customer opted out', () => {
+    expect(resolveRecoveryEligibility(baseState({ optedOut: true })).reason).toBe('opted_out')
   })
 
   it('rejects when the customer has no phone', () => {
@@ -122,6 +143,8 @@ describe('selectDueAttempt', () => {
     lastInboundAt: NOW - RECOVERY_ATTEMPT_1_DELAY_MS,
     attempt1SentForVersion: false,
     attempt2SentForVersion: false,
+    attempt3SentForVersion: false,
+    attempt4SentForVersion: false,
     ...overrides,
   })
 
@@ -172,13 +195,65 @@ describe('selectDueAttempt', () => {
     ).toBeNull()
   })
 
-  it('never sends more than two attempts', () => {
+  it('fires attempt 3 at 6 hours only when attempts 1 and 2 were sent', () => {
     expect(
       selectDueAttempt(
         params({
-          lastInboundAt: NOW - 3 * HOUR,
+          lastInboundAt: NOW - RECOVERY_ATTEMPT_3_DELAY_MS,
           attempt1SentForVersion: true,
           attempt2SentForVersion: true,
+        })
+      )
+    ).toBe(3)
+  })
+
+  it('does not jump to attempt 3 when attempt 2 was missed', () => {
+    expect(
+      selectDueAttempt(
+        params({
+          lastInboundAt: NOW - RECOVERY_ATTEMPT_3_DELAY_MS,
+          attempt1SentForVersion: true,
+          attempt2SentForVersion: false,
+        })
+      )
+    ).toBeNull()
+  })
+
+  it('fires attempt 4 at 23 hours only when attempts 1, 2 and 3 were sent', () => {
+    expect(
+      selectDueAttempt(
+        params({
+          lastInboundAt: NOW - RECOVERY_ATTEMPT_4_DELAY_MS,
+          attempt1SentForVersion: true,
+          attempt2SentForVersion: true,
+          attempt3SentForVersion: true,
+        })
+      )
+    ).toBe(4)
+  })
+
+  it('does not jump to attempt 4 when attempt 3 was missed', () => {
+    expect(
+      selectDueAttempt(
+        params({
+          lastInboundAt: NOW - RECOVERY_ATTEMPT_4_DELAY_MS,
+          attempt1SentForVersion: true,
+          attempt2SentForVersion: true,
+          attempt3SentForVersion: false,
+        })
+      )
+    ).toBeNull()
+  })
+
+  it('never sends more than four attempts', () => {
+    expect(
+      selectDueAttempt(
+        params({
+          lastInboundAt: NOW - 23 * HOUR,
+          attempt1SentForVersion: true,
+          attempt2SentForVersion: true,
+          attempt3SentForVersion: true,
+          attempt4SentForVersion: true,
         })
       )
     ).toBeNull()
@@ -190,6 +265,8 @@ describe('selectDueAttempt', () => {
         params({
           lastInboundAt: NOW - RECOVERY_WINDOW_MS,
           attempt1SentForVersion: true,
+          attempt2SentForVersion: true,
+          attempt3SentForVersion: true,
         })
       )
     ).toBeNull()
@@ -197,14 +274,53 @@ describe('selectDueAttempt', () => {
 
   it('resets when a new inbound message shifts the version back before 10 minutes', () => {
     // A fresh customer message means lastInboundAt moves forward; even though a
-    // previous version had attempt 1 (and 2) sent, the new version starts clean.
+    // previous version had its attempts sent, the new version starts clean.
     expect(
       selectDueAttempt({
         now: NOW,
         lastInboundAt: NOW - 2 * MIN,
         attempt1SentForVersion: false,
         attempt2SentForVersion: false,
+        attempt3SentForVersion: false,
+        attempt4SentForVersion: false,
       })
     ).toBeNull()
+  })
+})
+
+describe('isWithinSendingHours', () => {
+  const TZ = 'America/Argentina/Buenos_Aires' // UTC-3
+
+  it('allows an instant inside the window', () => {
+    // 12:00Z == 09:00 local -> inside [9, 20)
+    expect(isWithinSendingHours({ now: NOW, timezone: TZ, startHour: 9, endHour: 20 })).toBe(true)
+  })
+
+  it('rejects an instant before the window', () => {
+    // 06:00Z == 03:00 local -> outside
+    const early = new Date('2026-02-01T06:00:00.000Z').getTime()
+    expect(isWithinSendingHours({ now: early, timezone: TZ, startHour: 9, endHour: 20 })).toBe(
+      false
+    )
+  })
+
+  it('rejects an instant at the exclusive end hour', () => {
+    // 23:00Z == 20:00 local -> end is exclusive
+    const atEnd = new Date('2026-02-01T23:00:00.000Z').getTime()
+    expect(isWithinSendingHours({ now: atEnd, timezone: TZ, startHour: 9, endHour: 20 })).toBe(
+      false
+    )
+  })
+
+  it('supports overnight windows', () => {
+    // 02:00Z == 23:00 local -> inside [20, 9)
+    const night = new Date('2026-02-02T02:00:00.000Z').getTime()
+    expect(isWithinSendingHours({ now: night, timezone: TZ, startHour: 20, endHour: 9 })).toBe(true)
+  })
+
+  it('fails open on an invalid timezone', () => {
+    expect(
+      isWithinSendingHours({ now: NOW, timezone: 'Not/AZone', startHour: 9, endHour: 20 })
+    ).toBe(true)
   })
 })
